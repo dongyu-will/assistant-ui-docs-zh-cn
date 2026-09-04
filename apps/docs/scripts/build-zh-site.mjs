@@ -9,6 +9,7 @@ const docsRoot = path.resolve(
 );
 const appRoot = path.join(docsRoot, "app");
 const stashRoot = path.join(docsRoot, ".zh-build-stash");
+const keepGeneratedHomepage = process.env.VERCEL === "1";
 
 const disabledRoutes = [
   "(catalog)",
@@ -83,7 +84,11 @@ try {
   await run("pnpm", ["generate:source-snapshot"]);
   await run("next", ["build"]);
 } finally {
-  await rm(path.join(appRoot, "page.tsx"), { force: true });
+  // Vercel packages files from Next's output traces after this command exits.
+  // Keep the generated route there so its traced source still exists then.
+  if (!keepGeneratedHomepage) {
+    await rm(path.join(appRoot, "page.tsx"), { force: true });
+  }
   for (const { source, destination } of moved.reverse()) {
     await rename(destination, source);
   }
