@@ -1,13 +1,13 @@
 ---
 title: AssistantModal
-description: A floating chat popover with a fixed-position trigger button that opens a chat panel.
+description: 带有固定位置触发按钮的浮动聊天弹出框，可打开聊天面板。
 platforms: ["react"]
 ---
 
 import { AssistantModalSample } from "@/components/pages/docs/samples/assistant-modal";
 import { AssistantModalPrimitive as AssistantModalPrimitiveDocs } from "@/generated/primitiveDocs";
 
-The AssistantModal primitive is a floating chat popover built on [Radix Popover](https://www.radix-ui.com/primitives/docs/components/popover). A trigger button opens a chat panel, which is a common floating assistant launcher pattern. You control the trigger, content, positioning, and animations.
+AssistantModal 原语是基于 [Radix Popover](https://www.radix-ui.com/primitives/docs/components/popover). 构建的浮动聊天弹出框。触发按钮会打开聊天面板，这是常见的浮动助手启动器模式。你可以控制触发器、内容、定位和动画。
 
 <Tabs items={["Preview", "Code"]}>
   <Tab>
@@ -35,9 +35,9 @@ function MinimalAssistantModal() {
   </Tab>
 </Tabs>
 
-## Quick Start
+## 快速开始
 
-Minimal example:
+最小示例：
 
 ```tsx
 import { AssistantModalPrimitive } from "@assistant-ui/react";
@@ -52,21 +52,21 @@ import { AssistantModalPrimitive } from "@assistant-ui/react";
 </AssistantModalPrimitive.Root>
 ```
 
-`Root` is a Radix Popover provider (no DOM), `Trigger` renders a `<button>`, `Anchor` renders a `<div>`, and `Content` renders a `<div>` inside a portal. Add your own classes, animations, and layout.
+`Root` 是 Radix Popover provider（不渲染 DOM），`Trigger` 会渲染一个 `<button>`，`Anchor` 会渲染一个 `<div>`，而 `Content` 会在 portal 中渲染一个 `<div>`。添加你自己的类名、动画和布局。
 
 <Callout type="info">
-Runtime setup: primitives require runtime context. Wrap your UI in `AssistantRuntimeProvider` with a runtime (for example `useLocalRuntime(...)`). See [Pick a Runtime](/docs/runtimes/pick-a-runtime).
+运行时设置：原语需要运行时上下文。将 UI 包裹在带有运行时的 `AssistantRuntimeProvider` 中（例如 `useLocalRuntime(...)`）。请参阅[选择运行时](/docs/runtimes/pick-a-runtime)。
 </Callout>
 
-## Core Concepts
+## 核心概念
 
-### Popover Architecture
+### Popover 架构
 
-AssistantModal is built directly on Radix Popover. `Root` manages open/close state, `Trigger` toggles it, `Anchor` positions the popover, and `Content` is the floating panel. All Radix Popover props are available on the corresponding parts.
+AssistantModal 直接基于 Radix Popover 构建。`Root` 管理打开/关闭状态，`Trigger` 切换该状态，`Anchor` 定位弹出框，而 `Content` 则是浮动面板。Radix Popover 的所有属性都可用于相应部件。
 
-### Anchor vs Trigger
+### Anchor 与 Trigger
 
-`Content` positions itself relative to `Anchor`, not `Trigger`. The common pattern is wrapping `Trigger` inside `Anchor` so the popover aligns to a larger area (like a fixed-position button container) rather than the button itself:
+`Content` 会相对于 `Anchor` 而不是 `Trigger` 进行定位。常见模式是将 `Trigger` 包裹在 `Anchor` 中，使弹出框相对于更大的区域（例如固定位置的按钮容器）对齐，而不是相对于按钮本身对齐：
 
 ```tsx
 <AssistantModalPrimitive.Anchor className="fixed right-4 bottom-4 size-11">
@@ -76,17 +76,17 @@ AssistantModal is built directly on Radix Popover. `Root` manages open/close sta
 </AssistantModalPrimitive.Anchor>
 ```
 
-### Auto-Open on Run Start
+### 运行开始时自动打开
 
-The `unstable_openOnRunStart` prop (default `true`) automatically opens the modal when the assistant starts responding. This means if a user triggers a run programmatically while the modal is closed, it pops open to show the response. Set to `false` to disable.
+`unstable_openOnRunStart` 属性（默认为 `true`）会在助手开始响应时自动打开模态框。这意味着，如果用户在模态框关闭时以编程方式触发运行，模态框会自动弹出以显示响应。设置为 `false` 可禁用此行为。
 
-### Dismiss Behavior
+### 关闭行为
 
-`Content` uses `dissmissOnInteractOutside` *(intentional current API spelling, with the extra `s`)* and defaults it to `false`. Clicking outside the modal does **not** close it. This matches expected chat UX where users interact with the page while keeping the chat open. Set it to `true` for standard popover dismiss behavior.
+`Content` 使用 `dissmissOnInteractOutside`（*这是有意保留的当前 API 拼写，其中包含额外的 `s`*），默认值为 `false`。点击模态框外部**不会**关闭模态框。这符合预期的聊天 UX：用户可以与页面交互，同时保持聊天打开。将其设置为 `true` 可使用标准的弹出框关闭行为。
 
-### Open/Close Animations
+### 打开/关闭动画
 
-`Content` exposes `data-[state=open]` and `data-[state=closed]` attributes for CSS animations:
+`Content` 提供 `data-[state=open]` 和 `data-[state=closed]` 属性，用于 CSS 动画：
 
 ```tsx
 <AssistantModalPrimitive.Content
@@ -94,11 +94,11 @@ The `unstable_openOnRunStart` prop (default `true`) automatically opens the moda
 >
 ```
 
-## Parts
+## 部件
 
 ### Root
 
-Radix Popover provider, manages open/close state. No DOM element rendered.
+Radix Popover provider，管理打开/关闭状态。不渲染 DOM 元素。
 
 ```tsx
 <AssistantModalPrimitive.Root unstable_openOnRunStart={false}>
@@ -110,7 +110,7 @@ Radix Popover provider, manages open/close state. No DOM element rendered.
 
 ### Trigger
 
-Button that toggles the modal open and closed. Renders a `<button>` element unless `asChild` is set.
+用于切换模态框打开和关闭状态的按钮。除非设置了 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <AssistantModalPrimitive.Trigger className="rounded-full bg-primary px-4 py-2 text-primary-foreground">
@@ -120,7 +120,7 @@ Button that toggles the modal open and closed. Renders a `<button>` element unle
 
 ### Anchor
 
-Positions the trigger and content relative to a shared anchor. Renders a `<div>` element unless `asChild` is set.
+相对于共享锚点定位触发器和内容。除非设置了 `asChild`，否则会渲染一个 `<div>` 元素。
 
 ```tsx
 <AssistantModalPrimitive.Anchor className="fixed right-4 bottom-4">
@@ -130,7 +130,7 @@ Positions the trigger and content relative to a shared anchor. Renders a `<div>`
 
 ### Content
 
-The floating chat panel. Renders a `<div>` element inside a portal.
+浮动聊天面板。在 portal 中渲染一个 `<div>` 元素。
 
 ```tsx
 <AssistantModalPrimitive.Content
@@ -143,9 +143,9 @@ The floating chat panel. Renders a `<div>` element inside a portal.
 
 <PrimitivesTypeTable type="AssistantModalPrimitiveContentProps" parameters={AssistantModalPrimitiveDocs.Content.props} />
 
-## Patterns
+## 模式
 
-### Floating Bottom-Right Widget
+### 右下角浮动组件
 
 ```tsx
 <AssistantModalPrimitive.Root>
@@ -163,9 +163,9 @@ The floating chat panel. Renders a `<div>` element inside a portal.
 </AssistantModalPrimitive.Root>
 ```
 
-### Trigger Icon Swap
+### 触发器图标切换
 
-The `Trigger` button receives a `data-state` attribute from Radix (`"open"` or `"closed"`). To pass that state down to child icons, use `asChild` with a wrapper component that destructures and forwards it:
+`Trigger` 按钮会从 Radix 接收 `data-state` 属性（`"open"` 或 `"closed"`）。若要将此状态传递给子图标，请将 `asChild` 与一个会解构并转发该状态的包装组件结合使用：
 
 ```tsx
 import { forwardRef } from "react";
@@ -191,9 +191,9 @@ const ModalButton = forwardRef<
 </AssistantModalPrimitive.Trigger>
 ```
 
-### Custom Portal Container
+### 自定义 Portal 容器
 
-Render the content inside a specific container instead of `document.body`:
+将内容渲染到指定容器中，而不是渲染到 `document.body`：
 
 ```tsx
 <AssistantModalPrimitive.Content
@@ -203,14 +203,14 @@ Render the content inside a specific container instead of `document.body`:
 </AssistantModalPrimitive.Content>
 ```
 
-## Relationship to Components
+## 与组件的关系
 
-The shadcn [AssistantModal](/elements/assistant-modal) component wraps these primitives with slide/fade animations, icon transitions between open and closed states, and responsive sizing. Start there for a prebuilt floating chat widget.
+shadcn 的 [AssistantModal](/elements/assistant-modal) 组件在这些原语之上封装了滑动/淡入淡出动画、打开和关闭状态之间的图标过渡，以及响应式尺寸。想要使用预构建的浮动聊天组件，可以从这里开始。
 
-## API Reference
+## API 参考
 
-For full prop details on every part, see the [AssistantModalPrimitive API Reference](/docs/api-reference/primitives/assistant-modal).
+如需查看每个部件的完整属性详情，请参阅 [AssistantModalPrimitive API 参考](/docs/api-reference/primitives/assistant-modal)。
 
-Related:
+相关内容：
 - [ThreadPrimitive](/docs/primitives/thread)
 - [ComposerPrimitive](/docs/primitives/composer)

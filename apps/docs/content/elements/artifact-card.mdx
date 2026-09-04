@@ -1,20 +1,20 @@
 ---
-title: "Artifact card"
-description: "A generated document as a tangible object, written live and versioned."
+title: "Artifact 卡片"
+description: "作为实体对象生成的文档，实时写入并进行版本管理。"
 ---
 
-A compact card for a document the agent is producing: a file icon, a truncated title, and a caption that reads as a shimmering word count while it writes and settles into a version caption once it is done. With a runtime the fields come from a tool call; standalone you hold them yourself.
+这是一个用于展示助手正在生成的文档的紧凑卡片：包含文件图标、截断的标题，以及在写入过程中显示为闪烁字数、完成后变为版本说明的标题行。在运行时中，这些字段来自工具调用；单独使用时，则由你自行维护。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-A document like this is a tool call whose result is the document itself: the call's `status` says whether it is still writing, and its `args` carry the title, the running word count, and the caption to show once it settles.
+这样的文档本身就是工具调用的结果：调用的 `status` 表示文档是否仍在写入，而 `args` 则携带标题、实时字数以及完成后显示的标题行。
 
 <Steps>
   <Step>
 
-### Render the tool call
+### 渲染工具调用
 
 ```tsx title="app/toolkit.tsx"
 "use client";
@@ -37,12 +37,12 @@ export const toolkit = defineToolkit({
 });
 ```
 
-`args` arrives as partial JSON while the model is still emitting the call, so `words` climbs on its own as that field streams in; there is no separate progress channel to wire. Once `status` moves off `"running"`, `generating` turns off and `meta` reads as the finished caption instead.
+模型仍在输出调用时，`args` 会以部分 JSON 的形式到达，因此随着该字段的流式传输，`words` 会自动增加；无需连接单独的进度通道。当 `status` 不再是 `"running"` 时，`generating` 会关闭，`meta` 则会显示完成后的标题行。
 
   </Step>
   <Step>
 
-### Register the toolkit
+### 注册工具包
 
 ```tsx title="app/MyRuntimeProvider.tsx"
 import { AssistantRuntimeProvider, AuiConfig, Tools } from "@assistant-ui/react";
@@ -66,12 +66,12 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 
 <StandaloneMode>
 
-Standalone, the element is a controlled display: you own `generating` and `words`, and flip them as the document progresses.
+单独使用时，该元素是一个受控显示组件：由你管理 `generating` 和 `words`，并随着文档的进展切换它们。
 
 <Steps>
   <Step>
 
-### Hold the artifact state
+### 保存 Artifact 状态
 
 ```tsx title="app/artifact.tsx"
 "use client";
@@ -97,7 +97,7 @@ export function Artifact() {
   </Step>
   <Step>
 
-### Advance it as the document writes
+### 随文档写入推进状态
 
 ```tsx
 useEffect(() => {
@@ -116,7 +116,7 @@ function finish() {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="artifact-card">
@@ -132,21 +132,21 @@ function finish() {
 </div>
 ```
 
-The meta line and the writing line never show together: while `generating` is true the card shows "Writing" with a shimmer plus `words`, and once it is false the card shows `meta` instead, fading in. The trailing arrow is invisible until the card is hovered. The whole card carries hover and active styling as if it were a button, but it declares no click handler itself; wire one through the forwarded root props.
+元信息行和写入行不会同时显示：当 `generating` 为 true 时，卡片会显示带有闪烁效果的“正在写入”以及 `words`；当它为 false 时，卡片会改为显示 `meta`，并淡入显示。末尾箭头只有在鼠标悬停卡片时才会显示。整个卡片具有类似按钮的悬停和激活样式，但自身不会声明点击处理函数；可以通过转发到根元素的 props 来接入点击处理函数。
 
-## Examples
+## 示例
 
-### Restyle the card
+### 重新设置卡片样式
 
-Both lanes take `className` on the root. The word count and the meta caption both use the `mono` token, and the writing label uses `ShimmerLabel`, all from `surfaces.tsx`.
+两种显示状态都会在根元素上接收 `className`。字数和元信息标题行都使用 `mono` token，而写入标签使用 `ShimmerLabel`，这些都来自 `surfaces.tsx`。
 
 ```tsx
 <ArtifactCard className="max-w-sm" /* ... */ />
 ```
 
-### Making the card actionable
+### 让卡片可操作
 
-`className`, `onClick`, and every other `div` prop besides `title`, `meta`, `generating`, and `words` land on the root, so the card becomes clickable the same way in both lanes:
+`className`、`onClick` 以及除 `title`、`meta`、`generating` 和 `words` 之外的所有其他 `div` prop，都会传递到根元素，因此卡片在两种显示状态下都可以用相同方式变为可点击：
 
 ```tsx
 <ArtifactCard
@@ -156,18 +156,18 @@ Both lanes take `className` on the root. The word count and the meta caption bot
 />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Render props
+### 渲染属性
 
-| Source | Type | Description |
+| 来源 | 类型 | 描述 |
 |--------|------|-------------|
-| `args.title` | `string` | Card title, truncated to one line. |
-| `args.meta` | `string` | Caption shown once the call is no longer running. |
-| `args.words` | `number \| undefined` | Live word count shown while running; missing reads as `0`. |
-| `status.type` | `"running" \| "requires-action" \| "incomplete" \| "complete"` | `"running"` maps to `generating={true}`; anything else maps to `false`. |
+| `args.title` | `string` | 卡片标题，截断为单行。 |
+| `args.meta` | `string` | 调用不再运行后显示的标题行。 |
+| `args.words` | `number \| undefined` | 运行期间显示的实时字数；缺失时显示为 `0`。 |
+| `status.type` | `"running" \| "requires-action" \| "incomplete" \| "complete"` | `"running"` 映射为 `generating={true}`；其他值映射为 `false`。 |
 
 </RuntimeMode>
 
@@ -175,14 +175,14 @@ Both lanes take `className` on the root. The word count and the meta caption bot
 
 ### ArtifactCard
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `title` | `string` | required | Card title, truncated to one line. |
-| `meta` | `string` | required | Caption shown while not generating. |
-| `generating` | `boolean` | `false` | Switches the caption row to the shimmering word count. |
-| `words` | `number` | `0` | Word count shown while `generating` is true. |
-| `className` | `string` | | Merged onto the root. |
+| `title` | `string` | required | 卡片标题，截断为单行。 |
+| `meta` | `string` | required | 未生成时显示的标题行。 |
+| `generating` | `boolean` | `false` | 将标题行切换为闪烁的字数。 |
+| `words` | `number` | `0` | 当 `generating` 为 true 时显示的字数。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props, including `onClick`, are forwarded to the root.
+所有其他 `div` props（包括 `onClick`）都会转发到根元素。
 
 </StandaloneMode>

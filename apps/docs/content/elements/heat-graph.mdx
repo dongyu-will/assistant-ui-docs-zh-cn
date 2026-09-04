@@ -1,16 +1,16 @@
 ---
-title: "Heat graph"
-description: "An activity heat map with month labels, weekday labels, legend, and tooltip."
+title: "热力图"
+description: "带有月份标签、星期标签、图例和工具提示的活动热力图。"
 ---
 
-HeatGraph draws a GitHub-style activity calendar: a cell per day, colored by count, with month and weekday labels, a legend, and a hover tooltip. assistant-ui's runtime has no notion of daily activity counts, a thread's own message list isn't bucketed by day anywhere, so this element has just the one, standalone form: you pass the counted days in.
+HeatGraph 绘制 GitHub 风格的活动日历：每天一个单元格，根据计数着色，并显示月份和星期标签、图例以及悬停工具提示。assistant-ui 的运行时没有每日活动计数这一概念，线程自身的消息列表也不会在任何地方按日期分桶，因此该元素只有一种独立形式：传入带计数的日期。
 
-## Getting started
+## 快速开始
 
 <Steps>
   <Step>
 
-### Pass counted days in
+### 传入带计数的日期
 
 ```tsx title="app/activity.tsx"
 import { HeatGraph } from "@/components/assistant-ui/elements/heat-graph";
@@ -26,19 +26,19 @@ export function Activity() {
 }
 ```
 
-`date` accepts either an ISO string or a `Date`; `count` is whatever unit you're measuring. The component sorts counts into one of five color levels for you.
+`date` 接受 ISO 字符串或 `Date`；`count` 则是你所度量的任意单位。组件会自动将计数归入五个颜色级别之一。
 
   </Step>
   <Step>
 
-### The visible window is always the trailing year
+### 可见窗口始终是最近一年
 
-`HeatGraph` never exposes `start` or `end`, the underlying primitive's own knobs for the date range, so the grid always covers the 365 days ending today, computed fresh at render time, aligned back to the start of its week. A `data` point outside that window, too old or dated in the future, is silently left off the grid rather than shown or reported as an error. If you need a fixed or a different window, compose the primitives yourself; see [Editing the composition directly](#editing-the-composition-directly) below.
+`HeatGraph` 从不暴露 `start` 或 `end`，也就是底层原语用于设置日期范围的选项，因此网格始终覆盖截至今天的 365 天。日期范围会在每次渲染时重新计算，并向前对齐到所在周的开始日期。超出该窗口的 `data` 数据点（过于久远或位于未来）会被静默地从网格中省略，而不会显示或报告错误。如果你需要固定窗口或其他时间窗口，请自行组合这些原语；请参阅下方的[直接编辑组合](#editing-the-composition-directly)。
 
   </Step>
 </Steps>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div>
@@ -52,13 +52,13 @@ export function Activity() {
 </div>
 ```
 
-`HeatGraph` takes only `data`. There is no `className` prop and no `data-slot` marker on the root, both unlike the rest of the catalog, so a wrapping `<div>` is the only restyle hook you have from outside. Weeks start on Monday and the five-step blue scale is fixed by this file, not configurable through a prop, and that scale is five plain hex values with no separate dark mode variant. Weekday labels show on alternating rows rather than every row, to avoid crowding six line-height labels into a compact grid. The legend always shows exactly five swatches, one per color level, bracketed by "Less" and "More". Hovering or focusing a cell shows a tooltip reading `"{count} contributions on {date}"`, with the date spelled out as month, day, and year.
+`HeatGraph` 只接受 `data`。它没有 `className` prop，根元素上也没有 `data-slot` 标记；这两点都不同于目录中的其他组件，因此从外部进行重新样式化时，唯一可用的钩子是包裹它的 `<div>`。每周从星期一开始，五级蓝色比例由此文件固定，无法通过 prop 配置；该比例由五个普通十六进制颜色值组成，也没有单独的深色模式变体。星期标签显示在交替的行上，而不是每一行都显示，以避免在紧凑网格中挤入六个行高的标签。图例始终显示恰好五个色块，每个颜色级别对应一个，并以“Less”和“More”括住。悬停或聚焦单元格时，会显示内容为 `"{count} contributions on {date}"` 的工具提示，其中日期会完整显示月份、日期和年份。
 
-## Examples
+## 示例
 
-### Editing the composition directly
+### 直接编辑组合
 
-Since there's no prop for it, changing the color scale, the week start, or the hardcoded gray and white Tailwind classes means editing `heat-graph.tsx` itself rather than passing a class name. The file is a thin composition over the `heat-graph` package's own primitives: `Root`, `MonthLabels`, `DayLabels`, `Grid` with `Cell`, `Legend` with `LegendLevel`, and `Tooltip`. Swap `colorScale` or `weekStart` on `Root`, or drop a sub-part (the legend, say) to change what renders.
+由于没有对应的 prop，要更改颜色比例、每周起始日，或硬编码的灰色和白色 Tailwind 类，需要直接编辑 `heat-graph.tsx`，而不是传入类名。该文件只是对 `heat-graph` 包自身原语的薄层组合：`Root`、`MonthLabels`、`DayLabels`、带有 `Cell` 的 `Grid`、带有 `LegendLevel` 的 `Legend`，以及 `Tooltip`。在 `Root` 上替换 `colorScale` 或 `weekStart`，或者移除某个子部分（例如图例），即可更改渲染内容。
 
 ```tsx
 <HeatGraphPrimitive.Root data={data} weekStart="sunday" colorScale={["#eee", "#0a5"]}>
@@ -66,16 +66,16 @@ Since there's no prop for it, changing the color scale, the week start, or the h
 </HeatGraphPrimitive.Root>
 ```
 
-### A second composition, elsewhere in the catalog
+### 目录中其他位置的第二种组合
 
-`activity-graph` builds its own calendar independently on the same `heat-graph` package primitives, with the shared `paper` and `mono` surface tokens, a `className` prop, and a dark-mode-aware tint scale, rather than wrapping this file's `HeatGraph`. If you need a restylable calendar, start from [Activity graph](/elements/activity-graph) or the raw `heat-graph` primitives directly, rather than forking this fixed one.
+`activity-graph` 基于同一个 `heat-graph` 包的原语独立构建自己的日历，使用共享的 `paper` 和 `mono` 表面设计令牌、`className` prop，以及支持深色模式的色调比例，而不是包装此文件的 `HeatGraph`。如果你需要可重新样式化的日历，请从[活动图](/elements/activity-graph)或直接从原始的 `heat-graph` 原语开始，而不要派生这个固定版本。
 
-## API reference
+## API 参考
 
 ### HeatGraph
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `data` | `readonly DataPoint[]` | required | One entry per counted day. Days missing from the array render as the lowest color level. |
+| `data` | `readonly DataPoint[]` | 必填 | 每个有计数的日期对应一个条目。数组中缺失的日期会以最低颜色级别渲染。 |
 
-`DataPoint` is `{ date: string | Date; count: number }`, from the `heat-graph` package this element wraps.
+`DataPoint` 是 `{ date: string | Date; count: number }`，来自该元素所包装的 `heat-graph` 包。

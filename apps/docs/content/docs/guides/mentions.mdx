@@ -1,39 +1,39 @@
 ---
-title: Mentions in Chat
-description: Let users @-mention tools or custom items in the AI chat composer to guide the LLM. Mention picker built into assistant-ui's React composer.
+title: 聊天中的提及
+description: 让用户在 AI 聊天输入框中使用 @ 提及工具或自定义项目，为 LLM 提供指导。assistant-ui 的 React 输入框内置提及选择器。
 platforms: ["react"]
 ---
 
-Mentions let users type `@` in the composer to open a popover picker, select an item (e.g. a tool), and insert a directive into the message text. The LLM can then use the directive as a hint.
+用户可以在输入框中输入 `@`，打开弹出选择器，选择一个项目（例如工具），并将指令插入消息文本。随后，LLM 可以将该指令用作提示。
 
-## How It Works
+## 工作原理
 
 ```mermaid
 flowchart LR
     type["User types @"] --> trigger["Trigger detected"] --> adapter["Adapter provides<br/>categories / items"] --> select["User selects item<br/>from popover"] --> insert["Directive inserted"] --> sent["Message sent with<br/>:tool[Label]{name=id} text"]
 ```
 
-The mention system has three layers:
+提及系统分为三层：
 
-1. **Trigger detection** — the composer input watches for a trigger character (`@` by default) and extracts the query
-2. **Adapter** — provides the categories and items to display in the popover (e.g. registered tools)
-3. **Formatter** — serializes a selected item into directive text (`:type[label]{name=id}`) and parses it back for rendering
+1. **触发检测** — 输入框会监视触发字符（默认为 `@`）并提取查询内容
+2. **适配器** — 提供要在弹出层中显示的类别和项目（例如已注册的工具）
+3. **格式化器** — 将选中的项目序列化为指令文本（`:type[label]{name=id}`），并将其解析回来以进行渲染
 
-Under the hood, mentions are one kind of [trigger popover](/docs/guides/slash-commands#trigger-popover-architecture). A mention declares its behavior with a `<TriggerPopover.Directive>` sub-primitive, which writes the formatter-serialized directive into the composer on selection.
+在底层，提及是[触发器弹出层](/docs/guides/slash-commands#trigger-popover-architecture)的一种。提及通过 `<TriggerPopover.Directive>` 子原语声明其行为；选择项目时，该原语会将经过格式化器序列化的指令写入输入框。
 
-## Quick Start
+## 快速开始
 
-The fastest path is the pre-built [Mention UI components](/elements/composer-trigger-popover), which wire everything together with two shadcn components — the popover picker and the message-side chip renderer:
+最快的方式是使用预构建的 [Mention UI 组件](/elements/composer-trigger-popover)，它通过两个 shadcn 组件将所有内容连接起来——弹出选择器和消息侧的标签渲染器：
 
 <InstallCommand shadcn={["composer-trigger-popover", "directive-text"]} />
 
-See the [Composer Trigger Popover](/elements/composer-trigger-popover) and [Directive Text](/elements/directive-text) guides for setup steps.
+有关设置步骤，请参阅 [Composer Trigger Popover](/elements/composer-trigger-popover) 和 [Directive Text](/elements/directive-text) 指南。
 
-The rest of this guide covers the underlying concepts and customization points.
+本指南的其余部分将介绍底层概念和可自定义的部分。
 
-## Trigger Adapter
+## 触发器适配器
 
-A `Unstable_TriggerAdapter` provides the data for the popover. All methods are **synchronous** — use external state management (React Query, SWR, local state) for async data, then expose loaded results through the adapter.
+`Unstable_TriggerAdapter` 为弹出层提供数据。所有方法都是**同步的**——对于异步数据，请使用外部状态管理（React Query、SWR、本地状态），然后通过适配器暴露已加载的结果。
 
 ```ts
 import type { Unstable_TriggerAdapter } from "@assistant-ui/core";
@@ -78,11 +78,11 @@ const myAdapter: Unstable_TriggerAdapter = {
 };
 ```
 
-### Async Mention Search
+### 异步提及搜索
 
-The built-in `unstable_useLiveCompletionAdapter` wraps an async fetcher with debouncing, stale-request cancellation (results for an outdated query are dropped), and a single-entry cache. Its `search` returns the last results synchronously and schedules a debounced fetch when the query changes; when results arrive the returned `adapter` re-creates, which re-runs the popover lookup so the fresh items render. It also reports `isLoading`, which you pass to the popover to show a loading state.
+内置的 `unstable_useLiveCompletionAdapter` 会为异步获取器提供防抖、过期请求取消（丢弃过时查询的结果）和单条目缓存。其 `search` 会同步返回上一次结果，并在查询发生变化时安排防抖获取；结果到达后，返回的 `adapter` 会重新创建，从而重新运行弹出层查找，使最新项目得以渲染。它还会报告 `isLoading`，你可以将其传递给弹出层以显示加载状态。
 
-When the fetcher reads from an account- or workspace-specific source, pass that source ID as `cacheKey`. Changing the key clears cached results and cancels any pending result from the previous source.
+当获取器从特定账户或工作区的数据源读取数据时，请将该数据源 ID 作为 `cacheKey` 传入。更改该键会清除缓存结果，并取消来自之前数据源的任何待处理结果。
 
 ```tsx
 import {
@@ -110,9 +110,9 @@ function MentionPopover() {
 }
 ```
 
-The adapter interface is itself synchronous, so you can also wire async data by hand when you need a custom cache, no debounce, or an existing query client. Load results into React state (or a query cache) and read the current snapshot inside the adapter methods. The adapter re-creates on each render, so the popover always sees the latest results.
+适配器接口本身是同步的，因此当你需要自定义缓存、不使用防抖或使用现有查询客户端时，也可以手动接入异步数据。将结果加载到 React 状态（或查询缓存）中，并在适配器方法中读取当前快照。适配器会在每次渲染时重新创建，因此弹出层始终可以看到最新结果。
 
-**With React state and `useEffect`:**
+**使用 React 状态和 `useEffect`：**
 
 ```tsx
 import { useState, useEffect, useMemo } from "react";
@@ -141,9 +141,9 @@ function useUserMentionAdapter(query: string) {
 }
 ```
 
-`query` here is the text the user typed after `@`. You can read it from `unstable_useTriggerPopoverScopeContext` if you need it inside the component tree, or pass it as state from a controlled input.
+这里的 `query` 是用户在 `@` 后输入的文本。如果需要在组件树中使用它，可以从 `unstable_useTriggerPopoverScopeContext` 读取，也可以将其作为状态从受控输入框传入。
 
-**With React Query:**
+**使用 React Query：**
 
 ```tsx
 import { useQuery } from "@tanstack/react-query";
@@ -165,7 +165,7 @@ function useMentionAdapter(query: string): Unstable_TriggerAdapter {
 }
 ```
 
-Pass the adapter to `TriggerPopover` and declare a `Directive` sub-primitive to bind the insertion behavior:
+将适配器传递给 `TriggerPopover`，并声明一个 `Directive` 子原语来绑定插入行为：
 
 ```tsx
 import { ComposerPrimitive } from "@assistant-ui/react";
@@ -210,13 +210,13 @@ import { unstable_defaultDirectiveFormatter } from "@assistant-ui/react";
 </ComposerPrimitive.Unstable_TriggerPopoverRoot>
 ```
 
-Exactly one behavior sub-primitive (`Directive` or `Action`) is allowed per `TriggerPopover`. The parent reads the registered behavior and wires the selection machinery.
+每个 `TriggerPopover` 至多允许一个行为子原语（`Directive` 或 `Action`）。父级会读取已注册的行为，并连接选择机制。
 
-### Built-in Mention Adapter
+### 内置提及适配器
 
-`unstable_useMentionAdapter` covers the common cases: mention registered tools, add your own items, mix tools with custom items, or show multi-category drill-down.
+`unstable_useMentionAdapter` 覆盖了常见场景：提及已注册的工具、添加自己的项目、将工具与自定义项目混合，或显示多类别的逐级选择。
 
-**Tools from model context (default):**
+**来自模型上下文的工具（默认）：**
 
 ```tsx
 import { unstable_useMentionAdapter } from "@assistant-ui/react";
@@ -226,7 +226,7 @@ const mention = unstable_useMentionAdapter();
 // Default: single "Tools" category reading from toolkit registrations
 ```
 
-**Custom items only (no tools):**
+**仅自定义项目（无工具）：**
 
 ```tsx
 const mention = unstable_useMentionAdapter({
@@ -237,7 +237,7 @@ const mention = unstable_useMentionAdapter({
 });
 ```
 
-**Mix custom items with model-context tools (flat):**
+**将自定义项目与模型上下文工具混合（平铺）：**
 
 ```tsx
 const mention = unstable_useMentionAdapter({
@@ -246,7 +246,7 @@ const mention = unstable_useMentionAdapter({
 });
 ```
 
-**Multi-category drill-down:**
+**多类别逐级选择：**
 
 ```tsx
 const mention = unstable_useMentionAdapter({
@@ -272,7 +272,7 @@ const mention = unstable_useMentionAdapter({
 });
 ```
 
-**Tool formatting and category override:**
+**工具格式化和类别覆盖：**
 
 ```tsx
 const mention = unstable_useMentionAdapter({
@@ -286,45 +286,45 @@ const mention = unstable_useMentionAdapter({
 });
 ```
 
-**Options summary:**
+**选项摘要：**
 
-| Option | Type | Behavior |
+| 选项 | 类型 | 行为 |
 | --- | --- | --- |
-| `items` | `Unstable_Mention[]` | Flat list (ignored when `categories` is set); supplying it keeps the adapter flat even when a tool `category` is configured |
-| `categories` | `{id, label, items}[]` | Drill-down groups |
-| `includeModelContextTools` | `boolean \| object` | Default: `true` iff neither `items` nor `categories`; an object `category` selects drill-down on its own unless `items` is given |
-| `formatter` | `Unstable_DirectiveFormatter` | Override directive serialization (default: `unstable_defaultDirectiveFormatter`) |
-| `onInserted` | `(item) => void` | Fires after the directive is inserted into the composer |
-| `iconMap` | `Record<string, IconComponent>` | Maps `metadata.icon` / category `id` strings to React components |
-| `fallbackIcon` | `IconComponent` | Fallback when no entry in `iconMap` matches |
+| `items` | `Unstable_Mention[]` | 平铺列表（设置 `categories` 时忽略）；提供此选项后，即使配置了工具 `category`，适配器仍保持平铺 |
+| `categories` | `{id, label, items}[]` | 逐级选择分组 |
+| `includeModelContextTools` | `boolean \| object` | 默认值：仅当 `items` 和 `categories` 均未设置时为 `true`；对象 `category` 会自行选择逐级选择，除非提供了 `items` |
+| `formatter` | `Unstable_DirectiveFormatter` | 覆盖指令序列化方式（默认值：`unstable_defaultDirectiveFormatter`） |
+| `onInserted` | `(item) => void` | 指令插入输入框后触发 |
+| `iconMap` | `Record<string, IconComponent>` | 将 `metadata.icon` / 类别 `id` 字符串映射到 React 组件 |
+| `fallbackIcon` | `IconComponent` | 当 `iconMap` 中没有匹配项时使用的回退项 |
 
-`icon` on each mention is a shortcut for `metadata.icon` that the picker UI resolves via `iconMap`. Dedup between custom items and model-context tools is by `id` — explicit items win.
+每个提及上的 `icon` 是 `metadata.icon` 的快捷方式，选择器 UI 会通过 `iconMap` 对其进行解析。自定义项目与模型上下文工具之间根据 `id` 去重——显式项目优先。
 
-The hook returns `{ adapter, directive, iconMap?, fallbackIcon? }` — spread into `<ComposerTriggerPopover {...mention} />` for one-line wiring. Callers consuming the raw primitives instead destructure: `mention.adapter`, `mention.directive.formatter`, etc.
+该 hook 返回 `{ adapter, directive, iconMap?, fallbackIcon? }`——将其展开到 `<ComposerTriggerPopover {...mention} />` 中即可用一行代码完成连接。直接使用底层原语的调用方则会解构出：`mention.adapter`、`mention.directive.formatter` 等。
 
-## Directive Format
+## 指令格式
 
-When a user selects a mention item, it is serialized into the composer text as a **directive**. The default format is:
+用户选择提及项目后，该项目会作为**指令**序列化到输入框文本中。默认格式为：
 
 ```
 :type[label]{name=id}
 ```
 
-For example, selecting a tool named "get_weather" with label "Get Weather" produces:
+例如，选择名称为 "get_weather"、标签为 "Get Weather" 的工具后，会生成：
 
 ```
 :tool[Get Weather]{name=get_weather}
 ```
 
-When `id` equals `label`, the `{name=…}` attribute is omitted for brevity:
+当 `id` 等于 `label` 时，为简洁起见会省略 `{name=…}` 属性：
 
 ```
 :tool[search]
 ```
 
-### Custom Formatter
+### 自定义格式化器
 
-Implement `Unstable_DirectiveFormatter` to use a different format:
+实现 `Unstable_DirectiveFormatter` 即可使用其他格式：
 
 ```ts
 import type { Unstable_DirectiveFormatter } from "@assistant-ui/react";
@@ -362,7 +362,7 @@ const slashFormatter: Unstable_DirectiveFormatter = {
 };
 ```
 
-Pass it to the trigger's `Directive` sub-primitive and the message renderer:
+将其传递给触发器的 `Directive` 子原语和消息渲染器：
 
 ```tsx
 // Composer
@@ -379,20 +379,20 @@ const SlashDirectiveText = createDirectiveText(slashFormatter);
 <MessagePrimitive.Parts components={{ Text: SlashDirectiveText }} />
 ```
 
-## Textarea vs Lexical
+## Textarea 与 Lexical
 
-The mention system supports two input modes:
+提及系统支持两种输入模式：
 
-| | Textarea (default) | Lexical |
+| | Textarea（默认） | Lexical |
 | --- | --- | --- |
-| **Input component** | `ComposerPrimitive.Input` | `LexicalComposerInput` |
-| **Mention display in composer** | Raw directive text (`:tool[Label]`) | Inline chips (atomic nodes) |
-| **Dependencies** | None | `@assistant-ui/react-lexical`, `lexical`, `@lexical/react` |
-| **Best for** | Simple setups, minimal bundle | Rich editing, polished UX |
+| **输入组件** | `ComposerPrimitive.Input` | `LexicalComposerInput` |
+| **提及在输入框中的显示方式** | 原始指令文本（`:tool[Label]`） | 内联标签（原子节点） |
+| **依赖** | 无 | `@assistant-ui/react-lexical`、`lexical`、`@lexical/react` |
+| **适用场景** | 简单配置、最小化包体积 | 富文本编辑、精致的用户体验 |
 
-With **textarea**, selecting a mention inserts the directive string directly into the text. The user sees `:tool[Get Weather]{name=get_weather}` in the input.
+使用 **textarea** 时，选择提及会直接将指令字符串插入文本。用户会在输入框中看到 `:tool[Get Weather]{name=get_weather}`。
 
-With **Lexical**, selected mentions appear as styled inline chips that behave as atomic units — they can be selected, deleted, and undone as a whole. The underlying text still uses the directive format.
+使用 **Lexical** 时，选中的提及会显示为带样式的内联标签，并作为原子单元运行——可以整体选中、删除和撤销。底层文本仍然使用指令格式。
 
 ```tsx
 import { LexicalComposerInput } from "@assistant-ui/react-lexical";
@@ -412,11 +412,11 @@ import { LexicalComposerInput } from "@assistant-ui/react-lexical";
 </ComposerPrimitive.Unstable_TriggerPopoverRoot>
 ```
 
-`LexicalComposerInput` automatically discovers every `Directive` trigger registered under `TriggerPopoverRoot` and renders their selections as inline chips.
+`LexicalComposerInput` 会自动发现注册在 `TriggerPopoverRoot` 下的每个 `Directive` 触发器，并将它们的选择渲染为内联标签。
 
-### Custom Lexical Plugins
+### 自定义 Lexical 插件
 
-Children of `LexicalComposerInput` render inside the `LexicalComposer` context after the built-in plugins, so standard Lexical plugin components built on `useLexicalComposerContext` work for editor concerns the mention system does not cover, such as paste normalization or length limits. Custom plugins import Lexical APIs directly, so install `lexical` and `@lexical/react` as direct dependencies of your app. The example below registers an update listener that flags messages over a maximum length.
+`LexicalComposerInput` 的子元素会在内置插件之后渲染到 `LexicalComposer` 上下文中，因此，基于 `useLexicalComposerContext` 构建的标准 Lexical 插件组件可以处理提及系统未覆盖的编辑器功能，例如粘贴规范化或长度限制。自定义插件会直接导入 Lexical API，因此请将 `lexical` 和 `@lexical/react` 作为应用的直接依赖安装。下面的示例注册了一个更新监听器，用于标记超过最大长度的消息。
 
 ```tsx
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
@@ -444,13 +444,13 @@ function MaxLengthPlugin({ maxLength }: { maxLength: number }) {
 </LexicalComposerInput>
 ```
 
-## Rendering Mentions in Messages
+## 在消息中渲染提及
 
-Use `DirectiveText` as the `Text` component for user messages so directives render as inline chips instead of raw syntax. See the [Directive Text](/elements/directive-text) guide for setup and customization.
+对于用户消息，使用 `DirectiveText` 作为 `Text` 组件，使指令渲染为内联标签，而不是原始语法。有关设置和自定义，请参阅 [Directive Text](/elements/directive-text) 指南。
 
-## Processing Mentions on the Backend
+## 在后端处理提及
 
-The message text arrives at your backend with directives inline. Parse them to extract mentioned items:
+消息文本到达后端时，其中会内联包含指令。解析这些指令以提取被提及的项目：
 
 ```ts
 // Default format: :type[label]{name=id}
@@ -474,14 +474,14 @@ function parseMentions(text: string) {
 // → [{ type: "tool", label: "Get Weather", id: "get_weather" }]
 ```
 
-You can use the extracted mentions to:
-- Force-enable specific tools for the LLM call
-- Add context about mentioned users or documents to the system prompt
-- Log which tools users request most often
+你可以使用提取出的提及来：
+- 为 LLM 调用强制启用特定工具
+- 将被提及用户或文档的上下文添加到系统提示词中
+- 记录用户最常请求哪些工具
 
-## Reading Mention State
+## 读取提及状态
 
-Use `unstable_useTriggerPopoverScopeContext` inside the `TriggerPopover` to programmatically access the popover state for that trigger:
+在 `TriggerPopover` 中使用 `unstable_useTriggerPopoverScopeContext`，即可通过编程方式访问该触发器的弹出层状态：
 
 ```tsx
 import { unstable_useTriggerPopoverScopeContext } from "@assistant-ui/react";
@@ -502,13 +502,13 @@ function MyPopoverContent() {
 }
 ```
 
-This hook must be used inside a `ComposerPrimitive.Unstable_TriggerPopover`.
+此 hook 必须在 `ComposerPrimitive.Unstable_TriggerPopover` 内使用。
 
-To iterate every registered trigger (e.g. from a custom input implementation), use `unstable_useTriggerPopoverTriggers` inside `TriggerPopoverRoot`.
+若要遍历每个已注册的触发器（例如从自定义输入实现中遍历），请在 `TriggerPopoverRoot` 中使用 `unstable_useTriggerPopoverTriggers`。
 
-## Building a Custom Popover
+## 构建自定义弹出层
 
-Use the trigger popover primitives to build a fully custom popover:
+使用触发器弹出层原语来构建完全自定义的弹出层：
 
 ```tsx
 <ComposerPrimitive.Unstable_TriggerPopoverRoot>
@@ -558,18 +558,18 @@ Use the trigger popover primitives to build a fully custom popover:
 </ComposerPrimitive.Unstable_TriggerPopoverRoot>
 ```
 
-### Primitives Reference
+### 原语参考
 
-See the [Composer Primitives](/docs/primitives/composer) reference for the full list of trigger popover primitives and their props.
+完整的触发器弹出层原语及其 props 列表，请参阅 [Composer Primitives](/docs/primitives/composer) 参考。
 
-## Combining with Slash Commands
+## 与斜杠命令结合使用
 
-Mentions and slash commands coexist on the same composer. See [Combining Slash Commands and Mentions](/docs/guides/slash-commands#combining-with-mentions) for the full pattern.
+提及和斜杠命令可以共存于同一个输入框中。完整模式请参阅[组合斜杠命令与提及](/docs/guides/slash-commands#combining-with-mentions)。
 
-## Related
+## 相关内容
 
-- [ComposerTriggerPopover UI Component](/elements/composer-trigger-popover) — pre-built shadcn component
-- [DirectiveText UI Component](/elements/directive-text) — renders mention chips in user messages
-- [Slash Commands Guide](/docs/guides/slash-commands) — `/` command system built on the same architecture
-- [Tools Guide](/docs/tools/defining-tools) — register tools that appear in the mention picker
-- [Composer Primitives](/docs/primitives/composer) — underlying composer primitives
+- [ComposerTriggerPopover UI 组件](/elements/composer-trigger-popover) — 预构建的 shadcn 组件
+- [DirectiveText UI 组件](/elements/directive-text) — 在用户消息中渲染提及标签
+- [斜杠命令指南](/docs/guides/slash-commands) — `/` 命令系统，基于相同架构构建
+- [工具指南](/docs/tools/defining-tools) — 注册显示在提及选择器中的工具
+- [Composer Primitives](/docs/primitives/composer) — 底层输入框原语

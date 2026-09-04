@@ -1,11 +1,11 @@
 ---
-title: Scopes
-description: Named, independent units of state in your store.
+title: 作用域
+description: Store 中命名且相互独立的状态单元。
 ---
 
-A **scope** is a named slot in your store. Instead of putting everything in one place, you split your app's state into independent units — each with a name, its own methods, and its own state.
+**作用域（scope）**是 Store 中一个带名称的插槽。与其把所有内容放在同一个地方，不如将应用状态拆分为相互独立的单元——每个单元都有自己的名称、方法和状态。
 
-A chat app might have three scopes that nest naturally:
+一个聊天应用可能包含三个自然嵌套的作用域：
 
 ```
 App              ← threadList scope
@@ -13,11 +13,11 @@ App              ← threadList scope
     └ Message    ← message scope
 ```
 
-Each level of the tree adds a scope. Components at any level can access the scopes above them.
+树中的每一层都会添加一个作用域。任意层级的组件都可以访问其上方的作用域。
 
-## Registering scopes
+## 注册作用域
 
-You declare what scopes exist by augmenting `ScopeRegistry`:
+你可以通过扩展 `ScopeRegistry` 来声明有哪些作用域：
 
 ```ts title="lib/store/scopes.ts"
 import "@assistant-ui/store";
@@ -43,13 +43,13 @@ declare module "@assistant-ui/store" {
 }
 ```
 
-This is a **type-level** declaration — no runtime code. It tells TypeScript what scopes exist and what shape each one has. Every Store hook uses this for autocomplete and type checking.
+这是一个**类型级别**的声明——不包含运行时代码。它会告诉 TypeScript 存在哪些作用域，以及每个作用域的结构。每个 Store hook 都会使用这些信息来提供自动补全和类型检查。
 
-Because `ScopeRegistry` uses TypeScript module augmentation, different packages can each register their own scopes. A `@my-org/chat` package can register `thread` and `message`, while `@my-org/analytics` registers `analytics` — and your app can access all of them through the same `useAui` hook.
+由于 `ScopeRegistry` 使用了 TypeScript 模块扩展，不同的包可以分别注册自己的作用域。`@my-org/chat` 包可以注册 `thread` 和 `message`，而 `@my-org/analytics` 注册 `analytics`——你的应用可以通过同一个 `useAui` hook 访问所有这些作用域。
 
-## Filling scopes
+## 填充作用域
 
-You fill scopes with an `AuiProvider` whose `config` is built with `AuiConfig(...)`:
+你可以使用一个 `AuiProvider` 来填充作用域，其 `config` 通过 `AuiConfig(...)` 构建：
 
 ```tsx
 AuiConfig({
@@ -57,9 +57,9 @@ AuiConfig({
 });
 ```
 
-Each key matches a name from `ScopeRegistry`. Each value is a Tap resource element that implements the scope's methods.
+每个键都对应 `ScopeRegistry` 中的一个名称。每个值都是实现该作用域方法的 Tap 资源元素。
 
-At the top level, `config` alone creates the store:
+在顶层，仅使用 `config` 就可以创建 Store：
 
 ```tsx
 const App = () => {
@@ -72,9 +72,9 @@ const App = () => {
 };
 ```
 
-Now any component inside `App` can call `useAui()` to get the store with the `threadList` scope filled.
+现在，`App` 内的任意组件都可以调用 `useAui()`，获取已填充 `threadList` 作用域的 Store。
 
-You don't have to fill every scope at once. Each level of your tree can extend the store with its own scopes — a nested provider passes `extends={aui}` to extend the parent (or `extends={null}` to isolate):
+你不必一次填充所有作用域。树中的每一层都可以使用自己的作用域扩展 Store——嵌套 provider 传入 `extends={aui}` 以扩展父级作用域（或传入 `extends={null}` 以进行隔离）：
 
 ```tsx
 const ThreadView = () => {
@@ -89,13 +89,13 @@ const ThreadView = () => {
 };
 ```
 
-The nested provider takes the parent store (which already has `threadList`) and extends it with `thread`. Components inside `ThreadView` can access both scopes.
+嵌套 provider 会接收已经包含 `threadList` 的父 Store，并使用 `thread` 对其进行扩展。`ThreadView` 内的组件可以访问这两个作用域。
 
 <Cards>
-  <Card title="Methods" href="/tap/docs/store/methods">
-    Access scope methods with useAui.
+  <Card title="方法" href="/tap/docs/store/methods">
+    使用 useAui 访问作用域方法。
   </Card>
-  <Card title="State" href="/tap/docs/store/state">
-    Subscribe to state changes with useAuiState.
+  <Card title="状态" href="/tap/docs/store/state">
+    使用 useAuiState 订阅状态变化。
   </Card>
 </Cards>

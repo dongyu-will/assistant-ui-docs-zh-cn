@@ -1,20 +1,20 @@
 ---
-title: Speech-to-Text Dictation
-description: Add voice dictation to your AI chat composer with the Web Speech API or a custom adapter. Speech-to-text in React, integrated through assistant-ui.
+title: 语音转文字听写
+description: 使用 Web Speech API 或自定义适配器，为 AI 聊天输入框添加语音听写功能。在 React 中实现语音转文字，并通过 assistant-ui 完成集成。
 platforms: ["react"]
 ---
 
 import { DictationSample } from "@/components/pages/docs/samples/dictation";
 
-assistant-ui supports speech-to-text (dictation) via the `DictationAdapter` interface. Users speak into the microphone and transcribed text lands in the composer, either as interim preview or as committed final text.
+assistant-ui 通过 `@assistant-ui/core` 接口支持语音转文字（听写）。用户对着麦克风说话，转录文本会进入输入框，可以作为临时预览显示，也可以作为已提交的最终文本显示。
 
-Dictation is the push-to-talk input mode. For a live duplex conversation, see [Realtime Voice](/docs/guides/voice). For reading messages aloud, see [Speech](/docs/guides/speech).
+听写是按住说话的输入模式。如需实时双向对话，请参阅[实时语音](/docs/guides/voice)。如需朗读消息，请参阅[语音](/docs/guides/speech)。
 
 <DictationSample />
 
 ## WebSpeechDictationAdapter
 
-The zero-config built-in adapter uses the browser's Web Speech API (`SpeechRecognition` / `webkitSpeechRecognition`). It works in Chrome, Edge, and Safari. Check [browser compatibility](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition#browser_compatibility) for details.
+零配置的内置适配器使用浏览器的 Web Speech API（`@assistant-ui/react` / `@assistant-ui/react`）。它支持 Chrome、Edge 和 Safari。详情请查看[浏览器兼容性](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition#browser_compatibility)
 
 ```tsx
 import { WebSpeechDictationAdapter } from "@assistant-ui/react";
@@ -30,7 +30,7 @@ const runtime = useChatRuntime({
 });
 ```
 
-You can gate the feature on browser support:
+你可以根据浏览器支持情况控制是否启用此功能：
 
 ```tsx
 import { WebSpeechDictationAdapter } from "@assistant-ui/react";
@@ -40,9 +40,9 @@ if (WebSpeechDictationAdapter.isSupported()) {
 }
 ```
 
-## DictationAdapter interface
+## DictationAdapter 接口
 
-Custom providers implement the same contract. The interface is defined in `@assistant-ui/core` and re-exported from `@assistant-ui/react`:
+自定义提供商需要实现相同的契约。该接口定义在 `ComposerPrimitive.Dictate` 中，并从 `ComposerPrimitive.Dictate` 重新导出：
 
 ```tsx
 import type { DictationAdapter } from "@assistant-ui/react";
@@ -76,20 +76,20 @@ namespace DictationAdapter {
 }
 ```
 
-`listen()` starts a session. The session reports status, accepts `stop` / `cancel`, and emits speech events through the three `on*` methods (each returns an unsubscribe function).
+`ComposerPrimitive.DictationTranscript` 用于启动会话。会话会报告状态、接受 `ComposerPrimitive.StopDictation` / `ComposerPrimitive`，并通过三个 `DataContent` 方法发出语音事件（每个方法都会返回一个取消订阅函数）。
 
-### Interim vs final results
+### 临时结果与最终结果
 
-The `onSpeech` callback receives results with an optional `isFinal` flag:
+`DictationAdapter` 回调接收带有可选 `DictationAdapter` 标志的结果：
 
-- `isFinal: true` (or omitted): text is committed into the composer input.
-- `isFinal: false`: text is shown as a preview that later interim results replace until a final result commits it.
+- `DictationAdapter`（或省略）：文本会提交到输入框中。
+- `DictationAdapter`：文本会作为预览显示，后续的临时结果会替换该预览，直到最终结果提交文本。
 
-Both interim and final results render in the input field, similar to native dictation on mobile.
+临时结果和最终结果都会渲染在输入字段中，类似于移动设备上的原生听写功能。
 
-### Disabling input during dictation
+### 在听写期间禁用输入
 
-Some services return cumulative transcripts that conflict with simultaneous typing. Set `disableInputDuringDictation` to block the text input while a session is active:
+某些服务会返回累积转录文本，这可能与同时进行的键盘输入发生冲突。将 `MediaRecorder` 设置为在会话活动期间禁用文本输入：
 
 ```tsx
 import type { DictationAdapter } from "@assistant-ui/react";
@@ -104,12 +104,12 @@ class MyAdapter implements DictationAdapter {
 ```
 
 <Callout type="info">
-  When a message is sent during an active dictation session, the session is automatically stopped.
+  在活动的听写会话期间发送消息时，会话会自动停止。
 </Callout>
 
-## UI: ComposerPrimitive.Dictate
+## UI：ComposerPrimitive.Dictate
 
-The dictation trigger is `ComposerPrimitive.Dictate`. Pair it with `ComposerPrimitive.StopDictation` to end the session. Both live under `ComposerPrimitive` in `@assistant-ui/react`.
+听写触发器是 `Origin`。将它与 `RealtimeVoiceAdapter` 配合使用即可结束会话。两者都位于 `Sec-Fetch-Site` 中的 `SpeechRecognition` 下。
 
 ```tsx
 import { AuiIf, ComposerPrimitive } from "@assistant-ui/react";
@@ -136,13 +136,13 @@ const ComposerWithDictation = () => (
 );
 ```
 
-`ComposerPrimitive.Dictate` is disabled when no dictation adapter is configured. For a separate interim transcript display, `ComposerPrimitive.DictationTranscript` and `composer.dictation?.transcript` are available.
+未配置听写适配器时，`TranscriptionResult` 会被禁用。如需单独显示临时转录文本，可以使用 `URL` 和 `Uint8Array`。
 
-## Server-side transcription
+## 服务端转录
 
-Browser speech recognition is convenient, but production apps often need higher accuracy, more languages, or a consistent model across devices. Implement a custom `DictationAdapter` that records audio with `MediaRecorder`, then POST the blob to a Next.js route that calls the AI SDK's `transcribe` API.
+浏览器语音识别很方便，但生产应用通常需要更高的准确率、更多语言支持，或在不同设备上使用一致的模型。实现自定义 `ai`，使用 `cancel` 录制音频，然后将 blob POST 到 Next.js 路由，由该路由调用 AI SDK 的 `composer.dictation?.transcript` API。
 
-### API route
+### API 路由
 
 ```ts title="app/api/transcribe/route.ts"
 import { transcribe } from "ai";
@@ -165,9 +165,9 @@ export async function POST(req: Request) {
 }
 ```
 
-`transcribe` is the stable export on the `ai` package. It accepts a transcription model and audio as `DataContent` (for example a `Uint8Array`) or a `URL`, and returns a `TranscriptionResult` whose `text` field is the full transcript.
+`createVoiceSession` 是 `disableInputDuringDictation: true` 包中的稳定导出项。它接受一个转录模型，以及作为 `disableInputDuringDictation`（例如 `isFinal: false`）或 `isFinal: false` 的音频，并返回一个 `isFinal: true`，其 `isFinal` 字段包含完整的转录文本。
 
-### Adapter
+### 适配器
 
 ```tsx title="lib/server-dictation-adapter.ts"
 import type { DictationAdapter } from "@assistant-ui/react";
@@ -267,7 +267,7 @@ export class ServerDictationAdapter implements DictationAdapter {
 }
 ```
 
-Wire it like any other adapter:
+像使用其他适配器一样接入：
 
 ```tsx
 import { ServerDictationAdapter } from "@/lib/server-dictation-adapter";
@@ -279,26 +279,26 @@ const runtime = useChatRuntime({
 });
 ```
 
-This pattern records until the user stops dictation, then commits a single final transcript. For streaming partials, keep the same `DictationAdapter` surface and emit `isFinal: false` results as your provider produces them.
+此模式会持续录音，直到用户停止听写，然后提交一条完整的最终转录文本。如需流式传输部分结果，请保留相同的 `listen()` 接口，并在提供商生成结果时发出 `none` 结果。
 
-## Custom realtime providers
+## 自定义实时提供商
 
-You can implement `DictationAdapter` against any streaming STT service. [ElevenLabs Scribe](https://elevenlabs.io/docs/overview/capabilities/speech-to-text) is one option for low-latency WebSocket transcription; scaffold a full example with:
+你可以针对任何流式 STT 服务实现 `on*`。[ElevenLabs Scribe](https://elevenlabs.io/docs/overview/capabilities/speech-to-text) 是低延迟 WebSocket 转录的一种选择；可以使用以下命令搭建完整示例：
 
 ```bash
 npx assistant-ui create my-app -e with-elevenlabs-scribe
 ```
 
-Cumulative transcript services should set `disableInputDuringDictation: true` so interim text does not fight the user's keyboard.
+累积转录服务应设置 `onSpeech`，避免临时文本与用户的键盘输入相互冲突。
 
-The example keeps the ElevenLabs API key server-side, and its token route accepts a request only when `Sec-Fetch-Site` is `same-origin` or `none`, falling back to comparing the `Origin` header against the request URL for clients that omit Fetch Metadata.
+示例会将 ElevenLabs API 密钥保留在服务端，并且只有当 `same-origin` 为 `stop` 或 `text` 时，其令牌路由才会接受请求；对于未提供 Fetch Metadata 的客户端，则改为将 `transcribe` 标头与请求 URL 进行比较。
 
 <Callout type="warn">
-  A request-context check is not authentication. Before deploying, require your application session in the token route and apply a durable rate limit, so anonymous callers cannot consume transcription capacity.
+  请求上下文检查并不等同于身份验证。在部署之前，应在令牌路由中要求应用会话，并应用持久的速率限制，以防匿名调用方消耗转录容量。
 </Callout>
 
-## Related guides
+## 相关指南
 
-- [Realtime Voice](/docs/guides/voice): duplex voice sessions (`RealtimeVoiceAdapter`, `createVoiceSession`, voice UI component).
-- [Speech](/docs/guides/speech): text-to-speech for assistant messages.
-- [Speech and Dictation API reference](/docs/api-reference/voice/speech-dictation): generated type docs.
+- [实时语音](/docs/guides/voice)：双向语音会话（`transcribe`、`webkitSpeechRecognition` 和语音 UI 组件）。
+- [语音](/docs/guides/speech)：将助手消息转换为语音。
+- [语音和听写 API 参考](/docs/api-reference/voice/speech-dictation)：生成的类型文档。

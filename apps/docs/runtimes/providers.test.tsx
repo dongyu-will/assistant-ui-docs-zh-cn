@@ -44,6 +44,7 @@ const runtimeOptions = () =>
 
 afterEach(() => {
   vi.clearAllMocks();
+  useAnonymousCloud.mockReturnValue("cloud");
 });
 
 it("wires the docs surface with a cloud, dictation and cloud attachments", async () => {
@@ -59,6 +60,18 @@ it("wires the docs surface with a cloud, dictation and cloud attachments", async
     CloudFileAttachmentAdapter,
   );
   expect(runtimeOptions().adapters?.feedback).toBeDefined();
+});
+
+it("falls back to local attachments when cloud is not configured", async () => {
+  useAnonymousCloud.mockReturnValue(undefined);
+  const { DocsRuntimeProvider } = await import("./docs");
+
+  renderToString(<DocsRuntimeProvider>{null}</DocsRuntimeProvider>);
+
+  expect(runtimeOptions().cloud).toBeUndefined();
+  expect(runtimeOptions().adapters?.attachments).toBeInstanceOf(
+    SimpleImageAttachmentAdapter,
+  );
 });
 
 it("wires the artifacts surface with a cloud and dictation but no feedback", async () => {

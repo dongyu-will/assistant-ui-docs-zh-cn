@@ -1,24 +1,24 @@
 ---
-title: Full-stack integration
-description: Run Mastra agents inside your Next.js API routes.
+title: 全栈集成
+description: 在 Next.js API 路由中运行 Mastra 助手。
 platforms: ["react"]
 ---
 
 import { MastraIcon } from "@/components/icons/mastra";
 import { VercelIcon } from "@/components/icons/vercel";
 
-Run Mastra in-process inside your Next.js application. The agent code, the API route, and the assistant-ui frontend all live in one project. This is the lowest-friction path: one deploy target, one set of env vars, no cross-origin plumbing.
+在 Next.js 应用中以内进程方式运行 Mastra。助手代码、API 路由和 assistant-ui 前端都位于同一个项目中。这是阻力最小的路径：一个部署目标、一组环境变量，无需处理跨源连接。
 
-For independent scaling, see [separate server](/docs/integrations/frameworks/mastra/separate-server) instead.
+如需独立扩展，请改为参阅[独立服务器](/docs/integrations/frameworks/mastra/separate-server)。
 
-## Setup
+## 设置
 
 <Steps>
 <Step>
 
-### Initialize assistant-ui
+### 初始化 assistant-ui
 
-Set up assistant-ui in your project:
+在项目中设置 assistant-ui：
 
 ```sh title="New project"
 npx assistant-ui@latest create
@@ -28,23 +28,23 @@ npx assistant-ui@latest create
 npx assistant-ui@latest init
 ```
 
-This installs dependencies and creates a default chat API route at `app/api/chat/route.ts`. For manual setup, see the [getting started guide](/docs).
+这会安装依赖，并在 `app/api/chat/route.ts` 创建默认的聊天 API 路由。如需手动设置，请参阅[入门指南](/docs)。
 
 </Step>
 <Step>
 
-### Install Mastra packages
+### 安装 Mastra 包
 
-`@mastra/core` provides the agent runtime; `@mastra/ai-sdk` converts Mastra's stream format to AI SDK's UI message stream; `zod` is required for tool schemas.
+`@mastra/core` 提供助手运行时；`@mastra/ai-sdk` 将 Mastra 的流格式转换为 AI SDK 的 UI 消息流；工具 schema 需要使用 `zod`。
 
 <InstallCommand npm={["@mastra/core@latest", "@mastra/ai-sdk@latest", "zod@latest"]} />
 
 </Step>
 <Step>
 
-### Configure Next.js
+### 配置 Next.js
 
-Mastra's runtime depends on Node-only modules. Tell Next.js to bundle Mastra packages externally on the server so they aren't traced into the edge runtime.
+Mastra 的运行时依赖仅适用于 Node.js 的模块。告知 Next.js 在服务器端将 Mastra 包作为外部依赖进行打包，避免这些包被追踪到 Edge 运行时中。
 
 ```js title="next.config.mjs"
 /** @type {import('next').NextConfig} */
@@ -55,14 +55,14 @@ const nextConfig = {
 export default nextConfig;
 ```
 
-If you skip this step you'll see opaque bundling errors at request time, not at build time.
+如果跳过此步骤，你将在请求时而不是构建时看到难以判断原因的打包错误。
 
 </Step>
 <Step>
 
-### Define an agent
+### 定义助手
 
-Create a `mastra/` folder at the project root with two files:
+在项目根目录创建 `mastra/` 文件夹，并在其中创建两个文件：
 
 ```txt title="Project layout"
 mastra/
@@ -71,7 +71,7 @@ mastra/
 └── index.ts
 ```
 
-Define the agent in `chefAgent.ts`:
+在 `chefAgent.ts` 中定义助手：
 
 ```ts title="mastra/agents/chefAgent.ts"
 import { Agent } from "@mastra/core/agent";
@@ -85,7 +85,7 @@ export const chefAgent = new Agent({
 });
 ```
 
-`model: "openai/gpt-5.6-luna"` uses Mastra's model router. Set the provider key in `.env.local` so Next.js auto-loads it:
+`model: "openai/gpt-5.6-luna"` 使用 Mastra 的模型路由器。在 `.env.local` 中设置提供商密钥，以便 Next.js 自动加载它：
 
 ```sh title=".env.local"
 OPENAI_API_KEY=sk-...
@@ -94,9 +94,9 @@ OPENAI_API_KEY=sk-...
 </Step>
 <Step>
 
-### Register the agent
+### 注册助手
 
-Initialize Mastra with the agent so it can be looked up by name:
+使用该助手初始化 Mastra，以便按名称查找它：
 
 ```ts title="mastra/index.ts"
 import { Mastra } from "@mastra/core";
@@ -110,9 +110,9 @@ export const mastra = new Mastra({
 </Step>
 <Step>
 
-### Wire the API route
+### 接入 API 路由
 
-Replace the default route with one that streams from the Mastra agent:
+将默认路由替换为从 Mastra 助手进行流式传输的路由：
 
 ```ts title="app/api/chat/route.ts"
 import { createUIMessageStream, createUIMessageStreamResponse } from "ai";
@@ -140,49 +140,49 @@ export async function POST(req: Request) {
 }
 ```
 
-`agent.stream()` returns a Mastra-native stream. `toAISdkStream` (from `@mastra/ai-sdk`) adapts each part to the AI SDK shape; `createUIMessageStream` wraps the part loop into the UI message stream that `useChatRuntime` consumes; `createUIMessageStreamResponse` returns it as an HTTP response.
+`agent.stream()` 返回 Mastra 原生流。`toAISdkStream`（来自 `@mastra/ai-sdk`）会将每个部分适配为 AI SDK 的格式；`createUIMessageStream` 将部分循环封装为 `useChatRuntime` 消费的 UI 消息流；`createUIMessageStreamResponse` 将其作为 HTTP 响应返回。
 
-The `@/mastra` import assumes the `@/*` path alias is configured in `tsconfig.json` (the assistant-ui starter sets this up). If your project uses a different alias, adjust the import path.
+`@/mastra` 的导入假定已在 `tsconfig.json` 中配置 `@/*` 路径别名（assistant-ui starter 会完成此设置）。如果项目使用其他别名，请调整导入路径。
 
 </Step>
 <Step>
 
-### Run and verify
+### 运行并验证
 
-Start the dev server:
+启动开发服务器：
 
 ```bash npm2yarn
 npm run dev
 ```
 
-Open `http://localhost:3000`, send a message like *"What can I make with eggs and rice?"*, and confirm:
+打开 `http://localhost:3000`，发送类似 *“鸡蛋和米饭能做什么？”* 的消息，并确认：
 
-- The response streams in token by token.
-- The browser's network tab shows a single `POST /api/chat` returning `text/event-stream`.
-- No console errors about missing modules; if you see `Cannot find module '@mastra/...'`, revisit the `serverExternalPackages` step.
+- 响应会逐个 token 进行流式输出。
+- 浏览器的网络面板中显示一个 `POST /api/chat`，并返回 `text/event-stream`。
+- 控制台中没有关于缺少模块的错误；如果看到 `Cannot find module '@mastra/...'`，请重新检查 `serverExternalPackages` 步骤。
 
 </Step>
 </Steps>
 
-## Notes
+## 注意事项
 
-- **Errors in the route bubble to the client as a stream error.** Wrap `agent.stream()` in `try/catch` if you need to log structured errors before they reach the client.
-- **Pin compatible versions.** `@mastra/ai-sdk` tracks the AI SDK v6 contract. If you upgrade `ai` to a future major, verify the `toAISdkStream` shape against Mastra's release notes.
-- **Advanced Mastra features** (memory, tools, workflows, evals) live entirely in the agent definition. assistant-ui sees only the resulting stream, so anything Mastra supports works without further frontend changes. See the [Mastra docs](https://mastra.ai/docs).
+- **路由中的错误会以流错误的形式传递到客户端。** 如果需要在错误到达客户端之前记录结构化错误，请将 `agent.stream()` 包装在 `try/catch` 中。
+- **固定兼容的版本。** `@mastra/ai-sdk` 遵循 AI SDK v6 契约。如果将 `ai` 升级到未来的主版本，请根据 Mastra 的发行说明验证 `toAISdkStream` 的格式。
+- **Mastra 的高级功能**（内存、工具、工作流、评估）完全位于助手定义中。assistant-ui 只会看到生成的流，因此 Mastra 支持的任何功能都无需进一步修改前端即可使用。请参阅 [Mastra 文档](https://mastra.ai/docs).
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     icon={<MastraIcon width={20} height={20} />}
-    title="Separate server integration"
-    description="Run Mastra as a standalone server, connect via API."
+    title="独立服务器集成"
+    description="将 Mastra 作为独立服务器运行，并通过 API 连接。"
     href="/docs/integrations/frameworks/mastra/separate-server"
   />
   <Card
     icon={<VercelIcon width={20} height={20} />}
-    title="AI SDK runtime"
-    description="The runtime that handles the client side of this integration."
+    title="AI SDK 运行时"
+    description="处理此集成客户端部分的运行时。"
     href="/docs/runtimes/ai-sdk/v7"
   />
 </Cards>

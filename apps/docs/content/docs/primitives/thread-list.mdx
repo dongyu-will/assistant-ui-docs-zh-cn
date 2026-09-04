@@ -1,13 +1,13 @@
 ---
 title: ThreadList
-description: Multi-thread management for listing, creating, switching, archiving, and deleting conversations.
+description: 用于列出、创建、切换、归档和删除会话的多线程管理。
 platforms: ["react"]
 ---
 
 import { ThreadListPrimitiveSample } from "@/components/pages/docs/samples/thread-list-primitive";
 import { ThreadListPrimitive as ThreadListPrimitiveDocs, ThreadListItemPrimitive as ThreadListItemPrimitiveDocs, ThreadListItemMorePrimitive as ThreadListItemMorePrimitiveDocs } from "@/generated/primitiveDocs";
 
-The ThreadList primitive manages multiple conversations by listing threads, creating new ones, switching between them, and archiving or deleting old ones. It's composed from three primitive namespaces: `ThreadListPrimitive`, `ThreadListItemPrimitive`, and `ThreadListItemMorePrimitive`.
+ThreadList 原语通过列出线程、创建新线程、在线程之间切换，以及归档或删除旧线程来管理多个会话。它由三个原语命名空间组成：`ThreadListPrimitive`、`ThreadListItemPrimitive` 和 `ThreadListItemMorePrimitive`。
 
 <Tabs items={["Preview", "Code"]}>
   <Tab>
@@ -66,9 +66,9 @@ function ThreadListItem() {
   </Tab>
 </Tabs>
 
-## Quick Start
+## 快速开始
 
-Minimal example:
+最小示例：
 
 ```tsx
 import {
@@ -90,25 +90,25 @@ import {
 </ThreadListPrimitive.Root>
 ```
 
-`Root` renders a `<div>`, `New` renders a `<button>` that creates a new thread, and `Items` iterates over the thread list. Each item is composed from `ThreadListItemPrimitive` parts.
+`Root` 渲染一个 `<div>`，`New` 渲染一个 `<button>` 来创建新线程，而 `Items` 遍历线程列表。每个项目由 `ThreadListItemPrimitive` 部件组合而成。
 
 <Callout type="info">
-Runtime setup: primitives require runtime context. Wrap your UI in `AssistantRuntimeProvider` with a runtime (for example `useLocalRuntime(...)`). See [Pick a Runtime](/docs/runtimes/pick-a-runtime).
+运行时设置：原语需要运行时上下文。请将 UI 包裹在带有运行时的 `AssistantRuntimeProvider` 中（例如 `useLocalRuntime(...)`）。请参阅[选择运行时](/docs/runtimes/pick-a-runtime)。
 </Callout>
 
-## Core Concepts
+## 核心概念
 
-### Three Namespaces
+### 三个命名空间
 
-ThreadList is split across three namespaces to keep each level of abstraction composable:
+ThreadList 分为三个命名空间，使每个抽象层级都能进行组合：
 
-- **`ThreadListPrimitive`**: The outer container. `Root` wraps the list, `New` creates threads, and `Items` iterates over them.
-- **`ThreadListItemPrimitive`**: An individual thread row. `Root` provides context, `Trigger` switches to the thread, `Title` shows the thread name, and action buttons (Archive, Unarchive, Delete) manage the thread lifecycle.
-- **`ThreadListItemMorePrimitive`**: An overflow dropdown menu (built on Radix DropdownMenu) for thread actions. Compose action buttons with menu items using `asChild`.
+- **`ThreadListPrimitive`**：外部容器。`Root` 包裹列表，`New` 创建线程，`Items` 遍历线程。
+- **`ThreadListItemPrimitive`**：单个线程行。`Root` 提供上下文，`Trigger` 切换到该线程，`Title` 显示线程名称，操作按钮（归档、取消归档、删除）则管理线程的生命周期。
+- **`ThreadListItemMorePrimitive`**：用于线程操作的溢出下拉菜单（基于 Radix DropdownMenu 构建）。使用 `asChild` 将操作按钮与菜单项组合起来。
 
-### Active State
+### 活跃状态
 
-Both `ThreadListPrimitive.New` and `ThreadListItemPrimitive.Root` get a `data-active` attribute when they represent the current thread. Use this for styling:
+当 `ThreadListPrimitive.New` 和 `ThreadListItemPrimitive.Root` 表示当前线程时，二者都会获得 `data-active` 属性。可以使用此属性进行样式设置：
 
 ```tsx
 <ThreadListItemPrimitive.Root className="hover:bg-muted data-active:bg-muted">
@@ -116,13 +116,13 @@ Both `ThreadListPrimitive.New` and `ThreadListItemPrimitive.Root` get a `data-ac
 </ThreadListItemPrimitive.Root>
 ```
 
-The `New` button gets `data-active` when the user is on a fresh, unsaved thread.
+当用户处于全新的未保存线程时，`New` 按钮会获得 `data-active`。
 
-### Keyboard Navigation
+### 键盘导航
 
-Every item stays a native Tab stop, and arrow keys are layered on top. Up/Down move between items and Right focuses an item's `More` button (Left/Right are mirrored in RTL). This is built into the primitives — no prop is required.
+每个项目都保留为原生 Tab 停靠点，并在此基础上增加方向键支持。上/下方向键可在项目之间移动，右方向键可将焦点移到项目的 `More` 按钮（在 RTL 中，左/右方向键的行为相反）。这是原语内置的功能，无需传入 prop。
 
-To fold the `More` menu into the same navigation, opt it in with `sharedFocusGroup`:
+要将 `More` 菜单纳入相同的导航，请使用 `sharedFocusGroup` 启用该功能：
 
 ```tsx
 <ThreadListItemMorePrimitive.Root sharedFocusGroup>
@@ -131,11 +131,11 @@ To fold the `More` menu into the same navigation, opt it in with `sharedFocusGro
 </ThreadListItemMorePrimitive.Root>
 ```
 
-`sharedFocusGroup` joins the menu to the list's focus group, so its trigger and the open menu act as one keyboard-navigable unit: Right opens it and Left/Escape close it, synchronously restoring focus to the trigger so a `group-has-focus-visible` highlight never flickers. Enabling it forces the menu non-modal, because a focus trap and a shared focus group are mutually exclusive — the trap keeps focus inside the menu, the shared group lets it move out across the boundary. Without `sharedFocusGroup` the menu keeps its standard Radix `DropdownMenu` keyboard behavior (modal by default), so menus you already render are unchanged. Our assistant-ui [thread-list](/elements/thread-list) registry component sets `sharedFocusGroup` for you.
+`sharedFocusGroup` 会将菜单加入列表的焦点组，使其触发器和打开的菜单作为一个可通过键盘导航的单元：右方向键打开菜单，左方向键/Escape 关闭菜单，并同步将焦点恢复到触发器，因此 `group-has-focus-visible` 高亮不会闪烁。启用此功能会强制菜单采用非模态模式，因为焦点陷阱与共享焦点组互斥——焦点陷阱会将焦点限制在菜单内，而共享焦点组允许焦点跨越边界移出菜单。不使用 `sharedFocusGroup` 时，菜单会保留标准 Radix `DropdownMenu` 键盘行为（默认采用模态模式），因此已经渲染的菜单不会发生变化。我们的 assistant-ui [thread-list](/elements/thread-list) 注册表组件会为你设置 `sharedFocusGroup`。
 
-### Items Iterator
+### Items 迭代器
 
-`ThreadListPrimitive.Items` now prefers a children render function, similar to `ThreadPrimitive.Messages`:
+`ThreadListPrimitive.Items` 现在优先使用 children 渲染函数，类似于 `ThreadPrimitive.Messages`：
 
 ```tsx
 <ThreadListPrimitive.Items>
@@ -145,11 +145,11 @@ To fold the `More` menu into the same navigation, opt it in with `sharedFocusGro
 </ThreadListPrimitive.Items>
 ```
 
-`components` is deprecated. Use the `children` render function instead.
+`components` 已弃用。请改用 `children` 渲染函数。
 
-### Archived Threads
+### 已归档线程
 
-Pass `archived` to `Items` to render archived threads separately:
+将 `archived` 传递给 `Items`，即可单独渲染已归档的线程：
 
 ```tsx
 <ThreadListPrimitive.Root>
@@ -165,13 +165,13 @@ Pass `archived` to `Items` to render archived threads separately:
 </ThreadListPrimitive.Root>
 ```
 
-### Thread Actions
+### 线程操作
 
-`Archive`, `Unarchive`, and `Delete` buttons disable automatically when the runtime capability is unavailable.
+当运行时不具备相应能力时，`Archive`、`Unarchive` 和 `Delete` 按钮会自动禁用。
 
-### Composing Actions with Menu Items
+### 将操作与菜单项组合
 
-The canonical pattern composes `ThreadListItemPrimitive.Archive asChild` with `ThreadListItemMorePrimitive.Item` to get both the action behavior AND the menu item styling:
+标准模式是将 `ThreadListItemPrimitive.Archive asChild` 与 `ThreadListItemMorePrimitive.Item` 组合，以同时获得操作行为和菜单项样式：
 
 ```tsx
 <ThreadListItemPrimitive.Archive asChild>
@@ -181,24 +181,24 @@ The canonical pattern composes `ThreadListItemPrimitive.Archive asChild` with `T
 </ThreadListItemPrimitive.Archive>
 ```
 
-`Archive` provides the click handler and disabled logic. `Item` provides the menu item behavior and styling. `asChild` merges them into a single element.
+`Archive` 提供点击处理函数和禁用逻辑。`Item` 提供菜单项行为和样式。`asChild` 将二者合并为一个元素。
 
-## Accessibility
+## 可访问性
 
-The thread list leans on native button semantics and Radix's `DropdownMenu`; the arrow-key navigation is layered on top as a convenience, not a requirement.
+线程列表依赖原生按钮语义和 Radix 的 `DropdownMenu`；方向键导航只是额外提供的便利功能，并非必需。
 
-- Each `ThreadListItemPrimitive.Trigger` is a native `<button>` and its own Tab stop, so the whole list is reachable with <Kbd>Tab</Kbd> alone. The arrow keys (see [Keyboard Navigation](#keyboard-navigation)) speed traversal up, but nothing depends on them.
-- The item representing the current thread sets `aria-current="true"` (alongside `data-active`) on `ThreadListItemPrimitive.Root`, so assistive tech announces which conversation is open.
-- The `More` trigger exposes `aria-haspopup="menu"`, and its panel is a Radix `role="menu"` with `role="menuitem"` children, so screen readers announce it as a menu and the arrow keys cycle its items.
-- With `sharedFocusGroup`, the `More` menu is non-modal and joins the list's focus group: opening and closing it move focus synchronously between the trigger and the menu, so keyboard focus is never dropped and the `group-has-focus-visible` highlight never flickers. Without it, the menu keeps Radix's default modal focus trap.
+- 每个 `ThreadListItemPrimitive.Trigger` 都是原生 `<button>`，并且拥有自己的 Tab 停靠点，因此仅使用 <Kbd>Tab</Kbd> 就可以访问整个列表。方向键（请参阅[键盘导航](#keyboard-navigation)）可以加快遍历速度，但功能并不依赖方向键。
+- 表示当前线程的项目会在 `ThreadListItemPrimitive.Root` 上设置 `aria-current="true"`（以及 `data-active`），因此辅助技术可以播报当前打开的是哪个会话。
+- `More` 触发器会暴露 `aria-haspopup="menu"`，其面板是一个 Radix `role="menu"`，包含 `role="menuitem"` 子项，因此屏幕阅读器会将其播报为菜单，用户也可以使用方向键循环浏览菜单项。
+- 使用 `sharedFocusGroup` 时，`More` 菜单采用非模态模式并加入列表的焦点组：打开和关闭菜单时，焦点会在触发器与菜单之间同步移动，因此键盘焦点不会丢失，`group-has-focus-visible` 高亮也不会闪烁。不使用该属性时，菜单会保留 Radix 默认的模态焦点陷阱。
 
-## Parts
+## 部件
 
 ### ThreadListPrimitive
 
 #### Root
 
-Container for the full thread list. Renders a `<div>` element unless `asChild` is set.
+完整线程列表的容器。除非设置 `asChild`，否则会渲染一个 `<div>` 元素。
 
 ```tsx
 <ThreadListPrimitive.Root className="flex flex-col gap-1">
@@ -210,7 +210,7 @@ Container for the full thread list. Renders a `<div>` element unless `asChild` i
 
 #### New
 
-Button that creates a new thread. Renders a `<button>` element unless `asChild` is set.
+用于创建新线程的按钮。除非设置 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ThreadListPrimitive.New className="rounded-lg border px-3 py-2 text-sm">
@@ -220,7 +220,7 @@ Button that creates a new thread. Renders a `<button>` element unless `asChild` 
 
 #### Items
 
-Renders a component per thread.
+为每个线程渲染一个组件。
 
 ```tsx
 <ThreadListPrimitive.Items>
@@ -232,7 +232,7 @@ Renders a component per thread.
 
 #### ItemByIndex
 
-Renders a single thread at a specific index.
+在指定索引处渲染单个线程。
 
 ```tsx
 <ThreadListPrimitive.ItemByIndex
@@ -245,7 +245,7 @@ Renders a single thread at a specific index.
 
 #### LoadMore
 
-Button that appends the next page of threads. Renders a `<button>` element unless `asChild` is set, and is automatically disabled when the runtime is loading or when the adapter's last `list()` did not return a `nextCursor`. See [Threads concepts](/docs/runtimes/concepts/threads#paginating-the-thread-list) for the adapter contract.
+用于追加下一页线程的按钮。除非设置 `asChild`，否则会渲染一个 `<button>` 元素。当运行时正在加载，或适配器最后一次 `list()` 未返回 `nextCursor` 时，该按钮会自动禁用。有关适配器契约，请参阅[线程概念](/docs/runtimes/concepts/threads#paginating-the-thread-list)。
 
 ```tsx
 <ThreadListPrimitive.LoadMore className="rounded-lg border px-3 py-2 text-sm">
@@ -253,7 +253,7 @@ Button that appends the next page of threads. Renders a `<button>` element unles
 </ThreadListPrimitive.LoadMore>
 ```
 
-For scroll-driven loading, wrap `aui.threads.loadMore()` in your own `IntersectionObserver` at the application layer; assistant-ui ships the explicit button to keep the primitive surface predictable.
+对于基于滚动的加载，请在应用层将 `aui.threads.loadMore()` 包裹在你自己的 `IntersectionObserver` 中；assistant-ui 提供显式按钮，以保持原语接口的可预测性。
 
 ```tsx
 import { useAui, useAuiState } from "@assistant-ui/react";
@@ -285,7 +285,7 @@ function LoadMoreSentinel() {
 
 #### Root
 
-Container for one thread list item. Renders a `<div>` element unless `asChild` is set.
+单个线程列表项目的容器。除非设置 `asChild`，否则会渲染一个 `<div>` 元素。
 
 ```tsx
 <ThreadListItemPrimitive.Root className="flex items-center gap-2 rounded-lg px-2 py-1.5">
@@ -297,7 +297,7 @@ Container for one thread list item. Renders a `<div>` element unless `asChild` i
 
 #### Trigger
 
-Interactive button that selects the thread. Renders a `<button>` element unless `asChild` is set.
+用于选择线程的交互式按钮。除非设置 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ThreadListItemPrimitive.Trigger className="flex-1 text-left">
@@ -307,7 +307,7 @@ Interactive button that selects the thread. Renders a `<button>` element unless 
 
 #### Title
 
-Displays the thread title with a `fallback` prop. Renders a React fragment (no wrapper element). Use a `<span>` wrapper if you need to style it.
+使用 `fallback` prop 显示线程标题。它会渲染一个 React fragment（不包含包装元素）。如果需要设置样式，请使用 `<span>` 包装元素。
 
 ```tsx
 <ThreadListItemPrimitive.Title fallback="New Chat" />
@@ -317,7 +317,7 @@ Displays the thread title with a `fallback` prop. Renders a React fragment (no w
 
 #### Archive
 
-Button that archives the current thread item. Renders a `<button>` element unless `asChild` is set.
+用于归档当前线程项目的按钮。除非设置 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ThreadListItemPrimitive.Archive>Archive</ThreadListItemPrimitive.Archive>
@@ -325,7 +325,7 @@ Button that archives the current thread item. Renders a `<button>` element unles
 
 #### Unarchive
 
-Button that restores the current thread item from the archive. Renders a `<button>` element unless `asChild` is set.
+用于从归档中恢复当前线程项目的按钮。除非设置 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ThreadListItemPrimitive.Unarchive>Unarchive</ThreadListItemPrimitive.Unarchive>
@@ -333,7 +333,7 @@ Button that restores the current thread item from the archive. Renders a `<butto
 
 #### Delete
 
-Button that deletes the current thread item. Renders a `<button>` element unless `asChild` is set.
+用于删除当前线程项目的按钮。除非设置 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ThreadListItemPrimitive.Delete>Delete</ThreadListItemPrimitive.Delete>
@@ -343,7 +343,7 @@ Button that deletes the current thread item. Renders a `<button>` element unless
 
 #### Root
 
-Root container for the overflow menu primitives. Pass `sharedFocusGroup` to fold the menu into the list's arrow-key navigation (see [Keyboard Navigation](#keyboard-navigation)); doing so forces it non-modal. Without it the menu honors the `modal` prop, defaulting to modal like Radix's `DropdownMenu`.
+溢出菜单原语的根容器。传入 `sharedFocusGroup` 可将菜单纳入列表的方向键导航（请参阅[键盘导航](#keyboard-navigation)）；这样会强制菜单采用非模态模式。不传入该属性时，菜单会遵循 `modal` prop，默认采用模态模式，与 Radix 的 `DropdownMenu` 一致。
 
 ```tsx
 <ThreadListItemMorePrimitive.Root sharedFocusGroup>
@@ -353,7 +353,7 @@ Root container for the overflow menu primitives. Pass `sharedFocusGroup` to fold
 
 #### Trigger
 
-Button that opens the overflow menu. Renders a `<button>` element unless `asChild` is set.
+用于打开溢出菜单的按钮。除非设置 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ThreadListItemMorePrimitive.Trigger className="rounded-md p-1 hover:bg-muted">
@@ -363,7 +363,7 @@ Button that opens the overflow menu. Renders a `<button>` element unless `asChil
 
 #### Content
 
-The dropdown panel. Renders a `<div>` via a portal (positioned relative to the trigger).
+下拉面板。它会通过 portal 渲染一个 `<div>`（相对于触发器定位）。
 
 ```tsx
 <ThreadListItemMorePrimitive.Content className="rounded-md border bg-popover p-1 shadow-md">
@@ -377,7 +377,7 @@ The dropdown panel. Renders a `<div>` via a portal (positioned relative to the t
 
 #### Item
 
-Menu item slot inside the overflow menu. Renders a `<div>` element unless `asChild` is set.
+溢出菜单中的菜单项插槽。除非设置 `asChild`，否则会渲染一个 `<div>` 元素。
 
 ```tsx
 <ThreadListItemMorePrimitive.Item>Archive</ThreadListItemMorePrimitive.Item>
@@ -385,15 +385,15 @@ Menu item slot inside the overflow menu. Renders a `<div>` element unless `asChi
 
 #### Separator
 
-Visual separator between groups of menu items. Renders a `<div>` element unless `asChild` is set.
+菜单项组之间的视觉分隔线。除非设置 `asChild`，否则会渲染一个 `<div>` 元素。
 
 ```tsx
 <ThreadListItemMorePrimitive.Separator className="my-1 h-px bg-border" />
 ```
 
-## Patterns
+## 模式
 
-### Basic Thread List with New Button
+### 带新建按钮的基本线程列表
 
 ```tsx
 <ThreadListPrimitive.Root className="flex flex-col gap-1">
@@ -406,7 +406,7 @@ Visual separator between groups of menu items. Renders a `<div>` element unless 
 </ThreadListPrimitive.Root>
 ```
 
-### Thread Item with More Menu
+### 带更多菜单的线程项目
 
 ```tsx
 function ThreadListItem() {
@@ -434,7 +434,7 @@ function ThreadListItem() {
 }
 ```
 
-### Archived Threads Section
+### 已归档线程区域
 
 ```tsx
 <ThreadListPrimitive.Root>
@@ -452,15 +452,15 @@ function ThreadListItem() {
 </ThreadListPrimitive.Root>
 ```
 
-In the `ArchivedItem` component, use `ThreadListItemPrimitive.Unarchive` instead of `Archive` to let users restore threads.
+在 `ArchivedItem` 组件中，使用 `ThreadListItemPrimitive.Unarchive` 代替 `Archive`，以便用户恢复线程。
 
-## Relationship to Components
+## 与组件的关系
 
-The shadcn [ThreadList](/elements/thread-list) component wraps these primitives with Tailwind styling in a sidebar layout, including a skeleton loading state and a prebuilt more menu with archive and delete actions. Start there for a default thread list implementation. Reach for the primitives directly when you need a custom layout, different actions, or integration with your own sidebar or navigation system.
+shadcn 的 [ThreadList](/elements/thread-list) 组件在侧边栏布局中使用 Tailwind 样式封装了这些原语，其中包括骨架加载状态，以及预构建的、包含归档和删除操作的更多菜单。默认的线程列表实现可以从这里开始。如果需要自定义布局、不同的操作，或与自己的侧边栏或导航系统集成，则可以直接使用这些原语。
 
-## API Reference
+## API 参考
 
-For full prop details on every part, see the API reference for each namespace:
+有关每个部件的完整 prop 详情，请参阅各命名空间的 API 参考：
 
 - [ThreadListPrimitive](/docs/api-reference/primitives/thread-list)
 - [ThreadListItemPrimitive](/docs/api-reference/primitives/thread-list-item)

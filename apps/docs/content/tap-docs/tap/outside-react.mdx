@@ -1,11 +1,9 @@
 ---
-title: Outside React
-description: Run resources standalone, with no React tree.
+title: React 之外
+description: 独立运行资源，无需 React 树。
 ---
 
-Resources don't need React. `createTapRoot` hosts a resource tree
-imperatively, which is how libraries and tests drive resources, and how
-`@assistant-ui/store` bridges them into React.
+资源无需依赖 React。`createTapRoot` 以命令式方式承载资源树，这也是库和测试驱动资源的方式，以及 `@assistant-ui/store` 将资源桥接到 React 的方式。
 
 ## createTapRoot
 
@@ -31,38 +29,25 @@ root.getValue().increment();
 root.unmount();
 ```
 
-`createTapRoot(callback)` runs the callback as the root's render body, in which you
-call `useResource` to host a resource. It returns a stable
-`{ getValue, subscribe, unmount }` object: `getValue()` reads the resource's
-current return value, `subscribe(callback)` fires whenever it changes, and
-`unmount()` tears the tree down.
+`createTapRoot(callback)` 将回调作为根的渲染主体运行，你可以在其中调用 `useResource` 来承载资源。它返回一个稳定的 `{ getValue, subscribe, unmount }` 对象：`getValue()` 读取资源当前的返回值，`subscribe(callback)` 在返回值变化时触发，而 `unmount()` 则卸载整棵树。
 
-With `createTapRoot(callback, { mountOnSubscribe: true })` the lifecycle is
-derived from subscribers instead of owned by the caller: the first subscriber
-mounts the tree, the last unsubscriber soft-unmounts it (state is preserved for
-the next subscriber), and `unmount()` throws. See the
-[API reference](/tap/docs/tap/api-reference#createtaproot) for the full
-contract.
+使用 `createTapRoot(callback, { mountOnSubscribe: true })` 时，生命周期由订阅者决定，而不是由调用方管理：第一个订阅者会挂载树，最后一个取消订阅者会软卸载树（状态会为下一个订阅者保留），而 `unmount()` 会抛出错误。完整契约请参阅 [API 参考](/tap/docs/tap/api-reference#createtaproot)。
 
-## Scheduling and flushing
+## 调度与刷新
 
-How updates are delivered depends on what hosts the tree:
+更新的交付方式取决于承载树的宿主：
 
-| Host | Scheduler | Updates delivered via |
+| 宿主 | 调度器 | 更新通过以下方式交付 |
 | --- | --- | --- |
-| `useResource` | React | React re-render |
+| `useResource` | React | React 重新渲染 |
 | `useTapRoot` | tap | `.subscribe()` |
 | `createTapRoot` | tap | `root.subscribe()` |
 
-The tap scheduler batches state changes: multiple setters in the same synchronous
-block produce a single re-render. If updates keep triggering more updates (for
-example, an effect that sets state), tap flushes up to 50 times before throwing a
-maximum-update-depth error.
+tap 调度器会批处理状态变化：同一个同步代码块中的多个 setter 只会产生一次重新渲染。如果更新持续触发更多更新（例如，会设置状态的 effect），tap 最多会刷新 50 次，之后抛出最大更新深度错误。
 
 ### flushTapSync
 
-`flushTapSync` flushes pending tap-scheduled updates synchronously, so the
-new state is readable immediately after.
+`flushTapSync` 会同步刷新待处理的 tap 调度更新，因此新状态可以立即读取。
 
 ```ts
 import { flushTapSync } from "@assistant-ui/tap";
@@ -71,26 +56,19 @@ flushTapSync(() => root.getValue().increment());
 console.log(root.getValue().count); // already updated
 ```
 
-This applies to tap-scheduled trees (`createTapRoot` / `useTapRoot`). For
-`useResource` trees, use `flushSync` from `react-dom` instead. It is useful when a
-library expects a synchronous result, such as a controlled input that needs its
-store updated inside the `onChange` handler.
+这适用于由 tap 调度的树（`createTapRoot` / `useTapRoot`）。对于 `useResource` 树，请改用来自 `react-dom` 的 `flushSync`。当库需要同步结果时，这一功能非常有用，例如受控输入需要在 `onChange` 处理程序中更新其存储。
 
-## React interop
+## React 互操作
 
-When a resource is hosted via `useResource` inside React, tap integrates with
-React's scheduler:
+当资源在 React 内部通过 `useResource` 承载时，tap 会与 React 的调度器集成：
 
-- **Concurrent features** (`startTransition`, `useDeferredValue`, `<Suspense>`)
-  work without tearing.
-- **`<Activity>`**: updates that arrive while a resource is
-  hidden are tracked and replayed when it becomes visible again.
-- **Strict mode** is inherited from the surrounding `<StrictMode>`.
+- **并发功能**（`startTransition`、`useDeferredValue`、`<Suspense>`）可以在不发生撕裂的情况下运行。
+- **`<Activity>`**：资源隐藏期间到达的更新会被跟踪，并在资源再次可见时重放。
+- **严格模式**会继承自外围的 `<StrictMode>`。
 
-No special configuration is needed.
+无需进行特殊配置。
 
 <Callout type="warn">
-`@assistant-ui/store` bridges resources into React with `useSyncExternalStore`, so
-those reads trigger synchronous re-renders and opt out of concurrent scheduling.
-This may change in a future release.
+`@assistant-ui/store` 通过 `useSyncExternalStore` 将资源桥接到 React，因此这些读取会触发同步重新渲染，并退出并发调度。
+这一行为未来版本可能会改变。
 </Callout>

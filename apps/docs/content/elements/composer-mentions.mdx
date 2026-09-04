@@ -1,22 +1,22 @@
 ---
-title: "Mentions"
-description: "Type @ to pull people and agents into the conversation, filtered as you go."
+title: "提及"
+description: "输入 @，即可将人员和代理引入对话，并在输入过程中进行筛选。"
 ---
 
-Typing `@` opens a floating menu of people above the composer; picking one inserts a mention and typing continues right after it. With a runtime the menu is driven by the same trigger primitive that powers slash commands, wired to a mention adapter instead of a command adapter; standalone you filter a plain list yourself with `useMentionMatches` and splice the pick in with `applyMention`.
+输入 `@` 后，会在输入框上方打开一个浮动的人员菜单；选择人员后会插入一条提及内容，并可紧接着继续输入。在运行时中，该菜单由与斜杠命令相同的触发原语驱动，只是连接的是提及适配器，而不是命令适配器；单独使用时，则可以通过 `useMentionMatches` 自行筛选普通列表，并使用 `applyMention` 插入所选项目。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-Mentions and slash commands share one trigger system, keyed by which character opens the popover; see [Slash commands](/elements/composer-slash-commands) for the mechanism itself. Mentions use the `@` char and the `Directive` behavior, which inserts text rather than firing a handler.
+提及和斜杠命令共享同一个触发系统，该系统根据打开弹出层的字符进行区分；有关该机制本身，请参阅[斜杠命令](/elements/composer-slash-commands)。提及使用 `@` 字符和 `Directive` 行为，后者会插入文本，而不是触发处理器。
 
 <Steps>
   <Step>
 
-### Define the people
+### 定义人员
 
-`unstable_useMentionAdapter` bundles a person list into the `{ adapter, directive }` pair the trigger needs. Left with no `items` or `categories`, it defaults to listing the tools registered on the thread's model context instead, so `@` can mention a tool as easily as a person:
+`unstable_useMentionAdapter` 将人员列表封装为触发器所需的 `{ adapter, directive }` 对。如果不提供 `items` 或 `categories`，它会默认列出在线程模型上下文中注册的工具，因此 `@` 既可以像提及人员一样轻松地提及工具：
 
 ```tsx title="components/assistant-ui/elements/composer-mentions.tsx"
 "use client";
@@ -36,7 +36,7 @@ export function useComposerMentions() {
   </Step>
   <Step>
 
-### Open the popover on `@`
+### 在 `@` 上打开弹出层
 
 ```tsx title="components/assistant-ui/elements/composer-bar.tsx"
 "use client";
@@ -85,7 +85,7 @@ export function ComposerBar() {
 }
 ```
 
-`.Directive` inserts the item's serialized text at the trigger position and calls `onInserted` afterward, instead of firing a handler the way `.Action` does. To render a sent mention back out as a chip inside the message (rather than as literal directive text), pair this with [Directive text](/elements/directive-text) on the message-rendering side.
+`.Directive` 会在触发位置插入项目的序列化文本，随后调用 `onInserted`，而不是像 `.Action` 那样触发处理器。若要在消息中将已发送的提及重新渲染为标签（而不是字面指令文本），请在消息渲染侧将其与[指令文本](/elements/directive-text)搭配使用。
 
   </Step>
 </Steps>
@@ -94,12 +94,12 @@ export function ComposerBar() {
 
 <StandaloneMode>
 
-Standalone, nothing detects the `@` for you. `useMentionMatches` filters a person list against text ending in a trailing `@query`, and `applyMention` replaces that trailing query with the chosen name once picked.
+单独使用时，不会有任何机制替你检测 `@`。`useMentionMatches` 会根据以末尾 `@query` 结尾的文本筛选人员列表，而 `applyMention` 会在选择后用所选人员的姓名替换该末尾查询文本。
 
 <Steps>
   <Step>
 
-### Filter as the draft changes
+### 随草稿变化进行筛选
 
 ```tsx title="app/chat-box.tsx"
 "use client";
@@ -138,16 +138,16 @@ export function ChatBox() {
   </Step>
   <Step>
 
-### Keep typing after the pick
+### 选择后继续输入
 
-`applyMention` leaves a trailing space after the inserted name, so the caret can keep typing immediately; it only ever touches the trailing `@query`, so text typed earlier in the draft is untouched.
+`applyMention` 会在插入的姓名后保留一个末尾空格，因此光标可以立即继续输入；它只会处理末尾的 `@query`，不会影响草稿中更早输入的文本。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 构成
 
 ```tsx
 <div data-slot="composer-menu" data-open={/* true while a trailing "@query" exists */}>
@@ -157,15 +157,15 @@ export function ChatBox() {
 </div>
 ```
 
-With a runtime, a pick does not insert a chip directly into the textarea; it inserts literal directive text in `unstable_defaultDirectiveFormatter`'s `:type[label]{name=id}` syntax (the `{name=…}` part is dropped when `id` and `label` match), which only renders as a chip once a message renderer parses it back out. Standalone, `applyMention` inserts the plain name instead, since there is no message-rendering step to hand a directive to.
+在运行时中，选择项目不会直接将标签插入文本区域；它会按照 `unstable_defaultDirectiveFormatter` 的 `:type[label]{name=id}` 语法插入字面指令文本（当 `id` 和 `label` 匹配时，会移除 `{name=…}` 部分），只有消息渲染器将其重新解析后，才会渲染为标签。单独使用时，`applyMention` 会直接插入普通姓名，因为没有消息渲染步骤来接收指令。
 
-## Examples
+## 示例
 
-### Filtering as you type
+### 随输入进行筛选
 
 <RuntimeMode>
 
-The adapter's `search` matches a person's `id`, `label`, and `description` against the text after `@`, case-insensitively; with `categories` instead of `items`, matching drills down per category rather than searching everything at once.
+适配器的 `search` 会以不区分大小写的方式，将人员的 `id`、`label` 和 `description` 与 `@` 之后的文本进行匹配；使用 `categories` 而不是 `items` 时，匹配会按类别逐级展开，而不是一次搜索所有内容。
 
 ```tsx
 mention.adapter.search("ada"); // → [{ id: "ada", label: "Ada Lovelace", ... }]
@@ -175,7 +175,7 @@ mention.adapter.search("ada"); // → [{ id: "ada", label: "Ada Lovelace", ... }
 
 <StandaloneMode>
 
-`useMentionMatches` looks for a trailing `@word` in the text and matches it against the start of each person's `name`:
+`useMentionMatches` 会在文本中查找末尾的 `@word`，并将其与每个人的 `name` 开头进行匹配：
 
 ```tsx
 const matches = useMentionMatches("cc @ada", people); // → [{ name: "Ada", ... }]
@@ -183,11 +183,11 @@ const matches = useMentionMatches("cc @ada", people); // → [{ name: "Ada", ...
 
 </StandaloneMode>
 
-### Mentioning a tool instead of a person
+### 提及工具而不是人员
 
 <RuntimeMode>
 
-Leaving `items` and `categories` unset (or passing `includeModelContextTools: true` alongside them) lists every tool currently registered on `aui.thread.getModelContext.tools`, so `@` doubles as a way to reference a tool the model has access to:
+不设置 `items` 和 `categories`（或同时传入 `includeModelContextTools: true`）时，会列出当前在 `aui.thread.getModelContext.tools` 上注册的所有工具，因此 `@` 也可以用来引用模型可访问的工具：
 
 ```tsx
 const mention = unstable_useMentionAdapter({
@@ -195,13 +195,13 @@ const mention = unstable_useMentionAdapter({
 });
 ```
 
-Passing `includeModelContextTools: { category }` instead puts the tools behind a drill-down entry rather than listing them flat, unless `items` is also given.
+改为传入 `includeModelContextTools: { category }` 时，工具会置于一个可逐级展开的入口下，而不是平铺列出，除非同时提供 `items`。
 
 </RuntimeMode>
 
-### Restyle the menu
+### 重新设置菜单样式
 
-Both lanes render into `ComposerMenu`; the avatar circle, name, and role label are each their own `span`, so restyling one does not require touching the others.
+两种展示路径都会渲染到 `ComposerMenu` 中；头像圆圈、姓名和角色标签分别是独立的 `span`，因此重新设置其中一项的样式无需修改其他项。
 
 ```tsx
 <ComposerMenu className="w-80" open={open}>
@@ -209,30 +209,30 @@ Both lanes render into `ComposerMenu`; the avatar circle, name, and role label a
 </ComposerMenu>
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### ComposerPrimitive (trigger)
+### ComposerPrimitive（触发器）
 
-| Part | Renders | Notes |
+| 部分 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `Unstable_TriggerPopoverRoot` | provider | Shared with every trigger char registered inside it; see [Slash commands](/elements/composer-slash-commands). |
-| `Unstable_TriggerPopover` | `div` (when open) | `char="@"`, `adapter`. |
-| `Unstable_TriggerPopover.Directive` | behavior | `formatter?`, `onInserted?`; inserts serialized directive text at the trigger position. |
-| `Unstable_TriggerPopoverItems` / `Item` | render prop / `button` | Same shape as the slash-command popover; `Item` gets `data-highlighted` under keyboard navigation. |
+| `Unstable_TriggerPopoverRoot` | provider | 与其中注册的每个触发字符共享；请参阅[斜杠命令](/elements/composer-slash-commands)。 |
+| `Unstable_TriggerPopover` | `div`（打开时） | `char="@"`、`adapter`。 |
+| `Unstable_TriggerPopover.Directive` | 行为 | `formatter?`、`onInserted?`；在触发位置插入序列化的指令文本。 |
+| `Unstable_TriggerPopoverItems` / `Item` | render prop / `button` | 形状与斜杠命令弹出层相同；在键盘导航下，`Item` 会获得 `data-highlighted`。 |
 
 ### unstable_useMentionAdapter
 
-| Option | Type | Description |
+| 选项 | 类型 | 描述 |
 |--------|------|-------------|
-| `items` | `Unstable_Mention[]` | Flat list: `{ id, type, label, description?, icon?, metadata? }`; supplying it keeps the adapter flat even when a tool `category` is configured. |
-| `categories` | `Unstable_MentionCategory[]` | Grouped mentions for drill-down navigation; takes precedence over `items`. |
-| `includeModelContextTools` | `boolean \| { category?, formatLabel?, icon? }` | Include tools from `aui.thread.getModelContext()`; an object `category` selects drill-down on its own unless `items` is given. @default `true` when neither `items` nor `categories` is given |
-| `formatter` | `Unstable_DirectiveFormatter` | @default `unstable_defaultDirectiveFormatter` |
-| `onInserted` | `(item) => void` | Fires after the directive text lands in the composer. |
+| `items` | `Unstable_Mention[]` | 平铺列表：`{ id, type, label, description?, icon?, metadata? }`；提供该选项后，即使配置了工具 `category`，适配器仍会保持平铺。 |
+| `categories` | `Unstable_MentionCategory[]` | 用于逐级展开导航的分组提及；优先级高于 `items`。 |
+| `includeModelContextTools` | `boolean \| { category?, formatLabel?, icon? }` | 从 `aui.thread.getModelContext()` 包含工具；对象 `category` 会自行选择逐级展开，除非提供 `items`。当既未提供 `items` 也未提供 `categories` 时，默认值为 `true` |
+| `formatter` | `Unstable_DirectiveFormatter` | 默认值为 `unstable_defaultDirectiveFormatter` |
+| `onInserted` | `(item) => void` | 指令文本写入输入框后触发。 |
 
-Returns `{ adapter, directive, iconMap?, fallbackIcon? }`; spread `directive` onto `Unstable_TriggerPopover.Directive`.
+返回 `{ adapter, directive, iconMap?, fallbackIcon? }`；将 `directive` 展开到 `Unstable_TriggerPopover.Directive` 上。
 
 </RuntimeMode>
 
@@ -240,29 +240,29 @@ Returns `{ adapter, directive, iconMap?, fallbackIcon? }`; spread `directive` on
 
 ### useMentionMatches
 
-| Parameter | Type | Description |
+| 参数 | 类型 | 描述 |
 |-----------|------|-------------|
-| `value` | `string` | The current draft text. |
-| `people` | `readonly ComposerPerson[] \| undefined` | The full person list. |
+| `value` | `string` | 当前草稿文本。 |
+| `people` | `readonly ComposerPerson[] \| undefined` | 完整的人员列表。 |
 
-Returns the people whose `name` starts with the trailing `@query`, or `[]` when the caret is not inside one.
+返回 `name` 以末尾 `@query` 开头的人员；如果光标不在其中，则返回 `[]`。
 
 ### applyMention
 
-`applyMention(value: string, name: string): string` replaces the trailing `@query` in `value` with `@{name} ` (a trailing space included).
+`applyMention(value: string, name: string): string` 会将 `value` 中末尾的 `@query` 替换为 `@{name} `（包括末尾空格）。
 
 ### ComposerPerson
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `name` | `string` | Matched against the query; shown with an initial-letter avatar. |
-| `role` | `"agent" \| "human"` | Shown as a label on the row. |
+| `name` | `string` | 用于与查询匹配；显示由姓名首字母构成的头像。 |
+| `role` | `"agent" \| "human"` | 作为行标签显示。 |
 
 ### ComposerPersonItem
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `person` | `ComposerPerson` | required | The person to render. |
-| `active` | `boolean` | required | Tints the row. |
+| `person` | `ComposerPerson` | required | 要渲染的人员。 |
+| `active` | `boolean` | required | 为该行设置色调。 |
 
 </StandaloneMode>

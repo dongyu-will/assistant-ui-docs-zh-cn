@@ -1,9 +1,9 @@
 ---
-title: Why Store
-description: The problem Store solves.
+title: 为什么使用 Store
+description: Store 要解决的问题。
 ---
 
-With Tap's `useResource`, a component owns its resource directly:
+借助 Tap 的 `useResource`，组件可以直接拥有自己的资源：
 
 ```tsx
 const Counter = () => {
@@ -12,11 +12,11 @@ const Counter = () => {
 };
 ```
 
-This works when the component that creates the state is the same one that displays it. But what happens when they're far apart?
+当创建状态的组件与显示状态的组件是同一个组件时，这种方式运行良好。但当它们相距很远时会发生什么？
 
-## The gap
+## 差距
 
-In most apps, state is created near the top of the tree and consumed deep inside it. A chat app creates its thread state at the root, but individual messages render many layers down.
+在大多数应用中，状态在组件树的上层创建，却在树的深层被使用。聊天应用会在根部创建其会话线程状态，但单条消息的渲染位置可能要深入许多层。
 
 ```
 App              ← owns the thread
@@ -27,9 +27,9 @@ App              ← owns the thread
           └ Message  ← needs the thread's data
 ```
 
-You could prop-drill or set up your own React Context. Store does this for you.
+你可以通过 props 逐层传递，或者设置自己的 React Context。Store 会替你完成这些工作。
 
-## How Store bridges the gap
+## Store 如何弥合差距
 
 ```tsx
 // At the top — create and provide
@@ -49,4 +49,4 @@ const Message = () => {
 };
 ```
 
-`AuiProvider` creates the state from its `config` and makes it available to the tree. `useAuiState` reads from it — the component re-renders only when the selected value changes.
+`AuiProvider` 根据其 `config` 创建状态，并使其在组件树中可用。`useAuiState` 从中读取状态——组件仅在选中的值发生变化时重新渲染。

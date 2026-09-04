@@ -1,46 +1,46 @@
 ---
-title: LangChain React Runtime
-description: Use LangChain's useStream hook with a React chat UI through assistant-ui — a lighter LangGraph adapter that delegates streaming to @langchain/react.
+title: LangChain React 运行时
+description: 通过 assistant-ui 在 React 聊天 UI 中使用 LangChain 的 useStream hook——一个更轻量的 LangGraph 适配器，将流式传输委托给 @langchain/react。
 ---
 
 import { LangGraphIcon } from "@/components/icons/langgraph";
 
-`@assistant-ui/react-langchain` wraps [`useStream`](https://reference.langchain.com/javascript/langchain-react/use-stream) from `@langchain/react` and exposes it as an assistant-ui runtime. It targets the same backend as [`@assistant-ui/react-langgraph`](/docs/runtimes/langgraph/overview) (LangGraph Cloud) but at a higher level, delegating stream plumbing to the upstream hook.
+`@assistant-ui/react-langchain` 封装了来自 `useStream` 的 [`@langchain/react`](https://reference.langchain.com/javascript/langchain-react/use-stream) assistant-ui 运行时暴露出来。它面向与 [`@assistant-ui/react-langgraph`](/docs/runtimes/langgraph/overview)（LangGraph Cloud）相同的后端，但处于更高层级，将流式传输流程委托给上游 hook。
 
-## When to use it
+## 适用场景
 
-Pick `react-langchain` over `react-langgraph` when:
+在以下情况下，优先选择 `react-langchain` 而不是 `react-langgraph`：
 
-- You are scaffolding via `npx create-assistant-ui -t langchain` (the official template uses it).
-- Your app already depends on `@langchain/react` and uses `useStream` elsewhere.
-- You want to read custom state keys (`todos`, `files`, plans) reactively with `useLangChainState<T>(key)`.
-- You prefer a thin wrapper that stays pinned to upstream behavior.
+- 你通过 `npx create-assistant-ui -t langchain` 搭建项目（官方模板使用了它）。
+- 你的应用已经依赖 `@langchain/react`，并且在其他地方使用 `useStream`。
+- 你希望通过 `useLangChainState<T>(key)` 响应式地读取自定义状态键（`todos`、`files` 和计划）。
+- 你更喜欢保持与上游行为一致的轻量封装。
 
-Pick `react-langgraph` instead when:
+在以下情况下，则选择 `react-langgraph`：
 
-- You need a fully custom/bespoke backend stream (your own async generator) rather than `useStream`'s transport, or you're maintaining an existing `react-langgraph` app.
+- 你需要完全自定义的后端流（自己的异步生成器），而不是 `useStream` 的传输层；或者你正在维护现有的 `react-langgraph` 应用。
 
-Both adapters are first-class and now at feature parity (the [comparison](#comparison-with-react-langgraph) below has the full table); `react-langchain` is the newer, thinner wrapper pinned to upstream `useStream`.
+这两个适配器都是一等支持的，目前功能已基本对等（完整对比请参见下方的[对比表](#comparison-with-react-langgraph)）；`react-langchain` 是更新且更轻量的封装，并固定使用上游的 `useStream`。
 
-## Architecture
+## 架构
 
-`@assistant-ui/react-langchain` is layered on `ExternalStoreRuntime` (see [architecture](/docs/runtimes/concepts/architecture)). Graph state is the source of truth; the runtime renders messages from `state.values.messages` and submits user input back to the graph.
+`@assistant-ui/react-langchain` 构建于 `ExternalStoreRuntime` 之上（参见[架构](/docs/runtimes/concepts/architecture)）。图状态是事实来源；运行时从 `state.values.messages` 渲染消息，并将用户输入提交回图。
 
-Shared adapters (attachments, speech, feedback) work the same way described in [adapters](/docs/runtimes/concepts/adapters). Cloud thread persistence is built in.
+共享适配器（附件、语音、反馈）的工作方式与[适配器](/docs/runtimes/concepts/adapters)中所述相同。内置云端线程持久化功能。
 
-`thread.isLoading` reflects `useStream`'s `isThreadLoading` (initial history hydration), separate from `isRunning` (a run being in-flight).
+`thread.isLoading` 反映 `useStream` 的 `isThreadLoading`（初始历史记录注水），这与 `isRunning`（运行正在进行中）相互独立。
 
-## Requirements
+## 要求
 
-- A LangGraph Cloud API server (locally via [LangGraph Studio](https://docs.langchain.com/langsmith/quick-start-studio) or hosted via [LangSmith](https://www.langchain.com/langsmith)).
-- The graph state must include a `messages` key with LangChain-alike messages, or pass a custom `messagesKey`.
+- 一个 LangGraph Cloud API 服务器（本地通过 [LangGraph Studio](https://docs.langchain.com/langsmith/quick-start-studio) [LangSmith](https://www.langchain.com/langsmith)).
+- 图状态必须包含一个 `messages` 键，其值为类似 LangChain 的消息，或者传入自定义的 `messagesKey`。
 
-## Quickstart
+## 快速开始
 
 <Steps>
 <Step>
 
-### Install dependencies
+### 安装依赖
 
 <PlatformTabs>
 <Tab value="React">
@@ -63,7 +63,7 @@ Shared adapters (attachments, speech, feedback) work the same way described in [
 </Step>
 <Step>
 
-### Define the assistant component
+### 定义助手组件
 
 <PlatformTabs>
 <Tab value="React">
@@ -139,7 +139,7 @@ export function MyAssistant() {
 </Step>
 <Step>
 
-### Mount the component
+### 挂载组件
 
 <PlatformTabs>
 <Tab value="React">
@@ -194,7 +194,7 @@ export function App() {
 </Step>
 <Step>
 
-### Set environment variables
+### 设置环境变量
 
 <PlatformTabs>
 <Tab value="React">
@@ -226,22 +226,22 @@ LANGGRAPH_ASSISTANT_ID=your_graph_id
 </Step>
 <Step>
 
-### Set up UI components
+### 设置 UI 组件
 
 <PlatformTabs>
 <Tab value="React">
 
-Follow the [UI Components guide](/elements/thread).
+请参阅 [UI Components 指南](/elements/thread)。
 
 </Tab>
 <Tab value="React Native">
 
-Follow the [React Native setup](/docs/react-native).
+请参阅 [React Native 设置指南](/docs/react-native)。
 
 </Tab>
 <Tab value="React Ink">
 
-Follow the [Ink setup](/docs/ink).
+请参阅 [Ink 设置指南](/docs/ink)。
 
 </Tab>
 </PlatformTabs>
@@ -249,24 +249,24 @@ Follow the [Ink setup](/docs/ink).
 </Step>
 </Steps>
 
-## `useStreamRuntime` options
+## `useStreamRuntime` 选项
 
-`useStreamRuntime` accepts every option upstream `useStream` does, plus these assistant-ui-specific fields:
+`useStreamRuntime` 接受上游 `useStream` 支持的所有选项，此外还支持以下 assistant-ui 特有字段：
 
-| Option | Type | Description |
+| 选项 | 类型 | 描述 |
 | --- | --- | --- |
-| `cloud` | `AssistantCloud` | Optional. Persists threads via assistant-cloud. |
-| `adapters` | `{ attachments?, speech?, feedback? }` | Optional. Attachment, speech, and feedback adapters. |
-| `messagesKey` | `string` | The state key that holds messages. Defaults to `"messages"`. |
-| `uiStateKey` | `string` | The state key that holds generative `UIMessage`s. Defaults to `"ui"`. |
+| `cloud` | `AssistantCloud` | 可选。通过 assistant-cloud 持久化会话线程。 |
+| `adapters` | `{ attachments?, speech?, feedback? }` | 可选。附件、语音和反馈适配器。 |
+| `messagesKey` | `string` | 保存消息的状态键。默认为 `"messages"`。 |
+| `uiStateKey` | `string` | 保存生成式 `UIMessage` 的状态键。默认为 `"ui"`。 |
 
-### Forwarding per-run config
+### 转发每次运行的配置
 
-When a message is sent, its `runConfig.custom` (for example a selected mode or model) is forwarded on the underlying `useStream().submit` call as `config.configurable`. Automatic tool-result resumes and the interrupt helpers (`useLangChainRespond`, `useLangChainRespondAll`, and `useLangChainSubmit(null, { command })`) reuse that same recorded `configurable` unless the caller passes `config`. Raw `useLangChainSubmit` / `useLangChainSend` calls that start a new run do not inherit it. The recording is session-scoped and does not survive a reload. Read it in the graph from `config["configurable"]`; on LangGraph v1 the same values are also reachable through the Runtime `context`, which `config.configurable` is aliased to. This lets per-run app config reach the graph without extra wiring.
+发送消息时，其 `runConfig.custom`（例如选定的模式或模型）会作为 `config.configurable` 转发到底层的 `useStream().submit` 调用中。自动恢复工具结果以及中断辅助函数（`useLangChainRespond`、`useLangChainRespondAll` 和 `useLangChainSubmit(null, { command })`）会复用同一份已记录的 `configurable`，除非调用方传入 `config`。启动新运行的原始 `useLangChainSubmit` / `useLangChainSend` 调用不会继承该配置。该记录的作用域为会话，重新加载后不会保留。在图中可通过 `config["configurable"]` 读取；在 LangGraph v1 中，也可以通过 Runtime `context` 访问相同的值，而 `config.configurable` 就是该值的别名。这样，无需额外连接配置，即可将每次运行的应用配置传递到图中。
 
-## Reading custom state keys
+## 读取自定义状态键
 
-LangGraph agents often expose structured state beyond messages (plans, todos, scratch files, generative-UI artifacts). Read them directly with `useLangChainState`. It mirrors `useStream().values[key]` upstream and updates when the stream emits new state.
+LangGraph agent 通常会公开消息之外的结构化状态（计划、待办事项、临时文件、生成式 UI 工件）。使用 `useLangChainState` 直接读取这些状态。它会镜像上游的 `useStream().values[key]`，并在流式传输发出新状态时更新。
 
 <PlatformTabs>
 <Tab value="React">
@@ -339,24 +339,24 @@ function TodoList() {
 </Tab>
 </PlatformTabs>
 
-Signatures:
+签名：
 
 ```ts
 useLangChainState<T>(key: string): T | undefined;
 useLangChainState<T>(key: string, defaultValue: T): T;
 ```
 
-Useful with the [`deepagents`](https://docs.langchain.com/oss/python/deepagents) middleware, whose `write_todos` step updates `state.todos` alongside the tool-call stream. Reading the state key directly avoids reconstructing the list from partial tool-call args.
+适用于 [`deepagents`](https://docs.langchain.com/oss/python/deepagents) 中间件，其 `write_todos` 步骤会在工具调用流的同时更新 `state.todos`。直接读取状态键，可以避免从不完整的工具调用参数中重新构建列表。
 
 <Callout type="info">
-Added in v0.0.2 — see issue [#3862](https://github.com/assistant-ui/assistant-ui/issues/3862) for motivation.
+在 v0.0.2 中新增 — 查看 issue [#3862](https://github.com/assistant-ui/assistant-ui/issues/3862) 了解动机。
 </Callout>
 
-## Interrupts
+## 中断
 
-LangGraph interrupts pause the graph and wait for client input. `useLangChainInterruptState` exposes the current interrupt; `useLangChainRespond` resumes it with a response payload, while `useLangChainSubmit` resumes the graph with a raw state update.
+LangGraph 中断会暂停图并等待客户端输入。`useLangChainInterruptState` 暴露当前中断；`useLangChainRespond` 使用响应载荷恢复中断，而 `useLangChainSubmit` 则使用原始状态更新恢复图。
 
-`useLangChainRespond` is the cleaner resume path; it carries the response payload via `useStream().respond` and handles interrupt namespaces, so you don't have to construct a `Command`.
+`useLangChainRespond` 是更简洁的恢复路径；它通过 `useStream().respond` 传递响应载荷，并处理 interrupt 命名空间，因此你无需构造 `Command`。
 
 <PlatformTabs>
 <Tab value="React">
@@ -437,7 +437,7 @@ function InterruptPrompt() {
 </Tab>
 </PlatformTabs>
 
-When several interrupts are pending at once (e.g. parallel approvals), use `useLangChainRespondAll()` to resume them all in one run. Sequential `useLangChainRespond` calls can't, since the first resume starts a run and strands the rest.
+当同时存在多个待处理的中断时（例如并行审批），请使用 `useLangChainRespondAll()` 在一次运行中恢复所有中断。连续调用 `useLangChainRespond` 无法实现这一点，因为第一次恢复会启动一次运行，并使其余中断被搁置。
 
 ```tsx
 import {
@@ -455,7 +455,7 @@ await respondAll(
 );
 ```
 
-You can also resume with a raw `Command` via `useLangChainSubmit`:
+你也可以通过 `useLangChainSubmit` 使用原始 `Command` 恢复：
 
 <PlatformTabs>
 <Tab value="React">
@@ -549,9 +549,9 @@ function InterruptPrompt() {
 </Tab>
 </PlatformTabs>
 
-## Tool calls
+## 工具调用
 
-`useLangChainToolCalls` exposes the root tool calls `useStream` assembles from the `tools` channel — each entry carries a `name`, `args`, and `id`. Use it to render pending or streamed tool calls and approval UIs. It defaults to an empty array, so you can `.map` without a guard.
+`useLangChainToolCalls` 暴露了由 `tools` 通道组装的根工具调用 `useStream` ——每个条目都包含 `name`、`args` 和 `id`。使用它来渲染待处理或流式传输中的工具调用以及审批 UI。它默认为空数组，因此你可以在不添加保护条件的情况下 `.map`。
 
 <PlatformTabs>
 <Tab value="React">
@@ -618,11 +618,11 @@ function PendingToolCalls() {
 </Tab>
 </PlatformTabs>
 
-## Subagent and subgraph discovery
+## 子代理和子图发现
 
-For multi-agent graphs, `useStream` tracks which subagents and subgraphs it has seen on the current run as cheap discovery maps. `useLangChainSubagents` and `useLangChainSubgraphs` surface those maps — keyed by namespace, each value a `SubagentDiscoverySnapshot` / `SubgraphDiscoverySnapshot`. Both default to a stable empty map, so you can iterate without a guard.
+对于多智能体图，`useStream` 会将当前运行中已发现的子代理和子图记录为轻量级发现映射。`useLangChainSubagents` 和 `useLangChainSubgraphs` 会公开这些映射——以命名空间为键，每个值都是一个 `SubagentDiscoverySnapshot` / `SubgraphDiscoverySnapshot`。两者均默认为稳定的空映射，因此你可以直接进行迭代，无需额外的保护判断。
 
-These replace `react-langgraph`'s subgraph `eventHandlers`: v1 surfaces discovery as maps you read reactively rather than per-event callbacks.
+这些映射取代了 `react-langgraph` 的子图 `eventHandlers`：v1 将发现结果作为映射公开，你可以响应式地读取这些映射，而不是使用逐事件回调。
 
 ```tsx
 import {
@@ -646,9 +646,9 @@ function Discovered() {
 }
 ```
 
-## Subagent and subgraph views
+## 子代理和子图视图
 
-The discovery maps above pair with v1's scoped selector hooks to render a subagent's or subgraph's own messages and tool calls. `useLangChainStream` exposes the underlying `useStream` handle; feed it to `useMessages(stream, target)` / `useToolCalls(stream, target)` from `@langchain/react`, with a `SubagentDiscoverySnapshot` / `SubgraphDiscoverySnapshot` from `useLangChainSubagents` / `useLangChainSubgraphs` as the target. `useLangChainStream` returns `undefined` outside the runtime provider.
+上面的发现映射结合 v1 的作用域选择器 hooks，可用于渲染子代理或子图自身的消息和工具调用。`useLangChainStream` 暴露底层的 `useStream` 句柄；将其传递给 `@langchain/react` 中的 `useMessages(stream, target)` / `useToolCalls(stream, target)`，并以 `useLangChainSubagents` / `useLangChainSubgraphs` 中的 `SubagentDiscoverySnapshot` / `SubgraphDiscoverySnapshot` 作为目标。`useLangChainStream` 会在运行时提供程序之外返回 `undefined`。
 
 ```tsx
 import {
@@ -683,9 +683,9 @@ function Subagents() {
 }
 ```
 
-## Per-message metadata
+## 每条消息的元数据
 
-`useMessageMetadata` (from `@langchain/react`) reads per-message metadata (e.g. `parentCheckpointId`) for a given message id. Pair it with `useLangChainStream`, which returns `undefined` outside the runtime provider; guard the stream before calling the selector, since `useMessageMetadata` throws on an undefined stream.
+`useMessageMetadata`（来自 `@langchain/react`）会读取指定消息 ID 的每条消息元数据（例如 `parentCheckpointId`）。将其与 `useLangChainStream` 配合使用，后者会在运行时提供程序之外返回 `undefined`；调用选择器前请先守护流，因为 `useMessageMetadata` 在流未定义时会抛出异常。
 
 ```tsx
 import { useLangChainStream } from "@assistant-ui/react-langchain";
@@ -709,9 +709,9 @@ function MessageInfo({ messageId }: { messageId: string }) {
 }
 ```
 
-## Media
+## 媒体
 
-The v1 media hooks surface multimodal media streamed by the agent. Feed the `useLangChainStream` handle to them — the same pattern as the views and metadata sections above.
+v1 媒体 hooks 会呈现由助手流式传输的多模态媒体。将 `useLangChainStream` 句柄传递给它们——使用与上方视图和元数据部分相同的模式。
 
 ```tsx
 import { useLangChainStream } from "@assistant-ui/react-langchain";
@@ -734,11 +734,11 @@ function Media() {
 }
 ```
 
-## Generative UI
+## 生成式 UI
 
-Graphs can accumulate UI components in their state and attach each one to the assistant message that produced it. The runtime reads these from `stream.values[uiStateKey]` (default `"ui"`) and, for every `UIMessage` whose parent id matches an assistant message, emits a `data` part on that message. The parent id is read from `metadata.message_id` (Python SDK) or `metadata.id` (JS SDK). Pass `uiStateKey` if your graph stores them elsewhere.
+图可以在其状态中累积 UI 组件，并将每个组件关联到生成它的助手消息。运行时会从 `stream.values[uiStateKey]`（默认为 `"ui"`）读取这些组件，并针对每个父 ID 与助手消息匹配的 `UIMessage`，在该消息上发出一个 `data` 部分。父 ID 从 `metadata.message_id`（Python SDK）或 `metadata.id`（JS SDK）中读取。如果图将这些组件存储在其他位置，请传入 `uiStateKey`。
 
-Register the components with `makeAssistantDataUI`, keyed by the `UIMessage`'s `name`, and mount the returned element once inside the runtime provider:
+使用 `makeAssistantDataUI` 注册组件，以 `UIMessage` 的 `name` 作为键，并在运行时提供程序中挂载返回的元素一次：
 
 ```tsx
 import {
@@ -768,13 +768,13 @@ function App() {
 }
 ```
 
-This covers two paths transparently. The **state-snapshot** path renders whatever UI the graph has committed to its state. The **live** path renders UI streamed over the `custom` channel by `push_ui_message` / `remove_ui_message` before (or instead of) it lands in state, so components appear as the graph emits them. The runtime accumulates the live events and merges them with the state snapshot, with the snapshot authoritative once a UI lands in state. Both feed the same `makeAssistantDataUI` renderers.
+这会无缝覆盖两条路径。**状态快照**路径会渲染图已提交到其状态中的 UI。**实时**路径则会在 UI 进入状态之前（或不进入状态时），通过 `custom` 通道由 `push_ui_message` / `remove_ui_message` 流式传输 UI，因此组件会随着图发出它们而显示。运行时会累积实时事件，并将其与状态快照合并；一旦 UI 进入状态，状态快照将作为权威来源。两条路径都会使用相同的 `makeAssistantDataUI` 渲染器。
 
-The live path requires the graph's `streamMode` to include `"custom"` so the UI events reach the client.
+实时路径要求图的 `streamMode` 包含 `"custom"`，以便 UI 事件能够传递到客户端。
 
-## Errors
+## 错误
 
-`useLangChainError` exposes the last run or hydration error from upstream `useStream().error`. It is untyped (`unknown`), so narrow it at the use site before rendering.
+`useLangChainError` 会公开上游 `useStream().error` 最近一次运行或水合错误。它没有类型（`unknown`），因此请在使用位置先对其进行类型收窄，然后再渲染。
 
 ```tsx
 import { useLangChainError } from "@assistant-ui/react-langchain";
@@ -786,17 +786,17 @@ function ErrorBanner() {
 }
 ```
 
-## Message conversion
+## 消息转换
 
-`convertLangChainBaseMessage` transforms a LangChain `BaseMessage` into an assistant-ui message. Use it when building a custom `ExternalStoreAdapter` that consumes LangChain messages outside `useStreamRuntime`.
+`convertLangChainBaseMessage` 将 LangChain `BaseMessage` 转换为 assistant-ui 消息。在构建自定义 `ExternalStoreAdapter`，并需要在 `useStreamRuntime` 外部使用 LangChain 消息时使用它。
 
 ```ts
 import { convertLangChainBaseMessage } from "@assistant-ui/react-langchain";
 ```
 
-## Cloud persistence
+## 云端持久化
 
-Pass an `AssistantCloud` instance to persist threads across sessions. The runtime automatically wires thread list management and resumes state from the cloud.
+传入一个 `AssistantCloud` 实例，即可在多个会话之间持久化线程。运行时会自动连接线程列表管理，并从云端恢复状态。
 
 ```tsx
 // see "AssistantCloud" in /docs/runtimes/concepts/threads for cloud setup
@@ -807,9 +807,9 @@ const runtime = useStreamRuntime({
 });
 ```
 
-## Custom `messagesKey`
+## 自定义 `messagesKey`
 
-If your graph stores messages under a non-default key, pass `messagesKey` so the runtime submits tool results and human turns to the correct state slot:
+如果你的图将消息存储在非默认键下，请传入 `messagesKey`，以便运行时将工具结果和人工回合提交到正确的状态槽位：
 
 ```tsx
 const runtime = useStreamRuntime({
@@ -819,83 +819,83 @@ const runtime = useStreamRuntime({
 });
 ```
 
-## Comparison with `react-langgraph`
+## 与 `react-langgraph` 的比较
 
-Both packages connect assistant-ui to LangGraph backends. They are independent adapters for different upstream libraries; one is not a successor to the other. The official `create-assistant-ui` template (`-t langchain`) ships `react-langchain`. The two are now at feature parity; `react-langgraph` remains the choice for a fully custom backend stream or an existing `react-langgraph` app.
+这两个包都将 assistant-ui 连接到 LangGraph 后端。它们是面向不同上游库的独立适配器；其中一个并不是另一个的后继版本。官方 `create-assistant-ui` 模板（`-t langchain`）附带 `react-langchain`。目前两者的功能已基本持平；如果需要完全自定义的后端流，或已有 `react-langgraph` 应用，则仍应选择 `react-langgraph`。
 
-| Aspect | `react-langgraph` | `react-langchain` |
+| 方面 | `react-langgraph` | `react-langchain` |
 | --- | --- | --- |
-| Wraps | `@langchain/langgraph-sdk` (raw SDK) | `@langchain/react` (`useStream` hook) |
-| Age | Sept 2024 onward | April 2026 onward |
-| Version | `0.13.x` | `0.0.x` |
-| Lines of source | ~7,500 | ~600 |
-| Built on | `useExternalStoreRuntime` | `useExternalStoreRuntime` |
-| `create-assistant-ui` template | No template | `-t langchain` |
+| 封装对象 | `@langchain/langgraph-sdk`（原始 SDK） | `@langchain/react`（`useStream` hook） |
+| 开始时间 | 2024 年 9 月起 | 2026 年 4 月起 |
+| 版本 | `0.13.x` | `0.0.x` |
+| 源代码行数 | 约 7,500 行 | 约 600 行 |
+| 构建基础 | `useExternalStoreRuntime` | `useExternalStoreRuntime` |
+| `create-assistant-ui` 模板 | 无模板 | `-t langchain` |
 
-### Feature coverage
+### 功能覆盖范围
 
-| Feature | `react-langgraph` | `react-langchain` |
+| 功能 | `react-langgraph` | `react-langchain` |
 | --- | --- | --- |
-| Stream messages | Yes (`useLangGraphRuntime`) | Yes (`useStreamRuntime`) |
-| Interrupt state | Yes | Yes |
-| Thread history loading state (`thread.isLoading`) | Yes | Yes |
-| Send raw state update / resume command | Yes | Yes (`useLangChainSubmit`; `useLangChainRespond` for payload resume) |
-| Forward per-run `runConfig` | Yes (whole object → `config`) | Yes (`custom` → `config.configurable`) |
-| Read arbitrary custom state key | No | Yes (`useLangChainState<T>(key)`) |
-| Root tool-calls projection | Via message parts | Yes (`useLangChainToolCalls`) |
-| File content parts in messages | Yes | Yes |
-| Regenerate (checkpoint fork) | Yes (`getCheckpointId`) | Yes (auto-resolved) |
-| Edit message (checkpoint fork) | Yes | Yes (auto-resolved) |
-| Per-message metadata (`messages-tuple`) | Yes | Yes (`useMessageMetadata` via `useLangChainStream`) |
-| Multimodal media (audio/image/video/file) | Via parts | Yes (v1 media hooks via `useLangChainStream`) |
-| Generative UI (state snapshot) | Yes | Yes (`uiStateKey`) |
-| Generative UI (live `push_ui_message`) | Yes | Yes (`streamMode: ["custom"]`) |
-| Subgraph / namespaced stream events | Yes (via `eventHandlers`) | Replaced by `useLangChainSubagents` / `useLangChainSubgraphs` + views |
-| Subagent discovery | Via `eventHandlers` | Yes (`useLangChainSubagents`) |
-| Subgraph discovery | Via `eventHandlers` | Yes (`useLangChainSubgraphs`) |
-| Subagent/subgraph message views | Via `eventHandlers` | Yes (via `useLangChainStream` + v1 selector hooks) |
-| End-to-end cancellation primitive | Yes (`unstable_createLangGraphStream`) | n/a — cancellation via `useStream().stop()` (Cancel button on by default) |
-| Message accumulator utility | Yes (`LangGraphMessageAccumulator`) | n/a — `useStream` owns accumulation |
-| Streaming timing (per-message) | Yes | Yes |
-| Cloud thread persistence | Yes | Yes |
+| 流式传输消息 | 是（`useLangGraphRuntime`） | 是（`useStreamRuntime`） |
+| 中断状态 | 是 | 是 |
+| 线程历史加载状态（`thread.isLoading`） | 是 | 是 |
+| 发送原始状态更新 / 恢复命令 | 是 | 是（`useLangChainSubmit`；负载恢复使用 `useLangChainRespond`） |
+| 转发每次运行的 `runConfig` | 是（整个对象 → `config`） | 是（`custom` → `config.configurable`） |
+| 读取任意自定义状态键 | 否 | 是（`useLangChainState<T>(key)`） |
+| 根级工具调用投影 | 通过消息部分 | 是（`useLangChainToolCalls`） |
+| 消息中的文件内容部分 | 是 | 是 |
+| 重新生成（检查点分叉） | 是（`getCheckpointId`） | 是（自动解析） |
+| 编辑消息（检查点分叉） | 是 | 是（自动解析） |
+| 每条消息的元数据（`messages-tuple`） | 是 | 是（通过 `useLangChainStream` 使用 `useMessageMetadata`） |
+| 多模态媒体（音频 / 图像 / 视频 / 文件） | 通过部分 | 是（通过 `useLangChainStream` 使用 v1 媒体 hook） |
+| 生成式 UI（状态快照） | 是 | 是（`uiStateKey`） |
+| 生成式 UI（实时 `push_ui_message`） | 是 | 是（`streamMode: ["custom"]`） |
+| 子图 / 命名空间流事件 | 是（通过 `eventHandlers`） | 由 `useLangChainSubagents` / `useLangChainSubgraphs` + 视图取代 |
+| 子助手发现 | 通过 `eventHandlers` | 是（`useLangChainSubagents`） |
+| 子图发现 | 通过 `eventHandlers` | 是（`useLangChainSubgraphs`） |
+| 子助手 / 子图消息视图 | 通过 `eventHandlers` | 是（通过 `useLangChainStream` + v1 selector hook） |
+| 端到端取消原语 | 是（`unstable_createLangGraphStream`） | 不适用——通过 `useStream().stop()` 取消（默认启用“取消”按钮） |
+| 消息累加器工具 | 是（`LangGraphMessageAccumulator`） | 不适用——由 `useStream` 负责累加 |
+| 流式传输计时（每条消息） | 是 | 是 |
+| 云端线程持久化 | 是 | 是 |
 
-Per-message streaming timing is attached automatically to `message.metadata.timing` (no setup), matching `react-langgraph`. It captures time-to-first-token, total stream time, chunk count, and tokens/sec, computed from message growth while the run is in flight.
+每条消息的流式传输计时会自动附加到 `message.metadata.timing`（无需设置），与 `react-langgraph` 保持一致。它会捕获首个 token 的耗时、总流式传输时间、分块数量和每秒 token 数；这些数据根据运行进行期间的消息增长计算得出。
 
-`react-langchain` is the newer, thinner wrapper. It delegates to upstream `useStream` rather than re-implementing the stream plumbing, which is why its footprint is smaller.
+`react-langchain` 是较新且更轻量的封装。它将工作委托给上游的 `useStream`，而不是重新实现流处理逻辑，因此代码规模更小。
 
-Regenerate works without configuration. Clicking regenerate resolves the server checkpoint to fork from (the checkpoint each message records as it streams in, falling back to a `stream.client.threads.getHistory(threadId)` id match for older turns), then re-runs with `submit(null, { forkFrom })`. It works on checkpoint-enabled backends (for example LangGraph Cloud) and degrades gracefully; when no checkpoint resolves the regenerate is a no-op. `react-langgraph` instead requires a user-supplied `getCheckpointId` callback. Editing a message forks from the same checkpoint and submits the edited human content instead of re-running the prior turn; editing the first message forks from the thread's initial checkpoint to restart it.
+重新生成无需配置即可工作。点击“重新生成”后，系统会解析要从中分叉的服务器检查点（每条消息在流式传输进入时记录的检查点；对于较旧的轮次，则回退到匹配 `stream.client.threads.getHistory(threadId)` ID），然后使用 `submit(null, { forkFrom })` 再次运行。它适用于启用了检查点的后端（例如 LangGraph Cloud），并且能够优雅降级；当无法解析出检查点时，重新生成操作不会执行。相反，`react-langgraph` 要求用户提供 `getCheckpointId` 回调。编辑消息时会从同一个检查点分叉，并提交编辑后的助手内容，而不是重新运行之前的轮次；编辑第一条消息时，会从线程的初始检查点分叉，以重新启动线程。
 
-### Hook name mapping
+### Hook 名称映射
 
-| `react-langgraph` | `react-langchain` | Notes |
+| `react-langgraph` | `react-langchain` | 备注 |
 | --- | --- | --- |
-| `useLangGraphRuntime` | `useStreamRuntime` | Options extend upstream `UseStreamOptions`; no `stream` / `create` / `load` to write. |
-| `useLangGraphInterruptState` | `useLangChainInterruptState` | Same return shape. |
-| `useLangGraphSendCommand` | `useLangChainRespond` | Preferred resume; carries a payload via `stream.respond`. For a raw `Command`, use `useLangChainSubmit(null, { command })`. |
-| `useLangGraphSend` | _(use `runtime.thread.append`)_ | No direct equivalent; send turns through the runtime. |
-| `useLangGraphMessageMetadata` | _(use `useMessageMetadata(useLangChainStream(), id)`)_ | Per-message metadata via the upstream selector hook. |
-| `useLangGraphUIMessages` | _(UI renders as data parts; register with `makeAssistantDataUI`)_ | See [Generative UI](#generative-ui). |
-| _(none)_ | `useLangChainState<T>(key)` | New — reads any custom state key reactively. |
-| _(none)_ | `useLangChainToolCalls` | New — root tool calls assembled by `useStream`. |
-| _(none)_ | `useLangChainError()` | New — reads the last run/hydration error reactively. |
-| _(none)_ | `useLangChainRespondAll` | Resume multiple interrupts at one checkpoint (`stream.respondAll`). |
-| _(none)_ | `useLangChainInterrupts` | New — every interrupt pending at the checkpoint, each with `id` and `value`. |
-| _(via `eventHandlers`)_ | `useLangChainSubagents` | New — subagents discovered on the current run; replaces subgraph event handlers. |
-| _(via `eventHandlers`)_ | `useLangChainSubgraphs` | New — subgraphs discovered on the current run; replaces subgraph event handlers. |
-| _(none)_ | `useLangChainStream` | New — the raw `useStream` handle for v1's scoped `useMessages` / `useToolCalls` selector hooks. |
+| `useLangGraphRuntime` | `useStreamRuntime` | 选项扩展自上游的 `UseStreamOptions`；无需编写 `stream` / `create` / `load`。 |
+| `useLangGraphInterruptState` | `useLangChainInterruptState` | 返回结构相同。 |
+| `useLangGraphSendCommand` | `useLangChainRespond` | 首选的恢复方式；通过 `stream.respond` 携带负载。对于原始 `Command`，请使用 `useLangChainSubmit(null, { command })`。 |
+| `useLangGraphSend` | _（使用 `runtime.thread.append`）_ | 没有直接等价项；通过运行时发送轮次。 |
+| `useLangGraphMessageMetadata` | _（使用 `useMessageMetadata(useLangChainStream(), id)`）_ | 通过上游 selector hook 获取每条消息的元数据。 |
+| `useLangGraphUIMessages` | _（UI 将其渲染为数据部分；使用 `makeAssistantDataUI` 注册）_ | 请参阅[生成式 UI](#generative-ui)。 |
+| _（无）_ | `useLangChainState<T>(key)` | 新增——响应式读取任意自定义状态键。 |
+| _（无）_ | `useLangChainToolCalls` | 新增——由 `useStream` 组装根级工具调用。 |
+| _（无）_ | `useLangChainError()` | 新增——响应式读取最近一次运行 / 水合错误。 |
+| _（无）_ | `useLangChainRespondAll` | 在一个检查点恢复多个中断（`stream.respondAll`）。 |
+| _（无）_ | `useLangChainInterrupts` | 新增——检查点处待处理的每个中断，每个中断都包含 `id` 和 `value`。 |
+| _（通过 `eventHandlers`）_ | `useLangChainSubagents` | 新增——发现当前运行中的子助手；取代子图事件处理器。 |
+| _（通过 `eventHandlers`）_ | `useLangChainSubgraphs` | 新增——发现当前运行中的子图；取代子图事件处理器。 |
+| _（无）_ | `useLangChainStream` | 新增——提供原始的 `useStream` 句柄，用于 v1 的作用域 `useMessages` / `useToolCalls` selector hook。 |
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     icon={<LangGraphIcon width={20} height={20} className="text-[#1C3C3C] dark:text-[#5b9595]" />}
     title="LangGraph"
-    description="The original LangGraph adapter, built on the raw SDK."
+    description="基于原始 SDK 构建的 LangGraph 适配器。"
     href="/docs/runtimes/langgraph/overview"
   />
   <Card
     title="ExternalStoreRuntime"
-    description="The core runtime react-langchain is built on."
+    description="react-langchain 所依赖的核心运行时。"
     href="/docs/runtimes/custom/external-store"
   />
 </Cards>

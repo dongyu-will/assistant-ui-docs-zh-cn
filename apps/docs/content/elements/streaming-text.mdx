@@ -1,20 +1,20 @@
 ---
-title: "Streaming text"
-description: "Tokens arrive softly: the newest words land in blue and settle into ink."
+title: "流式文本"
+description: "Token 轻柔抵达：最新词语落在蓝色中，并逐渐沉淀为墨色。"
 ---
 
-Word by word text with the newest handful tinted blue and a caret at the end while it streams; older words fade back to plain text over the next few hundred milliseconds. With a runtime you feed it a part's growing text and its running status; standalone you hold the segments and a reveal count yourself.
+文本逐词显示：流式传输期间，最新的几个词会染成蓝色，末尾带有插入符；较早的词会在接下来的几百毫秒内逐渐淡回普通文本。使用运行时（runtime）时，你只需向它传入某个 part 不断增长的文本及其运行状态；单独使用时，则需要自行保存 segments 和 reveal count。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-`MessagePrimitive.Parts` hands a custom part renderer the part's own fields as props, `text` and `status` included, so there is no selector to write at all: `count` just tracks how many words that string currently has.
+`MessagePrimitive.Parts` 会将 part 自身的字段作为 props 传给自定义 part renderer（part 渲染器），包括 `text` 和 `status`，因此完全不需要编写选择器：`count` 只需跟踪该字符串当前包含多少个词。
 
 <Steps>
   <Step>
 
-### Register it as a part renderer
+### 将其注册为 part renderer
 
 ```tsx title="components/assistant-ui/elements/streaming-text.tsx"
 "use client";
@@ -30,12 +30,12 @@ const StreamingTextPart: TextMessagePartComponent = ({ text, status }) => {
 };
 ```
 
-`TextMessagePartComponent` is the same component type `MessagePrimitive.Parts` expects for its `Text` slot, so no wrapper or adapter is needed between the two.
+`TextMessagePartComponent` 与 `MessagePrimitive.Parts` 为其 `Text` 插槽所需的组件类型相同，因此两者之间不需要包装器或适配器。
 
   </Step>
   <Step>
 
-### Plug it into the parts list
+### 将其接入 parts 列表
 
 ```tsx
 import { MessagePrimitive } from "@assistant-ui/react";
@@ -43,7 +43,7 @@ import { MessagePrimitive } from "@assistant-ui/react";
 <MessagePrimitive.Parts components={{ Text: StreamingTextPart, Reasoning: StreamingTextPart }} />
 ```
 
-The same component works for both slots: a `ReasoningMessagePartComponent` carries the same `text` and `status` fields. Once a part's `status.type` moves to `"complete"`, the caret disappears and the last words settle to plain text on their own.
+同一个组件可用于两个插槽：`ReasoningMessagePartComponent` 携带相同的 `text` 和 `status` 字段。当某个 part 的 `status.type` 变为 `"complete"` 后，插入符会消失，最后几个词也会自行沉淀为普通文本。
 
   </Step>
 </Steps>
@@ -52,12 +52,12 @@ The same component works for both slots: a `ReasoningMessagePartComponent` carri
 
 <StandaloneMode>
 
-Standalone, you decide both what the segments say and how many words are currently revealed; the element only handles the fade and the coloring.
+单独使用时，由你决定 segments 的内容以及当前显示多少个词；该元素只负责淡出效果和着色。
 
 <Steps>
   <Step>
 
-### Hold segments and a reveal count
+### 保存 segments 和 reveal count
 
 ```tsx title="app/answer.tsx"
 "use client";
@@ -77,12 +77,12 @@ export function Answer() {
 }
 ```
 
-`mono: true` on a segment renders that run of words in a code-styled span; it applies to every word inside that segment.
+对 segment 使用 `mono: true` 会将该段词语渲染在代码样式的 span 中；该样式会应用于该 segment 内的每个词。
 
   </Step>
   <Step>
 
-### Advance the count yourself
+### 手动推进计数
 
 ```tsx
 useEffect(() => {
@@ -91,14 +91,14 @@ useEffect(() => {
 }, []);
 ```
 
-Nothing advances `count` on its own; an out-of-range value clamps rather than throwing, so it is safe to overshoot.
+`count` 不会自行推进；超出范围的值会被限制，而不会抛出异常，因此可以安全地超额设置。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 工作原理
 
 ```tsx
 <p data-slot="streaming-text">
@@ -107,11 +107,11 @@ Nothing advances `count` on its own; an out-of-range value clamps rather than th
 </p>
 ```
 
-Every segment's text is split on spaces and rejoined into words separated by a single space each: a segment's own line breaks or repeated spaces do not survive into the rendered output. `count` clamps between 0 and the total word count (a negative or `NaN` count shows nothing, an overly large one shows everything). While `streaming` is `true`, the last two words currently shown render tinted; every earlier word is plain text, and a word already past that trailing window transitions back to plain over 700ms rather than snapping. The trailing caret only renders when `streaming` is `true` and at least one word is shown.
+每个 segment 的文本都会按空格拆分，再重新连接为由单个空格分隔的词语：segment 自身的换行或连续空格不会保留在渲染结果中。`count` 会被限制在 0 到词语总数之间（负数或 `NaN` 计数不会显示任何内容，过大的计数则会显示全部内容）。当 `streaming` 为 `true` 时，当前显示的最后两个词会以着色显示；更早的词显示为普通文本，而已经超出末尾窗口的词会在 700ms 内过渡回普通文本，而不是立即切换。只有当 `streaming` 为 `true` 且至少显示一个词时，末尾插入符才会渲染。
 
-## Examples
+## 示例
 
-### Marking a span as code
+### 将文本范围标记为代码
 
 ```tsx
 const segments: Segment[] = [
@@ -121,26 +121,26 @@ const segments: Segment[] = [
 ];
 ```
 
-### Restyle the text
+### 重新设置文本样式
 
-Both lanes take `className` on the root, which starts as `min-h-[8.5rem] max-w-sm text-sm leading-relaxed`. The tint and the caret are both fixed to `text-blue-500`/`bg-blue-500`; there is no prop for either color.
+两种方式都可以在根元素上接收 `className`，其初始值为 `min-h-[8.5rem] max-w-sm text-sm leading-relaxed`。着色和插入符都固定使用 `text-blue-500`/`bg-blue-500`；这两种颜色均没有对应的 prop。
 
 ```tsx
 <StreamingText className="max-w-none text-base" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### Part renderer props
 
-| Prop | Type | Description |
+| Prop | 类型 | 描述 |
 |------|------|-------------|
-| `text` | `string` | The part's string streamed so far. |
-| `status` | `MessagePartStatus` | `status.type === "running"` until the part settles. |
+| `text` | `string` | 到目前为止通过流式传输得到的 part 字符串。 |
+| `status` | `MessagePartStatus` | 在 part 完成前为 `status.type === "running"`。 |
 
-These arrive on any component registered under `MessagePrimitive.Parts`'s `Text` or `Reasoning` slot; both `TextMessagePartComponent` and `ReasoningMessagePartComponent` carry them.
+这些字段会传入注册在 `MessagePrimitive.Parts` 的 `Text` 或 `Reasoning` 插槽下的任意组件；`TextMessagePartComponent` 和 `ReasoningMessagePartComponent` 都会携带这些字段。
 
 </RuntimeMode>
 
@@ -148,13 +148,13 @@ These arrive on any component registered under `MessagePrimitive.Parts`'s `Text`
 
 ### StreamingText
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `segments` | `Segment[]` | required | `{ text: string; mono?: boolean }[]`, split on spaces and concatenated into one word stream. |
-| `count` | `number` | required | Words to reveal, clamped between 0 and the total word count. |
-| `streaming` | `boolean` | required | Tints the newest two shown words and renders a trailing caret. |
-| `className` | `string` | | Merged onto the root. |
+| `segments` | `Segment[]` | 必填 | `{ text: string; mono?: boolean }[]`，按空格拆分并连接成一个词语流。 |
+| `count` | `number` | 必填 | 要显示的词数，限制在 0 到词语总数之间。 |
+| `streaming` | `boolean` | 必填 | 为当前显示的最新两个词着色，并渲染末尾插入符。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `p` props except `children`, `segments`, `count`, and `streaming` are forwarded to the root.
+除 `children`、`segments`、`count` 和 `streaming` 外，所有其他 `p` props 都会转发到根元素。
 
 </StandaloneMode>

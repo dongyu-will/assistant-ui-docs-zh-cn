@@ -1,15 +1,15 @@
 ---
-title: Sibling Scopes
-description: Scopes that reference each other at the same level.
+title: 同级作用域
+description: 在同一层级相互引用的作用域。
 ---
 
-Child scopes point down — from parent to child. But sometimes scopes at the same level need to interact. A `tools` scope might need to register definitions into a `modelContext` scope. A `composer` scope might need to read from a `thread` scope.
+子作用域向下指向——从父作用域指向子作用域。但有时，同一层级的作用域需要相互交互。一个 `tools` 作用域可能需要向 `modelContext` 作用域注册定义。一个 `composer` 作用域可能需要从 `thread` 作用域读取数据。
 
-These are **sibling scopes** — scopes that sit at the same level in the provider tree and reference each other.
+这些就是**同级作用域**——位于提供者树同一层级并相互引用的作用域。
 
-## The problem
+## 问题
 
-When you pass multiple scopes in an `AuiConfig`, they're all created as siblings:
+当你在 `AuiConfig` 中传入多个作用域时，它们都会作为同级作用域创建：
 
 ```tsx
 AuiConfig({
@@ -19,11 +19,11 @@ AuiConfig({
 });
 ```
 
-But what if `ToolsResource` needs to call methods on the `modelContext` scope? At definition time, the `tools` resource doesn't have access to its siblings.
+但如果 `ToolsResource` 需要调用 `modelContext` 作用域上的方法，该怎么办？在定义时，`tools` 资源无法访问其同级作用域。
 
 ## useAssistantClientRef
 
-`useAssistantClientRef()` gives a resource access to the store being built. It returns a ref whose `.current` property points to the `AssistantClient` once all scopes are mounted:
+`useAssistantClientRef()` 让资源可以访问正在构建的存储。它返回一个 ref，其 `.current` 属性会在所有作用域挂载后指向 `AssistantClient`：
 
 ```ts
 import { resource } from "@assistant-ui/tap";
@@ -50,15 +50,15 @@ const useToolsResource = (): ClientOutput<"tools"> => {
 const ToolsResource = resource(useToolsResource);
 ```
 
-Use `useAssistantClientRef` in effects, not during the resource body. The ref is populated after all sibling scopes are mounted, so it's only safe to access in `useEffect` or in methods called later.
+请在 effect 中使用 `useAssistantClientRef`，不要在资源主体中使用。该 ref 会在所有同级作用域挂载后填充，因此只有在 `useEffect` 中或在稍后调用的方法中访问它才是安全的。
 
 ## attachTransformScopes
 
-`useAssistantClientRef` lets a scope talk to siblings at runtime. But what if the sibling scope doesn't exist yet? If a user only provides `thread: ThreadResource()`, there's no `modelContext` to talk to.
+`useAssistantClientRef` 允许作用域在运行时与同级作用域通信。但如果同级作用域尚不存在呢？如果用户只提供了 `thread: ThreadResource()`，就没有 `modelContext` 可供通信。
 
-`attachTransformScopes` solves this by letting a resource declare: "when I'm mounted, make sure these sibling scopes also exist."
+`attachTransformScopes` 通过允许资源声明“挂载我时，确保这些同级作用域也存在”来解决这个问题。
 
-Attach the transform to the hook function you passed to `resource()` — transforms are keyed by the hook, not the resource wrapper:
+将 transform 附加到你传递给 `resource()` 的 hook 函数上——transform 按 hook 进行关联，而不是按资源包装器进行关联：
 
 ```ts
 import { attachTransformScopes } from "@assistant-ui/store";
@@ -71,17 +71,17 @@ attachTransformScopes(useToolsResource, (scopes, parent) => {
 });
 ```
 
-The transform function receives:
-- `scopes` — the current scopes config being built (mutate it directly)
-- `parent` — the parent `AssistantClient` (from the `AuiProvider` above)
+transform 函数接收：
+- `scopes` — 当前正在构建的作用域配置（直接修改它）
+- `parent` — 父级 `AssistantClient`（来自上方的 `AuiProvider`）
 
-It mutates the `scopes` object directly, adding scopes that should be created alongside.
+它会直接修改 `scopes` 对象，添加应当与其一起创建的作用域。
 
-### Checking parent.source
+### 检查 parent.source
 
-Before adding a scope, check `parent.scopeName.source`:
-- `null` — the scope isn't provided by any ancestor. Safe to add it here.
-- `"root"` or a scope name — an ancestor already provides this scope. Don't duplicate it.
+添加作用域前，请检查 `parent.scopeName.source`：
+- `null` — 该作用域未由任何祖先提供，可以安全地在此处添加。
+- `"root"` 或某个作用域名称 — 祖先已经提供了该作用域，不要重复添加。
 
 ```ts
 attachTransformScopes(useMyResource, (scopes, parent) => {
@@ -92,9 +92,9 @@ attachTransformScopes(useMyResource, (scopes, parent) => {
 });
 ```
 
-### Adding derived scopes
+### 添加派生作用域
 
-Transforms can also add `Derived` scopes:
+Transform 还可以添加 `Derived` 作用域：
 
 ```ts
 attachTransformScopes(useThreadResource, (scopes) => {
@@ -106,27 +106,27 @@ attachTransformScopes(useThreadResource, (scopes) => {
 });
 ```
 
-This ensures that when a user provides a `thread` scope, the `composer` scope is automatically wired up as a child of that thread — without the user having to declare it.
+这样，当用户提供 `thread` 作用域时，`composer` 作用域就会自动连接为该线程的子作用域，而无需用户自行声明。
 
-### Iterative application
+### 迭代应用
 
-Transforms are applied iteratively. When a transform adds a new root scope, Store checks if that new scope also has a transform attached — and runs it too. This continues until no new scopes are added.
+Transform 会以迭代方式应用。当某个 transform 添加新的根作用域时，Store 会检查该新作用域是否也附加了 transform，并运行它。这个过程会持续进行，直到不再添加新的作用域。
 
-For example:
-1. User provides `thread: ThreadResource()`
-2. `ThreadResource`'s transform adds `tools: ToolsResource()` and `modelContext: ModelContextResource()`
-3. `ToolsResource`'s transform runs — sees `modelContext` already exists, does nothing
-4. No more new scopes → done
+例如：
+1. 用户提供 `thread: ThreadResource()`
+2. `ThreadResource` 的 transform 添加 `tools: ToolsResource()` 和 `modelContext: ModelContextResource()`
+3. `ToolsResource` 的 transform 运行——发现 `modelContext` 已经存在，因此不执行任何操作
+4. 没有更多新的作用域 → 完成
 
 <Callout type="warn">
-Each hook can only have one transform attached. Calling `attachTransformScopes` twice on the same hook throws an error. To carry a wrapped hook's transform over to a wrapper, use `forwardTransformScopes(target, source)` — it composes with any transform the target already has.
+每个 hook 只能附加一个 transform。在同一个 hook 上调用两次 `attachTransformScopes` 会抛出错误。要将被包装 hook 的 transform 传递给包装器，请使用 `forwardTransformScopes(target, source)`——它会与目标上已有的 transform 组合。
 </Callout>
 
-## When to use which
+## 何时使用哪一种
 
-| Pattern | Use when |
+| 模式 | 使用场景 |
 | --- | --- |
-| `useAssistantClientRef` | A scope needs to call methods on a sibling at runtime (effects, event handlers) |
-| `attachTransformScopes` | A scope needs to guarantee a sibling exists before mounting |
+| `useAssistantClientRef` | 作用域需要在运行时调用同级作用域上的方法（effect、事件处理器） |
+| `attachTransformScopes` | 作用域需要确保同级作用域在挂载前存在 |
 
-In practice, they're often used together: `attachTransformScopes` ensures the sibling scope is created, then `useAssistantClientRef` accesses it at runtime.
+在实际使用中，它们通常会一起使用：`attachTransformScopes` 确保创建同级作用域，然后 `useAssistantClientRef` 在运行时访问它。

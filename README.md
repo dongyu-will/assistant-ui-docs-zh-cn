@@ -6,6 +6,9 @@
   </picture>
 </a>
 
+> [!IMPORTANT]
+> 本仓库是 [assistant-ui](https://github.com/assistant-ui/assistant-ui) 的非官方简体中文文档，由社区维护并使用 AI 辅助翻译。内容可能落后于[官方英文文档](https://www.assistant-ui.com/docs)，如发现问题，欢迎提交 Issue 或 Pull Request 修订。
+
 <p align="center">
   <a href="https://www.assistant-ui.com">Product</a> ·
   <a href="https://www.assistant-ui.com/docs">Documentation</a> ·

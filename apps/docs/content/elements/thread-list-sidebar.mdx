@@ -1,20 +1,20 @@
 ---
-title: "Thread list sidebar"
-description: "A complete sidebar shell that places the runtime thread list beside the active conversation."
+title: "线程列表侧边栏"
+description: "一个完整的侧边栏外壳，将运行时线程列表置于活动会话旁边。"
 ---
 
-Thread list sidebar wraps the runtime [Thread list](/elements/thread-list) in a full collapsible sidebar shell: a header, a footer, and an optional rail for collapsing it. It has no standalone form, since it renders the runtime-only thread list internally and forwards every other prop straight to the underlying `Sidebar` shell.
+线程列表侧边栏将运行时的[线程列表](/elements/thread-list)包装在一个完整的可折叠侧边栏外壳中：包含页眉、页脚，以及用于折叠侧边栏的可选轨道。它没有独立形式，因为它会在内部渲染仅限运行时的线程列表，并将其他所有属性直接传递给底层的 `Sidebar` 外壳。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-`ThreadListSidebar` needs a runtime provider and the sidebar shell's own layout provider around it.
+`ThreadListSidebar` 周围需要一个运行时提供程序和侧边栏外壳自身的布局提供程序。
 
 <Steps>
   <Step>
 
-### Compose it with a Thread
+### 与 Thread 组合使用
 
 ```tsx title="app/layout.tsx"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -33,7 +33,7 @@ export default function Layout() {
 }
 ```
 
-Needs an `AssistantRuntimeProvider` ancestor around the whole tree. `SidebarProvider` is the sidebar shell's own layout context, unrelated to the runtime; both are required.
+整个树的外层需要一个 `AssistantRuntimeProvider` 祖先。`SidebarProvider` 是侧边栏外壳自身的布局上下文，与运行时无关；两者都是必需的。
 
   </Step>
 </Steps>
@@ -42,11 +42,11 @@ Needs an `AssistantRuntimeProvider` ancestor around the whole tree. `SidebarProv
 
 <StandaloneMode>
 
-Thread list sidebar has no standalone form: it renders the runtime-only thread list internally, with no prop to swap in a static one. For a non-runtime sidebar, compose `Sidebar` yourself around the standalone lane of [Thread list](/elements/thread-list).
+线程列表侧边栏没有独立形式：它会在内部渲染仅限运行时的线程列表，并且没有用于替换为静态线程列表的属性。对于非运行时侧边栏，请自行围绕[线程列表](/elements/thread-list)的独立区域组合 `Sidebar`。
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <Sidebar {...props}>
@@ -59,23 +59,23 @@ Thread list sidebar has no standalone form: it renders the runtime-only thread l
 </Sidebar>
 ```
 
-The header links out to assistant-ui.com and the footer to its GitHub repository; both are placeholders meant to be replaced with your own branding and support links. The collapse rail renders only when `collapsible` is not `"none"`, following whatever `Sidebar` itself was given.
+页眉链接到 assistant-ui.com，页脚链接到其 GitHub 仓库；两者都是占位内容， intended to be replaced with your own branding and support links. 折叠轨道仅在 `collapsible` 不为 `"none"` 时渲染，并遵循 `Sidebar` 自身接收到的设置。
 
-## Examples
+## 示例
 
-### Change the collapse behavior
+### 更改折叠行为
 
 ```tsx
 <ThreadListSidebar collapsible="icon" />
 ```
 
-Every `Sidebar` prop passes straight through, `collapsible`, `side`, and `variant` included, since `ThreadListSidebar` only adds the header, footer, and thread list between them.
+每个 `Sidebar` 属性都会直接传递，包括 `collapsible`、`side` 和 `variant`，因为 `ThreadListSidebar` 只是在它们之间添加页眉、页脚和线程列表。
 
-### Replace the header and footer branding
+### 替换页眉和页脚品牌内容
 
-`ThreadListSidebar` does not expose header or footer content as props. Replace the literal links in your copy of `threadlist-sidebar.aui.tsx` with your own product name and support link.
+`ThreadListSidebar` 不会将页眉或页脚内容作为属性公开。请将 `threadlist-sidebar.aui.tsx` 副本中的字面链接替换为你自己的产品名称和支持链接。
 
-### Add a trigger to open it
+### 添加打开侧边栏的触发器
 
 ```tsx
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -83,20 +83,20 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 <SidebarTrigger />;
 ```
 
-Place it inside `SidebarInset`, on the main-pane side, to toggle the sidebar from anywhere in your app.
+将其放置在 `SidebarInset` 内、主面板一侧，即可从应用中的任意位置切换侧边栏。
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### ThreadListSidebarProps
 
-Extends `React.ComponentProps<typeof Sidebar>`; every prop is forwarded.
+扩展 `React.ComponentProps<typeof Sidebar>`；所有属性都会被传递。
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `side` | `"left" \| "right"` | `"left"` | Which edge the sidebar docks to. |
-| `variant` | `"sidebar" \| "floating" \| "inset"` | `"sidebar"` | Sidebar chrome style. |
-| `collapsible` | `"offcanvas" \| "icon" \| "none"` | `"offcanvas"` | How it collapses. `"none"` also removes the rail. |
+| `side` | `"left" \| "right"` | `"left"` | 侧边栏停靠在哪一侧。 |
+| `variant` | `"sidebar" \| "floating" \| "inset"` | `"sidebar"` | 侧边栏外观样式。 |
+| `collapsible` | `"offcanvas" \| "icon" \| "none"` | `"offcanvas"` | 侧边栏的折叠方式。`"none"` 还会移除轨道。 |
 
 </RuntimeMode>

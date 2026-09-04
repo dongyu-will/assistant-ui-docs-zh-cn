@@ -1,20 +1,20 @@
 ---
-title: "Onboarding"
-description: "First run: three moves that teach what this assistant is actually for."
+title: "入门引导"
+description: "首次运行：通过三个步骤了解这个助手究竟能做什么。"
 ---
 
-A short, dismissible tour: one step at a time, each with a line of body copy and a worked example, a progress dot per step, and Skip next to Next. With a runtime the one thing worth wiring is what happens when the tour ends; standalone every transition is a callback you already control.
+一个简短、可关闭的引导流程：一次显示一个步骤，每个步骤包含一行正文和一个完整示例；每个步骤对应一个进度圆点，并在“下一步”旁边提供“跳过”选项。使用运行时（runtime）时，唯一值得接入的是引导结束后要发生什么；单独使用时，每次转换都是由你控制的回调。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-The steps themselves, their copy and their order, are content you write, not state the runtime holds; there is nothing to read from `useAuiState` here. The one real touchpoint is what "Skip" and the final "Next" actually do: hand off to the thread.
+步骤本身、步骤文案及其顺序都由你编写，是内容而不是运行时所持有的状态；这里无需从 `useAuiState` 读取任何内容。真正需要接入的地方只有“跳过”和最后一步的“下一步”实际执行的操作：将控制权交给线程。
 
 <Steps>
   <Step>
 
-### Hand off to the thread when the tour ends
+### 引导结束后将控制权交给线程
 
 ```tsx title="components/assistant-ui/elements/first-run.tsx"
 "use client";
@@ -53,7 +53,7 @@ export function FirstRun({ onFinish }: { onFinish: () => void }) {
 }
 ```
 
-`switchToNewThread()` only matters if your app defers creating a thread until the tour is dismissed; if the thread and composer already exist behind the overlay, `finish` can just call `onFinish()` and let them take over.
+只有当你的应用要等引导关闭后再创建线程时，`switchToNewThread()` 才有作用；如果线程和输入框已经存在于遮罩层后方，`finish` 只需调用 `onFinish()`，让它们接管即可。
 
   </Step>
 </Steps>
@@ -62,12 +62,12 @@ export function FirstRun({ onFinish }: { onFinish: () => void }) {
 
 <StandaloneMode>
 
-Standalone, the tour is entirely local: `index` is state you hold, and `onNext` deciding whether to advance or finish is the only logic involved.
+单独使用时，引导流程完全是本地的：`index` 是由你持有的状态，而 `onNext` 负责决定是前进还是结束，这就是其中唯一涉及的逻辑。
 
 <Steps>
   <Step>
 
-### Hold the step index
+### 保存步骤索引
 
 ```tsx title="app/tour.tsx"
 "use client";
@@ -103,7 +103,7 @@ export function Tour({ onDone }: { onDone: () => void }) {
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="onboarding">
@@ -122,13 +122,13 @@ export function Tour({ onDone }: { onDone: () => void }) {
 </div>
 ```
 
-With zero steps the element renders nothing at all, not an empty shell; `steps[0]` being undefined is the signal it checks. `index` is floored and clamped into `0…steps.length - 1` before use, so a value outside that range, or a fractional one, still resolves to a real step instead of rendering blank. The element owns no progression: `onNext` and `onSkip` are pure signals, not state changes, so nothing advances until the caller moves `index` itself, as in both examples above. The progress dots are `aria-hidden` and purely visual; they are not buttons, so nothing lets a user jump back to an earlier step by clicking one.
+当步骤数为零时，该元素完全不渲染任何内容，而不是渲染一个空壳；它通过检查 `steps[0]` 是否为 undefined 来判断。使用前，`index` 会向下取整，并限制在 `0…steps.length - 1` 范围内，因此即使值超出该范围或是小数，也仍会解析为一个实际步骤，而不会渲染空白。该元素不负责推进流程：`onNext` 和 `onSkip` 只是纯信号，而不是状态变更，因此在调用方自行更新 `index` 之前，不会有任何推进，正如上面的两个示例所示。进度圆点是 `aria-hidden`，仅用于视觉展示；它们不是按钮，因此用户无法通过点击圆点跳回之前的步骤。
 
-## Examples
+## 示例
 
-### Adding a way back
+### 添加返回方式
 
-Since `index` is a plain controlled prop and the element never advances it, a back control is exactly as valid as `onNext`, even though nothing built in renders one:
+由于 `index` 是一个普通的受控属性，而该元素不会推进它，因此添加返回控件与 `onNext` 完全同样有效，尽管内置实现不会渲染返回控件：
 
 ```tsx
 <button type="button" onClick={() => setIndex((i) => Math.max(0, i - 1))}>
@@ -136,48 +136,48 @@ Since `index` is a plain controlled prop and the element never advances it, a ba
 </button>
 ```
 
-### Restyle the tour
+### 重新设置引导流程样式
 
-Both lanes take `className` on the root. The example block sits on the `field` surface and the final button on `inkButton`, so retheming those two tokens covers the card's two accent surfaces together.
+两个区域都会在根元素上使用 `className`。示例区块位于 `field` 表面上，最后一个按钮位于 `inkButton` 上，因此重新设置这两个令牌的主题，就能同时覆盖卡片的两个强调色表面。
 
 ```tsx
 <Onboarding className="max-w-xs" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-This element has no dedicated primitive; the only runtime call involved is finishing the tour, as in Getting started.
+该元素没有专用原语；其中唯一涉及的运行时调用是完成引导流程，具体如“开始使用”部分所示。
 
-### Threads
+### 线程
 
-| Method | Type | Description |
+| 方法 | 类型 | 描述 |
 |--------|------|-------------|
-| `aui.threads.switchToNewThread()` | `() => void` | Selects a fresh, unsent thread as the open one. Only needed when thread creation is deferred until onboarding completes. |
+| `aui.threads.switchToNewThread()` | `() => void` | 选择一个全新的、尚未发送消息的线程作为当前打开的线程。仅当线程创建延迟到入门引导完成后才需要。 |
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-### Onboarding
+### 入门引导
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `steps` | `readonly OnboardingStep[]` | required | The tour's steps, in order. An empty array renders nothing. |
-| `index` | `number` | required | The step to show. Floored and clamped into `0…steps.length - 1`. |
-| `onNext` | `() => void` | | Called when "Next" (or "Start", on the last step) is pressed. Does not change `index` itself. |
-| `onSkip` | `() => void` | | Called when "Skip" is pressed. |
-| `className` | `string` | | Merged onto the root. |
+| `steps` | `readonly OnboardingStep[]` | 必填 | 引导流程中的步骤，按顺序排列。空数组不会渲染任何内容。 |
+| `index` | `number` | 必填 | 要显示的步骤。会向下取整，并限制在 `0…steps.length - 1` 范围内。 |
+| `onNext` | `() => void` | | 按下“下一步”（在最后一步时为“开始”）时调用。不会自行更改 `index`。 |
+| `onSkip` | `() => void` | | 按下“跳过”时调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其余所有 `div` 属性都会转发到根元素。
 
 ### OnboardingStep
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `title` | `string` | Step heading. |
-| `body` | `string` | One paragraph of explanation. |
-| `example` | `string` | A worked example shown in its own field below the body. |
+| `title` | `string` | 步骤标题。 |
+| `body` | `string` | 一段说明文字。 |
+| `example` | `string` | 在正文下方的独立字段中显示的完整示例。 |
 
 </StandaloneMode>

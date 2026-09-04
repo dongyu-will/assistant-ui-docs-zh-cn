@@ -1,6 +1,6 @@
 ---
-title: "Diff Viewer"
-description: "Code changes as unified or split diffs, line by line, on the kit's field panel."
+title: "差异查看器"
+description: "在工具包的字段面板中，逐行显示统一差异或拆分差异形式的代码更改。"
 links:
   - label: parse-diff
     url: https://github.com/sergeyt/parse-diff
@@ -20,11 +20,11 @@ import {
 
 <DiffViewerViewModesSample />
 
-## Installation
+## 安装
 
 <InstallCommand shadcn={["diff-viewer"]} />
 
-## Usage
+## 使用
 
 ```tsx
 import { DiffViewer } from "@/components/ui/diff-viewer";
@@ -39,9 +39,9 @@ import { DiffViewer } from "@/components/ui/diff-viewer";
 />
 ```
 
-### As Markdown Language Override
+### 作为 Markdown 语言覆盖
 
-Integrate with `MarkdownTextPrimitive` to render diff code blocks:
+与 `MarkdownTextPrimitive` 集成，以渲染差异代码块：
 
 ```tsx title="/components/assistant-ui/elements/markdown-text.tsx"
 import { DiffViewer } from "@/components/ui/diff-viewer"; // [!code ++]
@@ -64,11 +64,11 @@ const MarkdownTextImpl = () => {
 export const MarkdownText = memo(MarkdownTextImpl);
 ```
 
-## Examples
+## 示例
 
-### Unified View
+### 统一视图
 
-Shows all changes in a single column with `+`/`-` indicators. This is the default mode.
+在单列中显示所有更改，并使用 `+`/`-` 指示符。这是默认模式。
 
 <DiffViewerSample />
 
@@ -76,9 +76,9 @@ Shows all changes in a single column with `+`/`-` indicators. This is the defaul
 <DiffViewer patch={diffString} viewMode="unified" />
 ```
 
-### Split View
+### 拆分视图
 
-Shows old content on the left, new content on the right side-by-side.
+左侧显示旧内容，右侧并排显示新内容。
 
 <DiffViewerSplitSample />
 
@@ -86,23 +86,23 @@ Shows old content on the left, new content on the right side-by-side.
 <DiffViewer patch={diffString} viewMode="split" />
 ```
 
-### Interactive Mode Toggle
+### 交互式模式切换
 
 <PreviewCode file="components/pages/docs/samples/diff-viewer" name="DiffViewerViewModesSample">
   <DiffViewerViewModesSample />
 </PreviewCode>
 
-### Variants
+### 变体
 
 <DiffViewerVariantsSample />
 
-### Sizes
+### 尺寸
 
 <DiffViewerSizesSample />
 
-### Theming
+### 主题
 
-Changed lines carry a 2px gutter rule and a faint fill; the diff hue otherwise appears only on the `+`/`-` markers and the header stats, while code stays in ink. Override the CSS variables to retheme:
+更改的行带有 2px 的槽线和淡淡的填充；除此之外，差异色调只显示在 `+`/`-` 标记和标题统计信息上，代码仍使用墨色。覆盖 CSS 变量即可自定义主题：
 
 ```css
 [data-slot="diff-viewer"] {
@@ -117,22 +117,22 @@ Changed lines carry a 2px gutter rule and a faint fill; the diff hue otherwise a
 }
 ```
 
-| Variable | Description |
+| 变量 | 描述 |
 |----------|-------------|
-| `--diff-add-bg` | Fill for added lines |
-| `--diff-add-rule` | Gutter rule for added lines |
-| `--diff-add-text` | Marker and stat color for additions (light mode) |
-| `--diff-add-text-dark` | Marker and stat color for additions (dark mode) |
-| `--diff-del-bg` | Fill for deleted lines |
-| `--diff-del-rule` | Gutter rule for deleted lines |
-| `--diff-del-text` | Marker and stat color for deletions (light mode) |
-| `--diff-del-text-dark` | Marker and stat color for deletions (dark mode) |
+| `--diff-add-bg` | 新增行的填充色 |
+| `--diff-add-rule` | 新增行的槽线 |
+| `--diff-add-text` | 新增内容的标记和统计信息颜色（浅色模式） |
+| `--diff-add-text-dark` | 新增内容的标记和统计信息颜色（深色模式） |
+| `--diff-del-bg` | 删除行的填充色 |
+| `--diff-del-rule` | 删除行的槽线 |
+| `--diff-del-text` | 删除内容的标记和统计信息颜色（浅色模式） |
+| `--diff-del-text-dark` | 删除内容的标记和统计信息颜色（深色模式） |
 
-## API Reference
+## API 参考
 
 ### DiffViewer
 
-The main component for rendering diffs.
+用于渲染差异的主要组件。
 
 <ParametersTable
   type="DiffViewerProps"
@@ -140,87 +140,87 @@ The main component for rendering diffs.
     {
       name: "patch",
       type: "string",
-      description: "Unified diff string (e.g., output from git diff).",
+      description: "统一差异字符串（例如 git diff 的输出）。",
     },
     {
       name: "code",
       type: "string",
-      description: "Alias for patch (for markdown integration).",
+      description: "patch 的别名（用于 Markdown 集成）。",
     },
     {
       name: "oldFile",
       type: "{ content: string; name?: string }",
-      description: "Old file for direct comparison.",
+      description: "用于直接比较的旧文件。",
     },
     {
       name: "newFile",
       type: "{ content: string; name?: string }",
-      description: "New file for direct comparison.",
+      description: "用于直接比较的新文件。",
     },
     {
       name: "viewMode",
       type: '"unified" | "split"',
       default: '"unified"',
-      description: "Display mode for the diff.",
+      description: "差异的显示模式。",
     },
     {
       name: "variant",
       type: '"default" | "ghost" | "muted"',
       default: '"default"',
-      description: "Visual style variant.",
+      description: "视觉样式变体。",
     },
     {
       name: "size",
       type: '"sm" | "default" | "lg"',
       default: '"default"',
-      description: "Font size.",
+      description: "字体大小。",
     },
     {
       name: "showLineNumbers",
       type: "boolean",
       default: "true",
-      description: "Show line numbers.",
+      description: "显示行号。",
     },
     {
       name: "showIcon",
       type: "boolean",
       default: "false",
-      description: "Show file extension badge in header.",
+      description: "在标题中显示文件扩展名徽章。",
     },
     {
       name: "showStats",
       type: "boolean",
       default: "true",
-      description: "Show addition/deletion counts in header.",
+      description: "在标题中显示新增/删除数量。",
     },
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes.",
+      description: "其他 CSS 类。",
     },
   ]}
 />
 
-### Composable API
+### 可组合 API
 
-| Component | Description |
+| 组件 | 描述 |
 |-----------|-------------|
-| `DiffViewer` | Main component that renders the diff. |
-| `DiffViewerFile` | Wrapper for each file in multi-file diffs. |
-| `DiffViewerHeader` | File name header with icon and stats. |
-| `DiffViewerContent` | Scrollable content area. |
-| `DiffViewerLine` | Individual line in unified mode. |
-| `DiffViewerSplitLine` | Side-by-side line pair in split mode. |
-| `DiffViewerFileBadge` | File extension badge (e.g., "TS"). |
-| `DiffViewerStats` | Addition/deletion count display. |
+| `DiffViewer` | 渲染差异的主要组件。 |
+| `DiffViewerFile` | 多文件差异中每个文件的包装器。 |
+| `DiffViewerHeader` | 带图标和统计信息的文件名标题。 |
+| `DiffViewerContent` | 可滚动的内容区域。 |
+| `DiffViewerLine` | 统一模式中的单独行。 |
+| `DiffViewerSplitLine` | 拆分模式中的并排行对。 |
+| `DiffViewerFileBadge` | 文件扩展名徽章（例如 “TS”）。 |
+| `DiffViewerStats` | 新增/删除数量显示。 |
 
-### Style Variants (CVA)
+### 样式变体（CVA）
 
-| Export | Description |
+| 导出项 | 描述 |
 |--------|-------------|
-| `diffViewerVariants` | Styles for the root container. |
-| `diffLineVariants` | Background styles for diff lines. |
-| `diffLineTextVariants` | Text color styles for diff lines. |
+| `diffViewerVariants` | 根容器的样式。 |
+| `diffLineVariants` | 差异行的背景样式。 |
+| `diffLineTextVariants` | 差异行的文本颜色样式。 |
 
 ```tsx
 import {
@@ -235,30 +235,30 @@ import {
 </div>
 ```
 
-### Utilities
+### 工具函数
 
-| Export | Description |
+| 导出项 | 描述 |
 |--------|-------------|
-| `parsePatch(patch)` | Parse unified diff string into structured data. |
-| `computeDiff(old, new)` | Compute diff between two strings. |
-| `ParsedLine` | Type for a single diff line. |
-| `ParsedFile` | Type for a parsed file with lines and stats. |
-| `SplitLinePair` | Type for a side-by-side line pair. |
+| `parsePatch(patch)` | 将统一差异字符串解析为结构化数据。 |
+| `computeDiff(old, new)` | 计算两个字符串之间的差异。 |
+| `ParsedLine` | 单个差异行的类型。 |
+| `ParsedFile` | 包含行和统计信息的已解析文件类型。 |
+| `SplitLinePair` | 并排行对的类型。 |
 
-## Styling
+## 样式
 
-### Data Attributes
+### 数据属性
 
-Use data attributes for custom styling:
+使用数据属性进行自定义样式设置：
 
-| Attribute | Values | Description |
+| 属性 | 值 | 描述 |
 |-----------|--------|-------------|
-| `data-slot` | `"diff-viewer"`, `"diff-viewer-header"`, `"diff-viewer-line"`, etc. | Component identification |
-| `data-type` | `"add"`, `"del"`, `"normal"`, `"empty"` | Line type |
-| `data-view-mode` | `"unified"`, `"split"` | Current view mode |
-| `data-variant` | `"default"`, `"ghost"`, `"muted"` | Current variant |
+| `data-slot` | `"diff-viewer"`、`"diff-viewer-header"`、`"diff-viewer-line"` 等 | 组件标识 |
+| `data-type` | `"add"`、`"del"`、`"normal"`、`"empty"` | 行类型 |
+| `data-view-mode` | `"unified"`、`"split"` | 当前视图模式 |
+| `data-variant` | `"default"`、`"ghost"`、`"muted"` | 当前变体 |
 
-### Custom CSS Example
+### 自定义 CSS 示例
 
 ```css
 [data-slot="diff-viewer"][data-view-mode="split"] {
@@ -274,7 +274,7 @@ Use data attributes for custom styling:
 }
 ```
 
-## Related Components
+## 相关组件
 
-- [Markdown](/elements/markdown-text) - Rich text rendering where diff viewer can be integrated
-- [Syntax Highlighting](/elements/syntax-highlighter) - Code highlighting for other languages
+- [Markdown](/elements/markdown-text) - 可集成差异查看器的富文本渲染
+- [语法高亮](/elements/syntax-highlighter) - 其他语言的代码高亮

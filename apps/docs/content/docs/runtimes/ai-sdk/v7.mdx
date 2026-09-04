@@ -1,16 +1,16 @@
 ---
 title: AI SDK v7
-description: Integrate Vercel AI SDK v7 with assistant-ui for streaming chat.
+description: 将 Vercel AI SDK v7 与 assistant-ui 集成，实现流式聊天。
 ---
 
-Current-version integration. Requires `ai@^7` and `@ai-sdk/react@^4`. For older versions see the [overview](/docs/runtimes/ai-sdk/overview).
+当前版本集成。需要 `ai@^7` 和 `@ai-sdk/react@^4`。旧版本请参阅[概览](/docs/runtimes/ai-sdk/overview)。
 
-## Quickstart
+## 快速开始
 
 <Steps>
 <Step>
 
-### Create a project
+### 创建项目
 
 <PlatformTabs>
 <Tab value="React">
@@ -43,7 +43,7 @@ npm init -y
 </Step>
 <Step>
 
-### Install dependencies
+### 安装依赖
 
 <PlatformTabs>
 <Tab value="React">
@@ -66,10 +66,9 @@ npm init -y
 </Step>
 <Step>
 
-### Set up the backend route
+### 设置后端路由
 
-For React Native and Ink, host this route in a separate backend project and
-point the client runtime at its absolute URL.
+对于 React Native 和 Ink，请在单独的后端项目中托管此路由，并将客户端运行时指向其绝对 URL。
 
 ```ts title="@/app/api/chat/route.ts"
 import { openai } from "@ai-sdk/openai";
@@ -112,7 +111,7 @@ export async function POST(req: Request) {
 </Step>
 <Step>
 
-### Set up the frontend
+### 设置前端
 
 <PlatformTabs>
 <Tab value="React">
@@ -200,22 +199,22 @@ export function App() {
 </Step>
 <Step>
 
-### Set up UI components
+### 设置 UI 组件
 
 <PlatformTabs>
 <Tab value="React">
 
-Follow the [UI Components guide](/elements/thread) to wire up the Thread, composer, and supporting primitives.
+按照 [UI 组件指南](/elements/thread) 配置线程、输入框和支持原语。
 
 </Tab>
 <Tab value="React Native">
 
-Follow the [React Native setup](/docs/react-native) to add a native Thread, composer, and supporting primitives.
+按照 [React Native 设置指南](/docs/react-native) 添加原生线程、输入框和支持原语。
 
 </Tab>
 <Tab value="React Ink">
 
-Follow the [Ink setup](/docs/ink) to add a terminal Thread, composer, and supporting primitives.
+按照 [Ink 设置指南](/docs/ink) 添加终端线程、输入框和支持原语。
 
 </Tab>
 </PlatformTabs>
@@ -223,9 +222,9 @@ Follow the [Ink setup](/docs/ink) to add a terminal Thread, composer, and suppor
 </Step>
 </Steps>
 
-## Frontend tools and system messages
+## 前端工具和系统消息
 
-`AssistantChatTransport` (used by default) forwards system messages and frontend tools to your backend on every request. Consume them with `frontendTools`:
+`AssistantChatTransport`（默认使用）会在每次请求中将系统消息和前端工具转发到后端。使用 `frontendTools` 消费它们：
 
 ```ts title="@/app/api/chat/route.ts"
 import { openai } from "@ai-sdk/openai";
@@ -260,11 +259,11 @@ export async function POST(req: Request) {
 }
 ```
 
-Frontend tools are registered through the provider's `config` (see the [tools guide](/docs/tools/defining-tools)) and serialized for the backend via `frontendTools`.
+前端工具通过 provider 的 `config` 注册（请参阅[工具指南](/docs/tools/defining-tools)），并通过 `frontendTools` 序列化后发送到后端。
 
-## Multi-step tool calls
+## 多轮工具调用
 
-AI SDK v7 supports running multiple tool-call rounds in a single request via `stopWhen`. Use `stepCountIs(N)` to cap iterations:
+AI SDK v7 支持通过 `stopWhen` 在单个请求中运行多轮工具调用。使用 `stepCountIs(N)` 限制迭代次数：
 
 ```ts title="@/app/api/chat/route.ts"
 import { openai } from "@ai-sdk/openai";
@@ -294,13 +293,13 @@ export async function POST(req: Request) {
 }
 ```
 
-Without a `stopWhen`, AI SDK runs a single inference step. Set `stepCountIs` (or one of AI SDK's other stop conditions) when your tools chain multiple calls.
+如果没有 `stopWhen`，AI SDK 将运行单个推理步骤。当工具链需要多次调用时，请设置 `stepCountIs`（或 AI SDK 的其他停止条件之一）。
 
-## Server-side tool approval
+## 服务端工具审批
 
-AI SDK v7 gates tool execution with the call-level `toolApproval` option. The server pauses, emits an `approval-requested` part, and resumes once the client posts an approval response. assistant-ui surfaces the gate as `approval` on the tool part and adds a `respondToApproval` prop on the renderer, so tool components stay decoupled from `chatHelpers`.
+AI SDK v7 使用调用级 `toolApproval` 选项控制工具执行。服务端会暂停执行并发出一个 `approval-requested` 部分，客户端提交审批响应后恢复执行。assistant-ui 会在工具部分上通过 `approval` 暴露此控制门，并在渲染器上添加 `respondToApproval` 属性，使工具组件与 `chatHelpers` 保持解耦。
 
-On the backend, configure the gate with the call-level `toolApproval` option (per-tool status or function):
+在后端，通过调用级 `toolApproval` 选项配置控制门（按工具状态或函数配置）：
 
 ```ts title="@/app/api/chat/route.ts"
 import { openai } from "@ai-sdk/openai";
@@ -332,7 +331,7 @@ export async function POST(req: Request) {
 }
 ```
 
-On the client, configure `useChat` with `sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses` so the response is sent back to the server when the user decides:
+在客户端，使用 `sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses` 配置 `useChat`，以便用户做出决定后将响应发送回服务端：
 
 ```tsx title="@/app/page.tsx"
 "use client";
@@ -360,7 +359,7 @@ export default function Page() {
 }
 ```
 
-Render the gate with a toolkit entry. The `approval` field carries the gate state, and `respondToApproval` is the only correct way to acknowledge it (it reads the approval id from the part):
+使用工具包条目渲染控制门。`approval` 字段携带控制门状态，而 `respondToApproval` 是确认该状态的唯一正确方式（它会从部分中读取审批 ID）：
 
 ```tsx title="@/app/page.tsx"
 "use client";
@@ -430,11 +429,11 @@ export default function Page() {
 }
 ```
 
-See the [tool UI guide](/docs/tools/tool-ui#server-side-approval-gates) for the full three-state semantics of `approval.approved` and the `isAutomatic` flag.
+有关 `approval.approved` 的完整三状态语义以及 `isAutomatic` 标志，请参阅[工具 UI 指南](/docs/tools/tool-ui#server-side-approval-gates)。
 
-## Quote context
+## 引用上下文
 
-assistant-ui's composer can attach quote metadata to user messages (e.g. when the user selects text and clicks "Quote"). On the server, `injectQuoteContext` flattens that metadata into a markdown blockquote prefix so the LLM sees the quoted text:
+assistant-ui 的输入框可以将引用元数据附加到用户消息上（例如，用户选中文本并点击“引用”时）。在服务器端，`injectQuoteContext` 会将这些元数据展平为 Markdown 引用块前缀，使 LLM 能够看到被引用的文本：
 
 ```ts title="@/app/api/chat/route.ts"
 import {
@@ -458,11 +457,11 @@ export async function POST(req: Request) {
 }
 ```
 
-`injectQuoteContext` is idempotent: if the blockquote prefix is already present, it is not duplicated.
+`injectQuoteContext` 具有幂等性：如果引用块前缀已经存在，则不会重复添加。
 
-## Token usage
+## Token 用量
 
-`useThreadTokenUsage` exposes thread-level token usage on the client. Attach `usage` and `modelId` via `messageMetadata` on the server:
+`useThreadTokenUsage` 会在客户端公开线程级别的 Token 用量。在服务器端，通过 `messageMetadata` 附加 `usage` 和 `modelId`：
 
 ```ts title="@/app/api/chat/route.ts"
 import { streamText, convertToModelMessages, createUIMessageStreamResponse, toUIMessageStream } from "ai";
@@ -504,11 +503,11 @@ export function TokenCounter() {
 }
 ```
 
-`getThreadMessageTokenUsage(message)` returns per-message usage if you need to show it inline.
+如果需要在线程中显示每条消息的用量，`getThreadMessageTokenUsage(message)` 会返回每条消息的用量。
 
-## Attachments
+## 附件
 
-Attachments work through the standard [attachment adapter](/docs/runtimes/concepts/adapters#attachment-adapter). Pass it via `useChatRuntime`:
+附件通过标准的[附件适配器](/docs/runtimes/concepts/adapters#attachment-adapter)工作。通过 `useChatRuntime` 传入该适配器：
 
 ```tsx
 const runtime = useChatRuntime({
@@ -516,7 +515,7 @@ const runtime = useChatRuntime({
 });
 ```
 
-Your attachment adapter's `send` should return `content` parts in the AI SDK shape, e.g. for files:
+附件适配器的 `send` 应以 AI SDK 格式返回 `content` 部分，例如文件：
 
 ```ts
 return {
@@ -533,18 +532,18 @@ return {
 };
 ```
 
-For images, use `{ type: "image", image: <data url or remote url> }`. AI SDK will pass these to providers that accept multimodal content.
+对于图片，请使用 `{ type: "image", image: <data url or remote url> }`。AI SDK 会将这些内容传递给接受多模态内容的提供商。
 
-## Persisting chat history
+## 持久化聊天历史
 
-By default, messages live only in memory and reset on reload. To persist and restore history per thread, provide a `ThreadHistoryAdapter` via `adapters.history`.
+默认情况下，消息只存在于内存中，重新加载后会重置。若要按线程持久化和恢复历史记录，请通过 `adapters.history` 提供 `ThreadHistoryAdapter`。
 
 <Callout type="warn">
-The adapter **must** implement `withFormat`. `useChatRuntime` persists history through `withFormat(fmt)` so messages round-trip as AI SDK `UIMessage` objects. An adapter without `withFormat` throws at runtime; `load` and `append` on the top level are unused in the AI SDK path.
+适配器**必须**实现 `withFormat`。`useChatRuntime` 通过 `withFormat(fmt)` 持久化历史记录，使消息能够往返转换为 AI SDK `UIMessage` 对象。缺少 `withFormat` 的适配器会在运行时抛出异常；AI SDK 路径不会使用顶层的 `load` 和 `append`。
 </Callout>
 
 <Callout type="info">
-For server-side cloud persistence with zero adapter code, see the [AssistantCloud integration](/docs/cloud/ai-sdk-assistant-ui).
+如需在无需编写适配器代码的情况下进行服务端云端持久化，请参阅 [AssistantCloud 集成](/docs/cloud/ai-sdk-assistant-ui)。
 </Callout>
 
 ```tsx
@@ -586,11 +585,11 @@ function Chat() {
 }
 ```
 
-Each persisted row follows `{ id, parent_id, format, content }`. `fmt.encode` produces the `content` payload and `fmt.decode` reverses it, so your backend never needs to know about `UIMessage` internals.
+每条持久化记录都遵循 `{ id, parent_id, format, content }`。`fmt.encode` 会生成 `content` 负载，而 `fmt.decode` 会将其还原，因此后端无需了解 `UIMessage` 的内部实现。
 
-## Custom transport
+## 自定义传输层
 
-`AssistantChatTransport` is the default. To point at a non-default endpoint, instantiate it with a custom `api`:
+`AssistantChatTransport` 是默认传输层。若要指向非默认端点，请使用自定义的 `api` 实例化它：
 
 ```tsx
 import {
@@ -603,15 +602,15 @@ const runtime = useChatRuntime({
 });
 ```
 
-If you need a transport that does not inherit from `AssistantChatTransport`, you forfeit automatic system-message and frontend-tool forwarding; the transport is then a regular AI SDK `ChatTransport` and you control everything explicitly.
+如果需要使用不继承自 `AssistantChatTransport` 的传输层，则会失去系统消息和前端工具的自动转发功能；此时，该传输层就是一个普通的 AI SDK `ChatTransport`，所有内容都需要由你显式控制。
 
-## Runtime options
+## 运行时选项
 
-Beyond transports and adapters, `useChatRuntime` accepts options that control thread routing, message grouping, and run resumption.
+除了传输层和适配器之外，`useChatRuntime`还接受用于控制线程路由、消息分组和运行恢复的选项。
 
 ### onThreadIdChange
 
-Called whenever the runtime changes the active thread's settled ID, e.g. to sync the active thread to a URL query param. Changes supplied through the controlled `threadId` option are not echoed back through this callback.
+每当运行时更改当前线程的已确定 ID 时调用，例如将当前线程同步到 URL 查询参数。通过受控的 `threadId` 选项提供的更改不会通过此回调再次传回。
 
 ```tsx
 const runtime = useChatRuntime({
@@ -627,11 +626,11 @@ const runtime = useChatRuntime({
 });
 ```
 
-Only the settled ID is emitted: while a freshly created thread has not been initialized yet, the value is `undefined`, and the real ID is emitted once the thread initializes (with [AssistantCloud](/docs/cloud/ai-sdk-assistant-ui), this is the cloud thread ID). The transient local ID is never surfaced.
+这里只会发出已确定的 ID：新创建的线程尚未初始化时，其值为 `undefined`；线程初始化后才会发出真实 ID（对于 [AssistantCloud](/docs/cloud/ai-sdk-assistant-ui)，这是云端线程 ID）。临时本地 ID 永远不会暴露。
 
 ### joinStrategy
 
-Controls how consecutive assistant messages are rendered:
+控制如何渲染连续的助手消息：
 
 ```tsx
 const runtime = useChatRuntime({
@@ -639,11 +638,11 @@ const runtime = useChatRuntime({
 });
 ```
 
-`"concat-content"` (the default) merges consecutive assistant messages into a single thread message. `"none"` keeps each assistant message as its own thread message, which is useful when a backend persists proactive or consecutive assistant messages as separate entries. See the [external store guide](/docs/runtimes/custom/external-store#useexternalmessageconverter-with-join-strategy) for the underlying join semantics.
+`"concat-content"`（默认值）会将连续的助手消息合并为一条线程消息。`"none"`则会将每条助手消息保留为独立的线程消息；当后端将主动发送的助手消息或连续的助手消息持久化为独立条目时，这非常有用。有关底层合并语义，请参阅[外部状态存储指南](/docs/runtimes/custom/external-store#useexternalmessageconverter-with-join-strategy)。
 
 ### onResume
 
-Called when `runtime.thread.resumeRun(config)` is invoked. Provide it to bridge resume invocations into a custom replay channel, for example an SSE reconnect endpoint keyed by turn id:
+在调用 `runtime.thread.resumeRun(config)` 时调用。提供此选项可将恢复调用桥接到自定义重放通道，例如使用回合 ID 作为键的 SSE 重连端点：
 
 ```tsx
 const runtime = useChatRuntime({
@@ -653,11 +652,11 @@ const runtime = useChatRuntime({
 });
 ```
 
-When omitted, `resumeRun` throws `"Runtime does not support resuming runs."`. For streams that should survive a page reload without a custom channel, use the built-in transport-level path instead: see [Resumable streams](/docs/guides/resumable-streams), which reconnects automatically on mount and reports failures via `onResumeError`.
+省略此选项时，`resumeRun`会抛出`"Runtime does not support resuming runs."`。对于应在页面重新加载后继续的流式传输，如果不使用自定义通道，请改用内置的传输层路径：参阅[可恢复流](/docs/guides/resumable-streams)，它会在挂载时自动重新连接，并通过 `onResumeError` 报告失败。
 
 ### messageRepository
 
-Import a branch-aware AI SDK message tree once, and only when `useChat` is empty. After that seed, live updates come only from `useChat`. Clearing the chat or passing a new object identity does not reload the tree. Persisted threads that already go through `adapters.history` do not need this.
+仅在 `useChat` 为空时，一次性导入支持分支的 AI SDK 消息树。完成初始导入后，实时更新仅来自 `useChat`。清空聊天或传入新的对象标识不会重新加载该树。已经通过 `adapters.history` 处理的持久化线程不需要此选项。
 
 ```tsx
 const runtime = useChatRuntime({
@@ -668,11 +667,11 @@ const runtime = useChatRuntime({
 });
 ```
 
-`unstable_onBranchChange` fires after an explicit `switchToBranch` (for example a BranchPicker click). It complements `setMessages` and does not enable switching by itself. The callback is unstable and may change without notice.
+在显式执行 `switchToBranch` 后触发 `unstable_onBranchChange`（例如点击 BranchPicker）。它与 `setMessages` 互为补充，但不会自行启用切换功能。此回调不稳定，可能在不另行通知的情况下发生变化。
 
-## Advanced: useAISDKRuntime
+## 高级：useAISDKRuntime
 
-When you need direct access to the `useChat` instance (e.g. to share it with non-assistant-ui code), drop down to `useAISDKRuntime`:
+当你需要直接访问 `useChat` 实例（例如与非 assistant-ui 代码共享该实例）时，可以改用 `useAISDKRuntime`：
 
 ```tsx
 import { useChat } from "@ai-sdk/react";
@@ -682,9 +681,9 @@ const chat = useChat();
 const runtime = useAISDKRuntime(chat);
 ```
 
-`useAISDKRuntime` does not provide `cloud` or the higher-level adapter slots; those are part of `useChatRuntime`. If you need both your own `useChat` access AND cloud thread support, you generally want `useChatRuntime` and to read the chat state through assistant-ui hooks instead.
+`useAISDKRuntime` 不提供 `cloud` 或更高层级的适配器插槽；这些功能属于 `useChatRuntime`。如果你既需要自己的 `useChat` 访问能力，又需要云端线程支持，通常应使用 `useChatRuntime`，并改用 assistant-ui hooks 读取聊天状态。
 
-`useAISDKRuntime` accepts `joinStrategy`, `onResume`, `messageRepository`, and `unstable_onBranchChange` (see [Runtime options](#runtime-options)) plus one option of its own, `cancelPendingToolCallsOnSend`:
+`useAISDKRuntime` 接受 `joinStrategy`、`onResume`、`messageRepository` 和 `unstable_onBranchChange`（参见[运行时选项](#runtime-options)），此外还支持一个自身的选项 `cancelPendingToolCallsOnSend`：
 
 ```tsx
 const runtime = useAISDKRuntime(chat, {
@@ -692,51 +691,51 @@ const runtime = useAISDKRuntime(chat, {
 });
 ```
 
-When enabled (the default), sending a new message marks any pending interactive tool calls as failed with an error indicating the user cancelled them. Set it to `false` to leave pending tool calls untouched when the user sends a new message.
+启用该选项时（默认设置），发送新消息会将所有待处理的交互式工具调用标记为失败，并返回一条说明用户已取消这些调用的错误。将其设置为 `false`，即可在用户发送新消息时保留待处理的工具调用，不对其进行处理。
 
-## Adapter support
+## 适配器支持
 
-| Adapter | Supported via |
+| 适配器 | 支持方式 |
 | --- | --- |
-| Attachments | `adapters.attachments` |
-| Speech | `adapters.speech` |
-| Dictation | `adapters.dictation` |
-| Feedback | `adapters.feedback` |
-| History | `adapters.history` (must implement `withFormat`) |
-| threadList | Via `cloud` (managed) or [RemoteThreadListRuntime](/docs/runtimes/concepts/threads) (custom DB) |
+| 附件 | `adapters.attachments` |
+| 语音 | `adapters.speech` |
+| 听写 | `adapters.dictation` |
+| 反馈 | `adapters.feedback` |
+| 历史记录 | `adapters.history`（必须实现 `withFormat`） |
+| threadList | 通过 `cloud`（托管）或 [RemoteThreadListRuntime](/docs/runtimes/concepts/threads)（自定义数据库） |
 
-## Key changes from v5
+## v5 的主要变更
 
-| Feature | v5 | v7 |
+| 功能 | v5 | v7 |
 | --- | --- | --- |
-| `ai` package | `ai@^5` | `ai@^7` |
+| `ai` 包 | `ai@^5` | `ai@^7` |
 | `@ai-sdk/react` | `@ai-sdk/react@^2` | `@ai-sdk/react@^4` |
-| `convertToModelMessages` | Sync | Async (`await`) |
-| Tool schema | `parameters: z.object({...})` | `inputSchema: zodSchema(z.object({...}))` |
-| Response | `toDataStreamResponse()` | `createUIMessageStreamResponse()` |
+| `convertToModelMessages` | 同步 | 异步（`await`） |
+| 工具 schema | `parameters: z.object({...})` | `inputSchema: zodSchema(z.object({...}))` |
+| 响应 | `toDataStreamResponse()` | `createUIMessageStreamResponse()` |
 
-## Example
+## 示例
 
-[`examples/with-ai-sdk-v7`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-ai-sdk-v7) shows a complete reference implementation.
+[`examples/with-ai-sdk-v7`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-ai-sdk-v7) 展示了一个完整的参考实现。
 
-For responses that should survive a page reload mid-stream, see [Resumable streams](/docs/guides/resumable-streams), which wraps the same v7 byte stream in `assistant-stream/resumable`.
+如果需要让响应在流式传输过程中重新加载页面后仍能继续，请参阅[可恢复流](/docs/guides/resumable-streams)，它封装了相同的 v7 字节流，并使用 `assistant-stream/resumable`。
 
-## Next
+## 下一步
 
 <Cards>
   <Card
-    title="Adapters"
-    description="Attachments, speech, feedback, history, suggestions; one source of truth."
+    title="适配器"
+    description="附件、语音、反馈、历史记录、建议；单一事实来源。"
     href="/docs/runtimes/concepts/adapters"
   />
   <Card
-    title="Threads"
-    description="Single-thread, AssistantCloud, custom thread list."
+    title="线程"
+    description="单线程、AssistantCloud、自定义线程列表。"
     href="/docs/runtimes/concepts/threads"
   />
   <Card
-    title="Resumable streams"
-    description="Survive page reloads and connection drops mid-response."
+    title="可恢复的流式传输"
+    description="即使页面重新加载或响应过程中连接断开，也能继续。"
     href="/docs/guides/resumable-streams"
   />
 </Cards>

@@ -1,8 +1,8 @@
 ---
 title: "Collapsible"
-description: "One region that folds open and closed in place."
+description: "在原处展开和折叠的单个区域。"
 links:
-  - label: Source
+  - label: 源代码
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/collapsible.tsx
   - label: Base UI Collapsible
     url: https://base-ui.com/react/components/collapsible
@@ -22,11 +22,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.CollapsibleSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="collapsible" />
 
-## Usage
+## 使用
 
 ```tsx
 import {
@@ -46,9 +46,9 @@ export function Example() {
 }
 ```
 
-## API Reference
+## API 参考
 
-The parts wrap Base UI's Collapsible primitives and accept their props.
+这些部件封装了 Base UI 的 Collapsible 原语，并接受其 props。
 
 ### Collapsible
 
@@ -58,24 +58,24 @@ The parts wrap Base UI's Collapsible primitives and accept their props.
     {
       name: "open",
       type: "boolean",
-      description: "Controlled open state, the way reasoning sections open while a model is thinking and fold when it settles.",
+      description: "受控的展开状态：模型思考时推理区段展开，模型思考结束后折叠。",
     },
     {
       name: "onOpenChange",
       type: "(open: boolean) => void",
-      description: "Called when the open state changes.",
+      description: "展开状态发生变化时调用。",
     },
     {
       name: "defaultOpen",
       type: "boolean",
       default: "false",
-      description: "Uncontrolled initial open state.",
+      description: "非受控的初始展开状态。",
     },
     {
       name: "disabled",
       type: "boolean",
       default: "false",
-      description: "Prevents toggling.",
+      description: "禁止切换。",
     },
   ]}
 />

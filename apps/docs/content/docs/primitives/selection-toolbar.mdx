@@ -1,12 +1,12 @@
 ---
 title: SelectionToolbar
-description: A floating toolbar that appears when text is selected within a message.
+description: 在消息中选中文本时显示的浮动工具栏。
 platforms: ["react"]
 ---
 
 import { SelectionToolbarPrimitiveSample } from "@/components/pages/docs/samples/selection-toolbar-primitive";
 
-The SelectionToolbar primitive is a floating toolbar that appears when the user selects text within a message. It lets users quote selected text into the composer. Styling and action layout are fully customizable.
+SelectionToolbar 原语是一个浮动工具栏，用户在消息中选中文本时会显示。它允许用户将选中的文本引用到输入框中。样式和操作布局均可完全自定义。
 
 <Tabs items={["Preview", "Code"]}>
   <Tab>
@@ -31,9 +31,9 @@ function FloatingSelectionToolbar() {
   </Tab>
 </Tabs>
 
-## Quick Start
+## 快速开始
 
-A minimal selection toolbar:
+一个最小化的选择工具栏：
 
 ```tsx
 import { SelectionToolbarPrimitive } from "@assistant-ui/react";
@@ -45,27 +45,27 @@ import { SelectionToolbarPrimitive } from "@assistant-ui/react";
 </SelectionToolbarPrimitive.Root>
 ```
 
-`Root` renders a `<div>` inside a portal, positioned above the text selection. `Quote` renders a `<button>` that copies the selected text into the composer as a quote.
+`Root` 会在 portal 中渲染一个 `<div>`，并将其定位在文本选区上方。`Quote` 会渲染一个 `<button>`，将选中的文本作为引用复制到输入框中。
 
 <Callout type="info">
-Runtime setup: primitives require runtime context. Wrap your UI in `AssistantRuntimeProvider` with a runtime (for example `useLocalRuntime(...)`). See [Pick a Runtime](/docs/runtimes/pick-a-runtime).
+运行时设置：原语需要运行时上下文。请将 UI 包裹在带有运行时的 `AssistantRuntimeProvider` 中（例如 `useLocalRuntime(...)`）。请参阅[选择运行时](/docs/runtimes/pick-a-runtime)。
 </Callout>
 
-## Core Concepts
+## 核心概念
 
-### Automatic Positioning
+### 自动定位
 
-`Root` renders via a portal to `document.body`. In the current implementation, it positions itself with `position: fixed`, `top: rect.top - 8px`, `left: rect.left + rect.width / 2`, `transform: translate(-50%, -100%)` (placing it centered above the selection), and `z-index: 50`.
+`Root` 会通过 portal 渲染到 `document.body`。在当前实现中，它使用 `position: fixed`、`top: rect.top - 8px`、`left: rect.left + rect.width / 2`、`transform: translate(-50%, -100%)`（将其居中放置在选区上方）以及 `z-index: 50` 进行定位。
 
-### Single-Message Validation
+### 单条消息验证
 
-The toolbar only appears when the selection is entirely within a single message. Cross-message selections are ignored. Detection works by checking for `data-message-id` attributes on ancestor elements, which `MessagePrimitive.Root` sets automatically.
+只有当选区完全位于单条消息内时，工具栏才会显示。跨消息选区会被忽略。检测机制会检查祖先元素上的 `data-message-id` 属性，该属性由 `MessagePrimitive.Root` 自动设置。
 
-`Root` returns `null` when there is no valid selection (collapsed selection, empty text, or no single-message match).
+当不存在有效选区时（选区已折叠、文本为空，或未匹配到单条消息），`Root` 会返回 `null`。
 
-### Quote Regions
+### 引用区域
 
-By default, any selected text inside a message can be quoted. For rich messages with tool cards, attachments, or custom controls, add `data-aui-quote-selectable` to the element that contains the message text. Once a message has a quote-selectable region, selections must stay inside the same marked region for the toolbar to appear.
+默认情况下，消息内的任何选中文本都可以被引用。对于包含工具卡片、附件或自定义控件的富消息，请将 `data-aui-quote-selectable` 添加到包含消息文本的元素上。消息拥有可选择引用的区域后，选区必须保持在同一个标记区域内，工具栏才会显示。
 
 ```tsx
 <MessagePrimitive.Root>
@@ -76,9 +76,9 @@ By default, any selected text inside a message can be quoted. For rich messages 
 </MessagePrimitive.Root>
 ```
 
-Set `data-aui-quote-selectable="false"` to exclude an element instead: on the message root it disables quoting for the entire message, and inside a quotable region it carves that subtree out. The nearest marker wins, and any value other than `"false"` (including empty) marks a quotable region.
+也可以设置 `data-aui-quote-selectable="false"` 来排除某个元素：在消息根元素上设置时，会禁用整条消息的引用功能；在可引用区域内设置时，则会从该区域中排除对应的子树。距离最近的标记优先，并且除 `"false"` 之外的任何值（包括空值）都会将该区域标记为可引用区域。
 
-Apps know the message role at render time, so a role gate is a conditional attribute:
+应用在渲染时知道消息角色，因此角色门控是一个条件属性：
 
 ```tsx
 const UserMessage = () => (
@@ -88,28 +88,28 @@ const UserMessage = () => (
 );
 ```
 
-### Quote Action
+### 引用操作
 
-The `Quote` button does two things on click:
+点击 `Quote` 按钮时会执行两项操作：
 
-1. Calls `composer.setQuote({ text, messageId })` to populate the composer with the selected text as a quoted snippet
-2. Clears the browser selection via `window.getSelection()?.removeAllRanges()`
+1. 调用 `composer.setQuote({ text, messageId })`，将选中的文本作为引用片段填充到输入框中
+2. 通过 `window.getSelection()?.removeAllRanges()` 清除浏览器选区
 
-The composer then shows the quoted text, and the user can type a follow-up message around it.
+随后，输入框会显示引用的文本，用户可以在其前后输入后续消息。
 
-### Dismissal
+### 隐藏
 
-The toolbar hides automatically when:
+以下情况下，工具栏会自动隐藏：
 
-- The user scrolls
-- The selection collapses (click away or arrow keys)
-- The selection is cleared programmatically (e.g., after quoting)
+- 用户滚动页面
+- 选区折叠（点击其他位置或按下方向键）
+- 选区通过程序清除（例如引用操作完成后）
 
-Clicking the toolbar itself does not dismiss the selection. `Root` calls `preventDefault` on `mousedown` to preserve it.
+点击工具栏本身不会取消选区。`Root` 会在 `mousedown` 上调用 `preventDefault`，以保留选区。
 
-### Placement in Thread
+### 在线程中的放置位置
 
-The SelectionToolbar must be placed inside `ThreadPrimitive.Root` but **outside** `ThreadPrimitive.Viewport`. It positions itself via a portal based on the browser selection, independent of the scroll container:
+SelectionToolbar 必须放置在 `ThreadPrimitive.Root` 内部，但必须位于 `ThreadPrimitive.Viewport` **外部**。它会根据浏览器选区通过 portal 进行定位，与滚动容器无关：
 
 ```tsx
 <ThreadPrimitive.Root>
@@ -123,11 +123,11 @@ The SelectionToolbar must be placed inside `ThreadPrimitive.Root` but **outside*
 </ThreadPrimitive.Root>
 ```
 
-## Parts
+## 部件
 
-### Root
+### 根部件
 
-Floating toolbar container that appears for a valid text selection. Renders a `<div>` element unless `asChild` is set.
+在存在有效文本选区时显示的浮动工具栏容器。除非设置了 `asChild`，否则会渲染一个 `<div>` 元素。
 
 ```tsx
 <SelectionToolbarPrimitive.Root className="flex items-center gap-1 rounded-lg border bg-popover px-1 py-1 shadow-md">
@@ -135,9 +135,9 @@ Floating toolbar container that appears for a valid text selection. Renders a `<
 </SelectionToolbarPrimitive.Root>
 ```
 
-### Quote
+### 引用
 
-Quotes the currently selected text into the composer. Renders a `<button>` element unless `asChild` is set.
+将当前选中的文本引用到输入框中。除非设置了 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <SelectionToolbarPrimitive.Quote className="rounded-md px-2.5 py-1 text-sm hover:bg-accent">
@@ -145,9 +145,9 @@ Quotes the currently selected text into the composer. Renders a `<button>` eleme
 </SelectionToolbarPrimitive.Quote>
 ```
 
-## Patterns
+## 使用模式
 
-### Basic Toolbar with Quote
+### 带引用操作的基本工具栏
 
 ```tsx
 <SelectionToolbarPrimitive.Root className="flex items-center gap-1 rounded-lg border bg-popover px-1 py-1 shadow-md">
@@ -158,9 +158,9 @@ Quotes the currently selected text into the composer. Renders a `<button>` eleme
 </SelectionToolbarPrimitive.Root>
 ```
 
-### Toolbar with Multiple Actions
+### 带多个操作的工具栏
 
-You can add custom buttons alongside `Quote` for additional actions:
+你可以在 `Quote` 旁边添加自定义按钮，以提供其他操作：
 
 ```tsx
 <SelectionToolbarPrimitive.Root className="flex items-center gap-1 rounded-lg border bg-popover px-1 py-1 shadow-md">
@@ -178,14 +178,14 @@ You can add custom buttons alongside `Quote` for additional actions:
 </SelectionToolbarPrimitive.Root>
 ```
 
-## Relationship to Components
+## 与组件的关系
 
-There is no pre-built shadcn component for SelectionToolbar. See the [Quoting guide](/docs/guides/quoting) for the full workflow including composer quote display and dismiss.
+目前没有预构建的 shadcn 组件可用于 SelectionToolbar。请参阅[引用指南](/docs/guides/quoting)，了解包括输入框引用显示和取消引用在内的完整流程。
 
-## API Reference
+## API 参考
 
-For full prop details on every part, see the [SelectionToolbarPrimitive API Reference](/docs/api-reference/primitives/selection-toolbar).
+如需了解每个部件的完整 prop 详情，请参阅 [SelectionToolbarPrimitive API 参考](/docs/api-reference/primitives/selection-toolbar)。
 
-Related:
-- [Quoting Guide](/docs/guides/quoting)
-- [ComposerPrimitive API Reference](/docs/api-reference/primitives/composer)
+相关内容：
+- [引用指南](/docs/guides/quoting)
+- [ComposerPrimitive API 参考](/docs/api-reference/primitives/composer)

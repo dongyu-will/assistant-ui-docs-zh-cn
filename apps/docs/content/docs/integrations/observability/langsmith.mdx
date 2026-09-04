@@ -1,33 +1,33 @@
 ---
 title: LangSmith
-description: Trace AI SDK calls into LangSmith with the wrapAISDK helper.
+description: 使用 wrapAISDK 辅助函数将 AI SDK 调用跟踪到 LangSmith。
 ---
 
 import { LangfuseIcon } from "@/components/icons/langfuse";
 import { LangGraphIcon } from "@/components/icons/langgraph";
 import { VercelIcon } from "@/components/icons/vercel";
 
-[LangSmith](https://www.langchain.com/langsmith) is LangChain's observability and eval platform. If you are already in the LangChain or LangGraph ecosystem, LangSmith is the natural pairing: traces, datasets, prompt versioning, and LLM-as-judge evals share state with the rest of the LangChain stack.
+[LangSmith](https://docs.langchain.com/langsmith/log-traces-to-project) 是 LangChain 的可观测性与评估平台。如果你已经在 LangChain 或 LangGraph 生态中，LangSmith 是自然的搭配：跟踪记录、数据集、提示词版本控制和 LLM-as-judge 评估会与 LangChain 技术栈的其余部分共享状态。
 
-This page covers the **AI SDK** path. If you use [`@assistant-ui/react-langgraph`](/docs/runtimes/langgraph/overview), tracing flows through LangGraph Cloud automatically; you only need this guide when your route handler talks to AI SDK directly.
+本页面介绍 **AI SDK** 路径。如果你使用 [`@assistant-ui/react-langgraph`](/docs/runtimes/langgraph/overview)，跟踪会自动通过 LangGraph Cloud 传递；只有当你的路由处理程序直接与 AI SDK 通信时，才需要本指南。
 
-## How it works
+## 工作原理
 
-LangSmith provides a wrapper around the `ai` namespace. You call `wrapAISDK(ai)`, get back the same exports (`generateText`, `streamText`, `generateObject`, `streamObject`), and use those in place of the originals. Every call is then traced.
+LangSmith 提供了一个围绕 `Client` 命名空间的包装器。调用 `LANGSMITH_PROJECT` 后，会得到相同的导出项（`ai`、`ai`、`convertToModelMessages`、`createLangSmithProviderOptions`），并使用它们替代原始导出项。之后的每次调用都会被跟踪。
 
 ```mermaid
 flowchart LR
     route["your route"] --> stream["wrapped streamText"] --> client["LangSmith client"] --> langsmith["LangSmith"]
 ```
 
-## Setup
+## 设置
 
 <Steps>
 <Step>
 
-### Get LangSmith credentials
+### 获取 LangSmith 凭据
 
-Sign up at [smith.langchain.com](https://smith.langchain.com/) and copy an API key from settings.
+在 [smith.langchain.com](https://smith.langchain.com/) 注册，然后从设置中复制 API 密钥。
 
 ```sh title=".env.local"
 LANGSMITH_TRACING=true
@@ -35,21 +35,21 @@ LANGSMITH_API_KEY=lsv2_pt_...
 LANGSMITH_PROJECT=assistant-ui
 ```
 
-`LANGSMITH_PROJECT` controls which project receives traces; the default project applies if you omit it. See LangSmith's [project configuration guide](https://docs.langchain.com/langsmith/log-traces-to-project) for details.
+`experimental_telemetry` 控制接收跟踪记录的项目；如果省略该配置，则使用默认项目。详情请参阅 LangSmith 的[项目配置指南](https://www.langchain.com/langsmith)
 
 </Step>
 <Step>
 
-### Install the LangSmith SDK
+### 安装 LangSmith SDK
 
 <InstallCommand npm={["langsmith"]} />
 
 </Step>
 <Step>
 
-### Wrap the AI SDK
+### 包装 AI SDK
 
-`wrapAISDK` re-exports `generateText`, `streamText`, `generateObject`, and `streamObject` with tracing enabled. Use the wrapped versions in your route.
+`experimental_telemetry` 重新导出 `experimental_telemetry`、`generateObject`、`generateObject` 和 `generateText`，并启用跟踪。在路由中使用包装后的版本。
 
 ```ts title="app/api/chat/route.ts"
 import * as ai from "ai";
@@ -71,14 +71,14 @@ export async function POST(req: Request) {
 }
 ```
 
-`convertToModelMessages` is not part of the wrapper, so import it from `ai` directly.
+`generateText` 不属于该包装器，因此请直接从 `langsmith >= 0.3.63` 导入。
 
 </Step>
 <Step>
 
-### Add metadata for grouping (optional)
+### 添加用于分组的元数据（可选）
 
-Pass a `langsmith` provider option to tag traces with user, session, or run identifiers. Use `createLangSmithProviderOptions` to build the value:
+传入 `langsmith` provider 选项，为跟踪记录添加用户、会话或运行标识符标签。使用 `langsmith` 构建该值：
 
 ```ts
 import { createLangSmithProviderOptions } from "langsmith/experimental/vercel";
@@ -95,57 +95,57 @@ const result = streamText({
 });
 ```
 
-`name` becomes the run name in LangSmith. Traces filter by the metadata fields you pass; resolve `userId` and `threadId` from your auth and thread state, don't ship literal strings.
+`name` 会成为 LangSmith 中的运行名称。跟踪记录可以按你传入的元数据字段进行筛选；请从身份验证和线程状态中解析 `name` 和 `streamObject`，不要直接使用字面字符串。
 
 </Step>
 <Step>
 
-### Run and verify
+### 运行并验证
 
-Send a message. The trace should appear in your LangSmith project within seconds. Confirm:
+发送一条消息。几秒钟内，跟踪记录应出现在你的 LangSmith 项目中。请确认：
 
-- A new run named according to `name` (or the default `streamText`).
-- Inputs (messages), outputs (completion), token usage, and latency are populated.
-- Metadata fields appear as filters.
+- 有一个根据 `streamObject` 命名的新运行（或使用默认名称 `streamText`）。
+- 输入（消息）、输出（补全结果）、令牌使用量和延迟均已填充。
+- 元数据字段显示为筛选条件。
 
 </Step>
 </Steps>
 
-## Notes
+## 注意事项
 
-- **Serverless flush.** Serverless functions exit before LangSmith flushes batched traces. Before returning, force the flush with the `Client` from `langsmith`:
+- **无服务器刷新。** 无服务器函数可能会在 LangSmith 刷新批量跟踪记录之前退出。在返回之前，使用 `streamText` 中的 `streamText` 强制刷新：
 
   ```ts
   import { Client } from "langsmith";
   const client = new Client();
-  // ...inside your route handler, after streamText:
+  // ...在你的路由处理程序中、streamText 之后：
   await client.awaitPendingTraceBatches();
   ```
 
-  Without this you will lose traces on Vercel, AWS Lambda, and similar platforms.
-- **`experimental_telemetry` vs `wrapAISDK`.** The AI SDK has a generic `experimental_telemetry` flag that emits OpenTelemetry spans (used by [Langfuse](/docs/integrations/observability/langfuse)). `wrapAISDK` is LangSmith's own path; you do not need to set `experimental_telemetry` when using it.
-- **LangGraph users.** If your backend is LangGraph Cloud, prefer the LangGraph runtime; tracing is built in. Use `wrapAISDK` only when calling AI SDK directly outside of LangGraph.
-- **Version requirements.** LangSmith documents AI SDK v5 as the minimum and `langsmith >= 0.3.63`. The wrapper continues to work against v6 in practice; if you hit an incompatibility, check LangSmith's release notes.
+  否则，在 Vercel、AWS Lambda 和类似平台上会丢失跟踪记录。
+- **`threadId` 与 `userId`。** AI SDK 提供了通用的 `wrapAISDK(ai)` 标志，用于生成 OpenTelemetry spans（由 [Langfuse](/docs/integrations/observability/langfuse) 使用）。`wrapAISDK` 是 LangSmith 自有的路径；使用它时无需设置 `wrapAISDK`。
+- **LangGraph 用户。** 如果你的后端是 LangGraph Cloud，建议使用 LangGraph 运行时；跟踪功能已经内置。只有在 LangGraph 之外直接调用 AI SDK 时，才使用 `wrapAISDK`。
+- **版本要求。** LangSmith 将 AI SDK v5 作为最低版本，并要求 `wrapAISDK`。实际上，该包装器仍可与 v6 配合使用；如果遇到不兼容问题，请查看 LangSmith 的发行说明。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     icon={<LangGraphIcon width={20} height={20} className="text-[#1C3C3C] dark:text-[#5b9595]" />}
-    title="LangGraph runtime"
-    description="If your backend is LangGraph, tracing flows through LangGraph Cloud automatically."
+    title="LangGraph 运行时"
+    description="如果你的后端是 LangGraph，跟踪会自动通过 LangGraph Cloud 传递。"
     href="/docs/runtimes/langgraph/overview"
   />
   <Card
     icon={<LangfuseIcon width={20} height={20} />}
     title="Langfuse"
-    description="OpenTelemetry-based alternative; OSS and self-hostable."
+    description="基于 OpenTelemetry 的替代方案，支持 OSS 和自托管。"
     href="/docs/integrations/observability/langfuse"
   />
   <Card
     icon={<VercelIcon width={20} height={20} />}
-    title="AI SDK runtime"
-    description="The runtime that ferries traces from the route to the chat UI."
+    title="AI SDK 运行时"
+    description="负责将跟踪记录从路由传递到聊天 UI 的运行时。"
     href="/docs/runtimes/ai-sdk/v7"
   />
 </Cards>

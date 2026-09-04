@@ -1,14 +1,14 @@
 ---
-title: Radix UI and Base UI
-description: How the assistant-ui component registry serves Radix UI and Base UI flavored components for every shadcn style.
+title: Radix UI 与 Base UI
+description: assistant-ui 组件注册表如何为每种 shadcn 样式提供 Radix UI 和 Base UI 风格的组件。
 platforms: ["react"]
 ---
 
-shadcn/ui ships every component for two headless libraries, Radix UI and Base UI. `npx shadcn init` defaults new projects to Base UI styles as of July 2026. Style names that start with `base-`, such as `base-nova`, select the Base UI flavor; every other style name selects Radix.
+shadcn/ui 为两个无头库 Radix UI 和 Base UI 提供所有组件。`npx shadcn init` 从 2026 年 7 月起，新项目默认使用 Base UI 样式。以 `base-` 开头的样式名称（例如 `base-nova`）会选择 Base UI 风格；其他所有样式名称都会选择 Radix。
 
-## Component registry
+## 组件注册表
 
-assistant-ui's component registry serves both flavors from the same host. Configure the style-aware URL in `components.json`:
+assistant-ui 的组件注册表通过同一主机提供这两种风格。在 `components.json` 中配置样式感知 URL：
 
 ```json title="components.json"
 {
@@ -18,22 +18,22 @@ assistant-ui's component registry serves both flavors from the same host. Config
 }
 ```
 
-The shadcn CLI fills `{style}` from your `components.json` `style` field. Styles whose name starts with `base-` receive Base UI flavored components; all other styles receive the Radix flavored ones. The plain `https://r.assistant-ui.com/{name}.json` form remains available as a Radix fallback.
+shadcn CLI 会根据你的 `components.json` `style` 字段填充 `{style}`。名称以 `base-` 开头的样式会获得 Base UI 风格的组件；其他所有样式会获得 Radix 风格的组件。普通的 `https://r.assistant-ui.com/{name}.json` 形式仍可作为 Radix 回退方案使用。
 
-## How compatibility works
+## 兼容性原理
 
-assistant-ui's headless primitives, the components exported from `@assistant-ui/react`, accept both composition conventions: Radix's `asChild` prop and Base UI's `render` prop. Most registry components only compose these primitives, so a single implementation renders correctly under either flavor and the registry has no need for a separate variant.
+assistant-ui 的无头原语（从 `@assistant-ui/react` 导出的组件）接受两种组合约定：Radix 的 `asChild` 属性和 Base UI 的 `render` 属性。大多数组件注册表组件只组合这些原语，因此同一份实现即可在两种风格下正确渲染，注册表不需要单独的变体。
 
-Open-state styling and panel-height animation do not force a variant either: the kit styles state through custom variants that match both libraries' data attributes, and animates collapsibles through keyframes that read both libraries' height variables, so components like `reasoning`, `tool-group`, and `tool-fallback` serve one source to both flavors.
+打开状态样式和面板高度动画同样不需要变体：组件库通过同时匹配两个库的数据属性的自定义变体来设置状态样式，并通过读取两个库高度变量的关键帧为可折叠组件添加动画，因此 `reasoning`、`tool-group` 和 `tool-fallback` 等组件可以使用同一份源代码服务两种风格。
 
-Components that reach past composition into library-specific surfaces (raw primitive imports, trigger composition, provider wiring, popup recomposition) ship a dedicated Base UI variant instead. The following components currently have one: `tooltip-icon-button`, `attachment`, `context-display`, `message-timing`, `mcp-config`, `threadlist-sidebar`, `assistant-modal`, `select`, `tabs`, `accordion`, `badge`, `model-selector`, and `direction`.
+涉及库特定表面、超出组合范围的组件（原始原语导入、触发器组合、Provider wiring、弹出层重新组合）则会提供专用的 Base UI 变体。目前具有此类变体的组件包括：`tooltip-icon-button`、`attachment`、`context-display`、`message-timing`、`mcp-config`、`threadlist-sidebar`、`assistant-modal`、`select`、`tabs`、`accordion`、`badge`、`model-selector` 和 `direction`。
 
-## Behavior notes
+## 行为说明
 
-Under Base UI styles, the assistant modal composes the project's Base UI popover, so stacked layers (an attachment preview dialog, a tooltip, and the modal itself) close one layer per Escape key press, with focus restored to the element that opened the closed layer. Clicking outside the modal keeps it open, matching the Radix flavor's behavior.
+在 Base UI 样式下，助手模态框组合项目的 Base UI 弹出层，因此堆叠的层（附件预览对话框、工具提示和模态框本身）会在每次按下 Escape 键时关闭一层，并将焦点恢复到打开已关闭层的元素。点击模态框外部会使其保持打开，这与 Radix 风格的行为一致。
 
-## FAQ
+## 常见问题
 
-- **Do I need to change anything on an existing Radix project?** No. The plain `https://r.assistant-ui.com/{name}.json` URL keeps resolving to Radix flavored components, so an existing setup needs no changes.
-- **What happens if I switch styles later?** Re-add the components you use through the shadcn CLI. The style-aware URL resolves the correct flavor for the new style, and no other migration step is required.
-- **Does `@assistant-ui/react` behave differently under Base UI?** No. The headless `@assistant-ui/react` package works identically in both worlds; only the registry components under `components/assistant-ui` differ by flavor.
+- **现有的 Radix 项目需要更改任何内容吗？** 不需要。普通的 `https://r.assistant-ui.com/{name}.json` URL 仍会解析到 Radix 风格的组件，因此现有设置无需任何更改。
+- **如果之后切换样式会发生什么？** 通过 shadcn CLI 重新添加你使用的组件。样式感知 URL 会根据新样式解析到正确的风格，无需执行其他迁移步骤。
+- **`@assistant-ui/react` 在 Base UI 下的行为会有所不同吗？** 不会。无头 `@assistant-ui/react` 包在两种环境中的工作方式完全相同；只有 `components/assistant-ui` 下的注册表组件会因风格而异。

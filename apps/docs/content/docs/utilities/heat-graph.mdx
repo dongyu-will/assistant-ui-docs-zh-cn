@@ -1,28 +1,28 @@
 ---
 title: heat-graph
-description: Headless, composable activity heatmap components for React.
+description: 面向 React 的无头、可组合活动热力图组件。
 platforms: ["react"]
 ---
 
 import { HeatGraphDemo } from "@/app/(demos)/heat-graph/heat-graph-demo";
 
-`heat-graph` provides headless, Radix-style primitives for building GitHub-style activity heatmap graphs.
+`heat-graph` 提供无头、Radix 风格的原语，用于构建 GitHub 风格的活动热力图。
 
-- **Composable** — Radix-style compound components you fully control
-- **Headless** — Zero styling opinions, bring your own CSS/Tailwind
-- **Tooltip built-in** — Powered by Radix Popper for positioning
-- **Customizable bucketing** — Plug in your own classification function
+- **可组合** — 完全由你控制的 Radix 风格复合组件
+- **无头** — 不附带任何样式方案，可使用自己的 CSS/Tailwind
+- **内置工具提示** — 由 Radix Popper 提供定位支持
+- **可自定义分桶** — 接入你自己的分类函数
 
 <HeatGraphDemo />
 
-## Installation
+## 安装
 
 <Tabs items={["shadcn", "npm", "pnpm", "yarn"]}>
   <Tab value="shadcn">
     ```sh
     npx shadcn@latest add @assistant-ui/heat-graph
     ```
-    This installs a pre-styled `HeatGraph` component to `components/assistant-ui/elements/heat-graph.tsx` along with the `heat-graph` package. The `@assistant-ui` namespace resolves through the registry entry configured in [Manual Setup](/docs/installation#manual-setup).
+    这会将预设样式的 `HeatGraph` 组件安装到 `components/assistant-ui/elements/heat-graph.tsx`，并同时安装 `heat-graph` 包。`@assistant-ui` 命名空间会通过[手动设置](/docs/installation#manual-setup)中配置的 registry 条目进行解析。
   </Tab>
   <Tab value="npm">
     ```sh
@@ -41,7 +41,7 @@ import { HeatGraphDemo } from "@/app/(demos)/heat-graph/heat-graph-demo";
   </Tab>
 </Tabs>
 
-## Quick Start
+## 快速开始
 
 ```tsx title="components/activity-graph.tsx"
 "use client";
@@ -71,10 +71,10 @@ export function ActivityGraph({ data }: { data: HeatGraph.DataPoint[] }) {
 ```
 
 <Callout type="info">
-  Components using Heat Graph must be Client Components (`"use client"`), since they rely on React Context and interactivity.
+  使用 Heat Graph 的组件必须是客户端组件（`"use client"`），因为它们依赖 React Context 和交互功能。
 </Callout>
 
-## Anatomy
+## 结构
 
 ```tsx
 import * as HeatGraph from "heat-graph";
@@ -115,26 +115,26 @@ import * as HeatGraph from "heat-graph";
 </HeatGraph.Root>
 ```
 
-## API Reference
+## API 参考
 
 ### Root
 
-The top-level provider. Renders a `<div>` that computes the grid layout and provides state to all children. Accepts all standard div props.
+顶层 provider。渲染一个 `<div>`，用于计算网格布局并向所有子组件提供状态。接受所有标准 div 属性。
 
 | Prop         | Type                   | Default             | Description                                        |
 | ------------ | ---------------------- | ------------------- | -------------------------------------------------- |
-| `data`       | `DataPoint[]`          | required            | Array of `{ date: string \| Date, count: number }` |
-| `start`      | `string \| Date`       | 1 year before `end` | Start of the date range                            |
-| `end`        | `string \| Date`       | today               | End of the date range                              |
-| `weekStart`  | `"sunday" \| "monday"` | `"sunday"`          | First day of the week                              |
-| `classify`   | `ClassifyFn`           | `autoLevels(5)`     | Bucketing function mapping counts to levels        |
-| `colorScale` | `string[]`             | —                   | Array of colors, one per level (index 0 = lowest)  |
+| `data`       | `DataPoint[]`          | 必填            | `{ date: string \| Date, count: number }` 数组 |
+| `start`      | `string \| Date`       | `end` 前 1 年 | 日期范围的开始时间                            |
+| `end`        | `string \| Date`       | 今天               | 日期范围的结束时间                              |
+| `weekStart`  | `"sunday" \| "monday"` | `"sunday"`          | 一周的第一天                              |
+| `classify`   | `ClassifyFn`           | `autoLevels(5)`     | 将计数映射到级别的分桶函数        |
+| `colorScale` | `string[]`             | —                   | 颜色数组，每个级别对应一种颜色（索引 0 = 最低）  |
 
 ### Grid
 
-A `<div>` with CSS Grid layout. Renders `gridTemplateColumns` and `gridTemplateRows` based on the computed data. Accepts all standard div props.
+一个采用 CSS Grid 布局的 `<div>`。根据计算出的数据渲染 `gridTemplateColumns` 和 `gridTemplateRows`。接受所有标准 div 属性。
 
-Iterates over cells internally, calling the children render function for each cell. Each cell is wrapped in a context that `Cell` reads from.
+内部会遍历所有单元格，为每个单元格调用 children 渲染函数。每个单元格都包装在一个上下文中，`Cell` 会从该上下文读取数据。
 
 ```ts
 type CellData = {
@@ -148,16 +148,16 @@ type CellData = {
 
 ### Cell
 
-A `<div>` that reads from cell context. Automatically applies:
-- Grid positioning (`gridColumn`, `gridRow`)
-- Background color from `colorScale`
-- Tooltip hover handlers
+一个从单元格上下文读取数据的 `<div>`。会自动应用：
+- 网格定位（`gridColumn`、`gridRow`）
+- 从 `colorScale` 获取背景颜色
+- 工具提示悬停处理器
 
-Accepts all standard div props. Pass `colorScale` to override the Root-level color scale.
+接受所有标准 div 属性。传入 `colorScale` 可覆盖 Root 级别的颜色比例。
 
 ### MonthLabels
 
-Iterates over month labels, calling the children render function for each label.
+遍历月份标签，为每个标签调用 children 渲染函数。
 
 ```tsx
 <HeatGraph.MonthLabels>
@@ -169,11 +169,11 @@ Iterates over month labels, calling the children render function for each label.
 </HeatGraph.MonthLabels>
 ```
 
-Each label has `{ month: number, column: number }`. Use `totalWeeks` to compute label positions. Use `MONTH_SHORT[label.month]` for English labels, or format with `Intl.DateTimeFormat` for localization.
+每个标签都有 `{ month: number, column: number }`。使用 `totalWeeks` 计算标签位置。英文标签可使用 `MONTH_SHORT[label.month]`，本地化时可使用 `Intl.DateTimeFormat` 进行格式化。
 
 ### DayLabels
 
-Iterates over day-of-week labels, calling the children render function for each label.
+遍历星期标签，为每个标签调用 children 渲染函数。
 
 ```tsx
 <HeatGraph.DayLabels>
@@ -183,19 +183,19 @@ Iterates over day-of-week labels, calling the children render function for each 
 </HeatGraph.DayLabels>
 ```
 
-Each label has `{ dayOfWeek: number, row: number }` where `dayOfWeek` is 0=Sun..6=Sat. Use `DAY_SHORT[label.dayOfWeek]` for English labels, or format with `Intl.DateTimeFormat` for localization.
+每个标签都有 `{ dayOfWeek: number, row: number }`，其中 `dayOfWeek` 的取值为 0=周日，6=周六。英文标签可使用 `DAY_SHORT[label.dayOfWeek]`，本地化时可使用 `Intl.DateTimeFormat` 进行格式化。
 
 ### Legend
 
-Iterates over legend levels, calling the children render function for each item. Each item has `{ level: number, color: string | undefined }`.
+遍历图例级别，为每个条目调用 children 渲染函数。每个条目都有 `{ level: number, color: string | undefined }`。
 
 ### LegendLevel
 
-A `<div>` that reads from legend item context. Automatically applies `backgroundColor` from the color scale. Use inside `Legend`.
+一个从图例条目上下文读取数据的 `<div>`。会自动从颜色比例应用 `backgroundColor`。请在 `Legend` 内使用。
 
 ### Tooltip
 
-Renders only when a cell is hovered. Positioned by Radix Popper relative to the hovered cell. Accepts Radix Popper `Content` props (`side`, `sideOffset`, `align`, etc.).
+仅在单元格悬停时渲染。Radix Popper 会根据悬停的单元格对其进行定位。接受 Radix Popper `Content` 属性（`side`、`sideOffset`、`align` 等）。
 
 ```tsx
 <HeatGraph.Tooltip side="top" sideOffset={8} className="...">
@@ -205,13 +205,13 @@ Renders only when a cell is hovered. Positioned by Radix Popper relative to the 
 
 ### autoLevels(n)
 
-Default classification function. Maps counts into `n` evenly-distributed levels (0 to n-1). Level 0 is always count 0.
+默认分类函数。将计数映射到 `n` 个均匀分布的级别（0 到 n-1）。级别 0 始终对应计数 0。
 
 ```ts
 type ClassifyFn = (counts: number[]) => (count: number) => number;
 ```
 
-To provide a custom classifier:
+要提供自定义分类器：
 
 ```tsx
 const myClassify: HeatGraph.ClassifyFn = (counts) => {
@@ -230,8 +230,8 @@ const myClassify: HeatGraph.ClassifyFn = (counts) => {
 
 ### MONTH_SHORT
 
-English month abbreviations array: `["Jan", "Feb", ..., "Dec"]`. Index by `MonthLabel.month`.
+英文月份缩写数组：`["Jan", "Feb", ..., "Dec"]`。通过 `MonthLabel.month` 进行索引。
 
 ### DAY_SHORT
 
-English day abbreviations array: `["Sun", "Mon", ..., "Sat"]`. Index by `DayLabel.dayOfWeek`.
+英文星期缩写数组：`["Sun", "Mon", ..., "Sat"]`。通过 `DayLabel.dayOfWeek` 进行索引。

@@ -1,17 +1,17 @@
 ---
-title: Context
-description: Pass values through resource boundaries without prop drilling.
+title: 上下文
+description: 在资源边界之间传递值，无需逐层传递 prop。
 ---
 
 <Callout type="info">
-Tap context is supported as of `@assistant-ui/tap` 0.9 and is no longer deprecated.
+Tap 上下文从 `@assistant-ui/tap` 0.9 版本开始受支持，现已不再弃用。
 </Callout>
 
-Context lets you pass values through the resource tree without threading props through every level, the same idea as React's `createContext` / `useContext`.
+上下文允许你在资源树中传递值，而无需在每一层之间逐层传递 prop，这与 React 的 `createContext` / `useContext` 思路相同。
 
 ## createContext
 
-Create a context with a default value.
+使用默认值创建上下文。
 
 ```ts
 import { createContext } from "react";
@@ -19,9 +19,9 @@ import { createContext } from "react";
 const ThemeContext = createContext("light");
 ```
 
-## Reading context
+## 读取上下文
 
-Read the current value of a context inside a resource with `use` imported from `"react"`.
+在资源中使用从 `"react"` 导入的 `use` 读取上下文的当前值。
 
 ```ts
 import { use } from "react";
@@ -36,7 +36,7 @@ const Button = resource(useButton);
 
 ## useContextProvider
 
-Provide a context value to all resources rendered within the callback.
+向回调函数中渲染的所有资源提供上下文值。
 
 ```ts
 import { useContextProvider, useResource } from "@assistant-ui/tap";
@@ -52,4 +52,4 @@ const useApp = () => {
 const App = resource(useApp);
 ```
 
-Any resource rendered inside the callback (including deeply nested children) reads `"dark"` from `ThemeContext`.
+在回调函数中渲染的任何资源（包括深层嵌套的子元素）都可以从 `ThemeContext` 读取 `"dark"`。

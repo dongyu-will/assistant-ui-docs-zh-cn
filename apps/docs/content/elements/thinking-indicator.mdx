@@ -1,20 +1,20 @@
 ---
-title: "Thinking indicator"
-description: "A live status line that names what the agent is doing right now, with elapsed time."
+title: "思考指示器"
+description: "实时状态行，用于显示助手当前正在执行的操作以及已用时间。"
 ---
 
-A pulsing dot, a label that fades in fresh every time it changes, and an optional elapsed-time badge. With a runtime you derive the label from whatever the message can tell you and tick the elapsed badge yourself; standalone you pass both in directly.
+一个有节奏 pulsating 的圆点、每次变化时都会重新淡入的标签，以及可选的已用时间徽章。使用运行时（runtime）时，你可以根据消息当前能提供的信息推导标签，并自行更新已用时间徽章；单独使用时，则直接传入这两个值。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-The runtime does not hand you a phrase like "Reading the docs"; it hands you the parts that make up the message so far. The most concrete label you can build from that is the name of whatever tool call is still pending, falling back to a plain "Thinking" while the run is active and nothing else is happening yet.
+运行时不会直接提供“正在阅读文档”这样的短语，而是提供截至目前组成消息的各个部分。你能据此构建的最具体标签，就是当前仍在等待的工具调用名称；当运行仍处于活动状态但暂时没有其他进展时，则回退为普通的“思考中”。
 
 <Steps>
   <Step>
 
-### Name what is happening from the message parts
+### 根据消息部分命名当前操作
 
 ```tsx title="components/assistant-ui/elements/thinking-indicator.tsx"
 "use client";
@@ -33,12 +33,12 @@ function useThinkingLabel() {
 }
 ```
 
-Once the assistant has streamed visible text and no tool call is pending, this returns `undefined`: that is your cue to stop rendering the indicator and let the real content show instead.
+助手完成可见文本的流式输出且没有待处理的工具调用后，这会返回 `undefined`：这就是你应停止渲染指示器、改为显示实际内容的信号。
 
   </Step>
   <Step>
 
-### Tick the elapsed badge
+### 更新已用时间徽章
 
 ```tsx
 import { useEffect, useState } from "react";
@@ -68,7 +68,7 @@ function AssistantThinking() {
 }
 ```
 
-There is no runtime selector for "seconds elapsed so far": `metadata.timing` only finalizes once the message stops streaming, so a live badge needs its own timer, started the moment you have a label to show.
+运行时没有用于获取“目前已经过了多少秒”的选择器：`metadata.timing` 只有在消息停止流式输出后才会最终确定，因此实时徽章需要使用自己的计时器，并在有标签可显示的瞬间启动。
 
   </Step>
 </Steps>
@@ -77,12 +77,12 @@ There is no runtime selector for "seconds elapsed so far": `metadata.timing` onl
 
 <StandaloneMode>
 
-Standalone, `label` is a plain string and `elapsed` is a plain string; the component only handles the fade between labels and the layout.
+单独使用时，`label` 是普通字符串，`elapsed` 也是普通字符串；组件只负责标签之间的淡入效果和布局。
 
 <Steps>
   <Step>
 
-### Hold the label yourself
+### 自行维护标签
 
 ```tsx title="app/status.tsx"
 "use client";
@@ -96,29 +96,29 @@ export function Status() {
 }
 ```
 
-Changing `label` replays the shimmer and slide-in on the new text; the component keys its inner label on the string itself.
+更改 `label` 会在新文本上重新播放闪光和滑入动画；组件会根据字符串本身为内部标签设置 key。
 
   </Step>
   <Step>
 
-### Add elapsed time
+### 添加已用时间
 
 ```tsx
 <ThinkingIndicator label={label} elapsed="12s" />
 ```
 
-Omit `elapsed` entirely to hide the badge; passing an empty string still renders it.
+完全省略 `elapsed` 即可隐藏徽章；传入空字符串仍会渲染徽章。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Examples
+## 示例
 
-### Reacting to a pending tool call
+### 响应待处理的工具调用
 
-The label only needs to change; the fade-in is automatic because the element keys its shimmer span on the label text.
+只需更改标签即可；由于元素会根据标签文本为其闪光动画的 span 设置 key，淡入效果会自动触发。
 
 ```tsx
 const pending = message.parts.find(
@@ -127,24 +127,24 @@ const pending = message.parts.find(
 const label = pending?.type === "tool-call" ? `Running ${pending.toolName}` : "Thinking";
 ```
 
-### Restyle the status line
+### 重新设置状态行样式
 
-The dot is fixed to `bg-blue-500`; the label uses `ShimmerLabel` and the elapsed badge uses the shared `mono` token from `surfaces.tsx`. `className` on the root only affects layout (it starts as `flex items-center gap-2.5`).
+圆点固定使用 `bg-blue-500`；标签使用 `ShimmerLabel`，已用时间徽章使用来自 `surfaces.tsx` 的共享 `mono` token。根元素上的 `className` 只会影响布局（初始值为 `flex items-center gap-2.5`）。
 
 ```tsx
 <ThinkingIndicator label={label} elapsed={elapsed} className="gap-1.5 text-xs" />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Message state
+### 消息状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.message.status` | `MessageStatus \| undefined` | `status.type === "running"` while the assistant is still producing this message. |
-| `s.message.parts` | `readonly PartState[]` | Scan for a `"tool-call"` part with no `result` yet to name what is running; an empty array with the message still running means nothing has arrived at all. |
+| `s.message.status` | `MessageStatus \| undefined` | 助手仍在生成此消息时为 `status.type === "running"`。 |
+| `s.message.parts` | `readonly PartState[]` | 查找尚未包含 `result` 的 `"tool-call"` 部分，以确定当前正在运行的操作；如果消息仍在运行但数组为空，则表示尚未收到任何内容。 |
 
 </RuntimeMode>
 
@@ -152,12 +152,12 @@ The dot is fixed to `bg-blue-500`; the label uses `ShimmerLabel` and the elapsed
 
 ### ThinkingIndicator
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `label` | `string` | required | Status text; changing it replays the fade-in. |
-| `elapsed` | `string \| undefined` | | Preformatted elapsed time shown after the label. Omit to hide the badge. |
-| `className` | `string` | | Merged onto the root. |
+| `label` | `string` | 必填 | 状态文本；更改后会重新播放淡入效果。 |
+| `elapsed` | `string \| undefined` | | 显示在标签后的预格式化已用时间。省略此属性即可隐藏徽章。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props except `children` are forwarded to the root.
+除 `children` 外，所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

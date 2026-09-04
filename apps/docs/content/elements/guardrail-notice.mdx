@@ -1,20 +1,20 @@
 ---
-title: "Guardrail notice"
-description: "A refusal in its own shape, with the nearest thing it can do instead."
+title: "防护栏通知"
+description: "以自身形式呈现的拒绝，并提供它能执行的最接近操作。"
 ---
 
-An icon, a title, a short policy tag, an explanation, and an optional list of alternatives the reader can pick instead. Unlike a generic failure banner (see `/elements/error-state`), this is specifically for a policy stop rather than a transport or server error. With a runtime you detect the stop from the message's own status; standalone you decide when to show it.
+其中包含一个图标、一个标题、一个简短的策略标签、一段说明，以及一个可选的替代方案列表，读者可以从中选择其他操作。不同于通用的失败横幅（参见 `/elements/error-state`），它专门用于策略拦截，而不是传输层或服务器错误。在运行时中，你可以根据消息自身的状态检测到拦截；在独立模式下，则由你决定何时显示它。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-A refusal is not a separate concept from a normal message: it is an assistant message whose status finished as `"incomplete"` with reason `"content-filter"`. Everything else on the notice, the title, the explanation, and the alternatives, is content your app supplies; the runtime only tells you that the stop happened.
+拒绝并不是区别于普通消息的独立概念：它是一个助手消息，其状态以 `"incomplete"` 结束，原因是 `"content-filter"`。通知中的其他内容——标题、说明和替代方案——都由你的应用提供；运行时只会告知你拦截已经发生。
 
 <Steps>
   <Step>
 
-### Detect a content filter stop
+### 检测内容过滤拦截
 
 ```tsx title="components/assistant-ui/elements/guardrail-notice.tsx"
 "use client";
@@ -32,7 +32,7 @@ function useIsGuardrailStop() {
   </Step>
   <Step>
 
-### Send an alternative back
+### 发送替代方案
 
 ```tsx
 import { useAui } from "@assistant-ui/react";
@@ -57,7 +57,7 @@ function AssistantGuardrail() {
 }
 ```
 
-`aui.thread.append(text)` sends `text` as a new user message and starts a run with it, the same as if the reader had typed and sent it themselves.
+`aui.thread.append(text)` 会将 `text` 作为新的用户消息发送，并使用它启动一次运行，这与读者自行输入并发送完全相同。
 
   </Step>
 </Steps>
@@ -66,12 +66,12 @@ function AssistantGuardrail() {
 
 <StandaloneMode>
 
-Standalone, showing the notice at all, and what it says, is entirely your call.
+在独立模式下，是否显示通知以及通知的具体内容，完全由你决定。
 
 <Steps>
   <Step>
 
-### Hold the refusal state
+### 保留拒绝状态
 
 ```tsx title="app/answer.tsx"
 "use client";
@@ -93,7 +93,7 @@ export function RefusalNotice() {
   </Step>
   <Step>
 
-### Wire onPick to your own retry
+### 将 onPick 接入你自己的重试逻辑
 
 ```tsx
 <GuardrailNotice
@@ -102,14 +102,14 @@ export function RefusalNotice() {
 />
 ```
 
-`onPick` is optional; omitting it still renders the alternative buttons, they just do nothing on click.
+`onPick` 是可选的；省略它仍会渲染替代方案按钮，只是点击时不会执行任何操作。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="guardrail-notice">
@@ -119,36 +119,36 @@ export function RefusalNotice() {
 </div>
 ```
 
-The alternatives block is entirely omitted, not just empty, when `alternatives` is an empty array; the notice then ends after the explanation paragraph. Every alternative renders as its own button regardless of whether `onPick` is provided.
+当 `alternatives` 为空数组时，替代方案区块会完全省略，而不仅仅是显示为空；此时通知会在说明段落之后结束。无论是否提供 `onPick`，每个替代方案都会渲染为一个独立按钮。
 
-## Examples
+## 示例
 
-### Reading the refusal reason
+### 读取拒绝原因
 
-`status.reason` on an incomplete message is one of a fixed set of strings; `"content-filter"` is the one that maps to a guardrail stop specifically, distinct from `"cancelled"`, `"length"`, `"error"`, or `"other"`.
+不完整消息上的 `status.reason` 是固定字符串集合中的一个；其中只有 `"content-filter"` 专门对应防护栏拦截，与 `"cancelled"`、`"length"`、`"error"` 或 `"other"` 不同。
 
 ```tsx
 const policy = status.type === "incomplete" ? status.reason : undefined;
 ```
 
-### Restyle the notice
+### 重新设置通知样式
 
-Both lanes take `className` on the root, which starts as `flex w-full max-w-sm flex-col gap-3 rounded-[20px]` on the shared `paper` surface. The shield icon's amber tint and the policy tag's `mono` styling both come from `surfaces.tsx`.
+两种用法都在根元素上接收 `className`；在共享的 `paper` 表面上，它初始为 `flex w-full max-w-sm flex-col gap-3 rounded-[20px]`。盾牌图标的琥珀色调和策略标签的 `mono` 样式都来自 `surfaces.tsx`。
 
 ```tsx
 <GuardrailNotice className="max-w-none rounded-2xl" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Message state
+### 消息状态
 
-| Selector / call | Type | Description |
+| 选择器 / 调用 | 类型 | 描述 |
 |------|------|-------------|
-| `s.message.status` | `MessageStatus \| undefined` | `type === "incomplete"` with `reason === "content-filter"` marks a guardrail stop. |
-| `aui.thread.append(message)` | `(message: CreateAppendMessage) => void` | Sends a plain string (or a full message) as a new user turn; use it to send a picked alternative back. |
+| `s.message.status` | `MessageStatus \| undefined` | `type === "incomplete"` 与 `reason === "content-filter"` 一起表示防护栏拦截。 |
+| `aui.thread.append(message)` | `(message: CreateAppendMessage) => void` | 将普通字符串（或完整消息）作为新的用户轮次发送；使用它将选中的替代方案发回。 |
 
 </RuntimeMode>
 
@@ -156,15 +156,15 @@ Both lanes take `className` on the root, which starts as `flex w-full max-w-sm f
 
 ### GuardrailNotice
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `title` | `string` | required | Headline next to the shield icon. |
-| `explanation` | `string` | required | Body text; always rendered. |
-| `policy` | `string` | required | Short tag shown at the end of the header row. |
-| `alternatives` | `readonly string[]` | required | Suggested next prompts. An empty array omits the whole block. |
-| `onPick` | `(alternative: string) => void` | | Called with the clicked alternative's text. Optional; omitting it leaves the buttons inert. |
-| `className` | `string` | | Merged onto the root. |
+| `title` | `string` | 必填 | 盾牌图标旁的标题。 |
+| `explanation` | `string` | 必填 | 正文文本；始终渲染。 |
+| `policy` | `string` | 必填 | 显示在标题行末尾的简短标签。 |
+| `alternatives` | `readonly string[]` | 必填 | 建议的后续提示语。空数组会省略整个区块。 |
+| `onPick` | `(alternative: string) => void` | | 使用点击的替代方案文本调用。可选；省略它会使按钮无法执行操作。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props except `children`, `title`, `explanation`, `policy`, `alternatives`, and `onPick` are forwarded to the root.
+除 `children`、`title`、`explanation`、`policy`、`alternatives` 和 `onPick` 之外，所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

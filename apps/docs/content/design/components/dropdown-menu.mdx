@@ -1,8 +1,8 @@
 ---
-title: "Dropdown Menu"
-description: "Actions behind a trigger: items, shortcuts, and separators on a quiet surface."
+title: "下拉菜单"
+description: "触发器背后的操作：在安静的界面上提供项目、快捷键和分隔符。"
 links:
-  - label: Source
+  - label: 官方原文
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/dropdown-menu.tsx
   - label: Base UI Menu
     url: https://base-ui.com/react/components/menu
@@ -23,11 +23,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.DropdownMenuSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="dropdown-menu" />
 
-## Usage
+## 用法
 
 ```tsx
 import {
@@ -53,19 +53,19 @@ export function Example() {
 }
 ```
 
-## Examples
+## 示例
 
-### Checkboxes and submenus
+### 复选框和子菜单
 
-`DropdownMenuCheckboxItem` holds a checked state, `DropdownMenuLabel` titles a group, and `DropdownMenuSub` nests a second level.
+`DropdownMenuCheckboxItem`保存选中状态，`DropdownMenuLabel`为组提供标题，而`DropdownMenuSub`嵌套第二层菜单。
 
 <PreviewCode file="components/pages/design/specimens" name="DropdownMenuChecklistSpecimen" base={<DropdownMenuChecklistSpecimen />}>
   <RadixSpecimens.DropdownMenuChecklistSpecimen />
 </PreviewCode>
 
-## API Reference
+## API 参考
 
-The parts wrap Base UI's Menu primitives and accept their props.
+这些部分封装了 Base UI 的 Menu 原语，并接受其 props。
 
 ### DropdownMenu
 
@@ -75,18 +75,18 @@ The parts wrap Base UI's Menu primitives and accept their props.
     {
       name: "open",
       type: "boolean",
-      description: "Controlled open state.",
+      description: "受控的打开状态。",
     },
     {
       name: "onOpenChange",
       type: "(open: boolean) => void",
-      description: "Called when the open state changes.",
+      description: "打开状态发生变化时调用。",
     },
     {
       name: "defaultOpen",
       type: "boolean",
       default: "false",
-      description: "Uncontrolled initial open state.",
+      description: "非受控的初始打开状态。",
     },
   ]}
 />
@@ -100,13 +100,13 @@ The parts wrap Base UI's Menu primitives and accept their props.
       name: "align",
       type: '"start" | "center" | "end"',
       default: '"center"',
-      description: "Alignment against the trigger.",
+      description: "相对于触发器的对齐方式。",
     },
     {
       name: "sideOffset",
       type: "number",
       default: "4",
-      description: "Distance from the trigger in pixels.",
+      description: "与触发器之间的像素距离。",
     },
   ]}
 />
@@ -119,13 +119,13 @@ The parts wrap Base UI's Menu primitives and accept their props.
     {
       name: "onSelect",
       type: "() => void",
-      description: "Called when the item is selected.",
+      description: "项目被选中时调用。",
     },
     {
       name: "disabled",
       type: "boolean",
       default: "false",
-      description: "Prevents selection and mutes the item.",
+      description: "阻止选择并弱化项目。",
     },
   ]}
 />

@@ -1,20 +1,20 @@
 ---
-title: "Mobile composer"
-description: "The bottom sheet: keyboard-aware, quick actions above, thumb-sized targets."
+title: "移动端输入框"
+description: "底部抽屉：感知键盘状态、上方快捷操作、适合拇指点击的目标区域。"
 ---
 
-A composer shaped for a phone: a row of quick actions that collapses out of the way once the keyboard is up, an attach button, a single-line input, and a send button that becomes stop mid-run. With a runtime every piece is a composer primitive already wired to send, cancel, and attachments; standalone you own the text, the running flag, and every callback.
+专为手机设计的输入框：键盘弹出后会收起到一旁的快捷操作行、附件按钮、单行输入框，以及在运行过程中变为停止按钮的发送按钮。使用运行时时，每个部分都是已经连接到发送、取消和附件功能的输入框原语；单独使用时，则需要自行管理文本、运行标志和所有回调。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-`ComposerPrimitive.Root`, `.Input`, `.AddAttachment`, `.Send`, and `.Cancel` already own the text, the attach flow, and the send/cancel gating, so this bar needs no manual `value`, `onValueChange`, `onSend`, or `onStop` at all; it only needs the layout and the running flag to pick between Send and Cancel.
+`ComposerPrimitive.Root`、`.Input`、`.AddAttachment`、`.Send` 和 `.Cancel` 已经自行管理文本、附件流程以及发送/取消门控，因此此输入栏完全不需要手动处理 `value`、`onValueChange`、`onSend` 或 `onStop`；它只需要布局和运行标志，以便在 Send 和 Cancel 之间进行选择。
 
 <Steps>
   <Step>
 
-### Compose the bar from composer primitives
+### 使用输入框原语组合输入栏
 
 ```tsx title="components/assistant-ui/elements/mobile-composer-bar.tsx"
 "use client";
@@ -85,7 +85,7 @@ export function MobileComposerBar({ keyboardOpen }: { keyboardOpen: boolean }) {
 }
 ```
 
-`ComposerPrimitive.Root` renders a `<form>`, so `ComposerPrimitive.Input`'s own Enter-to-send already fires through it; nothing here reimplements the key handling the standalone element writes by hand. `keyboardOpen` still has to come from outside, typically from the input's native focus and blur events or a `visualViewport` listener, since no runtime state tracks whether an on-screen keyboard is up.
+`ComposerPrimitive.Root` 会渲染一个 `<form>`，因此 `ComposerPrimitive.Input` 自带的按 Enter 发送功能已经会通过它触发；这里不需要重新实现独立元素手动编写的按键处理逻辑。`keyboardOpen` 仍然必须从外部提供，通常来自输入框原生的 focus 和 blur 事件，或来自 `visualViewport` 监听器，因为运行时状态不会跟踪屏幕键盘是否已弹出。
 
   </Step>
 </Steps>
@@ -94,12 +94,12 @@ export function MobileComposerBar({ keyboardOpen }: { keyboardOpen: boolean }) {
 
 <StandaloneMode>
 
-Standalone, every field is a prop and the component owns exactly two pieces of logic: Enter submits when there is text and no run is in flight, and the send button disables under the same condition.
+单独使用时，每个字段都是 prop，组件只负责两段逻辑：有文本且没有正在运行的任务时，按 Enter 提交；发送按钮在相同条件下禁用。
 
 <Steps>
   <Step>
 
-### Hold the composer state
+### 保存输入框状态
 
 ```tsx title="app/mobile-bar.tsx"
 "use client";
@@ -137,7 +137,7 @@ export function MobileBar() {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="mobile-composer">
@@ -153,54 +153,54 @@ export function MobileBar() {
 </div>
 ```
 
-The standalone element renders a single-line `<input>`; the runtime composition above renders `ComposerPrimitive.Input`, an auto-resizing `<textarea>` that can grow past one line, which is the same trade every composer in the catalog makes. Enter triggers a send only when `!running && value !== ""`. While not running, the button shares that same emptiness gate (disabled only when `value === ""`); while running, both the key and the button stop meaning "send" at all, since the button's label, icon, and handler have already swapped to Stop. The attach button and every action chip disable together based only on whether their handler prop was passed at all (`onAttach`, `onAction`); none of them react to `running` or `value` on their own, so gating them during a run is the caller's responsibility. The mic icon and the send/stop icon swap are purely presentational: nothing here starts dictation, and stop icon does not imply cancellation happened, only that `onStop` was called.
+独立元素会渲染单行 `<input>`；上面的运行时组合会渲染 `ComposerPrimitive.Input`，也就是可以扩展到多行的自动调整大小的 `<textarea>`，这与目录中每个输入框所采用的取舍相同。只有在 `!running && value !== ""` 时，按 Enter 才会触发发送。未运行时，按钮使用相同的空值门控（仅在 `value === ""` 时禁用）；运行时，按键和按钮都不再表示“发送”，因为按钮的标签、图标和处理器已经切换为 Stop。附件按钮和所有操作芯片仅根据是否传入了对应的处理器 prop 一起禁用（`onAttach`、`onAction`）；它们不会自行响应 `running` 或 `value`，因此在运行期间对它们进行门控是调用方的责任。麦克风图标以及发送/停止图标的切换纯粹用于呈现：这里不会启动听写，停止图标也不代表取消已经发生，只表示已调用 `onStop`。
 
-## Examples
+## 示例
 
-### Restyle the bar
+### 重新设置输入栏样式
 
-Both lanes take `className` on the root. Attach, input, and action-chip surfaces all read the shared `field` token and the send button reads `inkButton`, so retheming those two covers the whole bar.
+两种方案都会在根元素上接收 `className`。附件、输入框和操作芯片表面都会读取共享的 `field` token，发送按钮则读取 `inkButton`，因此重新设置这两个 token 的主题即可覆盖整个输入栏。
 
 ```tsx
 <MobileComposer className="max-w-xs" /* ... */ />
 ```
 
-### Wiring the keyboard-aware layout
+### 连接感知键盘状态的布局
 
 <RuntimeMode>
 
-Since `keyboardOpen` is not runtime state, drive it from the platform: toggle it on the input's focus and blur, or, for a more accurate signal on mobile web, from `window.visualViewport`'s `resize` event comparing the viewport height against the layout height.
+由于 `keyboardOpen` 并非运行时状态，应从平台获取它：可以在输入框的 focus 和 blur 事件中切换它；或者在移动端 Web 上，为获得更准确的信号，可以使用 `window.visualViewport` 的 `resize` 事件，将视口高度与布局高度进行比较。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-The example above ties `keyboardOpen` to the input's `onFocus`, which is enough for most cases; closing it again (on blur, or on a virtual keyboard's own dismiss) is left to you, since the element has no blur callback of its own.
+上面的示例将 `keyboardOpen` 与输入框的 `onFocus` 关联起来，这已经足够应对大多数情况；再次关闭它（在 blur 时，或通过虚拟键盘自身的收起操作）需要由你自行处理，因为该元素没有自己的 blur 回调。
 
 </StandaloneMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### ComposerPrimitive
 
-| Part | Renders | Notes |
+| 部件 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `Root` | `form` | Handles submit-to-send and focuses the input on a blank-area click. |
-| `Input` | `textarea` (auto-resizing) | Controls its own value against `s.composer.text`; Enter submits the closest form unless Shift is held. |
-| `AddAttachment` | `button` | Opens a file picker and adds each file as an attachment. Disabled while the composer is not in editing mode. |
-| `Send` | `button` | Sends the composer. Disabled whenever `s.composer.canSend` is false (empty, not editing, or the thread blocks sending) or a run is in flight without queue support. |
-| `Cancel` | `button` | Cancels the in-flight run. Disabled whenever `s.composer.canCancel` is false, which covers "no run to cancel". |
+| `Root` | `form` | 处理提交发送，并在点击空白区域时聚焦输入框。 |
+| `Input` | `textarea`（自动调整大小） | 根据 `s.composer.text` 控制自身的值；除非按住 Shift，否则按 Enter 会提交最近的表单。 |
+| `AddAttachment` | `button` | 打开文件选择器，并将每个文件添加为附件。当输入框不处于编辑模式时禁用。 |
+| `Send` | `button` | 发送输入框内容。当 `s.composer.canSend` 为 false（为空、不在编辑状态或线程禁止发送），或在不支持排队时有任务正在运行，都会禁用。 |
+| `Cancel` | `button` | 取消正在运行的任务。当 `s.composer.canCancel` 为 false 时禁用，其中包括“没有可取消的任务”的情况。 |
 
-Quick action chips are `ThreadPrimitive.Suggestion`, the same primitive the [launcher](/elements/launcher-bubble) uses for its starter prompts; by default it replaces the composer text rather than sending.
+快捷操作芯片是 `ThreadPrimitive.Suggestion`，与 [启动器](/elements/launcher-bubble) 用于其初始提示的原语相同；默认情况下，它会替换输入框文本，而不是直接发送。
 
-### Thread and composer state
+### 线程和输入框状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.thread.isRunning` | `boolean` | Whether to show Cancel in place of Send. |
-| `s.composer.isEmpty` | `boolean` | Whether to show the mic affordance in place of nothing. |
+| `s.thread.isRunning` | `boolean` | 是否显示 Cancel 以替代 Send。 |
+| `s.composer.isEmpty` | `boolean` | 是否显示麦克风操作入口以替代空白区域。 |
 
 </RuntimeMode>
 
@@ -208,20 +208,20 @@ Quick action chips are `ThreadPrimitive.Suggestion`, the same primitive the [lau
 
 ### MobileComposer
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `value` | `string` | required | Input value. |
-| `keyboardOpen` | `boolean` | required | Hides the quick actions row and swaps the grabber for a "return to send" hint. |
-| `running` | `boolean` | required | Swaps the send button to a stop button and blocks Enter-to-send. |
-| `actions` | `readonly string[]` | required | Quick action labels shown above the input. |
-| `onAction` | `(action: string) => void` | | Called with an action's label when its chip is pressed. Its absence disables every chip. |
-| `onAttach` | `() => void` | | Called when the attach button is pressed. Its absence disables the button. |
-| `onValueChange` | `(value: string) => void` | | Called on every input change. |
-| `onSend` | `() => void` | | Called on Enter (when sendable) or the send button. |
-| `onStop` | `() => void` | | Called from the button while `running` is true. |
-| `onFocus` | `() => void` | | Called when the input receives focus. |
-| `className` | `string` | | Merged onto the root. |
+| `value` | `string` | 必填 | 输入框的值。 |
+| `keyboardOpen` | `boolean` | 必填 | 隐藏快捷操作行，并将拖拽条替换为“返回发送”提示。 |
+| `running` | `boolean` | 必填 | 将发送按钮替换为停止按钮，并阻止按 Enter 发送。 |
+| `actions` | `readonly string[]` | 必填 | 显示在输入框上方的快捷操作标签。 |
+| `onAction` | `(action: string) => void` | | 按下操作芯片时，使用该操作的标签调用。未提供时会禁用所有芯片。 |
+| `onAttach` | `() => void` | | 按下附件按钮时调用。未提供时会禁用该按钮。 |
+| `onValueChange` | `(value: string) => void` | | 每次输入发生变化时调用。 |
+| `onSend` | `() => void` | | 在按 Enter（可发送时）或按发送按钮时调用。 |
+| `onStop` | `() => void` | | 当 `running` 为 true 时，通过按钮调用。 |
+| `onFocus` | `() => void` | | 输入框获得焦点时调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` props 都会转发到根元素。
 
 </StandaloneMode>

@@ -1,22 +1,22 @@
 ---
-title: "Message pair"
-description: "A user bubble and a streaming assistant reply, with actions that appear on hover."
+title: "消息对"
+description: "一个用户气泡和一条流式助手回复，操作会在悬停时显示。"
 ---
 
-A message pair is one turn of a conversation: the message you sent, and the reply landing beneath it with copy and regenerate tucked away until you hover. `bubble` wraps the sent message in a filled pill; `flat` sets it as plain right-aligned text with no container. With a runtime the pair is two composed messages driven by the thread; standalone you hand it the sent text and the words to reveal.
+消息对是一次对话轮次：你发送的消息，以及显示在下方的回复；复制和重新生成操作会一直隐藏，直到你将鼠标悬停其上。`bubble` 会将发送的消息包裹在填充样式的圆角气泡中；`flat` 则将其显示为没有容器的右对齐纯文本。在运行时中，这一对由线程驱动的组合消息构成；单独使用时，则需要传入发送的文本和要显示的词语。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-A thread renders as a list of messages, each one either from the user or the assistant. Compose the pair from `MessagePrimitive.Root` per message and an action row that only shows on hover.
+线程会渲染为消息列表，每条消息分别来自用户或助手。为每条消息使用 `MessagePrimitive.Root` 组合消息对，并添加一个仅在悬停时显示的操作行。
 
 <Steps>
   <Step>
 
-### Compose the pair
+### 组合消息对
 
-`ThreadPrimitive.Messages` iterates the thread; branch on `s.message.role` to choose which half of the pair to render.
+`ThreadPrimitive.Messages` 会遍历线程；根据 `s.message.role` 分支，选择要渲染消息对中的哪一部分。
 
 ```tsx title="components/assistant-ui/elements/message-pair.tsx"
 "use client";
@@ -48,9 +48,9 @@ function TurnMessage() {
   </Step>
   <Step>
 
-### Reveal actions on hover
+### 在悬停时显示操作
 
-Wrap the action row in `ActionBarPrimitive.Root` with `autohide="always"`: it renders nothing until `s.message.isHovering` turns true, which `MessagePrimitive.Root` already tracks from pointer enter and leave.
+在 `ActionBarPrimitive.Root` 中使用 `autohide="always"` 包裹操作行：在 `s.message.isHovering` 变为 true 之前，它不会渲染任何内容；`MessagePrimitive.Root` 已经会根据指针进入和离开跟踪这一状态。
 
 ```tsx
 import { ActionBarPrimitive } from "@assistant-ui/react";
@@ -76,7 +76,7 @@ function AssistantReply() {
 }
 ```
 
-The `Thread` element already ships a user and assistant message composed this closely, though its action row uses `autohide="not-last"` (hover-gated on older replies, always visible on the newest one) rather than the strict hover-only behavior modeled here; install `@assistant-ui/thread` for the full, richer version.
+`Thread` 元素已经提供了一个与此高度相似的用户消息和助手消息组合，不过它的操作行使用 `autohide="not-last"`（旧回复在悬停时显示，最新回复始终显示），而不是这里建模的严格仅悬停显示行为；安装 `@assistant-ui/thread` 即可使用完整且功能更丰富的版本。
 
   </Step>
 </Steps>
@@ -85,12 +85,12 @@ The `Thread` element already ships a user and assistant message composed this cl
 
 <StandaloneMode>
 
-Standalone, the pair is a controlled reveal: you hold the full list of words and how many are currently shown, and the element handles the fade-in and the trailing cursor.
+单独使用时，消息对是一种受控显示效果：你保存完整的词语列表以及当前已显示的词语数量，而元素负责淡入效果和末尾光标。
 
 <Steps>
   <Step>
 
-### Drive the reveal
+### 驱动显示效果
 
 ```tsx title="app/turn.tsx"
 "use client";
@@ -124,16 +124,16 @@ export function Turn() {
   </Step>
   <Step>
 
-### Handle the hover actions
+### 处理悬停操作
 
-`MessagePair` renders the copy and regenerate buttons but leaves their behavior to you; wire `onClick` handlers where you render the element, or reach them from outside with `[data-slot="message-pair"] button`.
+`MessagePair` 会渲染复制和重新生成按钮，但具体行为由你负责；在渲染元素的位置绑定 `onClick` 处理函数，或者通过 `[data-slot="message-pair"] button` 从外部访问它们。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="message-pair">
@@ -145,15 +145,15 @@ export function Turn() {
 </div>
 ```
 
-Hovering or focusing anywhere in the reply's group reveals the action row through `opacity-0` to `opacity-100`; each word fades in on its own, and the newest two words tint blue while `streaming` is true before settling to ink over 700ms. A trailing cursor blinks after the last word while streaming and disappears once `streaming` is false or nothing has been revealed yet. Standalone this reveal is driven by `visibleWords` catching up to `words.length`, a controlled typewriter useful for demos and replays. A runtime instead just renders the accumulated text as it streams in: there is no separate reveal count to manage, and the default `Text` part renderer shows a trailing "●" (through `MessagePartPrimitive.InProgress`) rather than a colored trailing edge, so the per-word blue tint is specific to this design.
+在回复所属的组中的任意位置悬停或聚焦时，操作行会通过 `opacity-0` 显示到 `opacity-100`；每个词都会单独淡入，最新的两个词会在 `streaming` 为 true 时显示为蓝色，然后在 700ms 内逐渐变为墨色。流式传输期间，末尾光标会在最后一个词后闪烁；当 `streaming` 为 false 或尚未显示任何内容时，光标会消失。单独使用时，这一显示效果由 `visibleWords` 追赶 `words.length` 驱动，是一种适用于演示和回放的受控打字机效果。运行时则只会随着文本流式传入渲染累积的文本：无需管理单独的显示数量，并且默认的 `Text` 部分渲染器会通过 `MessagePartPrimitive.InProgress` 在末尾显示一个“●”，而不是显示彩色的末尾边缘，因此逐词蓝色着色是此设计特有的效果。
 
-## Examples
+## 示例
 
-### Bubble or flat
+### 气泡或扁平样式
 
 <RuntimeMode>
 
-There is no `variant` prop at runtime; flip the same two classes on the bubble you compose in "Compose the pair":
+运行时没有 `variant` prop；在你于“组合消息对”中组合的气泡上切换同样的两个 class：
 
 ```tsx
 <div
@@ -169,7 +169,7 @@ There is no `variant` prop at runtime; flip the same two classes on the bubble y
 
 <StandaloneMode>
 
-`variant="flat"` drops the pill and right-aligns the sent message as plain text, for a denser layout.
+`variant="flat"` 会移除圆角气泡，并将发送的消息右对齐为纯文本，从而实现更紧凑的布局。
 
 ```tsx
 <MessagePair variant="flat" userMessage="..." words={words} visibleWords={n} streaming={false} />
@@ -177,11 +177,11 @@ There is no `variant` prop at runtime; flip the same two classes on the bubble y
 
 </StandaloneMode>
 
-### Where the reply comes from
+### 回复的来源
 
 <RuntimeMode>
 
-`s.message.status?.type` is `"running"` while the assistant is still streaming and `"complete"` once it settles; drive any UI that depends on "is this message still arriving" from it directly instead of a local `streaming` flag.
+助手仍在流式传输时，`s.message.status?.type` 为 `"running"`；完成后则为 `"complete"`。对于依赖“这条消息是否仍在传入”的任何 UI，都应直接使用它，而不是使用本地的 `streaming` 标志。
 
 ```tsx
 const streaming = useAuiState((s) => s.message.status?.type === "running");
@@ -191,40 +191,40 @@ const streaming = useAuiState((s) => s.message.status?.type === "running");
 
 <StandaloneMode>
 
-Streaming ends the moment `visibleWords` reaches `words.length`; append a new word and bump the counter to keep it going, or set `streaming={false}` once the source finishes.
+当 `visibleWords` 到达 `words.length` 的瞬间，流式传输就会结束；追加一个新词并递增计数器即可让流式传输继续，或者在来源完成后设置 `streaming={false}`。
 
 </StandaloneMode>
 
-### Restyle the pair
+### 重新设置消息对样式
 
-Both lanes take `className` on the root, and the shared `paper` and `ghostButton` tokens from `surfaces.tsx` style the bubble and the action buttons everywhere they're used.
+两个区域的根元素都使用 `className`，而来自 `surfaces.tsx` 的共享 `paper` 和 `ghostButton` token 会为所有使用它们的气泡和操作按钮设置样式。
 
 ```tsx
 <MessagePair className="max-w-none gap-3" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Message parts
+### 消息部分
 
-| Part | Renders | Notes |
+| 部分 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `MessagePrimitive.Root` | `div` | Tracks hover for the action row; wrap each message in one. |
-| `MessagePrimitive.Parts` | fragment | Renders the message's content, including the streaming text. |
-| `ActionBarPrimitive.Root` | `div` | `autohide="always"` hides until `message.isHovering` is true. |
-| `ActionBarPrimitive.Copy` | `button` | Disabled while there's nothing to copy yet. |
-| `ActionBarPrimitive.Reload` | `button` | Disabled while the thread is running or the message isn't from the assistant. |
+| `MessagePrimitive.Root` | `div` | 跟踪操作行的悬停状态；每条消息都应包裹在其中。 |
+| `MessagePrimitive.Parts` | fragment | 渲染消息内容，包括流式文本。 |
+| `ActionBarPrimitive.Root` | `div` | `autohide="always"` 会一直隐藏，直到 `message.isHovering` 为 true。 |
+| `ActionBarPrimitive.Copy` | `button` | 尚无可复制内容时处于禁用状态。 |
+| `ActionBarPrimitive.Reload` | `button` | 线程正在运行或消息并非来自助手时处于禁用状态。 |
 
-### Message state
+### 消息状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.message.role` | `"user" \| "assistant" \| "system"` | Which half of the pair this message is. |
-| `s.message.status?.type` | `"running" \| "complete" \| "incomplete" \| "requires-action"` | Present on assistant messages; `"running"` while still streaming. |
-| `s.message.isHovering` | `boolean` | Set by `MessagePrimitive.Root` from pointer enter and leave. |
-| `aui.message.reload()` | `(config?) => void` | Regenerates this assistant message as a new sibling branch. |
+| `s.message.role` | `"user" \| "assistant" \| "system"` | 此消息属于消息对中的哪一部分。 |
+| `s.message.status?.type` | `"running" \| "complete" \| "incomplete" \| "requires-action"` | 存在于助手消息上；仍在流式传输时为 `"running"`。 |
+| `s.message.isHovering` | `boolean` | 由 `MessagePrimitive.Root` 根据指针进入和离开进行设置。 |
+| `aui.message.reload()` | `(config?) => void` | 将此助手消息重新生成为新的同级分支。 |
 
 </RuntimeMode>
 
@@ -232,15 +232,15 @@ Both lanes take `className` on the root, and the shared `paper` and `ghostButton
 
 ### MessagePair
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `userMessage` | `string` | required | The sent message, shown as the bubble or the flat line. |
-| `words` | `readonly string[]` | required | The full reply, already split into words. |
-| `visibleWords` | `number` | required | How many words from the start of `words` to show. |
-| `streaming` | `boolean` | required | Tints the newest words and shows the trailing cursor while true. |
-| `variant` | `"bubble" \| "flat"` | `"bubble"` | How the sent message is presented. |
-| `className` | `string` | | Merged onto the root. |
+| `userMessage` | `string` | required | 发送的消息，以气泡或扁平文本行显示。 |
+| `words` | `readonly string[]` | required | 完整的回复，已拆分为词语。 |
+| `visibleWords` | `number` | required | 从 `words` 开始显示的词语数量。 |
+| `streaming` | `boolean` | required | 为最新词语着色，并在为 true 时显示末尾光标。 |
+| `variant` | `"bubble" \| "flat"` | `"bubble"` | 发送的消息的呈现方式。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` props 都会转发到根元素。
 
 </StandaloneMode>

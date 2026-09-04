@@ -1,13 +1,13 @@
 ---
-title: Custom Backend
-description: Connect your terminal app to your own backend API.
+title: 自定义后端
+description: 将终端应用连接到你自己的后端 API。
 ---
 
-By default, `useLocalRuntime` manages threads and messages in memory. You can connect to your own backend in two ways depending on your needs.
+默认情况下，`useLocalRuntime`会在内存中管理线程和消息。根据你的需求，你可以通过两种方式连接到自己的后端。
 
-## Option 1: ChatModelAdapter only
+## 选项 1：仅使用 ChatModelAdapter
 
-The simplest approach — keep thread management local, but send messages to your backend for inference.
+最简单的方式——在线程管理保持本地化的同时，将消息发送到你的后端进行推理。
 
 ```tsx title="adapters/my-chat-adapter.ts"
 import type { ChatModelAdapter } from "@assistant-ui/react-ink";
@@ -53,15 +53,15 @@ export function App() {
 }
 ```
 
-This gives you:
+你将获得：
 
-- Streaming chat responses from your API
-- In-memory thread list (lost on process exit)
-- Multi-thread support
+- 来自 API 的流式聊天响应
+- 内存中的线程列表（进程退出后丢失）
+- 多线程支持
 
-## Option 2: Local file persistence
+## 选项 2：本地文件持久化
 
-When you want threads and messages to survive across sessions without running a backend, use `createFileStorageAdapter`. It writes each thread to a JSON file on disk and plugs into `useRemoteThreadListRuntime`.
+如果你希望线程和消息能够跨会话保留，同时又不运行后端，可以使用 `createFileStorageAdapter`。它会将每个线程写入磁盘上的 JSON 文件，并接入 `useRemoteThreadListRuntime`。
 
 ```tsx title="app.tsx"
 import { join } from "node:path";
@@ -95,28 +95,28 @@ export function App() {
 }
 ```
 
-Writes are atomic (temp file + `rename`), so a crash mid-write cannot leave a partial JSON file. The directory is created lazily on first write.
+写入操作是原子的（临时文件 + `rename`），因此即使在写入过程中发生崩溃，也不会留下不完整的 JSON 文件。目录会在首次写入时按需创建。
 
-### Options
+### 选项
 
-| Option | Description |
+| 选项 | 描述 |
 |---|---|
-| `dir` | Directory where thread files are stored. Created if missing. |
-| `prefix` | Key prefix for stored files. Defaults to `@assistant-ui:`. Useful when two apps share a directory. |
-| `titleGenerator` | Optional [`TitleGenerationAdapter`](/docs/ink/adapters#titlegenerationadapter) that auto-generates thread titles from the first messages. Pass `createSimpleTitleAdapter()` for the built-in implementation. |
+| `dir` | 存储线程文件的目录。如果目录不存在则创建。 |
+| `prefix` | 已存储文件的键前缀。默认为 `@assistant-ui:`。当两个应用共享同一目录时很有用。 |
+| `titleGenerator` | 可选的 [`TitleGenerationAdapter`](/docs/ink/adapters#titlegenerationadapter)，根据首条消息自动生成线程标题。传入 `createSimpleTitleAdapter()` 可使用内置实现。 |
 
-### When this fits
+### 适用场景
 
-Designed for single-process terminal apps where one user has one CLI running at a time. The wrapped read-modify-write on the thread list isn't lock-safe, so two CLI processes pointed at the same directory can lose updates to thread metadata (rename, archive). If that's your scenario, use Option 3 instead.
+适用于单进程终端应用，即同一用户一次只运行一个 CLI。线程列表中封装的读取-修改-写入操作不具备锁安全性，因此，指向同一目录的两个 CLI 进程可能会丢失线程元数据更新（重命名、归档）。如果你的场景属于这种情况，请改用选项 3。
 
-## Option 3: Full backend thread management
+## 选项 3：由后端完整管理线程
 
-When you want your backend to own thread state (e.g. for persistence across sessions, team sharing, or server-side history), implement a `RemoteThreadListAdapter`.
+如果你希望后端负责线程状态（例如实现跨会话持久化、团队共享或服务端历史记录），请实现一个 `RemoteThreadListAdapter`。
 
 <Steps>
   <Step>
 
-### Implement the adapter
+### 实现适配器
 
 ```tsx title="adapters/my-thread-list-adapter.ts"
 import type { RemoteThreadListAdapter } from "@assistant-ui/react-ink";
@@ -198,7 +198,7 @@ export const myThreadListAdapter: RemoteThreadListAdapter = {
   </Step>
   <Step>
 
-### Compose the runtime
+### 组合运行时
 
 ```tsx title="app.tsx"
 import {
@@ -229,26 +229,26 @@ export function App() {
   </Step>
 </Steps>
 
-## Adapter methods
+## 适配器方法
 
-| Method | Description |
+| 方法 | 描述 |
 |--------|-------------|
-| `list()` | Return all threads on mount |
-| `initialize(localId)` | Create a thread server-side, return `{ remoteId }` |
-| `rename(remoteId, title)` | Persist title changes |
-| `archive(remoteId)` | Mark thread as archived |
-| `unarchive(remoteId)` | Restore archived thread |
-| `delete(remoteId)` | Permanently remove thread |
-| `fetch(remoteId)` | Fetch single thread metadata |
-| `generateTitle(remoteId, unstable_messages)` | Return an `AssistantStream` with the generated title |
+| `list()` | 挂载时返回所有线程 |
+| `initialize(localId)` | 在服务端创建线程，并返回 `{ remoteId }` |
+| `rename(remoteId, title)` | 持久化标题更改 |
+| `archive(remoteId)` | 将线程标记为已归档 |
+| `unarchive(remoteId)` | 恢复已归档的线程 |
+| `delete(remoteId)` | 永久删除线程 |
+| `fetch(remoteId)` | 获取单个线程的元数据 |
+| `generateTitle(remoteId, unstable_messages)` | 返回包含生成标题的 `AssistantStream` |
 
-## Which option to choose?
+## 应该选择哪个选项？
 
-| | Option 1: ChatModelAdapter | Option 2: createFileStorageAdapter | Option 3: RemoteThreadListAdapter |
+| | 选项 1：ChatModelAdapter | 选项 2：createFileStorageAdapter | 选项 3：RemoteThreadListAdapter |
 |---|---|---|---|
-| **Thread storage** | In-memory (process lifetime) | Local disk | Your backend |
-| **Message storage** | In-memory | Local disk | In-memory (can add history adapter for server-side) |
-| **Cross-session persistence** | No | Yes | Yes |
-| **Multi-process safe** | N/A | No | Depends on backend |
-| **Setup complexity** | Minimal | Minimal | Moderate |
-| **Best for** | Demos, prototypes | Local CLI tools | Production apps with sync / team sharing |
+| **线程存储** | 内存（进程生命周期内） | 本地磁盘 | 你的后端 |
+| **消息存储** | 内存 | 本地磁盘 | 内存（可以添加历史适配器以支持服务端存储） |
+| **跨会话持久化** | 否 | 是 | 是 |
+| **多进程安全** | 不适用 | 否 | 取决于后端 |
+| **设置复杂度** | 最低 | 最低 | 中等 |
+| **最适合** | 演示、原型 | 本地 CLI 工具 | 需要同步或团队共享的生产应用 |

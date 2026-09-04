@@ -1,23 +1,23 @@
 ---
 title: Assistant Frame API
-description: Share model context across iframe boundaries
+description: 跨 iframe 边界共享模型上下文
 platforms: ["react"]
 ---
 
-The Assistant Frame API enables iframes to provide model context (tools and instructions) to a parent window's assistant. This is particularly useful for embedded applications, plugins, or sandboxed components that need to contribute capabilities to the main assistant.
+Assistant Frame API 允许 iframe 向父窗口的助手提供模型上下文（工具和指令）。这对于嵌入式应用、插件或沙箱组件尤其有用，它们可以向主助手贡献功能。
 
-## Overview
+## 概览
 
-The Assistant Frame system consists of two main components:
+Assistant Frame 系统由两个主要组件组成：
 
-- **AssistantFrameProvider**: Runs inside the iframe and provides model context
-- **AssistantFrameHost**: Runs in the parent window and consumes context from iframes
+- **AssistantFrameProvider**：在 iframe 内运行并提供模型上下文
+- **AssistantFrameHost**：在父窗口中运行并使用来自 iframe 的上下文
 
-## Basic Usage
+## 基本用法
 
-### In the iframe (Provider)
+### 在 iframe 中（Provider）
 
-The iframe acts as a provider of model context using `AssistantFrameProvider`:
+iframe 使用 `AssistantFrameProvider` 作为模型上下文提供方：
 
 ```tsx
 // iframe.tsx
@@ -58,9 +58,9 @@ const instructionHandle = registry.addInstruction(
 instructionHandle.update("You have access to a product catalog search tool.");
 ```
 
-### In the parent window (Host)
+### 在父窗口中（Host）
 
-The parent window consumes the iframe's context using `AssistantFrameHost`:
+父窗口使用 `AssistantFrameHost` 使用 iframe 提供的上下文：
 
 ```tsx
 // parent.tsx
@@ -89,11 +89,11 @@ function ParentComponent() {
 }
 ```
 
-## Advanced Usage
+## 高级用法
 
 ### ModelContextRegistry
 
-The `ModelContextRegistry` provides a flexible way to manage model context dynamically:
+`ModelContextRegistry` 提供了一种灵活的方式，用于动态管理模型上下文：
 
 ```tsx
 const registry = new ModelContextRegistry();
@@ -145,9 +145,9 @@ const instruction2 = registry.addInstruction("Use metric units.");
 instruction1.remove();
 ```
 
-### Multiple Providers
+### 多个提供方
 
-You can register multiple model context providers in the same iframe:
+你可以在同一个 iframe 中注册多个模型上下文提供方：
 
 ```tsx
 const catalogRegistry = new ModelContextRegistry();
@@ -178,11 +178,11 @@ unsubscribe1();
 unsubscribe2();
 ```
 
-### Security Considerations
+### 安全注意事项
 
-#### Origin Validation
+#### Origin 验证
 
-Both the provider and host validate message origins. They default to the current page's origin, so cross-origin frames must specify the exact trusted origin on both sides:
+提供方和主机都会验证消息的 origin。它们默认使用当前页面的 origin，因此跨源 frame 必须在两端指定完全匹配的可信 origin：
 
 ```tsx
 // In iframe - only accept messages from specific parent
@@ -198,9 +198,9 @@ useAssistantFrameHost({
 });
 ```
 
-#### Tool Execution
+#### 工具执行
 
-Tools are executed in the iframe's context, keeping sensitive operations sandboxed:
+工具在 iframe 的上下文中执行，从而将敏感操作限制在沙箱内：
 
 ```tsx
 registry.addTool({
@@ -216,17 +216,17 @@ registry.addTool({
 });
 ```
 
-## API Reference
+## API 参考
 
 ### AssistantFrameProvider
 
-Static class that manages model context providers in an iframe.
+用于管理 iframe 中模型上下文提供方的静态类。
 
-#### Methods
+#### 方法
 
 ##### `addModelContextProvider(provider, targetOrigin?)`
 
-Registers a model context provider to share with parent windows.
+注册一个要与父窗口共享的模型上下文提供方。
 
 ```tsx
 const unsubscribe = AssistantFrameProvider.addModelContextProvider(
@@ -235,11 +235,11 @@ const unsubscribe = AssistantFrameProvider.addModelContextProvider(
 );
 ```
 
-When `targetOrigin` is omitted, the provider only communicates with `window.location.origin`. All providers in a frame share one origin policy. Registering an explicit origin tightens an existing wildcard policy, while registering two different explicit origins throws an error. Unsubscribing drops that registration's requirement. The wildcard value `*` is available as an explicit opt-in, but it should not be used for contexts that expose tools or sensitive instructions.
+如果省略 `targetOrigin`，提供方只与 `window.location.origin` 通信。同一个 frame 中的所有提供方共享一项 origin 策略。注册显式 origin 会收紧现有的通配符策略，而注册两个不同的显式 origin 会抛出错误。取消订阅后，该注册所施加的要求也会被移除。通配符值 `*` 可用于显式选择启用，但不应将其用于会暴露工具或敏感指令的上下文。
 
 ##### `dispose()`
 
-Cleans up all resources and removes all providers.
+清理所有资源并移除所有提供方。
 
 ```tsx
 AssistantFrameProvider.dispose();
@@ -247,9 +247,9 @@ AssistantFrameProvider.dispose();
 
 ### AssistantFrameHost
 
-Class that connects to an iframe's model context providers.
+用于连接 iframe 模型上下文提供方的类。
 
-#### Constructor
+#### 构造函数
 
 ```tsx
 const host = new AssistantFrameHost(
@@ -258,11 +258,11 @@ const host = new AssistantFrameHost(
 );
 ```
 
-#### Methods
+#### 方法
 
 ##### `getModelContext()`
 
-Returns the current merged model context from the iframe.
+返回来自 iframe 的当前合并模型上下文。
 
 ```tsx
 const context = host.getModelContext();
@@ -271,7 +271,7 @@ const context = host.getModelContext();
 
 ##### `subscribe(callback)`
 
-Subscribes to model context changes.
+订阅模型上下文变更。
 
 ```tsx
 const unsubscribe = host.subscribe(() => {
@@ -281,7 +281,7 @@ const unsubscribe = host.subscribe(() => {
 
 ##### `dispose()`
 
-Cleans up the connection to the iframe.
+清理与 iframe 的连接。
 
 ```tsx
 host.dispose();
@@ -289,7 +289,7 @@ host.dispose();
 
 ### useAssistantFrameHost
 
-React hook that manages the lifecycle of an AssistantFrameHost.
+用于管理 AssistantFrameHost 生命周期的 React Hook。
 
 ```tsx
 useAssistantFrameHost({
@@ -300,13 +300,13 @@ useAssistantFrameHost({
 
 ### ModelContextRegistry
 
-A flexible registry for managing model context with dynamic updates.
+用于通过动态更新管理模型上下文的灵活注册表。
 
-#### Methods
+#### 方法
 
 ##### `addTool(tool)`
 
-Adds a tool and returns a handle for updates/removal.
+添加一个工具，并返回用于更新或移除该工具的句柄。
 
 ```tsx
 const handle = registry.addTool({
@@ -322,7 +322,7 @@ handle.remove(); // Remove the tool
 
 ##### `addInstruction(instruction)`
 
-Adds a system instruction and returns a handle.
+添加一条系统指令，并返回一个句柄。
 
 ```tsx
 const handle = registry.addInstruction("Be concise.");
@@ -332,18 +332,18 @@ handle.remove(); // Remove instruction
 
 ##### `addProvider(provider)`
 
-Adds another model context provider.
+添加另一个模型上下文提供方。
 
 ```tsx
 const handle = registry.addProvider(anotherProvider);
 handle.remove(); // Remove provider
 ```
 
-## Use Cases
+## 使用场景
 
-### Embedded Analytics Dashboard
+### 嵌入式分析仪表板
 
-An analytics iframe can provide data query tools to the parent assistant:
+分析 iframe 可以向父助手提供数据查询工具：
 
 ```tsx
 // In analytics iframe
@@ -361,9 +361,9 @@ registry.addTool({
 });
 ```
 
-### Plugin System
+### 插件系统
 
-Third-party plugins can extend the assistant's capabilities:
+第三方插件可以扩展助手的功能：
 
 ```tsx
 // In plugin iframe
@@ -380,9 +380,9 @@ registry.addTool({
 });
 ```
 
-### Data Visualization
+### 数据可视化
 
-Provide data visualization tools in an iframe:
+在 iframe 中提供数据可视化工具：
 
 ```tsx
 // In visualization iframe

@@ -1,17 +1,17 @@
 ---
-title: Migration to v0.11
-description: ContentPart renamed to MessagePart for better semantic clarity.
+title: 迁移到 v0.11
+description: 将 ContentPart 重命名为 MessagePart，以提高清晰的语义表达。
 ---
 
-## ContentPart renamed to MessagePart
+## ContentPart 重命名为 MessagePart
 
-All ContentPart-related types, hooks, and components have been renamed to MessagePart for better semantic clarity and consistency.
+所有与 ContentPart 相关的类型、钩子和组件都已重命名为 MessagePart，以提高清晰的语义表达和一致性。
 
-### What changed
+### 变更内容
 
-The following types and components have been renamed:
+以下类型和组件已重命名：
 
-#### Core Types
+#### 核心类型
 
 - `TextContentPart` → `TextMessagePart`
 - `ReasoningContentPart` → `ReasoningMessagePart`
@@ -23,17 +23,17 @@ The following types and components have been renamed:
 - `ContentPartStatus` → `MessagePartStatus`
 - `ToolCallContentPartStatus` → `ToolCallMessagePartStatus`
 
-#### Thread Message Parts
+#### 线程消息部件
 
 - `ThreadUserContentPart` → `ThreadUserMessagePart`
 - `ThreadAssistantContentPart` → `ThreadAssistantMessagePart`
 
-#### Runtime and State Types
+#### 运行时和状态类型
 
 - `ContentPartRuntime` → `MessagePartRuntime`
 - `ContentPartState` → `MessagePartState`
 
-#### Hooks
+#### 钩子
 
 - `useContentPart` → `useMessagePart`
 - `useContentPartRuntime` → `useMessagePartRuntime`
@@ -44,7 +44,7 @@ The following types and components have been renamed:
 - `useContentPartImage` → `useMessagePartImage`
 - `useTextContentPart` → `useMessagePartText`
 
-#### Component Types
+#### 组件类型
 
 - `EmptyContentPartComponent` → `EmptyMessagePartComponent`
 - `TextContentPartComponent` → `TextMessagePartComponent`
@@ -55,7 +55,7 @@ The following types and components have been renamed:
 - `Unstable_AudioContentPartComponent` → `Unstable_AudioMessagePartComponent`
 - `ToolCallContentPartComponent` → `ToolCallMessagePartComponent`
 
-#### Props Types
+#### Props 类型
 
 - `EmptyContentPartProps` → `EmptyMessagePartProps`
 - `TextContentPartProps` → `TextMessagePartProps`
@@ -66,7 +66,7 @@ The following types and components have been renamed:
 - `Unstable_AudioContentPartProps` → `Unstable_AudioMessagePartProps`
 - `ToolCallContentPartProps` → `ToolCallMessagePartProps`
 
-#### Providers and Context
+#### Provider 和上下文
 
 - `TextContentPartProvider` → `TextMessagePartProvider`
 - `TextContentPartProviderProps` → `TextMessagePartProviderProps`
@@ -74,16 +74,16 @@ The following types and components have been renamed:
 - `ContentPartContext` → `MessagePartContext`
 - `ContentPartContextValue` → `MessagePartContextValue`
 
-#### Primitives
+#### 原语
 
 - `ContentPartPrimitive` → `MessagePartPrimitive`
 - `ContentPartPrimitiveText` → `MessagePartPrimitiveText`
 - `ContentPartPrimitiveImage` → `MessagePartPrimitiveImage`
 - `ContentPartPrimitiveInProgress` → `MessagePartPrimitiveInProgress`
 
-### MessagePrimitive.Content renamed to MessagePrimitive.Parts
+### MessagePrimitive.Content 重命名为 MessagePrimitive.Parts
 
-The `MessagePrimitive.Content` component has been renamed to `MessagePrimitive.Parts` to better reflect its purpose of rendering message parts.
+`MessagePrimitive.Content` 组件已重命名为 `MessagePrimitive.Parts`，以更准确地体现其用于渲染消息部件的用途。
 
 ```diff
 -<MessagePrimitive.Content components={{ Text: MyText }} />
@@ -92,33 +92,33 @@ The `MessagePrimitive.Content` component has been renamed to `MessagePrimitive.P
 +</MessagePrimitive.Parts>
 ```
 
-### Migration
+### 迁移
 
-To migrate your codebase automatically, use the migration codemod:
+要自动迁移代码库，请使用迁移 codemod：
 
 ```sh
 # IMPORTANT: make sure to commit all changes to git / create a backup before running the codemod
 npx assistant-ui@latest upgrade
 ```
 
-Or run the specific migration:
+或者运行特定的迁移：
 
 ```sh
 npx assistant-ui@latest codemod v0-11/content-part-to-message-part .
 ```
 
-#### Manual Migration Examples
+#### 手动迁移示例
 
-If you prefer to migrate manually, here are some examples:
+如果你更倾向于手动迁移，以下是一些示例：
 
-**Imports:**
+**导入：**
 
 ```diff
 -import { TextContentPart, useContentPart, ToolCallContentPartComponent } from "@assistant-ui/react";
 +import { TextMessagePart, useMessagePart, ToolCallMessagePartComponent } from "@assistant-ui/react";
 ```
 
-**Type annotations:**
+**类型注解：**
 
 ```diff
 -function processContent(part: TextContentPart): void {
@@ -132,7 +132,7 @@ If you prefer to migrate manually, here are some examples:
  };
 ```
 
-**Hooks:**
+**钩子：**
 
 ```diff
  function MyComponent() {
@@ -146,7 +146,7 @@ If you prefer to migrate manually, here are some examples:
  }
 ```
 
-**JSX Components:**
+**JSX 组件：**
 
 ```diff
 -<ContentPartPrimitive.Text />
@@ -155,7 +155,7 @@ If you prefer to migrate manually, here are some examples:
 +<MessagePartPrimitive.Image />
 ```
 
-**Providers:**
+**Provider：**
 
 ```diff
 -<TextContentPartProvider text="Hello" isRunning={false}>
@@ -165,8 +165,8 @@ If you prefer to migrate manually, here are some examples:
 +</TextMessagePartProvider>
 ```
 
-### Why this change?
+### 为什么要进行此项变更？
 
-The ContentPart naming was inconsistent with the rest of the codebase, where "message parts" are used throughout. This change improves semantic clarity and makes the API more intuitive by aligning terminology across the entire library.
+ContentPart 的命名与代码库的其他部分不一致，因为整个代码库一直使用“message parts”这一术语。此次变更通过统一整个库中的术语，提升了语义清晰度，也使 API 更加直观。
 
-The old ContentPart APIs have been completely removed. You must update all references to use the new MessagePart names.
+旧的 ContentPart API 已被完全移除。你必须更新所有引用，改用新的 MessagePart 名称。

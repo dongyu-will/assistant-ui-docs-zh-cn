@@ -1,22 +1,22 @@
 ---
-title: "Feedback dialog"
-description: "A thumbs-down that asks why, so the signal arrives with a reason attached."
+title: "反馈对话框"
+description: "一个会询问原因的点踩，让反馈信号附带具体理由。"
 ---
 
-FeedbackDialog turns a thumbs-down into a short form: pick what went wrong, add an optional note, and send. With a runtime the binary rating reaches the thread through `submitFeedback`; standalone you own the selection, the note, and what submitting does.
+FeedbackDialog 会将点踩转换为简短表单：选择哪里出了问题，添加可选备注，然后发送。在运行时中，二元评分会通过 `submitFeedback` 传递到线程；单独使用时，选择、备注以及提交后的行为都由你负责。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-assistant-ui's own feedback signal is binary: positive or negative, recorded on the message. `ActionBarPrimitive.FeedbackNegative` already submits that in one click. FeedbackDialog asks why first, so it sits in front of that signal rather than replacing it: keep the binary rating for the runtime, and carry the reasons and note yourself.
+assistant-ui 自带的反馈信号是二元的：正面或负面，并记录在消息上。`ActionBarPrimitive.FeedbackNegative` 已经可以通过一次点击提交该信号。FeedbackDialog 会先询问原因，因此它位于该信号之前，而不是替代它：将二元评分保留给运行时，原因和备注则由你自行传递。
 
 <Steps>
   <Step>
 
-### Open the panel from a trigger
+### 从触发器打开面板
 
-A separate trigger owns the open state. `FeedbackDialog` itself has no `open` prop; it always renders its form (or its confirmation) once mounted.
+打开状态由单独的触发器管理。`FeedbackDialog` 本身没有 `open` prop；挂载后，它始终会渲染表单（或确认信息）。
 
 ```tsx title="components/assistant-ui/elements/message-feedback.tsx"
 "use client";
@@ -73,9 +73,9 @@ export function MessageFeedback() {
   </Step>
   <Step>
 
-### Register where the binary signal lands
+### 注册二元信号的接收位置
 
-`submitFeedback` reaches a `FeedbackAdapter` you register on the runtime. Its `submit` receives the message and the type only, never the reasons or the note, so those need their own transport if you want to keep them.
+`submitFeedback` 会传递到你在运行时上注册的 `FeedbackAdapter`。它的 `submit` 只会接收消息和类型，不会接收原因或备注，因此如果你想保留这些信息，就需要为它们设置独立的传输层。
 
 ```tsx title="app/assistant.tsx"
 import { useLocalRuntime } from "@assistant-ui/react";
@@ -94,7 +94,7 @@ const runtime = useLocalRuntime(adapter, {
 });
 ```
 
-Send `selected` and `note` from `onSubmit` in the same request, or a separate one; the adapter contract itself has no slot for them.
+可以在同一个请求中从 `onSubmit` 发送 `selected` 和 `note`，也可以单独发送；适配器契约本身没有用于承载这些字段的位置。
 
   </Step>
 </Steps>
@@ -103,12 +103,12 @@ Send `selected` and `note` from `onSubmit` in the same request, or a separate on
 
 <StandaloneMode>
 
-Standalone, FeedbackDialog is fully controlled: you hold `selected`, `note`, and `sent`, and `onSubmit` is called with no arguments, so it reads your own state rather than receiving a payload.
+单独使用时，FeedbackDialog 完全受控：你需要持有 `selected`、`note` 和 `sent`，并且 `onSubmit` 不接收任何参数，因此它会读取你自己的状态，而不是接收载荷。
 
 <Steps>
   <Step>
 
-### Hold the form state
+### 保存表单状态
 
 ```tsx title="app/answer.tsx"
 "use client";
@@ -146,7 +146,7 @@ export function AnswerFeedback() {
   </Step>
   <Step>
 
-### Send it and flip `sent`
+### 发送并切换 `sent`
 
 ```tsx
 async function sendFeedback(payload: { selected: string[]; note: string }) {
@@ -160,7 +160,7 @@ async function sendFeedback(payload: { selected: string[]; note: string }) {
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="feedback-dialog">
@@ -170,13 +170,13 @@ async function sendFeedback(payload: { selected: string[]; note: string }) {
 </div>
 ```
 
-Reasons toggle independently as a multi-select (`aria-pressed`, any number active at once); there is no minimum. Once `sent` is true the form disappears entirely, so reopening it for a second report means remounting with `sent` back to `false`. The live region is present in the tree before and after the change, not created alongside it, which is what lets assistive tech announce the confirmation reliably.
+各个原因可以独立切换，构成多选项（`aria-pressed`，可以同时激活任意数量）；没有最低选择数量。`sent` 为 true 后，表单会完全消失，因此如果要再次打开并提交第二份反馈，就需要重新挂载，并将 `sent` 恢复为 `false`。live region 在变化前后都存在于树中，而不是随变化一起创建，这使辅助技术能够可靠地播报确认信息。
 
-## Examples
+## 示例
 
-### Auto-reset after sending
+### 发送后自动重置
 
-Clearing `sent`, `selected`, and `note` a few seconds after a send lets the same trigger open a fresh form next time, matching the confirmation's own short lifetime:
+在发送几秒后清除 `sent`、`selected` 和 `note`，可以让同一个触发器下次打开全新的表单，与确认信息本身较短的生命周期保持一致：
 
 ```tsx
 useEffect(() => {
@@ -190,11 +190,11 @@ useEffect(() => {
 }, [sent]);
 ```
 
-### Receiving feedback on the server
+### 在服务器上接收反馈
 
 <RuntimeMode>
 
-An external-store runtime takes the same `feedback` adapter shape as `useLocalRuntime`:
+外部状态存储运行时采用与 `useLocalRuntime` 相同的 `feedback` 适配器形式：
 
 ```tsx
 import { useExternalStoreRuntime } from "@assistant-ui/react";
@@ -209,34 +209,34 @@ const runtime = useExternalStoreRuntime({
 });
 ```
 
-Without a registered adapter, `submitFeedback` still updates `message.metadata.submittedFeedback` locally, so `ActionBarPrimitive.FeedbackNegative`'s pressed state stays correct even if you never wire a server side.
+如果没有注册适配器，`submitFeedback` 仍会在本地更新 `message.metadata.submittedFeedback`，因此即使你完全没有接入服务器端，`ActionBarPrimitive.FeedbackNegative` 的按下状态仍然正确。
 
 </RuntimeMode>
 
-### Restyle the panel
+### 重新设置面板样式
 
-Both lanes take `className` on the root. Pills, the textarea, and the submit button read the shared `field`, `inkButton`, and `mono` surfaces from `surfaces.tsx`, so retinting those tokens retints every element that uses them.
+两种方式都会在根元素上接收 `className`。胶囊按钮、文本区域和提交按钮会从 `surfaces.tsx` 读取共享的 `field`、`inkButton` 和 `mono` 表面样式，因此重新设置这些设计令牌的颜色后，所有使用它们的元素都会同步变色。
 
 ```tsx
 <FeedbackDialog className="max-w-md" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Message state
+### 消息状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.message.metadata.submittedFeedback` | `{ type: "positive" \| "negative" } \| undefined` | The rating already recorded for this message, if any. |
-| `aui.message.submitFeedback(feedback)` | `(feedback: { type: "positive" \| "negative" }) => void` | Records the rating on the message and calls the registered `FeedbackAdapter`. |
+| `s.message.metadata.submittedFeedback` | `{ type: "positive" \| "negative" } \| undefined` | 此消息已经记录的评分（如果有）。 |
+| `aui.message.submitFeedback(feedback)` | `(feedback: { type: "positive" \| "negative" }) => void` | 在消息上记录评分，并调用已注册的 `FeedbackAdapter`。 |
 
 ### FeedbackAdapter
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `submit` | `(feedback: { message: ThreadMessage; type: "positive" \| "negative" }) => void` | Called once per `submitFeedback`. Register it under `adapters.feedback` on `useLocalRuntime` or an external-store runtime. Carries the message and the binary type only. |
+| `submit` | `(feedback: { message: ThreadMessage; type: "positive" \| "negative" }) => void` | 每个 `submitFeedback` 调用一次。在 `useLocalRuntime` 或外部状态存储运行时上，将其注册到 `adapters.feedback` 下。只携带消息和二元类型。 |
 
 </RuntimeMode>
 
@@ -244,17 +244,17 @@ Both lanes take `className` on the root. Pills, the textarea, and the submit but
 
 ### FeedbackDialog
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `reasons` | `readonly string[]` | required | The reason pills offered. |
-| `selected` | `readonly string[]` | required | Reasons currently pressed. |
-| `note` | `string` | required | The textarea's value. |
-| `sent` | `boolean` | required | Swaps the form for the confirmation line when true. |
-| `onToggleReason` | `(reason: string) => void` | | Called with the pressed reason; toggling membership in `selected` is the caller's job. |
-| `onNoteChange` | `(note: string) => void` | | Called with the textarea's next value. |
-| `onSubmit` | `() => void` | | Called with no arguments. Read `selected` and `note` from your own state. |
-| `className` | `string` | | Merged onto the root. |
+| `reasons` | `readonly string[]` | 必填 | 提供的原因胶囊按钮。 |
+| `selected` | `readonly string[]` | 必填 | 当前处于按下状态的原因。 |
+| `note` | `string` | 必填 | 文本区域的值。 |
+| `sent` | `boolean` | 必填 | 为 true 时，将表单替换为确认信息。 |
+| `onToggleReason` | `(reason: string) => void` | | 使用按下的原因调用；在 `selected` 中切换成员关系由调用方负责。 |
+| `onNoteChange` | `(note: string) => void` | | 使用文本区域的下一个值调用。 |
+| `onSubmit` | `() => void` | | 不接收参数调用。从你自己的状态中读取 `selected` 和 `note`。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` props 都会转发到根元素。
 
 </StandaloneMode>

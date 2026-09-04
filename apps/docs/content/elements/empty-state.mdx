@@ -1,20 +1,21 @@
 ---
-title: "Empty state"
-description: "The first screen: a greeting, three ways in, and the composer front and center."
+title: "空状态"
+description: "第一个屏幕：问候语、三种入口，以及置于中央的输入框。"
 ---
 
-An empty state is the first screen a thread shows: nothing sent yet, a greeting, a few ways in, and the composer already visible. With a runtime it appears and disappears with the thread's own emptiness; standalone you control when it shows and what it offers.
+空状态是线程显示的第一个屏幕：尚未发送任何内容，显示问候语、几个入口，并且输入框已经可见。在运行时中，它会随线程自身是否为空而显示和消失；在独立使用时，则由你控制它何时显示以及提供哪些选项。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-An assistant-ui thread starts empty until the first message lands, and `s.thread.isEmpty` tracks exactly that.
+assistant-ui 线程在第一条消息到达前会保持为空，而 `s.thread.isEmpty` 正是用于跟踪这一状态。
 
 <Steps>
   <Step>
 
-### Show it while the thread is empty
+### 在线程为空时显示
+
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 "use client";
@@ -34,12 +35,13 @@ function Welcome() {
 }
 ```
 
-`isEmpty` stays `false` while the thread is still loading its history, so a persisted conversation never flashes the greeting first.
+`isEmpty` 会在仍处于加载历史记录期间保持 `false`，因此已持久化的会话不会先短暂显示问候语。
 
   </Step>
   <Step>
 
-### Turn suggestions into real prompts
+### 将建议转换为真实提示词
+
 
 ```tsx
 import { useAuiState, ThreadPrimitive } from "@assistant-ui/react";
@@ -61,7 +63,7 @@ function Suggestions() {
 }
 ```
 
-`ThreadPrimitive.Suggestion` fills the composer with `prompt` by default, so the reader can edit it before sending; pass `send` to submit it immediately on click instead. `s.thread.suggestions` is whatever your app configures on the runtime, static onboarding prompts or ones the model proposed on an earlier turn.
+默认情况下，`ThreadPrimitive.Suggestion` 会将 `prompt` 填入输入框，因此读者可以在发送前进行编辑；也可以传入 `send`，让点击操作直接提交。`s.thread.suggestions` 是应用在运行时中配置的内容，可以是静态的引导提示词，也可以是模型在之前轮次中提出的提示词。
 
   </Step>
 </Steps>
@@ -70,12 +72,13 @@ function Suggestions() {
 
 <StandaloneMode>
 
-Standalone, the whole screen is yours: greeting text, the suggestion list, and what pressing one does.
+独立使用时，整个屏幕都由你控制：问候文本、建议列表，以及按下某个建议后执行的操作。
 
 <Steps>
   <Step>
 
-### List a few starting points
+### 列出几个起始点
+
 
 ```tsx title="app/welcome.tsx"
 "use client";
@@ -110,9 +113,9 @@ export function Welcome({ onPick }: { onPick: (prompt: string) => void }) {
   </Step>
   <Step>
 
-### Stagger the entrance
+### 让入口依次出现
 
-Each suggestion animates in on mount with a delay derived from `index`; pass the item's position in the array so the row cascades instead of popping in together:
+每条建议在挂载时都会以从 `index` 派生的延迟进行动画显示；传入该项在数组中的位置，使这一行依次展开，而不是同时突然出现：
 
 ```tsx
 {STARTERS.map((prompt, index) => (
@@ -127,7 +130,8 @@ Each suggestion animates in on mount with a delay derived from `index`; pass the
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
+
 
 ```tsx
 <div data-slot="empty-state">
@@ -142,13 +146,13 @@ Each suggestion animates in on mount with a delay derived from `index`; pass the
 </div>
 ```
 
-The greeting, the suggestion row, and the composer each fade and slide in on mount at increasing delays, the composer last, at 360ms, so the screen builds top to bottom instead of appearing all at once. `EmptyStateComposer` is the same shell as `ChatPanelComposer`: `placeholder` is displayed text, not a bound value, and the send button disables itself whenever `onSend` is left `undefined`.
+问候语、建议行和输入框会在挂载时分别以逐渐增加的延迟淡入并滑入，其中输入框最后出现，延迟为 360ms。这样屏幕会从上到下逐步构建，而不是一次性全部出现。`EmptyStateComposer` 与 `ChatPanelComposer` 使用相同的外壳：`placeholder` 是显示文本，而不是绑定值；只要 `onSend` 保持 `undefined`，发送按钮就会自动禁用。
 
-## Examples
+## 示例
 
-### Restyle the layout
+### 重新设置布局样式
 
-`EmptyState` only sets a max width and a vertical gap; every part accepts `className`, so the row of suggestions can wrap to a grid or the greeting can drop the animation:
+`EmptyState` 只设置最大宽度和垂直间距；每个部件都接受 `className`，因此建议行可以换行为网格，或者让问候语取消动画：
 
 ```tsx
 <EmptyState className="max-w-lg gap-4">
@@ -159,11 +163,11 @@ The greeting, the suggestion row, and the composer each fade and slide in on mou
 </EmptyState>
 ```
 
-### Suggestion delay
+### 建议延迟
 
 <RuntimeMode>
 
-The stagger comes entirely from the `index` you pass; a filtered or reordered list re-derives it from the array position, not from a stored value:
+依次出现的效果完全来自你传入的 `index`；经过筛选或重新排序的列表会根据数组位置重新计算延迟，而不是使用存储的值：
 
 ```tsx
 {suggestions.map((suggestion, index) => (
@@ -177,42 +181,42 @@ The stagger comes entirely from the `index` you pass; a filtered or reordered li
 
 <StandaloneMode>
 
-Standalone, the same rule applies: `index` is read once per render to compute the delay, so keep it stable across re-renders of the same list.
+独立使用时，同样的规则也适用：`index` 会在每次渲染时读取一次，用于计算延迟，因此在同一列表重新渲染期间应保持其稳定。
 
 </StandaloneMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Primitive parts
+### 原语部件
 
-| Part | Renders | Notes |
+| 部件 | 渲染内容 | 备注 |
 |------|---------|-------|
-| `AuiIf` | children | Renders `children` while `condition` selects `true`; use `(s) => s.thread.isEmpty`. |
-| `ThreadPrimitive.Suggestion` | `button` | Fills the composer with `prompt` on click by default; pass `send` to submit it immediately. Accepts `asChild`. |
+| `AuiIf` | children | 当 `condition` 选择 `true` 时渲染 `children`；使用 `(s) => s.thread.isEmpty`。 |
+| `ThreadPrimitive.Suggestion` | `button` | 默认在点击时将 `prompt` 填入输入框；传入 `send` 可立即提交。接受 `asChild`。 |
 
-### Thread state
+### 线程状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.thread.isEmpty` | `boolean` | `true` when the thread has no messages and isn't loading history. |
-| `s.thread.suggestions` | `readonly ThreadSuggestion[]` | `{ title?, label?, prompt }` entries configured on the runtime. |
+| `s.thread.isEmpty` | `boolean` | 当线程没有消息且未加载历史记录时为 `true`。 |
+| `s.thread.suggestions` | `readonly ThreadSuggestion[]` | 在运行时中配置的 `{ title?, label?, prompt }` 条目。 |
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-### EmptyState family
+### EmptyState 系列
 
-| Part | Renders | Props | Description |
+| 部件 | 渲染内容 | 属性 | 描述 |
 |------|---------|-------|-------------|
-| `EmptyState` | `div` | `className` | Root column, `max-w-md`. |
-| `EmptyStateGreeting` | `h2` | `className` | Centered heading; fades and slides in first. |
-| `EmptyStateSuggestions` | `div` | `className` | Wrapping row for the suggestion buttons. |
-| `EmptyStateSuggestion` | `button` | `index?: number` (default `0`), `className` | `index` sets the stagger delay (`120ms + index * 70ms`). |
-| `EmptyStateComposer` | `div` | `placeholder` (required `string`), `onSend?: () => void`, `className` | Same shell as `ChatPanelComposer`; animates in last. |
+| `EmptyState` | `div` | `className` | 根列容器，`max-w-md`。 |
+| `EmptyStateGreeting` | `h2` | `className` | 居中的标题；首先淡入并滑入。 |
+| `EmptyStateSuggestions` | `div` | `className` | 用于建议按钮的可换行行容器。 |
+| `EmptyStateSuggestion` | `button` | `index?: number`（默认值为 `0`）、`className` | `index` 设置依次出现的延迟（`120ms + index * 70ms`）。 |
+| `EmptyStateComposer` | `div` | `placeholder`（必需的 `string`）、`onSend?: () => void`、`className` | 与 `ChatPanelComposer` 使用相同的外壳；最后进行动画显示。 |
 
-All other props for each part forward to its root element.
+每个部件的其他属性都会转发到其根元素。
 
 </StandaloneMode>

@@ -1,20 +1,20 @@
 ---
-title: "Tool timeline"
-description: "A whole working session summarized as verbs, targets, and file stats."
+title: "工具时间线"
+description: "将整个工作会话概括为动词、目标和文件统计信息。"
 ---
 
-A tool timeline turns everything one assistant turn did into a single collapsed line that expands into a vertical trace: a verb, an icon, and a chip per step, ending in a row of file-change stats. With a runtime you derive the steps from the message's own parts; standalone you hold the step list yourself.
+工具时间线会将一次助手回合执行的所有操作合并为一行可折叠内容，展开后显示一条垂直轨迹：每个步骤包含一个动词、一个图标和一个标签，最后以一行文件变更统计信息收尾。使用运行时（runtime）时，你可以从消息自身的各个部分派生步骤；单独使用时，则由你自行维护步骤列表。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-A single tool call renders through that tool's own `render` field, but a timeline summarizes every call in the message at once, so it reads `s.message.parts` directly instead of registering as one tool's renderer.
+单个工具调用会通过该工具自身的 `render` 字段进行渲染，但时间线会一次性概括消息中的所有调用，因此它会直接读取 `s.message.parts`，而不是注册为某个工具的渲染器（renderer）。
 
 <Steps>
   <Step>
 
-### Derive steps from the message's parts
+### 从消息的各个部分派生步骤
 
 ```tsx title="components/assistant-ui/elements/session-timeline.tsx"
 "use client";
@@ -89,9 +89,9 @@ export function SessionTimeline() {
   </Step>
   <Step>
 
-### Place it beside the message parts, not inside them
+### 将其放在消息部分旁边，而不是其中
 
-`SessionTimeline` replaces the per-part rendering for tool calls and reasoning, so silence those in `MessagePrimitive.Parts` to avoid showing the same steps twice:
+`SessionTimeline` 会替代工具调用和推理的逐部分渲染，因此请在 `MessagePrimitive.Parts` 中停用这些渲染，以避免重复显示相同步骤：
 
 ```tsx
 <MessagePrimitive.Root>
@@ -109,12 +109,12 @@ export function SessionTimeline() {
 
 <StandaloneMode>
 
-Standalone, you hold the step and stat arrays as state and grow them as work happens.
+单独使用时，你需要将步骤数组和统计信息数组作为状态保存，并随着工作进行不断扩展。
 
 <Steps>
   <Step>
 
-### Hold the step list
+### 保存步骤列表
 
 ```tsx title="app/session.tsx"
 "use client";
@@ -156,9 +156,9 @@ export function Session() {
   </Step>
   <Step>
 
-### Reveal steps as work happens
+### 随工作进行显示步骤
 
-`visibleSteps` is independent of the array length, so a step can exist in `steps` before it is shown:
+`visibleSteps` 与数组长度无关，因此某个步骤可以先存在于 `steps` 中，之后再显示：
 
 ```tsx
 const [visibleSteps, setVisibleSteps] = useState(0);
@@ -175,7 +175,7 @@ useEffect(() => {
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="tool-timeline">
@@ -187,38 +187,38 @@ useEffect(() => {
 </div>
 ```
 
-`visibleSteps` clamps to the length of `steps` and floors a fractional or negative value to zero, so a step can be queued before it is shown. Only the last visible step shimmers, and only while `streaming` is true; every earlier step reads as settled even mid-run. The stats row is omitted entirely when `stats` is empty, and a stat missing `added` or `removed` omits that half of the count rather than showing it as zero.
+`visibleSteps` 会限制在 `steps` 的长度范围内，并将小数或负数向下取整为零，因此可以在显示之前将步骤加入队列。只有最后一个可见步骤会显示闪烁效果，并且仅当 `streaming` 为 true 时才会显示；即使运行尚未结束，之前的每个步骤也都会显示为已完成。当 `stats` 为空时，统计信息行会完全隐藏；如果某条统计信息缺少 `added` 或 `removed`，则会省略计数中的对应部分，而不是将其显示为零。
 
-## Examples
+## 示例
 
-### Restyle the timeline
+### 重新设置时间线样式
 
-Both lanes take `className` on the root. Rows, chips, and the shimmering label all read from the shared tokens in `surfaces.tsx`.
+两个通道都会在根元素上接收 `className`。行、标签和闪烁标签都会读取 `surfaces.tsx` 中的共享令牌。
 
 ```tsx
 <ToolTimeline className="max-w-none" /* ... */ />
 ```
 
-### Showing only the recent tail
+### 仅显示最近的部分
 
-The panel reveals steps from the start of the array, so cap the array itself, not just `visibleSteps`, to show only the most recent steps of a long run:
+面板会从数组开头开始显示步骤，因此应限制数组本身，而不只是限制 `visibleSteps`，这样才能在较长的运行过程中仅显示最近的步骤：
 
 ```tsx
 <ToolTimeline steps={steps.slice(-6)} visibleSteps={6} /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Message state
+### 消息状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.message.parts` | `readonly ThreadAssistantMessagePart[]` | Every part in the message. Filter for `part.type === "tool-call"` to build the step list. |
-| `s.message.status` | `MessageStatus \| undefined` | `status?.type === "running"` while the message is still streaming. |
+| `s.message.parts` | `readonly ThreadAssistantMessagePart[]` | 消息中的每个部分。筛选 `part.type === "tool-call"` 以构建步骤列表。 |
+| `s.message.status` | `MessageStatus \| undefined` | 消息仍在流式传输时的 `status?.type === "running"`。 |
 
-There is no dedicated timeline primitive: you write the mapping from `parts` to `steps` and `stats` yourself, the way `toStep` and `toStats` do above. See [Tool UI](/docs/tools/tool-ui) for the full `ToolCallMessagePart` shape.
+这里没有专用的时间线原语：你需要自行编写从 `parts` 到 `steps` 和 `stats` 的映射，就像上面的 `toStep` 和 `toStats` 所做的那样。完整的 `ToolCallMessagePart` 结构请参阅 [工具 UI](/docs/tools/tool-ui)。
 
 </RuntimeMode>
 
@@ -226,18 +226,18 @@ There is no dedicated timeline primitive: you write the mapping from `parts` to 
 
 ### ToolTimeline
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `steps` | `readonly TimelineStep[]` | required | The full step list, in order. |
-| `visibleSteps` | `number` | required | How many steps from the start of `steps` to render. |
-| `streaming` | `boolean` | required | Shimmers the trigger label and the last visible step while true. |
-| `open` | `boolean` | required | Whether the disclosure panel is expanded. |
-| `onOpenChange` | `(open: boolean) => void` | required | Called when the trigger is clicked. |
-| `restingLabel` | `string` | required | Trigger text shown once `streaming` is false. |
-| `activeLabel` | `string` | required | Shimmering trigger text shown while `streaming` is true. |
-| `stats` | `TimelineStat[]` | required | File-change chips rendered below the steps. Pass `[]` to omit the row. |
-| `className` | `string` | | Merged onto the root. |
+| `steps` | `readonly TimelineStep[]` | 必填 | 按顺序排列的完整步骤列表。 |
+| `visibleSteps` | `number` | 必填 | 从 `steps` 开始渲染的步骤数量。 |
+| `streaming` | `boolean` | 必填 | 为 true 时，使触发器标签和最后一个可见步骤显示闪烁效果。 |
+| `open` | `boolean` | 必填 | 是否展开披露面板。 |
+| `onOpenChange` | `(open: boolean) => void` | 必填 | 点击触发器时调用。 |
+| `restingLabel` | `string` | 必填 | `streaming` 为 false 后显示的触发器文本。 |
+| `activeLabel` | `string` | 必填 | `streaming` 为 true 时显示的闪烁触发器文本。 |
+| `stats` | `TimelineStat[]` | 必填 | 显示在步骤下方的文件变更标签。传入 `[]` 可省略该行。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-`TimelineStep` is `{ verb: string; chip: string; icon: LucideIcon }`. `TimelineStat` is `{ file: string; added?: number; removed?: number }`.
+`TimelineStep` 是 `{ verb: string; chip: string; icon: LucideIcon }`。`TimelineStat` 是 `{ file: string; added?: number; removed?: number }`。
 
 </StandaloneMode>

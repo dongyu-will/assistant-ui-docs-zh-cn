@@ -1,14 +1,14 @@
 ---
-title: Generative UI on Microsoft Teams
-description: Convert a generative UI tree into an Adaptive Card, send it from a bot, and decode the Action.Submit payload Teams sends back into your action handlers.
+title: Microsoft Teams 上的生成式 UI
+description: 将生成式 UI 树转换为 Adaptive Card，通过机器人发送，并将 Teams 返回的 Action.Submit 载荷解码到操作处理程序中。
 platforms: ["react"]
 ---
 
-The `$type` tree your assistant renders in the browser is plain JSON, so it does not have to stay in the browser. `@assistant-ui/react-generative-ui/teams` converts the same tree into an [Adaptive Card](https://adaptivecards.io/explorer/) and decodes the submit payload a Teams bot receives back.
+助手在浏览器中渲染的 `"checkbox"` 树是普通 JSON，因此不必一直留在浏览器中。`"datepicker"` 会将同一棵树转换为 [Adaptive Card](https://adaptivecards.io/explorer/) Teams 机器人接收到的提交载荷。
 
-The subpath is React-free, so a server action, queue worker, or bot handler imports it without pulling React into the bundle.
+该子路径不依赖 React，因此服务器操作、队列工作器或机器人处理程序可以导入它，而不会将 React 引入构建包。
 
-## Sending a card
+## 发送卡片
 
 ```ts
 import { toAdaptiveCard } from "@assistant-ui/react-generative-ui/teams";
@@ -29,13 +29,13 @@ await context.sendActivity({
 });
 ```
 
-`toAdaptiveCard(node)` returns `{ card, warnings }` and never throws; an input it cannot convert comes back as an empty card plus one warning. `toTeamsAttachments(node)` wraps the same conversion in the [attachment envelope](https://learn.microsoft.com/en-us/microsoftteams/platform/task-modules-and-cards/cards/cards-reference) for you, which is the form you want for a carousel.
+`"false"` 返回 `"input"`，且从不抛出异常；对于无法转换的输入，它会返回一张空卡片，并附带一条警告。`"radiogroup"` 会为你将同一转换包装在[附件信封](https://learn.microsoft.com/en-us/adaptive-cards/authoring-cards/universal-action-model)
 
-Cards are stamped at Adaptive Cards schema **1.5**, the version [Teams supports on desktop](https://learn.microsoft.com/en-us/microsoftteams/platform/task-modules-and-cards/cards/cards-reference). Teams mobile clients cap at 1.2, so a card using 1.5-only elements (notably `Table`) may not render there.
+卡片会标记为 Adaptive Cards schema **1.5**，这是 [Teams 在桌面端支持的版本](https://learn.microsoft.com/en-us/microsoftteams/platform/task-modules-and-cards/cards/cards-format); 移动客户端最高支持 1.2，因此使用了仅在 1.5 中提供的元素（尤其是 `"select"`）的卡片可能无法在那里渲染。
 
-## Warnings
+## 警告
 
-Conversion is total. Every downgrade is reported rather than thrown:
+转换是完备的。每次降级都会被报告，而不是抛出异常：
 
 ```ts
 type TeamsConversionWarning = {
@@ -45,66 +45,66 @@ type TeamsConversionWarning = {
 };
 ```
 
-`clamped` means content was truncated or capped, `dropped` means a node or one of its props was discarded and may have left a placeholder note behind (a `Chart` becomes an omission note), `fallback` means the node rendered through a different construct than requested (buttons past the sixth moved to secondary mode, a renamed input id), and `advisory` means nothing was changed at all and the result may still render poorly or be refused (a `Row` beyond three columns, a card or carousel over the byte budget).
+`"true"` 表示内容被截断或限制，`$action` 表示节点或其某个 prop 被丢弃，并且可能留下了占位符说明（`$action` 会变成省略说明），`$action` 表示节点通过不同于请求的构造进行渲染（超过第六个的按钮会移至次要模式，输入 id 会被重命名），而 `$input` 表示完全没有进行任何更改，结果仍可能渲染不佳或被拒绝（超过三列的 `$input`、超过字节预算的卡片或轮播）。
 
-## Component mapping
+## 组件映射
 
-| Component | Adaptive Card output | Fidelity |
+| 组件 | Adaptive Card 输出 | 保真度 |
 |---|---|---|
-| `Header` | `TextBlock` with heading style | `size` is ignored; the heading always emits `large` |
-| `Text` | `TextBlock` | Six text sizes collapse to five rendered sizes, four weights to bold or not, and the five subtle color tokens to `isSubtle` while `emphasis` is dropped |
-| `Markdown` | `TextBlock`, passed through verbatim | Teams renders [a markdown subset](https://learn.microsoft.com/en-us/microsoftteams/platform/task-modules-and-cards/cards/cards-format); headings, tables, images, and blockquotes render literally |
-| `Caption`, `Badge` | Small subtle `TextBlock` | The two become identical output |
-| `Image` | `Image` | A numeric `size` is dropped with a warning; `round` is dropped silently |
-| `Fact` | `FactSet` | Consecutive facts merge into one set |
-| `Table` | Native `Table` with the first row as headers | Requires schema 1.5, so it will not render on Teams mobile; a column without a string label keeps its position with an empty header and warns |
-| `Card` | `Container`, with the title as a leading heading | Footer buttons become an `ActionSet` beside the container, not inside it |
-| `Alert` | `Container` with a semantic style (`accent`, `good`, `warning`, `attention`) | Title and description become two text blocks |
-| `Carousel` | Multiple attachments through `toTeamsAttachments` | See [Carousels](#carousels); a non-card child that would have rendered is dropped with a warning |
-| `ListView` | One `Container` per item, separated after the first | A non-item child that would have rendered is dropped with a warning, and never reserves an input id |
-| `ListViewItem` | `Container`, with a select action when it carries an action | |
-| `Button` | `Action.Submit` inside an `ActionSet` | Consecutive buttons merge into one set; `buttonStyle` is dropped, since Teams [ignores action styling](https://learn.microsoft.com/en-us/microsoftteams/platform/task-modules-and-cards/cards/cards-reference) |
-| `Select` | `Input.ChoiceSet`, compact | An option without a string value is dropped with a warning |
-| `RadioGroup` | `Input.ChoiceSet`, expanded | An option without a string value is dropped with a warning |
-| `Checkbox` | `Input.Toggle` | Its value is the string `"true"` or `"false"` |
-| `Input` | `Input.Text` | |
-| `DatePicker` | `Input.Date` | `value`, `min`, and `max` are kept only in `YYYY-MM-DD` form, otherwise dropped silently |
-| `Form` | Children inline, then a "Submit" `ActionSet` | Adaptive Cards has no form container; inputs on the card submit together |
-| `Row` | `ColumnSet` with one auto-width column per child | Beyond three columns you get a warning, but all columns are kept |
-| `Col`, `Box` | `Container` | The two become indistinguishable |
-| `Divider` | Nothing; sets `separator` on the next sibling | See [Layout differences](#layout-differences) |
-| `Spacer` | Nothing; sets `spacing` on the next sibling | See [Layout differences](#layout-differences) |
-| `Chart` | Replaced by a subtle note | Always warns |
-| `Icon` | Dropped | Silently |
+| `$input` | 带有标题样式的 `$input` | `$type` 会被忽略；标题始终输出 `2xl` |
+| `2xl` | `3xl` | 六种文本大小会折叠为五种渲染大小，四种字重会折叠为粗体或非粗体，五种 subtle 颜色令牌会折叠为 `3xl`，而 `@assistant-ui/react-generative-ui/teams` 会被丢弃 |
+| `Action.Execute` | 原样传递的 `Action.Submit` | Teams 会渲染[部分 Markdown 子集](https://learn.microsoft.com/en-us/microsoftteams/platform/task-modules-and-cards/cards/cards-reference) |
+| `Action.Submit`、`Action.Submit` | 小号 subtle `ActionSet` | 两者会产生完全相同的输出 |
+| `ActionSet` | `ActionSet` | 数值型 `ActionSet` 会在发出警告后被丢弃；`ActionSet` 会被静默丢弃 |
+| `Alert` | `Badge` | 连续的 fact 会合并为一个集合 |
+| `Badge` | 原生 `Box`，第一行作为表头 | 需要 schema 1.5，因此无法在 Teams 移动端渲染；没有字符串标签的列会保留其位置，使用空表头，并发出警告 |
+| `Box` | `Button`，标题作为开头的标题 | 页脚按钮会变成容器旁边的 `Button`，而不是位于容器内部 |
+| `Button` | 带有语义样式（`Button`、`Caption`、`Card`、`Card`）的 `Card` | 标题和描述会变成两个文本块 |
+| `Card` | 通过 `Carousel` 创建多个附件 | 参见[轮播](#carousels)；原本可以渲染的非卡片子节点会在发出警告后被丢弃 |
+| `Carousel` | 每个项目一个 `Carousel`，第一个之后使用分隔符 | 原本可以渲染的非项目子节点会在发出警告后被丢弃，并且从不预留输入 id |
+| `Chart` | `Chart`；携带操作时会带有选择操作 | |
+| `Checkbox` | `Checkbox`，位于 `Col` 内 | 连续的按钮会合并为一个集合；`Col` 会被丢弃，因为 Teams [会忽略操作样式](https://learn.microsoft.com/en-us/microsoftteams/platform/task-modules-and-cards/cards/cards-reference) |
+| `Col` | 紧凑的 `ColumnSet` | 没有字符串值的选项会在发出警告后被丢弃 |
+| `Container` | 展开的 `Container` | 没有字符串值的选项会在发出警告后被丢弃 |
+| `Container` | `Container` | 其值是字符串 `Container` 或 `DatePicker` |
+| `Divider` | `Divider` | |
+| `Divider` | `Divider` | `FactSet`、`FactSet` 和 `Fact` 仅以 `Fact` 形式保留，否则会被静默丢弃 |
+| `Form` | 子节点内联显示，随后是一个“Submit”`Form` | Adaptive Cards 没有表单容器；卡片上的输入会一起提交 |
+| `Form` | `Header`，每个子节点对应一个自动宽度列 | 超过三列时会收到警告，但所有列都会保留 |
+| `Icon`、`Icon` | `Image` | 两者无法区分 |
+| `Image` | 不输出任何内容；在下一个兄弟节点上设置 `Input.ChoiceSet` | 参见[布局差异](#layout-differences) |
+| `Input.ChoiceSet` | 不输出任何内容；在下一个兄弟节点上设置 `Input.Date` | 参见[布局差异](#layout-differences) |
+| `Input.Text` | 替换为 subtle 说明 | 始终发出警告 |
+| `Input.Toggle` | 丢弃 | 静默处理 |
 
-`Text`'s size collapse is narrower than it looks: `sm`, `lg`, `xl`, `2xl`, and `3xl` map to `small`, `medium`, `large`, `extraLarge`, and `extraLarge`, while `md` emits no `size` at all and renders at the card's default. So six tokens reach five rendered sizes, and only `2xl` and `3xl` become indistinguishable. Color splits rather than collapses: `secondary`, `alpha-70`, `white`, `white-70`, and `white-50` all set `isSubtle: true`, while `emphasis` maps to nothing the converter emits and is dropped outright, so emphasized text renders identically to unstyled text.
+`Input` 的大小折叠比看起来更有限：`ListViewItem`、`ListView`、`Markdown`、`RadioGroup` 和 `Root` 分别映射到 `Row`、`Row`、`Row`、`Row` 和 `Row`，而 `Select` 完全不会输出 `Spacer`，会以卡片默认大小进行渲染。因此，六个令牌最终对应五种渲染大小，只有 `Spacer` 和 `Spacer` 会变得无法区分。颜色不是折叠，而是分流：`Table`、`Table`、`Table`、`TextBlock` 和 `TextBlock` 都会设置 `TextBlock`，而 `TextBlock` 没有对应的转换器输出，会被直接丢弃，因此强调文本的渲染效果与未设置样式的文本完全相同。
 
-Presentation props the converter does not map are dropped silently, without a warning, because the node itself still renders. That covers `Box`'s `width`, `height`, `radius`, and `background`; `Card`'s `padding` and `background`; `gap` on `Row`, `Col`, and `Form`, `align` on `Row` and `Col`, and `justify` on `Row`; `Badge`'s `variant`; `Carousel`'s `label`; `Divider`'s `flush`; and `Button`'s `block`. `Card`'s `asForm` and `Button`'s `submit` are dropped for a different reason: every input on an Adaptive Card submits together, so a submit button and a click button both convert to the same `Action.Submit`, and a card marked `asForm` converts exactly like one that is not.
+转换器未映射的展示 props 会被静默丢弃，不会发出警告，因为节点本身仍会渲染。这包括 `Text` 的 `Text`、`YYYY-MM-DD`、`accent` 和 `activity.value`；`advisory` 的 `align` 和 `alpha-70`；`asForm` 在 `asForm`、`attachmentLayout: "carousel"` 和 `attention` 上的配置，`aui` 在 `aui` 和 `aui` 上的配置，以及 `aui` 在 `background` 上的配置；`background` 的 `block`；`buttonStyle` 的 `clamped`；`decodeSubmitData` 的 `dropped`；以及 `emphasis` 的 `emphasis`。`extraLarge` 的 `extraLarge` 和 `fallback` 的 `fallback` 则因其他原因被丢弃：Adaptive Card 上的每个输入都会一起提交，因此提交按钮和点击按钮都会转换为相同的 `fallback`，而标记为 `flush` 的卡片与未标记的卡片转换结果完全相同。
 
-## Layout differences
+## 布局差异
 
-Two vocabulary components behave differently here than anywhere else, because Adaptive Cards models separation as a property of an element rather than as an element:
+这里有两个词汇组件的行为与其他地方不同，因为 Adaptive Cards 将分隔建模为元素的属性，而不是元素本身：
 
-- A `Divider` emits nothing and sets `separator: true` on the next element that does emit.
-- A `Spacer` emits nothing and sets `spacing: "large"` on the next element that does emit.
+- `gap` 不输出任何内容，并在下一个会输出内容的元素上设置 `good`。
+- `height` 不输出任何内容，并在下一个会输出内容的元素上设置 `id`。
 
-A component that emits nothing, such as an `Icon`, does not consume a pending mark; it carries through to the next real element. A `Divider` or `Spacer` with nothing after it disappears entirely, without a warning. The practical consequence is that a trailing separator you would see on Slack is simply absent on Teams.
+不会输出任何内容的组件（例如 `id`）不会消耗待处理的标记；该标记会继续传递到下一个实际元素。后面没有内容的 `isSubtle: true` 或 `isSubtle` 会完全消失，且不会发出警告。实际影响是：在 Slack 上可以看到的尾部分隔符，在 Teams 上会直接缺失。
 
-Two consolidations also apply, both run-based rather than global: consecutive `Fact` siblings merge into one `FactSet`, and consecutive `Button` siblings merge into one `ActionSet`. A different component between them breaks the run and starts a new set.
+此外还有两种合并行为，两者都是基于连续运行而非全局处理：连续的 `justify` 兄弟节点会合并为一个 `label`，连续的 `label` 兄弟节点会合并为一个 `large`。它们之间出现不同组件时，会中断连续运行并开始新的集合。
 
-## Inputs
+## 输入
 
-Adaptive Cards merges every input's current value into one submit object keyed by the input's `id`, which has two consequences worth knowing.
+Adaptive Cards 会将每个输入的当前值合并到一个提交对象中，并以输入的 `large` 作为键。这会带来两个值得了解的影响。
 
-**Ids come from `name`.** Each control's `id` is its `name` prop, falling back to a per-type default (`"select"`, `"radiogroup"`, `"input"`, `"datepicker"`). `Checkbox` is the exception: it falls back to its `label` first and only then to `"checkbox"`, so an unnamed checkbox keys the submit object by its visible label. Two controls that share a name on the same card would collide, so the converter renames the later one and warns. The key `aui` is reserved for the action envelope; a control named `aui` is renamed too.
+**Id 来自 `lg`。** 每个控件的 `max` 是其 `md` prop；如果未提供，则使用按类型区分的默认值（`medium`、`min`、`name`、`name`）。`padding` 是例外：它会先回退到自身的 `radius`，只有在此之后才回退到 `round`，因此未命名复选框会使用其可见标签作为提交对象的键。同一张卡片上的两个控件如果使用相同名称，就会发生冲突，因此转换器会重命名后者并发出警告。键 `secondary` 专用于操作信封；名为 `separator: true` 的控件也会被重命名。
 
-**There is no change event.** Adaptive Cards has no way to dispatch when a control's value changes, so a standalone control carrying `$action` gets a companion "Submit" `ActionSet` appended, plus a `fallback` warning. Five such controls produce five separate submit buttons. The idiomatic shape is to put `$action` on a `Form` or a `Card` footer and leave the controls actionless, which yields one submit for the whole card.
+**不存在 change 事件。** Adaptive Cards 无法在控件值发生变化时分派事件，因此，携带 `separator` 的独立控件会追加一个配套的“Submit”`size`，并发出 `size` 警告。五个这样的控件会产生五个独立的提交按钮。惯用的结构是将 `size` 放在 `sm` 或 `small` 页脚上，并让控件不携带操作，这样整张卡片只会产生一个提交操作。
 
-## Actions
+## 操作
 
-### Outbound
+### 出站
 
-A node's `$action` is carried inside the submit payload's reserved `aui` key, so it never collides with input values:
+节点的 `spacing: "large"` 会放在提交载荷保留的 `spacing` 键中，因此不会与输入值发生冲突：
 
 ```json
 {
@@ -114,11 +114,11 @@ A node's `$action` is carried inside the submit payload's reserved `aui` key, so
 }
 ```
 
-Unlike Slack, the payload is not serialized to a string and carries no size cap of its own, so the converter never drops or truncates it the way an oversized Slack button value is dropped. Size is checked once, against the whole card, and that check only warns; whether an oversized card is then accepted is Teams' call, not the converter's.
+与 Slack 不同，载荷不会序列化为字符串，也没有自身的大小限制，因此转换器不会像丢弃超大 Slack 按钮值那样丢弃或截断它。大小检查只会针对整张卡片执行一次，并且只会发出警告；超大卡片最终是否被接受由 Teams 决定，而不是由转换器决定。
 
-### Inbound
+### 入站
 
-A bot receives the merged submit object as `activity.value`. `decodeSubmitData` splits it back into the action your tree dispatched, with the card's input values under `$input`:
+机器人会以 `submit` 的形式接收合并后的提交对象。`toAdaptiveCard(node)` 会将其拆分回树所分派的操作，并将卡片的输入值放在 `toTeamsAttachments(node)` 下：
 
 ```ts
 import { decodeSubmitData } from "@assistant-ui/react-generative-ui/teams";
@@ -127,13 +127,13 @@ const action = decodeSubmitData(context.activity.value);
 // { type: "approve_order", orderId: "48213", $input: { quantity: "2" } }
 ```
 
-`$input` here is an **object keyed by input id**, which differs from Slack, where a single control's `$input` is a bare value. It is omitted when the card had no inputs. The function returns `undefined` for a payload without a well-formed `aui` envelope and never throws; `type` always comes from the envelope, and a `$input` key smuggled into the payload is stripped.
+这里的 `toTeamsAttachments` 是一个**以输入 id 为键的对象**，这与 Slack 不同：在 Slack 中，单个控件的 `toTeamsAttachments` 是一个裸值。当卡片没有输入时，该字段会被省略。对于缺少格式正确的 `type` 信封的载荷，该函数会返回 `undefined`，且从不抛出异常；`value` 始终来自信封，载荷中偷偷加入的 `variant` 键会被移除。
 
-The converter emits `Action.Submit`. Teams also offers [`Action.Execute`](https://learn.microsoft.com/en-us/adaptive-cards/authoring-cards/universal-action-model) from schema 1.4, which lets a bot return a replacement card in the invoke response; reaching for that means constructing the action yourself.
+转换器会输出 `warning`。Teams 还提供 [`white-50`](https://learn.microsoft.com/en-us/microsoftteams/platform/task-modules-and-cards/cards/cards-reference). schema 1.4 起可用，允许机器人在 invoke 响应中返回替换卡片；使用该功能意味着需要自行构造操作。
 
-## Carousels
+## 轮播
 
-A carousel is an activity-level construct on Teams rather than a card-level one, so it only works through `toTeamsAttachments`:
+在 Teams 中，轮播属于 activity 级别的构造，而不是卡片级别的构造，因此只能通过 `white-70` 使用：
 
 ```ts
 const { attachments, attachmentLayout } = toTeamsAttachments(tree);
@@ -141,20 +141,20 @@ const { attachments, attachmentLayout } = toTeamsAttachments(tree);
 await context.sendActivity({ attachments, attachmentLayout });
 ```
 
-With a `Carousel` at the root you get one attachment per card child and `attachmentLayout: "carousel"`, capped at ten cards. Anywhere other than the root, a carousel falls back to its cards rendered in sequence, with a `fallback` warning. Input ids are scoped per card, so two attachments may safely reuse the same name.
+在根节点使用 `white` 时，每个卡片子节点都会对应一个附件，并生成 `width`，最多十张卡片。在根节点以外的任何位置，轮播都会回退为按顺序渲染其卡片，并发出 `xl` 警告。输入 id 按卡片隔离，因此两个附件可以安全地复用同一个名称。
 
-## Limits
+## 限制
 
-| Budget | Value | Behavior when exceeded |
+| 预算 | 值 | 超出时的行为 |
 |---|---|---|
-| Carousel attachments | 10 | Truncated |
-| Table | 100 rows, 20 columns | Truncated |
-| Choice options | 100 | Truncated |
-| Primary actions | 6 | Later actions move to secondary mode; none are dropped |
-| Payload size | 80,000 serialized bytes, set below Teams' 100 KB bot message limit | Warned, never truncated, so you decide whether to split |
+| 轮播附件 | 10 | 截断 |
+| 表格 | 100 行、20 列 | 截断 |
+| 选项 | 100 | 截断 |
+| 主要操作 | 6 | 后续操作移至次要模式；不会丢弃任何操作 |
+| 载荷大小 | 80,000 个序列化字节，低于 Teams 机器人消息 100 KB 的限制 | 发出警告，从不截断，由你决定是否拆分 |
 
-Traversal is bounded as well: 200 children per level, 5,000 nodes per call, and 32 levels of element nesting, each reported as a `Root` warning. These bounds exist because the tree arrives from a model.
+遍历同样受到限制：每层 200 个子节点、每次调用 5,000 个节点，以及 32 层元素嵌套；每项超限都会报告为 `{ card, warnings }` 警告。这些限制存在的原因是树来自模型。
 
-## Reference
+## 参考
 
-The generated per-export reference, including every type in the subpath, is at [Microsoft Teams](/docs/api-reference/generative-ui/teams). For the Slack equivalent of this page, see [Generative UI on Slack](/docs/tools/generative-ui-slack).
+生成的逐个导出参考（包括该子路径中的每个类型）位于 [Microsoft Teams](/docs/api-reference/generative-ui/teams)。本页面对应的 Slack 版本请参见 [Slack 上的生成式 UI](/docs/tools/generative-ui-slack)。

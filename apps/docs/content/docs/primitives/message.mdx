@@ -1,13 +1,13 @@
 ---
-title: Message
-description: Build custom message rendering with content parts, attachments, and hover state.
+title: 消息
+description: 使用内容部分、附件和悬停状态构建自定义消息渲染。
 platforms: ["react"]
 ---
 
 import { MessagePrimitiveSample } from "@/components/pages/docs/samples/message-primitive";
 import { MessagePrimitive as MessagePrimitiveDocs } from "@/generated/primitiveDocs";
 
-The Message primitive handles individual message rendering: content parts, attachments, quotes, hover state, and error display. It's the building block inside each message bubble, resolving text, images, tool calls, and more through a parts pipeline.
+Message 原语负责单条消息的渲染：内容部分、附件、引用、悬停状态和错误显示。它是每个消息气泡中的构建模块，通过部分管线解析文本、图像、工具调用等内容。
 
 <Tabs items={["Preview", "Code"]}>
   <Tab>
@@ -72,9 +72,9 @@ function AssistantText() {
   </Tab>
 </Tabs>
 
-## Quick Start
+## 快速开始
 
-A minimal message with parts rendering:
+使用部分渲染的最小消息：
 
 ```tsx
 import { MessagePrimitive } from "@assistant-ui/react";
@@ -84,17 +84,17 @@ import { MessagePrimitive } from "@assistant-ui/react";
 </MessagePrimitive.Root>
 ```
 
-`Root` renders a `<div>` that provides message context and tracks hover state. `Parts` iterates over the message's content parts and renders each one. Without custom components, parts render with sensible defaults: `Text` renders a `<p>` with `white-space: pre-line` and a streaming indicator, `Image` renders via `MessagePartPrimitive.Image`, and tool calls render nothing unless a tool UI is registered globally or inline. Reasoning, source, file, and audio parts render nothing by default.
+`Root` 渲染一个 `<div>`，提供消息上下文并跟踪悬停状态。`Parts` 遍历消息的内容部分并逐一渲染。没有自定义组件时，各部分会使用合理的默认渲染方式：`Text` 渲染一个带有 `white-space: pre-line` 和流式传输指示器的 `<p>`，`Image` 通过 `MessagePartPrimitive.Image` 渲染；除非全局或内联注册了工具 UI，否则工具调用不会渲染任何内容。推理、来源、文件和音频部分默认不会渲染。
 
 <Callout type="info">
-Runtime setup: primitives require runtime context. Wrap your UI in `AssistantRuntimeProvider` with a runtime (for example `useLocalRuntime(...)`). See [Pick a Runtime](/docs/runtimes/pick-a-runtime).
+运行时设置：原语需要运行时上下文。将 UI 包裹在带有运行时的 `AssistantRuntimeProvider` 中（例如 `useLocalRuntime(...)`）。请参阅[选择运行时](/docs/runtimes/pick-a-runtime)。
 </Callout>
 
-## Core Concepts
+## 核心概念
 
-### Parts Pipeline
+### 部分管线
 
-`MessagePrimitive.Parts` now prefers a children render function. It gives you the current enriched part state directly, so you can branch inline and return exactly the UI you want:
+`MessagePrimitive.Parts` 现在优先使用 children 渲染函数。它会直接提供当前经过增强的部分状态，因此你可以内联分支，并准确返回所需的 UI：
 
 ```tsx
 <MessagePrimitive.Parts>
@@ -109,22 +109,22 @@ Runtime setup: primitives require runtime context. Wrap your UI in `AssistantRun
 ```
 
 <Callout type="info">
-For most new code, prefer `MessagePrimitive.Parts` with a `children` render function. When you need adjacent grouping, use `MessagePrimitive.GroupedParts`.
+对于大多数新代码，建议使用带有 `children` 渲染函数的 `MessagePrimitive.Parts`。需要相邻分组时，请使用 `MessagePrimitive.GroupedParts`。
 </Callout>
 
-### Part Types
+### 部分类型
 
-A message part is one of three kinds, and which kind a new capability belongs to is decided by the list below rather than case by case.
+消息部分分为三种类型。新功能属于哪种类型，应根据下面的列表决定，而不是逐个情况判断。
 
-| Kind | Parts | Grows by |
+| 类型 | 部分 | 增长方式 |
 |------|-------|----------|
-| Modality | `text`, `image`, `file` | Never. `file` carries every non-image binary modality through its `mimeType`. |
-| Provider channel | `reasoning`, `source`, `tool-call`, `generative-ui` | Never. These mirror channels a model already emits. |
-| Extensibility | `data` | Freely, through `name`. This is the growth path for anything app-level. |
+| 模态 | `text`、`image`、`file` | 从不增长。`file` 通过其 `mimeType` 承载所有非图像二进制模态。 |
+| 提供商通道 | `reasoning`、`source`、`tool-call`、`generative-ui` | 从不增长。这些部分对应模型已经输出的通道。 |
+| 可扩展性 | `data` | 可自由增长，通过 `name` 实现。这是所有应用层功能的扩展路径。 |
 
-`file` is the media carrier. Audio, video, PDFs and everything else are `{ type: "file", mimeType: "audio/mpeg" }` rather than part types of their own, so one renderer and one converter branch handle them all. The payload can be inline base64 or a URL; `sourceType` additionally allows an opaque storage id, which the LangChain-family runtimes honor and other adapters ignore.
+`file` 是媒体载体。音频、视频、PDF 以及其他所有内容都是 `{ type: "file", mimeType: "audio/mpeg" }`，而不是各自独立的部分类型，因此一个渲染器和一个转换器分支就可以统一处理它们。负载可以是内联 base64 或 URL；`sourceType` 还支持不透明的存储 ID，LangChain 系列运行时会使用该 ID，其他适配器则会忽略它。
 
-Anything that is not a modality the model consumes or a channel it emits is a `data` part, routed by `name`:
+任何既不是模型消费的模态，也不是模型输出的通道，都是 `data` 部分，并由 `name` 路由：
 
 ```tsx
 <MessagePrimitive.Parts
@@ -138,22 +138,22 @@ Anything that is not a modality the model consumes or a channel it emits is a `d
 ```
 
 <Callout type="warn">
-`Unstable_AudioMessagePart` and the `Unstable_Audio` slot are deprecated. The audio part cannot carry a filename, has no way to declare how its payload goes on the wire (no `sourceType`, so no storage id), and exists only on user messages, so a model that returns audio has no way to express it. Send audio as a `file` part with an `audio/*` mime type instead, and give it a filename.
+`Unstable_AudioMessagePart` 和 `Unstable_Audio` 插槽已弃用。音频部分无法携带文件名，也无法声明其负载如何通过传输层发送（没有 `sourceType`，因此也没有存储 ID），并且只存在于用户消息中，所以返回音频的模型无法表达它。请改为将音频作为带有 `audio/*` MIME 类型的 `file` 部分发送，并为其提供文件名。
 
-Adapter coverage for the file path is still uneven, so check your adapter's converter before relying on file parts. Known so far: `react-pi` and the assistant-transport runtime have no file part on their user-content surface at all, so one is dropped; `react-data-stream` carries the payload but not the filename. Existing audio parts keep working; they will not gain fields.
+文件路径的适配器支持仍不一致，因此在依赖文件部分之前，请检查适配器的转换器。目前已知：`react-pi` 和 assistant-transport 运行时的用户内容表面完全没有文件部分，因此文件会被丢弃；`react-data-stream` 会携带负载，但不会携带文件名。现有音频部分仍可正常工作；它们不会新增字段。
 </Callout>
 
-### Tool Resolution
+### 工具解析
 
-Tool call parts resolve in this order:
+工具调用部分按以下顺序解析：
 
-1. **`tools.Override`**: if provided inline through the deprecated `components` prop, handles **all** tool calls
-2. **Globally registered tools**: tools registered via `Tools({ toolkit })`
-3. **`tools.by_name[toolName]`**: per-`MessagePrimitive.Parts` inline overrides from the deprecated `components` prop
-4. **`tools.Fallback`**: catch-all for unmatched tool calls from the deprecated `components` prop
-5. **`part.toolUI`**: the resolved tool UI exposed directly in the children render function
+1. **`tools.Override`**：如果通过已弃用的 `components` prop 内联提供，则处理**所有**工具调用
+2. **全局注册的工具**：通过 `Tools({ toolkit })` 注册的工具
+3. **`tools.by_name[toolName]`**：通过已弃用的 `components` prop 为每个 `MessagePrimitive.Parts` 提供的内联覆盖
+4. **`tools.Fallback`**：通过已弃用的 `components` prop 处理未匹配工具调用的兜底项
+5. **`part.toolUI`**：在 children 渲染函数中直接公开已解析的工具 UI
 
-In the children API, tool and data parts expose resolved UI helpers directly:
+在 children API 中，工具部分和数据部分会直接公开已解析的 UI 辅助函数：
 
 ```tsx
 <MessagePrimitive.Parts>
@@ -169,19 +169,19 @@ In the children API, tool and data parts expose resolved UI helpers directly:
 </MessagePrimitive.Parts>
 ```
 
-Returning `null` still allows registered tool UIs and data renderer UIs to render automatically. Return `<></>` if you want to suppress them entirely.
+返回 `null` 仍会允许已注册的工具 UI 和数据渲染器 UI 自动渲染。如果希望完全抑制它们，请返回 `<></>`。
 
-### Components Prop (Deprecated)
+### Components Prop（已弃用）
 
-`components` is deprecated. This section only documents it so older code is still understandable:
+`components` 已弃用。本节仅对其进行说明，以便理解旧代码：
 
-- `ToolGroup` wraps consecutive tool-call parts
-- `ReasoningGroup` wraps consecutive reasoning parts
-- `components.ChainOfThought` takes over all reasoning and tool-call rendering (mutually exclusive with `ToolGroup`, `ReasoningGroup`, `tools`, and `Reasoning`). This legacy path is deprecated; use `MessagePrimitive.GroupedParts` for grouped Chain of Thought in new code.
-- `data.by_name` and `data.Fallback` let you route custom data part types
-- `Quote` renders quoted message references from metadata
-- `Empty` is available for edge rendering paths
-- `Unstable_Audio` is deprecated; render `audio/*` from the `File` slot instead
+- `ToolGroup` 包裹连续的工具调用部分
+- `ReasoningGroup` 包裹连续的推理部分
+- `components.ChainOfThought` 接管所有推理和工具调用的渲染（与 `ToolGroup`、`ReasoningGroup`、`tools` 和 `Reasoning` 互斥）。此旧版路径已弃用；新代码中请使用 `MessagePrimitive.GroupedParts` 来实现分组的思维链。
+- `data.by_name` 和 `data.Fallback` 可用于路由自定义数据部分类型
+- `Quote` 根据元数据渲染引用的消息
+- `Empty` 可用于边缘渲染路径
+- `Unstable_Audio` 已弃用；请改为从 `File` 插槽渲染 `audio/*`
 
 ```tsx
 <MessagePrimitive.Parts
@@ -220,19 +220,19 @@ Returning `null` still allows registered tool UIs and data renderer UIs to rende
 />
 ```
 
-For new code, use the `children` render function or `GroupedParts` instead.
+对于新代码，请改用 `children` 渲染函数或 `GroupedParts`。
 
-### Hover State
+### 悬停状态
 
-`MessagePrimitive.Root` automatically tracks mouse enter/leave events. This hover state is consumed by `ActionBarPrimitive` to implement auto-hide behavior, with no extra wiring needed.
+`MessagePrimitive.Root` 会自动跟踪鼠标进入和离开事件。`ActionBarPrimitive` 会使用此悬停状态实现自动隐藏行为，无需额外连接。
 
 ### MessagePartPrimitive
 
-Inside your custom part components, use these sub-primitives to access the actual content:
+在自定义部分组件中，使用以下子原语访问实际内容：
 
-- **`MessagePartPrimitive.Text`**: renders the text content of a text part
-- **`MessagePartPrimitive.Image`**: renders the image of an image part
-- **`MessagePartPrimitive.InProgress`**: renders only while the part is still streaming
+- **`MessagePartPrimitive.Text`**：渲染文本部分的文本内容
+- **`MessagePartPrimitive.Image`**：渲染图像部分的图像
+- **`MessagePartPrimitive.InProgress`**：仅在部分仍处于流式传输时渲染
 
 ```tsx
 function MyText() {
@@ -247,11 +247,11 @@ function MyText() {
 }
 ```
 
-## Parts
+## 部分
 
 ### Root
 
-Container for a single message. Renders a `<div>` element unless `asChild` is set.
+单条消息的容器。除非设置了 `asChild`，否则会渲染一个 `<div>` 元素。
 
 ```tsx
 <MessagePrimitive.Root className="flex flex-col gap-2">
@@ -264,7 +264,7 @@ Container for a single message. Renders a `<div>` element unless `asChild` is se
 
 ### Parts
 
-Renders each content part with type-based component resolution.
+根据类型解析组件并渲染每个内容部分。
 
 ```tsx
 <MessagePrimitive.Parts>
@@ -282,7 +282,7 @@ Renders each content part with type-based component resolution.
 
 ### GroupedParts
 
-Groups adjacent message parts into a nested tree. Use `groupBy` to map each part to a group-key path, then switch on `part.type` in the render function. Group cases render `children`; leaf cases render their own UI. Prefer the `groupPartByType` helper for the common `part.type → path` case.
+将相邻的消息部分分组为嵌套树。使用 `groupBy` 将每个部分映射到组键路径，然后在渲染函数中根据 `part.type` 进行切换。分组情况会渲染 `children`；叶节点情况则渲染其自身的 UI。对于常见的 `part.type → path` 情况，建议使用 `groupPartByType` 辅助函数。
 
 ```tsx
 import { MessagePrimitive, groupPartByType } from "@assistant-ui/react";
@@ -320,7 +320,7 @@ import { MessagePrimitive, groupPartByType } from "@assistant-ui/react";
 
 ### Content
 
-Legacy alias for `Parts`.
+`Parts` 的旧版别名。
 
 ```tsx
 <MessagePrimitive.Content>
@@ -333,7 +333,7 @@ Legacy alias for `Parts`.
 
 ### PartByIndex
 
-Renders a single part at a specific index.
+渲染指定索引处的单个部分。
 
 ```tsx
 <MessagePrimitive.PartByIndex
@@ -344,7 +344,7 @@ Renders a single part at a specific index.
 
 ### Attachments
 
-Renders all user message attachments.
+渲染用户消息的所有附件。
 
 ```tsx
 <MessagePrimitive.Attachments>
@@ -372,7 +372,7 @@ Renders all user message attachments.
 
 ### AttachmentByIndex
 
-Renders a single attachment at the specified index within the current message.
+渲染当前消息中指定索引处的单个附件。
 
 ```tsx
 <MessagePrimitive.AttachmentByIndex
@@ -385,7 +385,7 @@ Renders a single attachment at the specified index within the current message.
 
 ### Error
 
-Renders children only when the message has an error.
+仅当消息存在错误时渲染 children。
 
 ```tsx
 <MessagePrimitive.Error>
@@ -397,7 +397,7 @@ Renders children only when the message has an error.
 
 ### Quote
 
-Renders quote metadata when the current message includes a quote. Place it above `MessagePrimitive.Parts`.
+当当前消息包含引用时，渲染引用元数据。将其放置在 `MessagePrimitive.Parts` 上方。
 
 ```tsx
 <MessagePrimitive.Quote>
@@ -411,7 +411,7 @@ Renders quote metadata when the current message includes a quote. Place it above
 
 ### Unstable_PartsGrouped
 
-Groups parts by a custom grouping function *(unstable; use `GroupedParts` for adjacent grouping)*.
+通过自定义分组函数对部分进行分组（*不稳定；相邻分组请使用 `GroupedParts`*）。
 
 ```tsx
 <MessagePrimitive.Unstable_PartsGrouped
@@ -424,7 +424,7 @@ Groups parts by a custom grouping function *(unstable; use `GroupedParts` for ad
 
 ### Unstable_PartsGroupedByParentId
 
-Groups parts by parent ID *(unstable, deprecated; use `Unstable_PartsGrouped`)*.
+按父 ID 对部分进行分组（*不稳定，已弃用；请使用 `Unstable_PartsGrouped`*）。
 
 ```tsx
 <MessagePrimitive.Unstable_PartsGroupedByParentId
@@ -432,10 +432,10 @@ Groups parts by parent ID *(unstable, deprecated; use `Unstable_PartsGrouped`)*.
 />
 ```
 
-### If (deprecated)
+### If（已弃用）
 
 <Callout type="warn">
-Deprecated. Use [`AuiIf`](/docs/api-reference/primitives/assistant-if) instead.
+已弃用。请改用[`AuiIf`](/docs/api-reference/primitives/assistant-if)。
 </Callout>
 
 ```tsx
@@ -448,9 +448,9 @@ Deprecated. Use [`AuiIf`](/docs/api-reference/primitives/assistant-if) instead.
 <AuiIf condition={(s) => s.message.role === "assistant"}>...</AuiIf>
 ```
 
-## Patterns
+## 模式
 
-### Custom Text Rendering
+### 自定义文本渲染
 
 ```tsx
 function MarkdownText() {
@@ -469,7 +469,7 @@ function MarkdownText() {
 </MessagePrimitive.Parts>
 ```
 
-### Tool UI with by_name
+### 使用 by_name 的工具 UI
 
 ```tsx
 <MessagePrimitive.Parts
@@ -494,7 +494,7 @@ function MarkdownText() {
 />
 ```
 
-### Error Display
+### 错误显示
 
 ```tsx
 <MessagePrimitive.Root>
@@ -507,9 +507,9 @@ function MarkdownText() {
 </MessagePrimitive.Root>
 ```
 
-### Error Display with ErrorPrimitive
+### 使用 ErrorPrimitive 的错误显示
 
-For more control over error rendering, `ErrorPrimitive` provides a dedicated component that auto-reads the error string from the message status:
+如需更精细地控制错误渲染，`ErrorPrimitive` 提供了一个专用组件，可自动从消息状态中读取错误字符串：
 
 ```tsx
 import { ErrorPrimitive, MessagePrimitive } from "@assistant-ui/react";
@@ -522,11 +522,11 @@ import { ErrorPrimitive, MessagePrimitive } from "@assistant-ui/react";
 </MessagePrimitive.Root>
 ```
 
-`ErrorPrimitive.Root` renders a `<div>` container with `role="alert"` and `ErrorPrimitive.Message` renders a `<span>` that displays the error text. `Root` always renders. Only `Message` conditionally returns `null` when there is no error. Wrap in `<MessagePrimitive.Error>` if you want the entire block to be conditional. See the [ErrorPrimitive API Reference](/docs/api-reference/primitives/error) for full details.
+`ErrorPrimitive.Root` 渲染一个带有 `role="alert"` 的 `<div>` 容器，而 `ErrorPrimitive.Message` 渲染一个用于显示错误文本的 `<span>`。`Root` 始终渲染。只有在没有错误时，`Message` 才会有条件地返回 `null`。如果希望整个区块都具有条件性，请将其包裹在 `<MessagePrimitive.Error>` 中。完整详情请参阅 [ErrorPrimitive API 参考](/docs/api-reference/primitives/error)。
 
-### Render After Stream Completes
+### 流式传输完成后渲染
 
-To render content only once the assistant message has finished streaming (a follow-up card, a feedback prompt, a generated component that should not flicker through partial states), gate it with [`AuiIf`](/docs/api-reference/primitives/assistant-if) on `s.message.status`:
+如果只希望在助手消息完成流式传输后渲染内容（例如后续卡片、反馈提示，或不应在部分状态间闪烁的生成式组件），请在 `s.message.status` 上使用 [`AuiIf`](/docs/api-reference/primitives/assistant-if) 对其进行控制：
 
 ```tsx
 import { MessagePrimitive, AuiIf } from "@assistant-ui/react";
@@ -545,16 +545,16 @@ import { MessagePrimitive, AuiIf } from "@assistant-ui/react";
 </MessagePrimitive.Root>;
 ```
 
-`s.message.status` is a discriminated union of `running | requires-action | complete | incomplete`, defined only on assistant messages. The `role === "assistant"` guard keeps the predicate type-safe. For tool-call-driven generative UI that defers rendering inside the part itself, see [Deferred Rendering](/docs/tools/tool-ui#deferred-rendering) in the Generative UI guide.
+`s.message.status` 是 `running | requires-action | complete | incomplete` 的判别联合，仅定义于助手消息上。`role === "assistant"` 守卫可确保谓词类型安全。对于由工具调用驱动、并在部分自身内部延迟渲染的生成式 UI，请参阅生成式 UI 指南中的[延迟渲染](/docs/tools/tool-ui#deferred-rendering)。
 
-### Legacy and Unstable APIs
+### 旧版和不稳定 API
 
-- `MessagePrimitive.Unstable_PartsGrouped` and `MessagePrimitive.Unstable_PartsGroupedByParentId` are unstable APIs for non-adjacent custom grouping.
-- `Unstable_PartsGroupedByParentId` is deprecated in favor of `Unstable_PartsGrouped`.
+- `MessagePrimitive.Unstable_PartsGrouped` 和 `MessagePrimitive.Unstable_PartsGroupedByParentId` 是用于非相邻自定义分组的不稳定 API。
+- `Unstable_PartsGroupedByParentId` 已弃用，建议改用 `Unstable_PartsGrouped`。
 
-### Role-Based Styling
+### 基于角色的样式设置
 
-`MessagePrimitive.Root` sets `data-message-id` automatically but does not set a `data-role` attribute. Style by role in your message components:
+`MessagePrimitive.Root` 会自动设置 `data-message-id`，但不会设置 `data-role` 属性。在消息组件中按角色设置样式：
 
 ```tsx
 // In your ThreadPrimitive.Messages children render function:
@@ -575,7 +575,7 @@ function AssistantMessage() {
 }
 ```
 
-### Attachments
+### 附件
 
 ```tsx
 <MessagePrimitive.Root>
@@ -602,17 +602,17 @@ function AssistantMessage() {
 </MessagePrimitive.Root>
 ```
 
-## Relationship to Components
+## 与组件的关系
 
-The shadcn [Thread](/elements/thread) component renders user and assistant messages built from these primitives. The pre-built `AssistantMessage` and `UserMessage` components handle text rendering, tool UIs, error display, and action bars, all using `MessagePrimitive` under the hood.
+shadcn 的 [Thread](/elements/thread) 组件使用这些原语构建并渲染用户和助手消息。预构建的 `AssistantMessage` 和 `UserMessage` 组件负责文本渲染、工具 UI、错误显示和操作栏，其底层都使用 `MessagePrimitive`。
 
-Messages are commonly paired with [ActionBar](/docs/primitives/action-bar) for copy/reload/edit actions and [BranchPicker](/docs/primitives/branch-picker) for navigating between alternative responses.
+消息通常会与 [ActionBar](/docs/primitives/action-bar) 搭配，用于复制、重新加载和编辑操作；也会与 [BranchPicker](/docs/primitives/branch-picker) 搭配，用于在不同的备选响应之间导航。
 
-## API Reference
+## API 参考
 
-For full prop details on every part, see the [MessagePrimitive API Reference](/docs/api-reference/primitives/message).
+如需查看每个部分的完整 prop 详情，请参阅 [MessagePrimitive API 参考](/docs/api-reference/primitives/message)。
 
-Related:
-- [MessagePartPrimitive API Reference](/docs/api-reference/primitives/message-part)
-- [ActionBarPrimitive API Reference](/docs/api-reference/primitives/action-bar)
-- [BranchPickerPrimitive API Reference](/docs/api-reference/primitives/branch-picker)
+相关内容：
+- [MessagePartPrimitive API 参考](/docs/api-reference/primitives/message-part)
+- [ActionBarPrimitive API 参考](/docs/api-reference/primitives/action-bar)
+- [BranchPickerPrimitive API 参考](/docs/api-reference/primitives/branch-picker)

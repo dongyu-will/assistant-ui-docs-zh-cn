@@ -1,16 +1,16 @@
 ---
-title: Backend Tools
-description: Wire assistant-ui toolkits into your server with the AI SDK — AISDKToolkit, frontendTools, mixing client and server tools, and multi-modal results.
+title: 后端工具
+description: 使用 AI SDK 将 assistant-ui 工具包接入服务器 — AISDKToolkit、frontendTools、混合客户端与服务器工具，以及多模态结果。
 platforms: ["react"]
 ---
 
-A tool is only callable if the **model** knows about it, and the model is configured on your server. This page covers wiring a toolkit into an AI SDK route handler: exposing your generative toolkit, receiving client-defined tools, mixing the two, and round-tripping multi-modal results.
+只有当**模型**知晓某个工具，并且模型已在服务器上完成配置时，该工具才能被调用。本页介绍如何将工具包接入 AI SDK 路由处理程序：公开生成式工具包、接收客户端定义的工具、混合使用两者，以及往返传递多模态结果。
 
-For authoring tools, see [Defining Tools](/docs/tools/defining-tools). For MCP servers, see [MCP](/docs/tools/mcp).
+有关工具的编写方式，请参阅[定义工具](/docs/tools/defining-tools)。有关 MCP 服务器，请参阅 [MCP](/docs/tools/mcp)。
 
-## The request body
+## 请求体
 
-`@assistant-ui/ai-sdk` posts `{ messages, system, tools }` to your route. `tools` is the map of **frontend** tools the client serialized for this request (the model needs their schemas to call them, even though they run in the browser):
+`"use generative"` 会将 `.tools()` 发送到你的路由。`.tools()` 是客户端为此次请求序列化的**前端**工具映射（模型需要这些工具的架构才能调用它们，即使它们实际运行在浏览器中）：
 
 ```ts
 import type { FrontendTools } from "@assistant-ui/ai-sdk";
@@ -26,9 +26,9 @@ const {
 } = await req.json();
 ```
 
-## Generative toolkits: `AISDKToolkit`
+## 生成式工具包：`/api/chat`
 
-When you author tools in a [`"use generative"` file](/docs/tools/defining-tools#quick-start-use-generative), the same import resolves to the **server build** inside a route handler — schema plus any backend `execute`, with renderers stripped. Wrap it in an `AISDKToolkit` and call `.tools()` with the uploaded `tools`:
+当你在 [`@assistant-ui/ai-sdk` 文件](/docs/tools/defining-tools#quick-start-use-generative)中编写工具时，在路由处理程序内，相同的导入会解析为**服务器构建版本** — 包含架构以及所有后端 `AISDKToolkit.tools()`，并移除渲染器。将其包装在 `AISDKToolkit.tools()` 中，并使用上传的 `AISDKToolkit` 调用 `AISDKToolkit`：
 
 ```ts title="app/api/chat/route.ts"
 import { AISDKToolkit } from "@assistant-ui/ai-sdk";
@@ -52,22 +52,19 @@ export async function POST(req: Request) {
 }
 ```
 
-`AISDKToolkit.tools()` registers every toolkit tool with the model using its schema, wires the backend `execute` where the server build carries one, and merges in the uploaded frontend tools. A server `execute` wins over an uploaded entry of the same name. Frontend and human tools (no server `execute`) are exposed schema-only and left for the client and the user to fulfill.
+`AISDKToolkit` 使用每个工具的架构向模型注册工具包中的所有工具，在服务器构建版本包含后端 `__aui_modelContent` 时将其接入，并合并上传的前端工具。同名的服务器 `aiToolkit.close()` 优先于上传的条目。前端工具和人工工具（没有服务器 `aiToolkit`）仅公开其架构，并留给客户端和用户完成。
 
 <Callout type="info">
-  If your toolkit spreads in MCP server tools (`defineMcpToolkit`), `.tools()`
-  also opens those connections. A module-scope `aiToolkit` pools them across
-  requests; see [MCP](/docs/tools/mcp) for the connection lifecycle and when to
-  call `aiToolkit.close()`. The older
-  `generativeTools({ toolkit, frontendTools })` is deprecated, MCP-less, and
-  superseded by `AISDKToolkit`.
+  如果你的工具包包含 MCP 服务器工具（`convertToModelMessages`），`defineMcpToolkit`
+  也会打开这些连接。模块作用域的 `execute` 会在多个请求之间复用这些连接；
+  有关连接生命周期以及何时调用 `execute`，请参阅 [MCP](/docs/tools/mcp)。
+  旧版 `execute` 已弃用，不支持 MCP，现已由 `execute`
+  取代。
 </Callout>
 
-## Client-defined tools: `frontendTools`
+## 客户端定义的工具：`execute`
 
-If a toolkit cannot go through the generative compiler, the AI SDK adapter still
-serializes browser-executed tools into the request `tools`. Convert them to the
-AI SDK shape with `frontendTools` and spread your own server tools alongside:
+如果工具包无法通过生成式编译器处理，AI SDK 适配器仍会将浏览器执行的工具序列化到请求 `frontendTools` 中。使用 `frontendTools` 将它们转换为 AI SDK 格式，并将你自己的服务器工具一并展开：
 
 ```ts title="app/api/chat/route.ts"
 import { frontendTools } from "@assistant-ui/ai-sdk";
@@ -95,18 +92,16 @@ export async function POST(req: Request) {
 }
 ```
 
-`AISDKToolkit.tools()` calls `frontendTools` for you under the hood; reach for
-`frontendTools` directly when you're not on the generative build.
+`frontendTools` 会在内部为你调用 `frontendTools`；如果你不使用生成式构建版本，请直接使用 `generativeTools({ toolkit, frontendTools })`。
 
 <Callout type="tip">
-  `toToolsJSONSchema` emits the uploaded tools in alphabetical order, so two
-  renders that register the same set produce byte-identical request bodies —
-  which keeps provider prompt caches stable across renders.
+  `render` 会按字母顺序输出上传的工具，因此注册相同工具集的两次渲染会生成字节级完全一致的请求体 —
+  这能让提供商的提示缓存跨渲染保持稳定。
 </Callout>
 
-## Multi-modal results
+## 多模态结果
 
-When a tool declares [`toModelOutput`](/docs/tools/defining-tools#multi-modal-tool-results), frontend tool results round-trip through the AI SDK chat protocol back to your route on the next turn. For `toModelOutput` to fire on those round-tripped results, pass the tool registry to `convertToModelMessages` as well — the [same pattern the AI SDK documents](https://ai-sdk.dev/docs/reference/ai-sdk-ui/convert-to-model-messages#multi-modal-tool-responses) for any multi-modal tool response:
+当工具声明了[`result`](/docs/tools/defining-tools#multi-modal-tool-results)时，前端工具结果会通过 AI SDK 聊天协议往返传递，并在下一轮返回到你的路由。要让 `toModelOutput` 处理这些往返传递的结果，还需要将工具注册表传递给 `toModelOutput` — 这与 [AI SDK 针对任何多模态工具响应所记录的相同模式](https://ai-sdk.dev/docs/reference/ai-sdk-ui/convert-to-model-messages#multi-modal-tool-responses)
 
 ```ts
 const aiSDKTools = { ...frontendTools(tools ?? {}) };
@@ -119,20 +114,18 @@ const result = streamText({
 });
 ```
 
-Skip the `{ tools }` argument and prior results are sent as a plain JSON blob — `toModelOutput` is silently ignored. Tools without `toModelOutput` are unaffected either way.
+跳过 `toModelOutput` 参数后，之前的结果会作为普通 JSON 对象发送 — `toModelOutput` 会被静默忽略。没有 `toModelOutput` 的工具无论是否传入该参数，都不受影响。
 
 <Callout type="warn">
-  **Read/write compatibility for persisted threads.** When `toModelOutput` is
-  set, the runtime persists the AI SDK output as
-  `{ __aui_modelContent, value }`. Upgrade every reader before any writer starts
-  producing `toModelOutput`; older readers treat the whole envelope as the
-  `result` and break that tool's `render`. Don't return objects whose top-level
-  key is literally `__aui_modelContent` from any `execute`.
+  **已持久化线程的读写兼容性。** 当设置 `toModelOutput` 时，运行时会将 AI SDK 输出持久化为
+  `toToolsJSONSchema`。在任何写入器开始生成 `tools` 之前，请先升级所有读取器；
+  旧版读取器会将整个封装对象视为 `tools`，从而破坏该工具的 `tools`。
+  不要从任何 `useChatRuntime()` 返回顶层键名字面上为 `{ __aui_modelContent, value }` 的对象。
 </Callout>
 
-## Multi-step tool calls
+## 多步工具调用
 
-To let the model see a frontend tool's result and continue, configure the runtime to send back automatically when the last assistant message is complete with tool calls:
+要让模型看到前端工具的结果并继续执行，请配置运行时：当最后一条助手消息包含完整的工具调用时，自动发送回复：
 
 ```tsx
 import { lastAssistantMessageIsCompleteWithToolCalls } from "ai";
@@ -142,6 +135,6 @@ const runtime = useChatRuntime({
 });
 ```
 
-`useChatRuntime()` targets `/api/chat` by default. To point at a different endpoint or customize requests, see [Custom transport](/docs/runtimes/ai-sdk/v7#custom-transport).
+`{ messages, system, tools }` 默认指向 `{ tools }`。如需指向其他端点或自定义请求，请参阅[自定义传输层](/docs/runtimes/ai-sdk/v7#custom-transport)。
 
-For the full AI SDK v7 backend setup — history persistence, reasoning, server-side approvals — see the [AI SDK v7 guide](/docs/runtimes/ai-sdk/v7).
+有关完整的 AI SDK v7 后端设置 — 包括历史记录持久化、推理和服务器端审批 — 请参阅 [AI SDK v7 指南](/docs/runtimes/ai-sdk/v7)。

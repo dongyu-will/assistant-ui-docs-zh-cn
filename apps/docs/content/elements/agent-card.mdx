@@ -1,20 +1,20 @@
 ---
-title: "Agent card"
-description: "Who you are about to talk to: its skills, its model, and the endpoint behind it."
+title: "代理卡片"
+description: "你即将与谁交谈：它的技能、模型以及背后的端点。"
 ---
 
-An agent card is the identity a remote agent presents before you talk to it: a name, what it can do, and where it lives. With a runtime the card comes from the A2A agent you connected to; standalone you supply the same fields yourself.
+代理卡片是远程代理在你与其交谈前展示的身份信息：名称、能力以及所在位置。在运行时中，卡片来自你连接的 A2A 代理；在独立模式下，则由你自行提供相同的字段。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-`@assistant-ui/react-a2a` fetches the remote agent's card as part of connecting to it, and exposes it through a read-only hook.
+`@assistant-ui/react-a2a` 会在连接远程代理的过程中获取其代理卡片，并通过只读 Hook 暴露该卡片。
 
 <Steps>
   <Step>
 
-### Connect to the agent
+### 连接代理
 
 ```tsx title="app/A2AProvider.tsx"
 "use client";
@@ -35,7 +35,7 @@ export function A2AProvider({ children }: { children: React.ReactNode }) {
   </Step>
   <Step>
 
-### Render the discovered card
+### 渲染发现的卡片
 
 ```tsx title="components/assistant-ui/elements/connected-agent-card.tsx"
 "use client";
@@ -65,7 +65,7 @@ export function ConnectedAgentCard() {
 }
 ```
 
-`useA2AAgentCard` returns `undefined` until the client has fetched the card, so the connect check above stands in for a loading state. The A2A protocol has no model identifier on the card itself and no separate connect step beyond reaching the agent, which is why `model` is a value your app supplies and `connected` is simply `true` once the card exists.
+`useA2AAgentCard` 会在客户端获取卡片之前返回 `undefined`，因此上面的连接检查可以充当加载状态。A2A 协议本身的卡片中没有模型标识符，除了到达代理之外也没有单独的连接步骤，因此 `model` 是由你的应用提供的值，而卡片存在后，`connected` 就只是 `true`。
 
   </Step>
 </Steps>
@@ -74,12 +74,12 @@ export function ConnectedAgentCard() {
 
 <StandaloneMode>
 
-Standalone, every field is a prop; nothing is fetched for you.
+在独立模式下，每个字段都是一个 prop；不会为你获取任何内容。
 
 <Steps>
   <Step>
 
-### Render a card from data you hold
+### 从已有数据渲染卡片
 
 ```tsx title="app/agents/[id]/page.tsx"
 import { AgentCard } from "@/components/assistant-ui/elements/agent-card";
@@ -109,7 +109,7 @@ export default function AgentPage() {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="agent-card">
@@ -130,13 +130,13 @@ export default function AgentPage() {
 </div>
 ```
 
-The name, provider, endpoint, and model text all truncate rather than wrap. The button is the only interactive part: while `connected` is true it renders disabled with a check icon and the label "Connected"; otherwise it calls `onConnect` on click. An empty `skills` array simply renders no rows in that section, with no placeholder text.
+名称、提供商、端点和模型文本都会截断，而不会换行。按钮是唯一的交互部分：当 `connected` 为 true 时，按钮会显示为禁用状态，并带有勾选图标和“已连接”标签；否则，点击时会调用 `onConnect`。空的 `skills` 数组只会让该部分不渲染任何行，不会显示占位文本。
 
-## Examples
+## 示例
 
-### Skills list
+### 技能列表
 
-Each skill is a name and a one-line description; the name renders in the shared `field` pill token.
+每项技能包含名称和一行描述；名称会渲染在共享的 `field` 徽标标记中。
 
 ```tsx
 <AgentCard
@@ -148,11 +148,11 @@ Each skill is a name and a one-line description; the name renders in the shared 
 />
 ```
 
-### Fetching your own agent registry
+### 获取你自己的代理注册表
 
 <StandaloneMode>
 
-A common standalone case is a directory of agents you maintain yourself, not an A2A endpoint. Hold the fetched record in state and render nothing until it arrives:
+一种常见的独立模式场景是维护自己的代理目录，而不是使用 A2A 端点。将获取到的记录保存在状态中，并在记录到达之前不渲染任何内容：
 
 ```tsx
 "use client";
@@ -176,27 +176,27 @@ export function AgentDirectoryCard({ id }: { id: string }) {
 
 </StandaloneMode>
 
-### Restyle the card
+### 重新设置卡片样式
 
-The root uses the shared `paper` surface; the version badge, endpoint, and model use `mono`; the connected state and skill names use `field`. Restyling those tokens in `surfaces.tsx` restyles every element built on them.
+根元素使用共享的 `paper` 表面；版本徽标、端点和模型使用 `mono`；连接状态和技能名称使用 `field`。在 `surfaces.tsx` 中重新设置这些标记的样式后，所有基于它们构建的元素都会同步应用新样式。
 
 ```tsx
 <AgentCard className="max-w-md rounded-3xl" {...rest} />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### Hook
 
-| Hook | Returns | Description |
+| Hook | 返回值 | 描述 |
 |------|---------|-------------|
-| `useA2AAgentCard()` | `A2AAgentCard \| undefined` | The card fetched for the connected agent; `undefined` before it resolves. |
+| `useA2AAgentCard()` | `A2AAgentCard \| undefined` | 为已连接代理获取的卡片；解析完成前为 `undefined`。 |
 
-### Mapping A2AAgentCard onto AgentCard
+### 将 A2AAgentCard 映射到 AgentCard
 
-| `AgentCard` prop | Source |
+| `AgentCard` prop | 来源 |
 |-------------------|--------|
 | `name` | `agentCard.name` |
 | `description` | `agentCard.description` |
@@ -204,8 +204,8 @@ The root uses the shared `paper` surface; the version badge, endpoint, and model
 | `version` | `agentCard.version` |
 | `endpoint` | `agentCard.supportedInterfaces[0]?.url` |
 | `skills` | `agentCard.skills.map(s => ({ name: s.name, description: s.description }))` |
-| `model` | Not present on `A2AAgentCard`; supply your own label. |
-| `connected` | `true` once `agentCard` is defined; A2A has no separate connect step. |
+| `model` | `A2AAgentCard` 中不存在；请提供自己的标签。 |
+| `connected` | `agentCard` 定义后为 `true`；A2A 没有单独的连接步骤。 |
 
 </RuntimeMode>
 
@@ -213,26 +213,26 @@ The root uses the shared `paper` surface; the version badge, endpoint, and model
 
 ### AgentCard
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `name` | `string` | required | Agent name, truncated. |
-| `description` | `string` | required | One paragraph, shown in full. |
-| `provider` | `string` | required | Shown under the name, truncated. |
-| `version` | `string` | required | Rendered as `v{version}` next to the name. |
-| `model` | `string` | required | Shown in the footer row, truncated. |
-| `endpoint` | `string` | required | Shown in the footer row, truncated. |
-| `skills` | `readonly AgentSkill[]` | required | Rendered as name/description rows; empty renders nothing. |
-| `connected` | `boolean` | required | Disables the button and swaps its label/icon when true. |
-| `onConnect` | `() => void` | | Called when the button is clicked while `connected` is false. |
-| `className` | `string` | | Merged onto the root. |
+| `name` | `string` | 必填 | 代理名称，会截断。 |
+| `description` | `string` | 必填 | 一段完整显示的文字。 |
+| `provider` | `string` | 必填 | 显示在名称下方，会截断。 |
+| `version` | `string` | 必填 | 以 `v{version}` 的形式显示在名称旁边。 |
+| `model` | `string` | 必填 | 显示在页脚行中，会截断。 |
+| `endpoint` | `string` | 必填 | 显示在页脚行中，会截断。 |
+| `skills` | `readonly AgentSkill[]` | 必填 | 渲染为名称/描述行；为空时不渲染任何内容。 |
+| `connected` | `boolean` | 必填 | 为 true 时禁用按钮，并替换其标签和图标。 |
+| `onConnect` | `() => void` | | 当按钮点击时 `connected` 为 false，会调用此函数。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### AgentSkill
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `name` | `string` | Shown as a pill. |
-| `description` | `string` | Shown beside the pill, truncated. |
+| `name` | `string` | 显示为徽标。 |
+| `description` | `string` | 显示在徽标旁边，会截断。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` props 都会转发到根元素。
 
 </StandaloneMode>

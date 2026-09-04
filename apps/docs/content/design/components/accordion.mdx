@@ -1,10 +1,10 @@
 ---
 title: Accordion
-description: Stacked headings that reveal or hide content sections.
+description: 用于显示或隐藏内容分区的堆叠标题。
 links:
-  - label: Radix UI Accordion (Radix styles)
+  - label: Radix UI Accordion（Radix 样式）
     url: https://www.radix-ui.com/primitives/docs/components/accordion
-  - label: Base UI Accordion (base styles)
+  - label: Base UI Accordion（基础样式）
     url: https://base-ui.com/react/components/accordion
 ---
 
@@ -23,11 +23,11 @@ import { Flavored, FlavorSwitcher } from "@/components/pages/docs/contexts/flavo
 
 <Flavored radix={<AccordionRadixSamples.AccordionSample />} base={<AccordionSample />} />
 
-## Installation
+## 安装
 
 <InstallCommand shadcn={["accordion"]} />
 
-## Usage
+## 用法
 
 ```tsx
 import {
@@ -53,46 +53,46 @@ export function Example() {
 }
 ```
 
-Base UI represents the open value as an array and uses the `multiple` prop. Radix uses `type="single"` or `type="multiple"` and represents a single open value as a string.
+Base UI 将打开值表示为数组，并使用 `multiple` 属性。Radix 使用 `type="single"` 或 `type="multiple"`，并将单个打开值表示为字符串。
 
-## Examples
+## 示例
 
-### Multiple items open
+### 同时打开多个项目
 
 <Flavored radix={<AccordionRadixSamples.AccordionMultipleSample />} base={<AccordionMultipleSample />} />
 
-### With icons
+### 添加图标
 
-Add icons or custom content inside the trigger.
+在触发器中添加图标或自定义内容。
 
 <PreviewCode file="components/pages/docs/samples/accordion" name="AccordionWithIconsSample" base={<AccordionWithIconsSample />}>
   <AccordionRadixSamples.AccordionWithIconsSample />
 </PreviewCode>
 
-### Controlled
+### 受控模式
 
-Use `value` and `onValueChange` for controlled accordion state.
+使用 `value` 和 `onValueChange` 管理受控 Accordion 状态。
 
 <PreviewCode file="components/pages/docs/samples/accordion" name="AccordionControlledSample" base={<AccordionControlledSample />}>
   <AccordionRadixSamples.AccordionControlledSample />
 </PreviewCode>
 
-### FAQ section
+### FAQ 分区
 
 <PreviewCode file="components/pages/docs/samples/accordion" name="AccordionFAQSample" base={<AccordionFAQSample />}>
   <AccordionRadixSamples.AccordionFAQSample />
 </PreviewCode>
 
-## API Reference
+## API 参考
 
-### Composable API
+### 可组合 API
 
-| Component | Description |
+| 组件 | 描述 |
 |-----------|-------------|
-| `Accordion` | The root component that manages open items. |
-| `AccordionItem` | A collapsible section container. |
-| `AccordionTrigger` | The control that toggles a section. |
-| `AccordionContent` | The collapsible content panel. |
+| `Accordion` | 管理打开项目的根组件。 |
+| `AccordionItem` | 可折叠的分区容器。 |
+| `AccordionTrigger` | 用于切换分区的控件。 |
+| `AccordionContent` | 可折叠的内容面板。 |
 
 ### Accordion
 
@@ -102,38 +102,38 @@ Use `value` and `onValueChange` for controlled accordion state.
     {
       name: "defaultValue",
       type: "string[] | string",
-      description: "The initial open value. Base UI uses an array; single-value Radix accordions use a string.",
+      description: "初始打开值。Base UI 使用数组；单值 Radix Accordion 使用字符串。",
     },
     {
       name: "value",
       type: "string[] | string",
-      description: "The controlled open value for the selected flavor.",
+      description: "所选风格对应的受控打开值。",
     },
     {
       name: "onValueChange",
       type: "(value: string[] | string) => void",
-      description: "Called when the open items change.",
+      description: "打开项目发生变化时调用。",
     },
     {
       name: "multiple",
       type: "boolean",
       default: "false",
-      description: "Base UI: whether multiple items can be open.",
+      description: "Base UI：是否可以同时打开多个项目。",
     },
     {
       name: "type",
       type: '"single" | "multiple"',
-      description: "Radix: whether one or multiple items can be open.",
+      description: "Radix：可以打开一个还是多个项目。",
     },
     {
       name: "collapsible",
       type: "boolean",
-      description: "Radix single mode: whether the open item can close.",
+      description: "Radix 单值模式：打开的项目是否可以关闭。",
     },
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes.",
+      description: "额外的 CSS 类。",
     },
   ]}
 />
@@ -147,17 +147,17 @@ Use `value` and `onValueChange` for controlled accordion state.
       name: "value",
       type: "string",
       required: true,
-      description: "The unique value for the item.",
+      description: "项目的唯一值。",
     },
     {
       name: "disabled",
       type: "boolean",
-      description: "Whether the item is disabled.",
+      description: "项目是否已禁用。",
     },
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes.",
+      description: "额外的 CSS 类。",
     },
   ]}
 />
@@ -170,7 +170,7 @@ Use `value` and `onValueChange` for controlled accordion state.
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes.",
+      description: "额外的 CSS 类。",
     },
   ]}
 />
@@ -183,7 +183,7 @@ Use `value` and `onValueChange` for controlled accordion state.
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes for the panel content.",
+      description: "面板内容的额外 CSS 类。",
     },
   ]}
 />

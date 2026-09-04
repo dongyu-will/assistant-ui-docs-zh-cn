@@ -1,20 +1,20 @@
 ---
-title: "Timeline"
-description: "Events on a time axis, with what already happened and what is still coming."
+title: "时间线"
+description: "时间轴上的事件，展示已发生的内容和即将发生的内容。"
 ---
 
-A sequence of events on a vertical axis, each dated, joined by a connecting line that runs solid through the past and turns hollow once it crosses into the future. With a runtime the events come from a tool result; standalone you hold the event list yourself.
+垂直轴上的一系列事件，每个事件均标有日期，并由连接线串联；连接线在过去部分为实线，跨入未来后变为空心线。在运行时中，事件来自工具结果；独立使用时，则由你自行维护事件列表。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-This element has no assistant-ui primitive of its own, so the runtime wiring is a tool renderer rather than a primitive composition. A timeline is usually a genuine lookup against something you track elsewhere, so the events belong on the tool's `result` rather than on its streamed `args`.
+此元素没有自己的 assistant-ui 原语，因此运行时接线使用的是工具渲染器，而非原语组合。时间线通常是针对你在其他位置跟踪内容的真实查询，因此事件应位于工具的 `result` 上，而不是其流式传输的 `args` 上。
 
 <Steps>
   <Step>
 
-### Register the render function
+### 注册渲染函数
 
 ```tsx title="app/toolkit.tsx"
 "use client";
@@ -38,12 +38,12 @@ export const toolkit = defineToolkit({
 });
 ```
 
-Because the whole timeline lands as one result rather than as streamed steps, `visibleCount` is simply `result.events.length`; there is no partial state to size it against.
+由于整个时间线会作为一个结果返回，而不是以流式步骤返回，`visibleCount` 就是 `result.events.length`；没有需要据此确定大小的部分状态。
 
   </Step>
   <Step>
 
-### Let the message list render it
+### 让消息列表渲染它
 
 ```tsx title="app/MyRuntimeProvider.tsx"
 import {
@@ -69,7 +69,7 @@ export function MyRuntimeProvider({
 }
 ```
 
-Once the toolkit is registered, `Thread` and any custom message list built on assistant-ui's message part primitives (`MessagePrimitive.Parts` or `MessagePrimitive.GroupedParts`) render the registered UI automatically wherever the `get_incident_timeline` call appears in the message, so nothing needs to be placed by hand.
+注册 toolkit 后，`Thread` 以及任何基于 assistant-ui 消息部分原语（`MessagePrimitive.Parts` 或 `MessagePrimitive.GroupedParts`）构建的自定义消息列表，都会在消息中出现 `get_incident_timeline` 调用的位置自动渲染已注册的 UI，无需手动放置任何内容。
 
   </Step>
 </Steps>
@@ -78,12 +78,12 @@ Once the toolkit is registered, `Thread` and any custom message list built on as
 
 <StandaloneMode>
 
-Standalone, the element is a plain display component: it owns no state of its own, so the minimal usage is a constant set of events shown all at once.
+独立使用时，此元素是一个普通展示组件：它不维护自身状态，因此最简单的用法是一次性展示一组固定事件。
 
 <Steps>
   <Step>
 
-### Pass the events straight through
+### 直接传入事件
 
 ```tsx title="app/issue-timeline.tsx"
 "use client";
@@ -108,7 +108,7 @@ export function IssueTimeline() {
   </Step>
   <Step>
 
-### Reveal events on your own schedule
+### 按自己的节奏显示事件
 
 ```tsx
 "use client";
@@ -133,7 +133,7 @@ export function IssueTimeline() {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="timeline">
@@ -150,13 +150,13 @@ export function IssueTimeline() {
 </div>
 ```
 
-`visibleCount` is floored and clamped into `0…events.length` the same way it is on the other structured output elements: NaN or a negative number maps to 0, and any value past the array length maps to the array length. Rows render in whatever order you pass `events`; the component never sorts by `time` or by `when`. The connecting line after the last visible row is omitted, so a partial reveal never trails a dangling line past the last shown dot. A dot and its connector are colored only by that event's own `when`: `"now"` fills solid blue with a ring around it, `"past"` fills solid gray, and `"future"` is a hollow outline with a dimmer connecting segment; position in the list plays no part.
+与其他结构化输出元素一样，`visibleCount` 会向下取整并限制在 `0…events.length` 范围内：NaN 或负数会映射为 0，超过数组长度的任何值会映射为数组长度。各行会按你传入 `events` 的顺序渲染；组件绝不会按 `time` 或 `when` 排序。最后一个可见行之后的连接线会被省略，因此部分显示时不会在最后一个已显示圆点后留下悬空线段。圆点及其连接线的颜色仅由该事件自身的 `when` 决定：`"now"` 显示为实心蓝色，外围带圆环；`"past"` 显示为实心灰色；`"future"` 显示为空心轮廓，并使用较暗的连接线段；列表中的位置不会产生任何影响。
 
-## Examples
+## 示例
 
-### Past, now, and future
+### 过去、现在和未来
 
-Only one event in a timeline should usually carry `"now"`, since it is the only value that bolds the title and adds the ring around the dot. Nothing in the component enforces that; you decide which event, if any, is current.
+一条时间线中通常应只有一个事件带有 `"now"`，因为它是唯一会加粗标题并在圆点外围添加圆环的值。组件不会对此施加限制；由你决定哪个事件（如果有）是当前事件。
 
 ```tsx
 const events: readonly TimelineEvent[] = [
@@ -166,11 +166,11 @@ const events: readonly TimelineEvent[] = [
 ];
 ```
 
-### Where the events come from
+### 事件来源
 
 <RuntimeMode>
 
-The backend entry declares only the lookup key. The model supplies `issueId`, your server resolves the rest, including which event counts as `"now"`, and the client renderer never sees anything but the finished shape.
+后端入口只声明查询键。模型提供 `issueId`，你的服务器解析其余内容，包括哪个事件算作 `"now"`，而客户端渲染器只会看到最终完成的数据结构。
 
 ```ts title="app/api/chat/route.ts"
 get_incident_timeline: tool({
@@ -184,7 +184,7 @@ get_incident_timeline: tool({
 
 <StandaloneMode>
 
-When the events come from your own request rather than a fixed constant, fetch them once and reset the reveal count so the animation plays from the start.
+当事件来自你自己的请求而非固定常量时，获取一次事件后重置显示计数，以便动画从头开始播放。
 
 ```tsx
 async function loadTimeline(issueId: string) {
@@ -196,34 +196,35 @@ async function loadTimeline(issueId: string) {
 
 </StandaloneMode>
 
-### Restyle the timeline
+### 重设时间线样式
 
-Both lanes take `className` on the root. The time column uses the shared `mono` surface from `surfaces.tsx`, so restyling that token restyles every element that uses it.
+两个区域都可在根元素上接受 `className`。时间列使用来自 `surfaces.tsx` 的共享 `mono` 表面，因此重设该 token 的样式会重设使用它的所有元素。
+
 
 ```tsx
 <Timeline className="max-w-none gap-0" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Render props
+### 渲染 props
 
-| Prop | Type | Description |
+| Prop | 类型 | 描述 |
 |------|------|-------------|
-| `args` | `{ issueId: string }` | The tool's arguments, the lookup key the model supplied. |
-| `result` | `{ events: TimelineEvent[] } \| undefined` | The finished timeline, undefined until the backend executor resolves. |
+| `args` | `{ issueId: string }` | 工具的参数，即模型提供的查询键。 |
+| `result` | `{ events: TimelineEvent[] } \| undefined` | 已完成的时间线；在后端执行器解析完成前为 undefined。 |
 
-### get_incident_timeline result
+### get_incident_timeline 结果
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `events[].id` | `string` | Stable identifier, used as the React key. |
-| `events[].when` | `"past" \| "now" \| "future"` | Decides the dot, connector, and title styling for that row. |
-| `events[].time` | `string` | Shown in the time column, in monospace. |
-| `events[].title` | `string` | The event's headline. |
-| `events[].detail` | `string` | Optional line under the title. |
+| `events[].id` | `string` | 稳定标识符，用作 React key。 |
+| `events[].when` | `"past" \| "now" \| "future"` | 决定该行圆点、连接线和标题的样式。 |
+| `events[].time` | `string` | 在时间列中以等宽字体显示。 |
+| `events[].title` | `string` | 事件标题。 |
+| `events[].detail` | `string` | 标题下方的可选文本行。 |
 
 </RuntimeMode>
 
@@ -231,22 +232,22 @@ Both lanes take `className` on the root. The time column uses the shared `mono` 
 
 ### Timeline
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `events` | `readonly TimelineEvent[]` | required | The full list of events, only the first `visibleCount` render. |
-| `visibleCount` | `number` | required | How many events to show, floored and clamped into `0…events.length`. |
-| `className` | `string` | | Merged onto the root. |
+| `events` | `readonly TimelineEvent[]` | 必填 | 完整事件列表，仅渲染前 `visibleCount` 个。 |
+| `visibleCount` | `number` | 必填 | 要显示的事件数量，向下取整并限制在 `0…events.length` 范围内。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` props 都会转发给根元素。
 
 ### TimelineEvent
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `id` | `string` | Stable identifier, used as the React key. |
-| `when` | `"past" \| "now" \| "future"` | Decides the dot, connector, and title styling for that row. |
-| `time` | `string` | Shown in the time column, in monospace. |
-| `title` | `string` | The event's headline. |
-| `detail` | `string` | Optional line under the title. |
+| `id` | `string` | 稳定标识符，用作 React key。 |
+| `when` | `"past" \| "now" \| "future"` | 决定该行圆点、连接线和标题的样式。 |
+| `time` | `string` | 在时间列中以等宽字体显示。 |
+| `title` | `string` | 事件标题。 |
+| `detail` | `string` | 标题下方的可选文本行。 |
 
 </StandaloneMode>

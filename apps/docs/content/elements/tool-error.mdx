@@ -1,20 +1,20 @@
 ---
-title: "Tool failure"
-description: "One call failed. The error, the attempt count, and a retry that doesn't restart the turn."
+title: "工具失败"
+description: "一次调用失败。错误、尝试次数，以及不会重新开始线程的重试方式。"
 ---
 
-A failed tool call gets its own card: what was called, the error, how many attempts it's had, and a way to retry or skip. With a runtime the failure comes from the tool call's status; standalone you hold the attempt and message yourself.
+失败的工具调用会显示为独立卡片，其中包含调用内容、错误信息、尝试次数，以及重试或跳过的方式。在运行时中，失败信息来自工具调用的状态；在独立使用时，则需要自行保存尝试次数和消息。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-A failed call is one whose status settled on `"incomplete"`. Branch on it inside the same renderer that shows the tool's normal result.
+状态最终确定为 `"incomplete"` 的调用即为失败调用。在显示工具正常结果的同一个渲染器中对它进行分支处理。
 
 <Steps>
   <Step>
 
-### Render the failure from the toolkit entry
+### 从工具包条目渲染失败状态
 
 ```tsx title="app/search-toolkit.tsx"
 "use client";
@@ -48,12 +48,12 @@ function SearchTool({ toolName, args, status, result }: ToolCallMessagePartProps
 }
 ```
 
-`status.error` carries whatever the failed `execute` threw or whatever the backend reported; it's `unknown`, so guard the string case before rendering it directly.
+`status.error` 携带失败的 `execute` 抛出的内容或后端报告的内容；它是 `unknown`，因此在直接渲染前，请先处理字符串类型的情况。
 
   </Step>
   <Step>
 
-### Regenerate the turn to retry
+### 重新生成线程以进行重试
 
 ```tsx title="app/providers.tsx"
 import { AuiConfig, AuiProvider, Tools, defineToolkit, useAui } from "@assistant-ui/react";
@@ -81,7 +81,7 @@ function Providers({ children }: { children: React.ReactNode }) {
 }
 ```
 
-assistant-ui doesn't retry a single tool call in place; `aui.message.reload()` reissues the whole turn, which calls `search_web` again with a fresh attempt.
+assistant-ui 不会原地重试单个工具调用；`aui.message.reload()` 会重新发起整个线程，并以全新的尝试再次调用 `search_web`。
 
   </Step>
 </Steps>
@@ -90,12 +90,12 @@ assistant-ui doesn't retry a single tool call in place; `aui.message.reload()` r
 
 <StandaloneMode>
 
-Standalone, there's no turn to restart: `onRetry` can call whatever produced the failure again directly, and the attempt count is yours to track.
+独立使用时，没有可重新开始的线程：`onRetry` 可以直接再次调用产生失败的内容，尝试次数则由你自行跟踪。
 
 <Steps>
   <Step>
 
-### Hold the attempt count
+### 保存尝试次数
 
 ```tsx title="app/search-failure.tsx"
 "use client";
@@ -125,7 +125,7 @@ export function SearchFailure({ query }: { query: string }) {
   </Step>
   <Step>
 
-### Retry without restarting the turn
+### 不重新开始线程而进行重试
 
 ```tsx
 async function retry(query: string) {
@@ -147,7 +147,7 @@ async function retry(query: string) {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="tool-error">
@@ -160,15 +160,15 @@ async function retry(query: string) {
 </div>
 ```
 
-Skip has no default behavior: passing no `onSkip` leaves the button rendered but disabled, so a card with only a retry path still shows both actions. Retry disables itself while `retrying` is true and swaps its icon for a spinner; nothing else in the card reacts to `retrying`.
+跳过操作没有默认行为：不传入 `onSkip` 时，按钮仍会渲染但处于禁用状态，因此即使卡片只有重试路径，也仍会显示两个操作。`retrying` 为 true 时，重试按钮会自行禁用，并将图标替换为加载指示器；卡片中的其他内容不会响应 `retrying`。
 
-## Examples
+## 示例
 
-### Read the real failure reason
+### 读取实际的失败原因
 
 <RuntimeMode>
 
-`status.type === "incomplete"` covers more than tool errors: `status.reason` can also be `"cancelled"`, `"length"`, `"content-filter"`, or `"other"`. Only show the retry card for `"error"`, and give the rest their own message:
+`status.type === "incomplete"` 不仅涵盖工具错误：`status.reason` 也可能是 `"cancelled"`、`"length"`、`"content-filter"` 或 `"other"`。仅针对 `"error"` 显示重试卡片，其余情况使用各自的消息：
 
 ```tsx
 if (status?.type === "incomplete" && status.reason !== "error") {
@@ -178,23 +178,23 @@ if (status?.type === "incomplete" && status.reason !== "error") {
 
 </RuntimeMode>
 
-### Restyle the card
+### 重新设置卡片样式
 
-Both lanes take `className` on the root. The root uses the shared `paper` surface, the message box uses `field`, and the name and attempt counter use `mono`, so retargeting those tokens in `surfaces.tsx` restyles this card along with everything else built on them. The skip and retry buttons keep their own inline classes rather than a shared token.
+两个区域的根元素都接收 `className`。根元素使用共享的 `paper` 表面样式，消息框使用 `field`，名称和尝试次数使用 `mono`，因此在 `surfaces.tsx` 中重新指定这些令牌后，这张卡片以及所有基于它们构建的内容都会同步更新样式。跳过和重试按钮使用各自的内联类，而不是共享令牌。
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool call status
+### 工具调用状态
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `status.type` | `"running" \| "complete" \| "incomplete" \| "requires-action"` | `"incomplete"` is the failed (or cancelled) state. |
-| `status.reason` | `"cancelled" \| "length" \| "content-filter" \| "other" \| "error"` | Only present when `status.type` is `"incomplete"`. |
-| `status.error` | `unknown` | Only present when `status.type` is `"incomplete"`; the thrown value or backend-reported error. |
-| `useToolCallElapsed()` | `number \| undefined` | Elapsed time for the current call; `undefined` once it has settled with no recorded duration. |
-| `aui.message.reload()` | `() => void` | Reissues the current assistant turn, including its tool calls. |
+| `status.type` | `"running" \| "complete" \| "incomplete" \| "requires-action"` | `"incomplete"` 表示失败（或已取消）状态。 |
+| `status.reason` | `"cancelled" \| "length" \| "content-filter" \| "other" \| "error"` | 仅当 `status.type` 为 `"incomplete"` 时存在。 |
+| `status.error` | `unknown` | 仅当 `status.type` 为 `"incomplete"` 时存在；表示抛出的值或后端报告的错误。 |
+| `useToolCallElapsed()` | `number \| undefined` | 当前调用经过的时间；在调用完成且没有记录时长后为 `undefined`。 |
+| `aui.message.reload()` | `() => void` | 重新发起当前助手线程，包括其中的工具调用。 |
 
 </RuntimeMode>
 
@@ -202,18 +202,18 @@ Both lanes take `className` on the root. The root uses the shared `paper` surfac
 
 ### ToolError
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `name` | `string` | required | Tool name. |
-| `target` | `string` | required | What the call acted on. |
-| `message` | `string` | required | The error text. |
-| `attempt` | `number` | required | Current attempt number. |
-| `maxAttempts` | `number` | required | Attempts allowed. |
-| `retrying` | `boolean` | required | Disables and spins the retry button while true. |
-| `onRetry` | `() => void` | | Called from the retry button. |
-| `onSkip` | `() => void` | | Called from the skip button. Omit it and the button stays disabled. |
-| `className` | `string` | | Merged onto the root. |
+| `name` | `string` | 必填 | 工具名称。 |
+| `target` | `string` | 必填 | 调用操作的对象。 |
+| `message` | `string` | 必填 | 错误文本。 |
+| `attempt` | `number` | 必填 | 当前尝试次数。 |
+| `maxAttempts` | `number` | 必填 | 允许的尝试次数。 |
+| `retrying` | `boolean` | 必填 | 为 true 时禁用重试按钮并显示加载状态。 |
+| `onRetry` | `() => void` | | 从重试按钮调用。 |
+| `onSkip` | `() => void` | | 从跳过按钮调用。不传入时，按钮保持禁用状态。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` props 都会转发到根元素。
 
 </StandaloneMode>

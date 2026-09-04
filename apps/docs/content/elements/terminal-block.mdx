@@ -1,18 +1,18 @@
 ---
-title: "Terminal block"
-description: "Command output that streams line by line and ends with an exit status."
+title: "终端块"
+description: "按行流式传输并以退出状态结束的命令输出。"
 ---
 
-A terminal block echoes a command and reveals its output one line at a time, ending in a checkmark once it settles or a blinking cursor while it runs. With a runtime the command and its lines come from a tool call's args and result; standalone you supply both directly.
+终端块会回显命令，并逐行显示其输出；命令完成后显示对勾，运行期间则显示闪烁的光标。在运行时中，命令及其各行输出来自工具调用的参数和结果；单独使用时，则需要直接提供这两者。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
 <Steps>
   <Step>
 
-### Render the tool call
+### 渲染工具调用
 
 ```tsx title="components/assistant-ui/elements/run-command-tool-ui.tsx"
 "use client";
@@ -42,7 +42,7 @@ export const RunCommandToolUI: ToolCallMessagePartComponent<
   </Step>
   <Step>
 
-### Register the tool
+### 注册工具
 
 ```tsx title="app/toolkit.ts"
 import { defineToolkit } from "@assistant-ui/react";
@@ -72,7 +72,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-The backend that owns `run_command` supplies its schema and executor; see [Backend tools](/docs/tools/backend).
+拥有 `run_command` 的后端会提供其架构和执行器；请参阅[后端工具](/docs/tools/backend)。
 
   </Step>
 </Steps>
@@ -84,7 +84,7 @@ The backend that owns `run_command` supplies its schema and executor; see [Backe
 <Steps>
   <Step>
 
-### Hold the command and its lines
+### 保存命令及其各行输出
 
 ```tsx title="app/run.tsx"
 "use client";
@@ -108,9 +108,9 @@ export function TestRun() {
   </Step>
   <Step>
 
-### Show it running
+### 显示运行状态
 
-Flip `done` to `false` while the process is in flight; the header swaps its checkmark for a spinner and a cursor blinks after the last visible line:
+进程运行期间，将 `done` 切换为 `false`；标题中的对勾会替换为加载指示器，并在最后一行可见输出之后显示闪烁的光标：
 
 ```tsx
 <TerminalBlock command="pnpm vitest run" lines={LINES} visibleCount={1} done={false} />
@@ -121,7 +121,7 @@ Flip `done` to `false` while the process is in flight; the header swaps its chec
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="terminal-block">
@@ -130,21 +130,21 @@ Flip `done` to `false` while the process is in flight; the header swaps its chec
 </div>
 ```
 
-The exit line always reads `exit 0` regardless of the real outcome: `done` only switches the header between a spinner and a checkmark, there is no prop for a nonzero exit code or a failed run. The body reserves a minimum height so the block does not resize as lines arrive. `visibleCount` clamps to the length of `lines`, and only the most recently revealed line renders at full opacity; earlier lines settle to a dimmer tone.
+无论实际结果如何，退出行始终显示 `exit 0`：`done` 只会在加载指示器和对勾之间切换标题；没有用于表示非零退出代码或运行失败的 prop。正文会保留最小高度，因此随着各行输出到达，终端块不会调整大小。`visibleCount` 会限制为 `lines` 的长度，且只有最近显示的行以完全不透明度渲染；更早的行会逐渐变暗。
 
-## Examples
+## 示例
 
-### Ink variant
+### Ink 变体
 
-`variant="ink"` inverts the block to a solid dark panel and lightens the text against it. Every other prop and all behavior stay identical.
+`variant="ink"` 会将终端块反转为纯深色面板，并使文字在其上呈现更浅的颜色。其他所有 prop 和行为均保持不变。
 
 ```tsx
 <TerminalBlock variant="ink" command="pnpm vitest run" lines={LINES} visibleCount={2} done />
 ```
 
-### Restyle the terminal
+### 重新设置终端样式
 
-Both lanes take `className` on the root. The paper variant's background and border come from the shared `paper` token in `surfaces.tsx`; the ink variant sets its own background directly.
+两种变体都会在根元素上接收 `className`。paper 变体的背景和边框来自 `surfaces.tsx` 中共享的 `paper` token；ink 变体则直接设置自己的背景。
 
 ```tsx
 <TerminalBlock className="max-w-none" /* ... */ />
@@ -152,9 +152,9 @@ Both lanes take `className` on the root. The paper variant's background and bord
 
 <StandaloneMode>
 
-### Replaying output
+### 重放输出
 
-Grow `visibleCount` on a timer to replay a captured run line by line, the way the catalog's own preview does:
+通过定时器递增 `visibleCount`，即可像目录自身的预览一样，逐行重放捕获的运行结果：
 
 ```tsx
 const [visibleCount, setVisibleCount] = useState(0);
@@ -168,19 +168,19 @@ useEffect(() => {
 
 </StandaloneMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool-call render props
+### 工具调用渲染 props
 
-| Prop | Type | Description |
+| Prop | 类型 | 描述 |
 |------|------|-------------|
-| `args` | `{ command: string }` | The command the model asked to run. |
-| `result` | `{ output: string } \| undefined` | The captured output, once the call completes. |
-| `status` | `ToolCallMessagePartStatus` | `status.type === "running"` while the process is still executing. |
+| `args` | `{ command: string }` | 模型请求运行的命令。 |
+| `result` | `{ output: string } \| undefined` | 工具调用完成后捕获的输出。 |
+| `status` | `ToolCallMessagePartStatus` | 进程仍在执行时的 `status.type === "running"`。 |
 
-See [Tool UI](/docs/tools/tool-ui) for the full render-prop surface and for backend tool registration.
+有关完整的渲染 props，以及后端工具注册，请参阅[工具 UI](/docs/tools/tool-ui)。
 
 </RuntimeMode>
 
@@ -188,15 +188,15 @@ See [Tool UI](/docs/tools/tool-ui) for the full render-prop surface and for back
 
 ### TerminalBlock
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `command` | `string` | required | The command line shown in the header. |
-| `lines` | `readonly string[]` | required | Output lines, in order. |
-| `visibleCount` | `number` | required | How many lines from the start of `lines` to render. |
-| `done` | `boolean` | required | Swaps the header between a spinner and a checkmark, and hides the blinking cursor. |
-| `variant` | `"paper" \| "ink"` | `"paper"` | Visual surface. |
-| `className` | `string` | | Merged onto the root. |
+| `command` | `string` | 必填 | 标题中显示的命令行。 |
+| `lines` | `readonly string[]` | 必填 | 按顺序排列的输出行。 |
+| `visibleCount` | `number` | 必填 | 要从 `lines` 开始渲染的行数。 |
+| `done` | `boolean` | 必填 | 在加载指示器和对勾之间切换标题，并隐藏闪烁的光标。 |
+| `variant` | `"paper" \| "ink"` | `"paper"` | 视觉表面。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` props 都会转发到根元素。
 
 </StandaloneMode>

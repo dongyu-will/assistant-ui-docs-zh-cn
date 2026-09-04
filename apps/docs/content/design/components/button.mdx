@@ -1,8 +1,8 @@
 ---
 title: "Button"
-description: "The pressable object: thin, flat, and 8px round, in every weight a surface needs."
+description: "可按压的对象：纤薄、扁平、圆角 8px，满足界面所需的各种视觉层级。"
 links:
-  - label: Source
+  - label: 来源
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/button.tsx
   - label: Base UI useRender
     url: https://base-ui.com/react/utils/use-render
@@ -24,11 +24,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.ButtonSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="button" />
 
-## Usage
+## 用法
 
 ```tsx
 import { Button } from "@/components/ui/button";
@@ -38,29 +38,29 @@ export function Example() {
 }
 ```
 
-## Examples
+## 示例
 
-### Sizes
+### 尺寸
 
-The default height is 32px; `sm` is the 28px header control. `xs` and `lg` cover dense rails and prominent calls to action.
+默认高度为 32px；`sm` 是 28px 的页眉控件。`xs` 和 `lg` 适用于紧凑型侧栏和醒目的行动号召。
 
 <PreviewCode file="components/pages/design/specimens" name="ButtonSizesSpecimen" base={<ButtonSizesSpecimen />}>
   <RadixSpecimens.ButtonSizesSpecimen />
 </PreviewCode>
 
-### Icon buttons
+### 图标按钮
 
-The square `icon` sizes pair with an `aria-label`; an icon placed next to a label gets its spacing automatically.
+方形的 `icon` 尺寸与 `aria-label` 搭配使用；图标放在标签旁边时，会自动获得相应间距。
 
 <PreviewCode file="components/pages/design/specimens" name="ButtonIconSpecimen" base={<ButtonIconSpecimen />}>
   <RadixSpecimens.ButtonIconSpecimen />
 </PreviewCode>
 
-## API Reference
+## API 参考
 
 ### Button
 
-Extends the native `button` props through Base UI's `useRender`.
+通过 Base UI 的 `useRender` 扩展原生 `button` 属性。
 
 <ParametersTable
   type="ButtonProps"
@@ -69,32 +69,32 @@ Extends the native `button` props through Base UI's `useRender`.
       name: "variant",
       type: '"default" | "outline" | "secondary" | "ghost" | "destructive"',
       default: '"default"',
-      description: "The visual weight of the button.",
+      description: "按钮的视觉层级。",
     },
     {
       name: "size",
       type: '"xs" | "sm" | "default" | "lg" | "icon" | "icon-sm" | "icon-xs"',
       default: '"default"',
-      description: "Height and padding; the icon sizes render a square button.",
+      description: "高度和内边距；图标尺寸会渲染出方形按钮。",
     },
     {
       name: "render",
       type: "ReactElement | function",
-      description: "Compose as a different element, like a link.",
+      description: "组合为其他元素，例如链接。",
     },
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes.",
+      description: "额外的 CSS 类。",
     },
   ]}
 />
 
-### Style Variants (CVA)
+### 样式变体（CVA）
 
-| Export | Description |
+| 导出项 | 描述 |
 |--------|-------------|
-| `buttonVariants` | Styles for the button component. |
+| `buttonVariants` | Button 组件的样式。 |
 
 ```tsx
 import { buttonVariants } from "@/components/ui/button";

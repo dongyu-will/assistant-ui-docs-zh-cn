@@ -1,20 +1,20 @@
 ---
 title: "Sources"
-description: "Runtime URL sources with favicon, title, and an external link."
+description: "带有 favicon、标题和外部链接的运行时 URL 来源。"
 ---
 
-Sources renders one citation from a message: a `url` source as a small link with a favicon and title, or a `document` source as a badge with a document icon. With a runtime it renders straight from a message's source part; standalone you hand it the part yourself. It comes in two designs: the runtime variant renders an inline link or badge next to the message text, and the static source-cards variant collapses every citation into one pill that expands into a grid of scannable cards (see [The source-cards design](#the-source-cards-design)).
+Sources 用于渲染消息中的一个引用：`url`来源会显示为带有 favicon 和标题的小型链接，`document`来源会显示为带有文档图标的徽章。在运行时中，它会直接从消息的 source part 渲染；单独使用时，则需要手动传入该 part。它提供两种设计：运行时变体会在消息文本旁渲染内联链接或徽章，静态 source-cards 变体则会将所有引用折叠到一个圆角标签中，展开后显示由便于浏览的卡片组成的网格（参见[Source-cards 设计](#the-source-cards-design)）。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
 <Steps>
   <Step>
 
-### Render sources from a message
+### 从消息渲染来源
 
-Register `Sources` as the `Source` renderer on `MessagePrimitive.Parts`. Every source part in the message routes through it automatically.
+在 `MessagePrimitive.Parts` 上，将 `Sources` 注册为 `Source` 渲染器。消息中的每个 source part 都会自动通过它进行路由。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { Sources } from "@/components/assistant-ui/elements/sources.aui";
@@ -29,7 +29,7 @@ function AssistantMessage() {
 }
 ```
 
-A `url` part becomes a link, a `document` part becomes a badge, and any other shape renders nothing.
+`url` part 会变成链接，`document` part 会变成徽章，其他任何形状都不会渲染任何内容。
 
   </Step>
 </Steps>
@@ -38,12 +38,12 @@ A `url` part becomes a link, a `document` part becomes a badge, and any other sh
 
 <StandaloneMode>
 
-Standalone, `Sources` is a plain function of one part object: no context, no runtime.
+单独使用时，`Sources` 是一个只接收单个 part 对象的普通函数：不需要上下文，也不需要运行时。
 
 <Steps>
   <Step>
 
-### Render a source directly
+### 直接渲染来源
 
 ```tsx title="app/answer.tsx"
 import { Sources } from "@/components/assistant-ui/elements/sources.aui";
@@ -62,14 +62,14 @@ export function Citation() {
 }
 ```
 
-`status` is part of the type but unused by the renderer; pass `{ type: "complete" }` to satisfy it.
+`status` 属于该类型的一部分，但渲染器不会使用它；传入 `{ type: "complete" }` 即可满足类型要求。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 {/* sourceType: "url" */}
@@ -85,13 +85,13 @@ export function Citation() {
 </span>
 ```
 
-The favicon requests `https://icons.duckduckgo.com/ip3/<domain>.ico` by default; when that image fails to load, the icon falls back to a single letter drawn from the domain. The link's visible title is `title` when the source provides one, otherwise the bare domain with `www.` stripped. A `document` source never links anywhere and always shows its `title`. A `url` source with an empty `url`, or any other `sourceType`, renders nothing.
+默认情况下，favicon 会请求 `https://icons.duckduckgo.com/ip3/<domain>.ico`；当该图像加载失败时，图标会回退为从域名中提取的单个字母。来源提供标题时，链接显示的标题为 `title`；否则会显示去除 `www.` 后的纯域名。`document`来源不会链接到任何位置，并始终显示其 `title`。`url`来源的 `url` 为空，或来源属于其他任何 `sourceType` 时，不会渲染任何内容。
 
-## Examples
+## 示例
 
-### Custom favicon and variant
+### 自定义 favicon 和变体
 
-`Sources` itself takes only the part; to override the favicon lookup or restyle the link, compose the exported sub-parts into your own renderer and register that instead:
+`Sources` 本身只接收 part；如果要覆盖 favicon 查找逻辑或重新设置链接样式，可以将导出的子 part 组合到自定义渲染器中，并注册该渲染器：
 
 ```tsx
 import { Sources } from "@/components/assistant-ui/elements/sources.aui";
@@ -111,77 +111,77 @@ function CustomSource(part: ComponentProps<typeof Sources>) {
 }
 ```
 
-Use `CustomSource` in place of `Sources` in `MessagePrimitive.Parts`, or call it directly with a hand-built part.
+在 `MessagePrimitive.Parts` 中使用 `CustomSource` 替代 `Sources`，或者直接传入手动构造的 part 调用它。
 
-### Variants and sizes
+### 变体和尺寸
 
-`Sources.Root` carries the styling; pass `variant` and `size` when composing your own renderer as above.
+`Sources.Root` 负责样式；按照上面的方式组合自定义渲染器时，传入 `variant` 和 `size`。
 
-| Variant | Description |
+| 变体 | 描述 |
 |---------|-------------|
-| `outline` | Border, transparent background (default) |
-| `secondary` | Solid secondary background |
-| `muted` | Muted background |
-| `ghost` | No background until hovered |
-| `info` | Blue tint |
-| `warning` | Amber tint |
-| `success` | Emerald tint |
-| `destructive` | Red tint |
+| `outline` | 边框，透明背景（默认） |
+| `secondary` | 实心次要背景 |
+| `muted` | 弱化背景 |
+| `ghost` | 悬停前无背景 |
+| `info` | 蓝色色调 |
+| `warning` | 琥珀色色调 |
+| `success` | 翡翠色色调 |
+| `destructive` | 红色色调 |
 
-| Size | Description |
+| 尺寸 | 描述 |
 |------|-------------|
-| `sm` | Compact padding |
-| `default` | Standard padding |
-| `lg` | Larger padding and text |
+| `sm` | 紧凑内边距 |
+| `default` | 标准内边距 |
+| `lg` | 更大的内边距和文本 |
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### Sources
 
-| Export | Renders | Notes |
+| 导出项 | 渲染内容 | 说明 |
 |--------|---------|-------|
-| `Sources` | `a` or badge | The `Source` message-part renderer. Pass to `MessagePrimitive.Parts` as `components.Source`. |
-| `Sources.Root` | `a` | The link for a `url` source. Accepts `variant`, `size`, `href`, and other anchor props. |
-| `Sources.Icon` | `img` or fallback `span` | Favicon for a `url` source. Accepts `url` and an optional `faviconUrl` resolver. |
-| `Sources.Title` | `span` | Truncated title or domain text, shared by both source shapes. |
+| `Sources` | `a` 或徽章 | `Source` 消息 part 渲染器。将其作为 `components.Source` 传入 `MessagePrimitive.Parts`。 |
+| `Sources.Root` | `a` | `url` 来源对应的链接。接受 `variant`、`size`、`href` 以及其他锚点属性。 |
+| `Sources.Icon` | `img` 或回退的 `span` | `url` 来源的 favicon。接受 `url` 和可选的 `faviconUrl` 解析器。 |
+| `Sources.Title` | `span` | 两种来源形状共用的截断标题或域名文本。 |
 
 ### Source part
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `sourceType` | `"url" \| "document"` | Which shape to render. |
-| `id` | `string` | Source identifier. |
-| `url` | `string` | Link target. Required and read when `sourceType` is `"url"`. |
-| `title` | `string` | Optional for `"url"` (falls back to the domain); required for `"document"`. |
-| `mediaType` | `string` | Required when `sourceType` is `"document"`. Not read by `Sources`. |
-| `filename` | `string` | Optional, `"document"` only. Not read by `Sources`. |
+| `sourceType` | `"url" \| "document"` | 要渲染的形状。 |
+| `id` | `string` | 来源标识符。 |
+| `url` | `string` | 链接目标。当 `sourceType` 为 `"url"` 时，该字段为必填项且会被读取。 |
+| `title` | `string` | 对于 `"url"` 可选（回退为域名）；对于 `"document"` 必填。 |
+| `mediaType` | `string` | 当 `sourceType` 为 `"document"` 时必填。`Sources` 不会读取该字段。 |
+| `filename` | `string` | 可选，仅用于 `"document"`。`Sources` 不会读取该字段。 |
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-### Sources props
+### Sources 属性
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `type` | `"source"` | Required by the part type. |
-| `sourceType` | `"url" \| "document"` | Which shape to render. |
-| `id` | `string` | Source identifier. Required by the type; not read by the renderer. |
-| `url` | `string` | Link target, for `sourceType: "url"`. |
-| `title` | `string` | Shown title. Optional for `"url"`, required for `"document"`. |
-| `mediaType` | `string` | Required by the type for `"document"`; not read by the renderer. |
-| `filename` | `string` | Optional, `"document"` only; not read by the renderer. |
-| `status` | `MessagePartStatus` | Required by the type; not read by the renderer. |
+| `type` | `"source"` | part 类型要求提供。 |
+| `sourceType` | `"url" \| "document"` | 要渲染的形状。 |
+| `id` | `string` | 来源标识符。类型要求提供；渲染器不会读取。 |
+| `url` | `string` | `sourceType: "url"` 对应的链接目标。 |
+| `title` | `string` | 显示的标题。`"url"` 可选，`"document"` 必填。 |
+| `mediaType` | `string` | 类型对 `"document"` 的要求；渲染器不会读取。 |
+| `filename` | `string` | 可选，仅用于 `"document"`；渲染器不会读取。 |
+| `status` | `MessagePartStatus` | 类型要求提供；渲染器不会读取。 |
 
-`Sources.Root`, `Sources.Icon`, and `Sources.Title` are exported for building a custom renderer, as shown in [Custom favicon and variant](#custom-favicon-and-variant).
+`Sources.Root`、`Sources.Icon` 和 `Sources.Title` 可用于构建自定义渲染器，具体如[自定义 favicon 和变体](#custom-favicon-and-variant)所示。
 
 </StandaloneMode>
 
-## The source-cards design
+## Source-cards 设计
 
-The Static variant in the rail is a second design for the same citations: instead of an inline link or badge next to the message text, it collapses every citation into one pill that expands into a grid of cards, each with a domain avatar, the domain, and the title. It is a single props-driven component with no runtime dependency:
+侧栏中的 Static 变体是针对相同引用的第二种设计：它不会在消息文本旁显示内联链接或徽章，而是将所有引用折叠到一个圆角标签中，展开后显示卡片网格。每张卡片包含域名头像、域名和标题。这是一个由属性驱动且不依赖运行时的单一组件：
 
 ```sh
 npx shadcn@latest add "@assistant-ui/elements-sources"
@@ -189,7 +189,7 @@ npx shadcn@latest add "@assistant-ui/elements-sources"
 
 <RuntimeMode>
 
-Nothing on the runtime collects a message's sources into one place: they arrive as individual `source` parts, so a selector gathers them into the shape this component expects.
+运行时不会将消息的来源收集到同一位置：它们会作为单独的 `source` parts 到达，因此需要通过选择器将它们收集为该组件所需的形状。
 
 ```tsx title="components/assistant-ui/elements/message-sources.tsx"
 "use client";
@@ -225,13 +225,13 @@ export function MessageSources() {
 }
 ```
 
-`parts` is read once and memoized before filtering, since `useAuiState` re-renders on every store update when its selector itself returns a new array. `MessageSources` must render inside a message scope, placed after `MessagePrimitive.Parts` in the assistant message.
+`parts` 会在过滤前读取一次并进行记忆化，因为当选择器本身返回新数组时，`useAuiState` 会在每次 store 更新时重新渲染。`MessageSources` 必须渲染在消息作用域内，并放置在助手消息中的 `MessagePrimitive.Parts` 之后。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-Standalone, the element is fully controlled: you hold the source list and whether the panel is open.
+单独使用时，该元素完全受控：由你持有来源列表并控制面板是否打开。
 
 ```tsx title="app/answer.tsx"
 "use client";
@@ -252,15 +252,15 @@ export function Citations() {
 
 </StandaloneMode>
 
-Nothing inside the element opens or closes the panel: `open` and `onOpenChange` do. The trigger's count always reads `sources.length`, whether the panel is open or not; an empty `sources` array leaves the trigger reading "0" and the panel opens onto an empty grid.
+元素内部没有任何逻辑会打开或关闭面板：由 `open` 和 `onOpenChange` 完成。无论面板是否打开，触发器中的计数始终显示 `sources.length`；空的 `sources` 数组会使触发器显示“0”，面板打开后则显示空网格。
 
-### The Sources component
+### Sources 组件
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `sources` | `readonly Source[]` | required | The full source list. |
-| `open` | `boolean` | required | Whether the card grid is expanded. |
-| `onOpenChange` | `(open: boolean) => void` | required | Called when the trigger is clicked. |
-| `className` | `string` | | Merged onto the root. |
+| `sources` | `readonly Source[]` | 必填 | 完整的来源列表。 |
+| `open` | `boolean` | 必填 | 卡片网格是否展开。 |
+| `onOpenChange` | `(open: boolean) => void` | 必填 | 点击触发器时调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-`Source` is `{ domain: string; title: string }`. Unlike most elements in this catalog, this `Sources` does not spread extra props onto its root: only the four props above reach it.
+`Source` 是 `{ domain: string; title: string }`。与此目录中的大多数元素不同，该 `Sources` 不会将额外属性展开到根元素上：只有上面的四个属性会传递给它。

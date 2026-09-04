@@ -1,20 +1,20 @@
 ---
-title: "Reasoning"
-description: "A collapsible renderer for assistant reasoning that follows the active message part."
+title: "推理"
+description: "一个可折叠的助手推理渲染器，会跟随当前的消息部分。"
 ---
 
-Reasoning gives a model's chain of thought its own track: a shimmering trigger while it streams, a scrollable trace once opened, and a plain collapsed row once the model moves on. With a runtime it follows the active reasoning message part; standalone you drive the same disclosure from props you own. It comes in two designs: the runtime variant renders one continuous markdown trace, and the static variant, `ReasoningPanel`, renders discrete titled steps along a timeline (see [The step-panel design](#the-step-panel-design)).
+Reasoning 为模型的思维链提供了独立的展示轨道：流式传输时显示闪烁的触发器，打开后显示可滚动的推理轨迹，模型继续处理后则显示为普通的折叠行。在运行时环境中，它会跟随当前的推理消息部分；独立使用时，则由你通过自己的 props 驱动相同的展开控件。它有两种设计：运行时变体渲染一条连续的 markdown 推理轨迹，而静态变体 `ReasoningPanel` 则沿时间线渲染带标题的离散步骤（参见[步骤面板设计](#the-step-panel-design)）。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-A runtime streams `reasoning` message parts alongside the rest of a message. Consecutive ones group into a single `group-reasoning` part, and that group is what the disclosure wraps.
+运行时会将 `reasoning` 消息部分与消息的其余部分一同进行流式传输。连续的推理部分会合并为一个 `group-reasoning` 部分，展开控件包裹的就是这个分组。
 
 <Steps>
   <Step>
 
-### Group reasoning parts and compose the disclosure
+### 分组推理部分并组合展开控件
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { MessagePrimitive, groupPartByType } from "@assistant-ui/react";
@@ -43,21 +43,21 @@ import {
 </MessagePrimitive.GroupedParts>
 ```
 
-`groupBy` decides which consecutive part types fold into one group; `children` is already the rendered parts for that range, so `ReasoningText` only has to lay them out. The kit's `ReasoningGroup` export targets an older `components.ReasoningGroup` prop on `MessagePrimitive.Parts`; `MessagePrimitive.GroupedParts` above is what `Thread` itself uses, so prefer it. The `Thread` element already ships this composition, so installing `@assistant-ui/thread` gives you the reasoning trace with none of the above (see [Thread](/elements/thread)).
+`groupBy` 决定哪些连续的部分类型应折叠为一个分组；`children` 已经是该范围内渲染完成的部分，因此 `ReasoningText` 只需负责排列它们。工具包中的 `ReasoningGroup` 导出面向 `MessagePrimitive.Parts` 上较旧的 `components.ReasoningGroup` prop；上面的 `MessagePrimitive.GroupedParts` 才是 `Thread` 自身使用的实现，因此应优先使用它。`Thread` 元素已经内置了这一组合，因此安装 `@assistant-ui/thread` 后，无需完成上述步骤即可获得推理轨迹（参见 [Thread](/elements/thread)）。
 
   </Step>
   <Step>
 
-### Render a lone reasoning part
+### 渲染单独的推理部分
 
-Most runtimes stream reasoning as consecutive parts, but a single ungrouped `reasoning` part still needs a renderer:
+大多数运行时会将推理作为连续部分进行流式传输，但单个未分组的 `reasoning` 部分仍然需要渲染器：
 
 ```tsx
 case "reasoning":
   return <Reasoning {...part} />;
 ```
 
-`Reasoning` renders the part's text as markdown with no disclosure chrome. Wrap it in `ReasoningRoot` / `ReasoningTrigger` / `ReasoningContent` yourself if a lone part should still get the collapsible shell.
+`Reasoning` 会将该部分的文本渲染为 markdown，不包含展开控件的外观。若单独的部分仍应获得可折叠外壳，请自行将其包裹在 `ReasoningRoot` / `ReasoningTrigger` / `ReasoningContent` 中。
 
   </Step>
 </Steps>
@@ -66,12 +66,12 @@ case "reasoning":
 
 <StandaloneMode>
 
-Standalone, the element is disclosure UI over content you already have: no message parts, no grouping, just text and a streaming flag.
+独立使用时，该元素是在已有内容之上的展开控件 UI：不需要消息部分，不需要分组，只需要文本和流式传输标志。
 
 <Steps>
   <Step>
 
-### Compose the disclosure
+### 组合展开控件
 
 ```tsx title="app/trace.tsx"
 "use client";
@@ -104,9 +104,9 @@ export function Trace({
   </Step>
   <Step>
 
-### Control the open state
+### 控制打开状态
 
-Left uncontrolled, the root opens on its own while `streaming` is true and closes again once `defaultOpen` is false. Pass `open` and `onOpenChange` to drive it yourself, for example to keep the latest trace expanded:
+在非受控模式下，只要 `streaming` 为 true，根元素就会自动打开；当 `defaultOpen` 变为 false 后，它会再次关闭。传入 `open` 和 `onOpenChange` 即可自行驱动它，例如让最新的推理轨迹保持展开：
 
 ```tsx
 const [open, setOpen] = useState(false);
@@ -121,7 +121,7 @@ const [open, setOpen] = useState(false);
 
 </StandaloneMode>
 
-## Anatomy
+## 组成结构
 
 ```tsx
 <div data-slot="reasoning-root" data-variant="outline">
@@ -138,13 +138,13 @@ const [open, setOpen] = useState(false);
 </div>
 ```
 
-While `streaming` is true and the panel is open, the trace is a live, bottom-pinned preview: it autoscrolls to the newest tokens as they arrive and only stops if the reader scrolls up manually, resuming once they scroll back to the bottom. When streaming ends, the open state returns to `defaultOpen`, unless the reader has already toggled the disclosure by hand at least once, at which point their choice sticks and streaming no longer overrides it. `ReasoningTrigger`'s `active` prop drives both the shimmering label and the timing text; the chevron rotates on open regardless. The runtime `ReasoningRoot` additionally locks the surrounding thread viewport's scroll position for the duration of each open or close animation, so expanding a trace never yanks the message list; the standalone root has no viewport to lock, so it skips that.
+当 `streaming` 为 true 且面板处于打开状态时，推理轨迹会作为实时的底部固定预览显示：新 token 到达时自动滚动到最新内容；只有读者手动向上滚动时才会停止，并在读者滚回底部后恢复。流式传输结束后，打开状态会恢复为 `defaultOpen`，除非读者之前至少手动切换过一次展开控件；一旦发生这种情况，读者的选择就会保持不变，流式传输不再覆盖该选择。`ReasoningTrigger` 的 `active` prop 同时控制闪烁标签和计时文本；无论如何，打开时都会旋转箭头。运行时 `ReasoningRoot` 还会在每次打开或关闭动画期间锁定外围线程视口的滚动位置，因此展开推理轨迹不会拉动消息列表；独立使用的根元素没有可锁定的视口，因此会跳过此步骤。
 
-## Examples
+## 示例
 
-### Variants
+### 变体
 
-`ReasoningRoot` takes a `variant`: `outline` draws a border and padding (the default), `ghost` adds neither, and `muted` fills a soft background instead of a border.
+`ReasoningRoot` 接受一个 `variant`：`outline` 绘制边框和内边距（默认值），`ghost` 两者都不添加，而 `muted` 使用柔和背景填充来替代边框。
 
 ```tsx
 <ReasoningRoot variant="muted" streaming={streaming}>
@@ -152,20 +152,20 @@ While `streaming` is true and the panel is open, the trace is a live, bottom-pin
 </ReasoningRoot>
 ```
 
-### Trigger duration
+### 触发器时长
 
-Pass `duration` (seconds) to append a timing suffix to the trigger label:
+传入 `duration`（秒），即可在触发器标签后追加计时后缀：
 
 ```tsx
 <ReasoningTrigger active={streaming} duration={12} />
 // renders: Reasoning (12s)
 ```
 
-### Where reasoning parts come from
+### 推理部分的来源
 
 <RuntimeMode>
 
-The `status.type` on the group (`"running" | "complete" | ...`) is what drives `streaming`; it flips once the model's reasoning stream for that group ends, which is also when a duration becomes worth showing:
+分组上的 `status.type`（`"running" | "complete" | ...`）会驱动 `streaming`；当模型对该分组的推理流结束时，它会切换状态，这也是值得显示时长的时机：
 
 ```tsx
 const running = part.status.type === "running";
@@ -176,31 +176,31 @@ const running = part.status.type === "running";
 
 <StandaloneMode>
 
-Standalone, `text` and `streaming` come from wherever you fetch them, for example an SSE endpoint that appends tokens and flips a flag on its `done` event. Nothing about the element assumes a particular transport.
+独立使用时，`text` 和 `streaming` 来自你获取它们的任意位置，例如一个追加 token 并在其 `done` 事件中切换标志的 SSE 端点。该元素本身不假设任何特定的传输方式。
 
 </StandaloneMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### Reasoning
 
-| Export | Type | Notes |
+| 导出 | 类型 | 说明 |
 |--------|------|-------|
-| `Reasoning` | `ReasoningMessagePartComponent` | Renders the reasoning part's `text` as markdown. No disclosure chrome; use it for an ungrouped `reasoning` part. |
+| `Reasoning` | `ReasoningMessagePartComponent` | 将推理部分的 `text` 渲染为 markdown。不包含展开控件的外观；用于未分组的 `reasoning` 部分。 |
 
-### Reasoning message part
+### Reasoning 消息部分
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|--------------|
-| `text` | `string` | The reasoning text so far. |
-| `status` | `MessagePartStreamStatus \| undefined` | Streaming status of this part. |
-| `unstable_summary` | `string \| undefined` | Provider-supplied summary, when present. Not rendered by `Reasoning`; read it yourself if you need it. |
+| `text` | `string` | 到目前为止的推理文本。 |
+| `status` | `MessagePartStreamStatus \| undefined` | 此部分的流式传输状态。 |
+| `unstable_summary` | `string \| undefined` | 存在时由提供商提供的摘要。`Reasoning` 不会渲染它；如有需要，请自行读取。 |
 
-### Sub-components
+### 子组件
 
-`ReasoningRoot` wraps the standalone root and additionally locks the thread viewport's scroll during the disclosure animation. `ReasoningTrigger`, `ReasoningContent`, `ReasoningText`, `ReasoningFade`, and `reasoningVariants` are re-exported unchanged from the standalone module below.
+`ReasoningRoot` 包裹独立使用的根元素，并在展开控件动画期间额外锁定线程视口的滚动。`ReasoningTrigger`、`ReasoningContent`、`ReasoningText`、`ReasoningFade` 和 `reasoningVariants` 会从下面的独立模块中原样重新导出。
 
 </RuntimeMode>
 
@@ -208,38 +208,38 @@ Standalone, `text` and `streaming` come from wherever you fetch them, for exampl
 
 ### ReasoningRoot
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `variant` | `"outline" \| "ghost" \| "muted"` | `"outline"` | Visual treatment of the root. |
-| `streaming` | `boolean` | | Holds the disclosure open with a live preview; see Anatomy for the full open-state contract. |
-| `open` | `boolean` | | Controlled open state. |
-| `onOpenChange` | `(open: boolean) => void` | | Called on every toggle, controlled or not. |
-| `defaultOpen` | `boolean` | `false` | Initial open state when uncontrolled. |
-| `onAnimationStart` | `() => void` | | Called right before the disclosure animates, on manual toggle and on streaming transitions. |
-| `className` | `string` | | Merged onto the root. |
+| `variant` | `"outline" \| "ghost" \| "muted"` | `"outline"` | 根元素的视觉样式。 |
+| `streaming` | `boolean` | | 通过实时预览保持展开控件打开；完整的打开状态约定请参见“组成结构”。 |
+| `open` | `boolean` | | 受控的打开状态。 |
+| `onOpenChange` | `(open: boolean) => void` | | 每次切换时调用，无论是否受控。 |
+| `defaultOpen` | `boolean` | `false` | 非受控模式下的初始打开状态。 |
+| `onAnimationStart` | `() => void` | | 展开控件即将执行动画前调用，包括手动切换和流式传输状态转换。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `Collapsible` props are forwarded.
+其他所有 `Collapsible` props 都会被转发。
 
 ### ReasoningTrigger
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `active` | `boolean` | | Shimmers the label while true. |
-| `duration` | `number` | | Seconds; appends `(Ns)` to the label. |
-| `className` | `string` | | Merged onto the trigger. |
+| `active` | `boolean` | | 为 true 时使标签闪烁。 |
+| `duration` | `number` | | 秒数；将 `(Ns)` 追加到标签。 |
+| `className` | `string` | | 合并到触发器上。 |
 
-All other `CollapsibleTrigger` props are forwarded.
+其他所有 `CollapsibleTrigger` props 都会被转发。
 
-### ReasoningContent, ReasoningText, and ReasoningFade
+### ReasoningContent、ReasoningText 和 ReasoningFade
 
-`ReasoningContent` and `ReasoningText` forward the rest of their props to a `CollapsibleContent` and a `div` respectively; both take `className`. `ReasoningFade` takes `side` (`"top" | "bottom"`, default `"bottom"`) and a `className`; `ReasoningContent` renders one at the top always and, while a live preview is active, a second one at the bottom.
+`ReasoningContent` 和 `ReasoningText` 会分别将其余 props 转发给 `CollapsibleContent` 和 `div`；两者都接受 `className`。`ReasoningFade` 接受 `side`（`"top" | "bottom"`，默认值为 `"bottom"`）和一个 `className`；`ReasoningContent` 始终在顶部渲染一个，而在实时预览激活期间，还会在底部渲染第二个。
 
 </StandaloneMode>
 
 
-## The step-panel design
+## 步骤面板设计
 
-The Static variant in the rail is a second design for the same disclosure: `ReasoningPanel` renders an ordered list of titled steps with a shimmering "Thinking" trigger that settles into a resting summary, instead of one continuous markdown trace. It is a single props-driven component with no runtime dependency:
+栏中的 Static 变体是同一展开控件的第二种设计：`ReasoningPanel` 渲染带标题的有序步骤列表，并使用闪烁的“Thinking”触发器，完成后变为静态摘要，而不是一条连续的 markdown 推理轨迹。它是一个完全由 props 驱动、无需依赖运行时的单一组件：
 
 ```sh
 npx shadcn@latest add "@assistant-ui/elements-reasoning-panel"
@@ -247,7 +247,7 @@ npx shadcn@latest add "@assistant-ui/elements-reasoning-panel"
 
 <RuntimeMode>
 
-Wire it by mapping a message's `"reasoning"` parts into steps. `s.message.parts` is the store's own array, so selecting it directly is cheap; deriving steps still needs `useMemo`, since mapping to a fresh array on every call would re-render the panel on every store update.
+将消息的 `"reasoning"` 部分映射为步骤即可完成接入。`s.message.parts` 是 store 自身的数组，因此直接选择它的成本很低；派生步骤仍需要 `useMemo`，因为每次调用都映射出新数组会导致面板在 store 每次更新时重新渲染。
 
 ```tsx title="components/assistant-ui/elements/reasoning-panel.tsx"
 "use client";
@@ -298,13 +298,13 @@ function AssistantReasoning() {
 }
 ```
 
-`visibleSteps` is just `steps.length`: the array itself grows as new reasoning parts stream in. `open` follows `streaming` until the reader toggles it once, after which their choice sticks.
+`visibleSteps` 其实就是 `steps.length`：随着新的推理部分进行流式传输，数组本身会不断增长。`open` 会跟随 `streaming`，直到读者手动切换一次；之后就会保持读者的选择。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-Standalone you hold the step list, decide how many are visible, and flip `open` yourself. Replaying a saved trace is `visibleSteps` counting up on a timer with `streaming={visibleSteps < steps.length}`.
+独立使用时，由你持有步骤列表、决定显示多少个步骤，并自行切换 `open`。要重放已保存的推理轨迹，可以使用 `visibleSteps` 配合 `streaming={visibleSteps < steps.length}` 通过计时器递增。
 
 ```tsx title="app/trace.tsx"
 "use client";
@@ -337,17 +337,17 @@ export function Trace() {
 
 </StandaloneMode>
 
-The trigger swaps between the shimmering live label (plus the `elapsed` badge, when given) and `restingLabel`, animating its own width rather than jumping. `visibleSteps` clamps between 0 and `steps.length`; while `streaming` is true only the last shown step gets the pulsing marker.
+触发器会在闪烁的实时标签（以及提供时的 `elapsed` 徽标）和 `restingLabel` 之间切换，并通过为自身宽度设置动画来避免突然跳变。`visibleSteps` 会被限制在 0 和 `steps.length` 之间；当 `streaming` 为 true 时，只有最后一个显示的步骤会获得脉冲标记。
 
 ### ReasoningPanel
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `steps` | `ReasoningStep[]` | required | `{ title: string; body: string }[]`, in order. |
-| `visibleSteps` | `number` | required | How many leading steps to show; clamps between 0 and `steps.length`. |
-| `streaming` | `boolean` | required | Swaps the trigger between the live label and `restingLabel`, and marks the last shown step as active. |
-| `open` | `boolean` | required | Whether the collapsible is expanded. |
-| `onOpenChange` | `(open: boolean) => void` | required | Called when the trigger is activated. |
-| `restingLabel` | `string` | required | Trigger text once `streaming` is `false`. |
-| `elapsed` | `string \| undefined` | | Shown next to the live label while `streaming` is `true`. |
-| `className` | `string` | | Merged onto the root; starts as `w-full max-w-sm`. |
+| `steps` | `ReasoningStep[]` | 必填 | 按顺序排列的 `{ title: string; body: string }[]`。 |
+| `visibleSteps` | `number` | 必填 | 要显示的前置步骤数量；限制在 0 和 `steps.length` 之间。 |
+| `streaming` | `boolean` | 必填 | 在实时标签和 `restingLabel` 之间切换，并将最后一个显示的步骤标记为活跃。 |
+| `open` | `boolean` | 必填 | 可折叠面板是否展开。 |
+| `onOpenChange` | `(open: boolean) => void` | 必填 | 触发器激活时调用。 |
+| `restingLabel` | `string` | 必填 | 当 `streaming` 为 `false` 后显示的触发器文本。 |
+| `elapsed` | `string \| undefined` | | 当 `streaming` 为 `true` 时，显示在实时标签旁边。 |
+| `className` | `string` | | 合并到根元素上；初始值为 `w-full max-w-sm`。 |

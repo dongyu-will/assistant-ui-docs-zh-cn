@@ -1,11 +1,11 @@
 ---
-title: Runtime architecture
-description: How core runtimes, protocol layers, and framework adapters fit together.
+title: 运行时架构
+description: 了解核心运行时、协议层和框架适配器如何协同工作。
 ---
 
-assistant-ui exposes runtime integrations at three layers. Understanding which layer you are picking from clarifies what each runtime gives you and how features flow between them.
+assistant-ui 在三个层级提供运行时集成。了解你所选择的层级，有助于明确每个运行时提供的能力，以及各层之间的功能流转方式。
 
-## The three layers
+## 三个层级
 
 <Flow.Root
   llm={`graph TD
@@ -45,7 +45,7 @@ assistant-ui exposes runtime integrations at three layers. Understanding which l
   >
     <div className="grid max-w-2xl grid-cols-[1fr_1.6fr] gap-4">
       <Flow.Group>
-        <Flow.GroupLabel>Protocol layers</Flow.GroupLabel>
+        <Flow.GroupLabel>协议层</Flow.GroupLabel>
         <Flow.Column className="items-stretch gap-5">
           <Flow.Row className="justify-start">
             <Flow.Node flowId="datastream">DataStream</Flow.Node>
@@ -56,7 +56,7 @@ assistant-ui exposes runtime integrations at three layers. Understanding which l
         </Flow.Column>
       </Flow.Group>
       <Flow.Group flowId="adapters">
-        <Flow.GroupLabel>Framework adapters</Flow.GroupLabel>
+        <Flow.GroupLabel>框架适配器</Flow.GroupLabel>
         <Flow.Row className="flex-wrap justify-start">
           <Flow.Node>ai-sdk</Flow.Node>
           <Flow.Node>react-langgraph</Flow.Node>
@@ -70,7 +70,7 @@ assistant-ui exposes runtime integrations at three layers. Understanding which l
     </div>
     <div className="h-14" aria-hidden />
     <Flow.Group className="mx-auto w-fit">
-      <Flow.GroupLabel>Core runtimes</Flow.GroupLabel>
+      <Flow.GroupLabel>核心运行时</Flow.GroupLabel>
       <Flow.Row className="gap-10">
         <Flow.Node flowId="local">LocalRuntime</Flow.Node>
         <Flow.Node flowId="external">ExternalStoreRuntime</Flow.Node>
@@ -79,89 +79,89 @@ assistant-ui exposes runtime integrations at three layers. Understanding which l
   </Flow.Canvas>
 </Flow.Root>
 
-Each upper layer is implemented in terms of a lower one. You can drop down a layer whenever you need more control, but most users start at the framework layer and never touch the others.
+每个上层都基于下层实现。需要更多控制时，可以随时下沉到更底层，但大多数用户从框架层开始，并且不会接触其他层级。
 
-## Core runtimes
+## 核心运行时
 
-These own everything assistant-ui considers a runtime: messages, threads, branching, edit and regenerate state, run lifecycle. Every other layer is built on one of them.
+核心运行时拥有 assistant-ui 所定义运行时的全部内容：消息、线程、分支、编辑和重新生成状态，以及运行生命周期。其他所有层级都构建在其中一个核心运行时之上。
 
-**`LocalRuntime`** keeps state inside the runtime itself and exposes a `ChatModelAdapter` interface. You implement a single `run` function (or `async *run` for streaming) and the runtime takes care of branching, editing, regeneration, and history through built-in plumbing.
+**`LocalRuntime`** 将状态保存在运行时自身，并提供一个 `ChatModelAdapter` 接口。你只需实现一个 `run` 函数（或用于流式传输的 `async *run`），运行时便会通过内置机制处理分支、编辑、重新生成和历史记录。
 
-**`ExternalStoreRuntime`** is the inverse: you own the message array and provide callbacks (`onNew`, `onEdit`, `onReload`, etc.). The runtime renders whatever you give it. UI features turn on based on which callbacks are present.
+**`ExternalStoreRuntime`** 则相反：消息数组由你负责维护，并提供回调函数（`onNew`、`onEdit`、`onReload` 等）。运行时会渲染你提供的所有内容。UI 功能是否启用取决于已提供哪些回调函数。
 
-| Concern | LocalRuntime | ExternalStoreRuntime |
+| 关注点 | LocalRuntime | ExternalStoreRuntime |
 | --- | --- | --- |
-| State ownership | Runtime | You |
-| Setup complexity | Low | Medium |
-| Branching | Built in | Requires `setMessages` |
-| Editing | Built in | Requires `onEdit` |
-| Best fit | Greenfield projects | Redux, zustand, tanstack-query stacks |
+| 状态所有权 | 运行时 | 你 |
+| 设置复杂度 | 低 | 中 |
+| 分支 | 内置 | 需要 `setMessages` |
+| 编辑 | 内置 | 需要 `onEdit` |
+| 最适合 | 从零开始的项目 | Redux、zustand、tanstack-query 技术栈 |
 
-See [LocalRuntime](/docs/runtimes/custom/local-runtime) and [ExternalStoreRuntime](/docs/runtimes/custom/external-store) for full guides.
+请参阅 [LocalRuntime](/docs/runtimes/custom/local-runtime) 和 [ExternalStoreRuntime](/docs/runtimes/custom/external-store) 以获取完整指南。
 
-## Protocol layers
+## 协议层
 
-These wrap a core runtime with a wire-protocol contract so a generic backend can talk to assistant-ui without writing a custom `ChatModelAdapter` each time.
+协议层通过线路协议契约包装核心运行时，使通用后端无需每次都编写自定义的 `ChatModelAdapter`，即可与 assistant-ui 通信。
 
-**`DataStream`** is a message-streaming protocol. Your backend emits a standardized stream of message parts (text deltas, tool calls) and `useDataStreamRuntime` consumes it on top of `LocalRuntime`. Closest to "AI SDK style streaming for any backend".
+**`DataStream`** 是一种消息流式传输协议。你的后端输出标准化的消息部分流（文本增量、工具调用），`useDataStreamRuntime` 则在 `LocalRuntime` 之上消费该消息流。它最接近“适用于任何后端的 AI SDK 风格流式传输”。
 
-**`AssistantTransport`** is a state-streaming protocol. Your backend sends snapshots of its agent state and the runtime converts them into UI messages on top of `ExternalStoreRuntime`. Closest to "stream the whole agent state, not just messages".
+**`AssistantTransport`** 是一种状态流式传输协议。你的后端发送代理状态的快照，运行时再基于 `ExternalStoreRuntime` 将其转换为 UI 消息。它最接近“流式传输完整的代理状态，而不仅仅是消息”。
 
-| Protocol | Layered on | Choose when |
+| 协议 | 构建于 | 适用场景 |
 | --- | --- | --- |
-| DataStream | LocalRuntime | Your backend already speaks the data stream protocol, or you want a thin message-stream contract |
-| AssistantTransport | ExternalStoreRuntime | Your agent has internal state worth surfacing, or you need bidirectional commands and custom command types |
+| DataStream | LocalRuntime | 你的后端已经支持 data stream 协议，或者你希望使用精简的消息流式传输契约 |
+| AssistantTransport | ExternalStoreRuntime | 你的代理拥有值得展示的内部状态，或者你需要双向命令和自定义命令类型 |
 
-## Framework adapters
+## 框架适配器
 
-The fastest path. Each adapter wraps one of the core or protocol layers and adds framework-specific conveniences.
+这是最快的使用路径。每个适配器都会包装一个核心层或协议层，并添加特定于框架的便利功能。
 
-| Adapter | Layered on | Targets |
+| 适配器 | 构建于 | 目标 |
 | --- | --- | --- |
-| `ai-sdk` | `ExternalStoreRuntime` | Vercel AI SDK v7 (`useChat`) |
-| `react-langgraph` | `ExternalStoreRuntime` | LangGraph Cloud via `@langchain/langgraph-sdk` |
-| `react-langchain` | `ExternalStoreRuntime` | LangGraph Cloud via `@langchain/react`'s `useStream` |
-| `react-google-adk` | `ExternalStoreRuntime` | Google ADK JS or Python agents |
-| `react-a2a` | `ExternalStoreRuntime` | Any A2A v1.0 protocol server |
-| `react-ag-ui` | `ExternalStoreRuntime` | AG-UI protocol agents (CopilotKit, custom servers) |
-| `react-opencode` | `ExternalStoreRuntime` | OpenCode coding-agent server (experimental) |
+| `ai-sdk` | `ExternalStoreRuntime` | Vercel AI SDK v7（`useChat`） |
+| `react-langgraph` | `ExternalStoreRuntime` | 通过 `@langchain/langgraph-sdk` 使用 LangGraph Cloud |
+| `react-langchain` | `ExternalStoreRuntime` | 通过 `@langchain/react` 的 `useStream` 使用 LangGraph Cloud |
+| `react-google-adk` | `ExternalStoreRuntime` | Google ADK JS 或 Python 代理 |
+| `react-a2a` | `ExternalStoreRuntime` | 任意 A2A v1.0 协议服务器 |
+| `react-ag-ui` | `ExternalStoreRuntime` | AG-UI 协议代理（CopilotKit、自定义服务器） |
+| `react-opencode` | `ExternalStoreRuntime` | OpenCode 编码代理服务器（实验性） |
 
-When an adapter exposes a feature like attachments, speech, or feedback, it does so through the same [adapter interfaces](/docs/runtimes/concepts/adapters) the core runtimes use. A feature implemented once works the same way across runtimes.
+当适配器提供附件、语音或反馈等功能时，它使用的也是核心运行时所采用的相同[适配器接口](/docs/runtimes/concepts/adapters)。功能只需实现一次，即可在各个运行时中以相同方式工作。
 
-## How features flow
+## 功能流转方式
 
-A few things follow predictable patterns regardless of layer:
+无论处于哪个层级，以下功能都遵循可预测的模式：
 
-- **Adapters** (attachments, speech, feedback, history, suggestions) are configured the same way and carry the same contract everywhere. See [adapters](/docs/runtimes/concepts/adapters).
-- **Threads** (single, cloud, custom database) work via a shared `RemoteThreadListAdapter` for `LocalRuntime`-based runtimes and a separate `ExternalStoreThreadListAdapter` for `ExternalStoreRuntime`. See [threads](/docs/runtimes/concepts/threads).
-- **Unstable APIs** are surfaced with an `unstable_` prefix and may change in any release. See [stability](/docs/runtimes/concepts/stability).
+- **适配器**（附件、语音、反馈、历史记录、建议）在各处都以相同方式配置，并遵循相同的契约。请参阅[适配器](/docs/runtimes/concepts/adapters)。
+- **线程**（单线程、云端、自定义数据库）对于基于 `LocalRuntime` 的运行时，通过共享的 `RemoteThreadListAdapter` 工作；对于 `ExternalStoreRuntime`，则使用单独的 `ExternalStoreThreadListAdapter`。请参阅[线程](/docs/runtimes/concepts/threads)。
+- **不稳定 API** 使用 `unstable_` 前缀提供，并且可能在任何版本中发生变化。请参阅[稳定性](/docs/runtimes/concepts/stability)。
 
-## Choosing a layer
+## 选择层级
 
-Start at the top, descend only when blocked.
+从顶层开始，仅在遇到阻碍时才向下选择。
 
-1. **Framework adapter** if your backend matches one. You get streaming, threads, and adapter slots without writing protocol code.
-2. **Protocol layer** if no framework adapter fits but you can pick a wire format. `DataStream` for message streaming, `AssistantTransport` for state streaming.
-3. **Core runtime** if your situation is too custom for a protocol. `LocalRuntime` for simple cases, `ExternalStoreRuntime` if you already have a store.
+1. 如果你的后端与某个适配器匹配，请选择**框架适配器**。无需编写协议代码，即可获得流式传输、线程和适配器插槽。
+2. 如果没有合适的框架适配器，但你可以选择一种线路格式，请选择**协议层**。消息流式传输使用 `DataStream`，状态流式传输使用 `AssistantTransport`。
+3. 如果你的场景过于自定义，无法使用协议，请选择**核心运行时**。简单场景使用 `LocalRuntime`；如果你已经有状态存储，则使用 `ExternalStoreRuntime`。
 
-If you are unsure, start at [picking a runtime](/docs/runtimes/pick-a-runtime).
+如果你不确定，请从[选择运行时](/docs/runtimes/pick-a-runtime)开始。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
-    title="Adapters"
-    description="Attachments, speech, feedback, history, suggestions across runtimes."
+    title="适配器"
+    description="跨运行时的附件、语音、反馈、历史记录和建议。"
     href="/docs/runtimes/concepts/adapters"
   />
   <Card
-    title="Threads"
-    description="Multi-thread support: cloud, custom database, ExternalStore."
+    title="线程"
+    description="多线程支持：云端、自定义数据库、ExternalStore。"
     href="/docs/runtimes/concepts/threads"
   />
   <Card
-    title="Stability"
-    description="What unstable_ means and which APIs may change."
+    title="稳定性"
+    description="什么是 unstable_，哪些 API 可能发生变化。"
     href="/docs/runtimes/concepts/stability"
   />
 </Cards>

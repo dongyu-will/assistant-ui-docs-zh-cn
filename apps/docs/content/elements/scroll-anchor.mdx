@@ -1,18 +1,18 @@
 ---
-title: "Scroll anchor"
-description: "Streaming never steals your scroll position; a pill offers the way back down."
+title: "滚动锚点"
+description: "流式输出不会夺走你的滚动位置；提示条提供返回底部的入口。"
 ---
 
-A scroll anchor keeps a message list pinned to the bottom while it grows, then gets out of the way the moment someone scrolls up to read something older. With a runtime the pin and the jump-back button are the viewport's own behavior; standalone you track the pin state and the unseen count yourself.
+滚动锚点会在消息列表不断增长时将其固定在底部；一旦有人向上滚动阅读较早的内容，它就会立即让开。在运行时（runtime）中，固定和返回底部按钮都是视口自身的行为；在独立模式下，你需要自行跟踪固定状态和未读消息数量。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
 <Steps>
   <Step>
 
-### Let the viewport pin itself
+### 让视口自行固定
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 "use client";
@@ -28,12 +28,12 @@ function Viewport() {
 }
 ```
 
-`autoScroll` defaults to `true` (unless `turnAnchor="top"`), so the viewport scrolls to the newest content on its own; a reader who scrolls up interrupts that until they scroll back down themselves.
+`autoScroll` 默认值为 `true`（除非 `turnAnchor="top"`），因此视口会自行滚动到最新内容；向上滚动的读者会中断这一行为，直到他们自行滚回底部。
 
   </Step>
   <Step>
 
-### Add the jump-back pill
+### 添加返回底部提示条
 
 ```tsx
 import { ThreadPrimitive } from "@assistant-ui/react";
@@ -45,7 +45,7 @@ import { ArrowDownIcon } from "lucide-react";
 </ThreadPrimitive.ScrollToBottom>
 ```
 
-`ThreadPrimitive.ScrollToBottom` renders `null` on its own while the viewport is already at the bottom, so it needs no manual pinned check. It has no built-in count of how many messages were missed; track that yourself from `s.thread.messages.length` if you want the "n new messages" label `ScrollAnchor` shows standalone.
+当视口已经位于底部时，`ThreadPrimitive.ScrollToBottom` 会自行渲染 `null`，因此不需要手动检查是否已固定。它不会内置错过了多少条消息的计数；如果你想显示“n 条新消息”标签 `ScrollAnchor`，可以根据 `s.thread.messages.length` 自行跟踪。
 
   </Step>
 </Steps>
@@ -54,12 +54,12 @@ import { ArrowDownIcon } from "lucide-react";
 
 <StandaloneMode>
 
-Standalone, `ScrollAnchor` owns the whole simulation: it appends `messages` on a timer, decides when it's pinned, and shows the pill itself.
+在独立模式下，`ScrollAnchor` 负责整个模拟过程：它按计时器追加 `messages`，决定何时处于固定状态，并自行显示提示条。
 
 <Steps>
   <Step>
 
-### Feed it a growing list
+### 为其提供不断增长的列表
 
 ```tsx title="app/scroll-demo.tsx"
 "use client";
@@ -82,9 +82,9 @@ export function ScrollDemo() {
   </Step>
   <Step>
 
-### React once it catches up
+### 追赶完成后做出响应
 
-`onSettled` fires once every message in the array has been appended and the viewport is still pinned to the bottom, the standalone equivalent of a stream finishing while the reader never scrolled away:
+`onSettled` 会在数组中的每条消息都已追加，且视口仍固定在底部时触发一次。这相当于流式输出完成，而读者从未滚离底部：
 
 ```tsx
 <ScrollAnchor messages={messages} onSettled={() => console.log("caught up")} />
@@ -95,7 +95,7 @@ export function ScrollDemo() {
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="scroll-anchor">
@@ -104,15 +104,15 @@ export function ScrollDemo() {
 </div>
 ```
 
-Standalone, appending a message only auto-scrolls while pinned; scrolling away flips `pinned` to `false` on the next appended message and the count of unseen messages grows from there. Once two or more messages arrive unseen, it jumps back on its own after 2.4 seconds unless `paused`; pressing the pill jumps immediately. `onSettled` only fires when the whole array has landed and the view is still pinned, so it never fires while the reader is scrolled away reading.
+在独立模式下，只有处于固定状态时，追加消息才会自动滚动；滚动离开后，下一条追加的消息会将 `pinned` 切换为 `false`，未读消息数量也会从此开始增长。当有两条或更多未读消息到达后，除非 `paused`，它会在 2.4 秒后自行返回底部；按下提示条则会立即返回。只有当整个数组都已加载且视图仍处于固定状态时，`onSettled` 才会触发，因此读者滚动离开并阅读内容时，它永远不会触发。
 
-## Examples
+## 示例
 
-### Pausing the feed
+### 暂停消息流
 
 <StandaloneMode>
 
-Set `paused` while the reader is doing something a new message would interrupt, a text selection, an open menu:
+当读者正在进行可能被新消息打断的操作（例如选择文本或打开菜单）时，设置 `paused`：
 
 ```tsx
 <ScrollAnchor messages={messages} paused={isMenuOpen} />
@@ -122,7 +122,7 @@ Set `paused` while the reader is doing something a new message would interrupt, 
 
 <RuntimeMode>
 
-There's no equivalent pause on the runtime viewport: new messages always arrive as fast as the model streams them. What you can do instead is drop `autoScroll` to stop the automatic pin without stopping the stream itself:
+运行时视口没有对应的暂停功能：新消息始终会以模型流式输出的速度到达。你可以改为设置 `autoScroll`，停止自动固定，但不会停止流式传输本身：
 
 ```tsx
 <ThreadPrimitive.Viewport autoScroll={false}>
@@ -132,11 +132,11 @@ There's no equivalent pause on the runtime viewport: new messages always arrive 
 
 </RuntimeMode>
 
-### Scroll to a specific message instead of the bottom
+### 滚动到特定消息，而不是底部
 
 <RuntimeMode>
 
-`turnAnchor="top"` changes what pinned means: instead of tracking the bottom, the viewport keeps the newest user turn pinned near the top of the visible area, useful for a focused reading layout instead of a classic chat scroll:
+`turnAnchor="top"` 会改变“固定”的含义：视口不再跟踪底部，而是将最新的用户轮次固定在可视区域顶部附近。这适用于专注阅读布局，而不是经典聊天式滚动：
 
 ```tsx
 <ThreadPrimitive.Viewport turnAnchor="top">
@@ -146,26 +146,26 @@ There's no equivalent pause on the runtime viewport: new messages always arrive 
 
 </RuntimeMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Primitive parts
+### 原语部件
 
-| Part | Renders | Notes |
+| 部件 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `ThreadPrimitive.Viewport` | `div` | Scrollable container. `autoScroll`, `turnAnchor`, and the `scrollToBottomOn*` flags control when it pins. |
-| `ThreadPrimitive.ScrollToBottom` | `button` | Renders `null` while already at the bottom. Accepts `asChild` and a `behavior` prop (`"smooth" \| "auto"`). |
+| `ThreadPrimitive.Viewport` | `div` | 可滚动容器。`autoScroll`、`turnAnchor` 和 `scrollToBottomOn*` 标志控制其何时固定。 |
+| `ThreadPrimitive.ScrollToBottom` | `button` | 在已经位于底部时渲染 `null`。接受 `asChild` 和 `behavior` 属性（`"smooth" \| "auto"`）。 |
 
-### Viewport props
+### 视口属性
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `autoScroll` | `boolean` | `true` (`false` when `turnAnchor="top"`) | Scroll to the bottom automatically as content arrives. |
-| `turnAnchor` | `"top" \| "bottom"` | `"bottom"` | `"top"` anchors each new user turn near the top instead of pinning the bottom. |
-| `scrollToBottomOnRunStart` | `boolean` | `true` | Scroll to the bottom when a new run starts. |
-| `scrollToBottomOnInitialize` | `boolean` | `true` | Scroll to the bottom when thread history first loads. |
-| `scrollToBottomOnThreadSwitch` | `boolean` | `true` | Scroll to the bottom when switching to a different thread. |
+| `autoScroll` | `boolean` | `true`（`turnAnchor="top"` 时为 `false`） | 内容到达时自动滚动到底部。 |
+| `turnAnchor` | `"top" \| "bottom"` | `"bottom"` | `"top"` 会将每个新的用户轮次锚定在顶部附近，而不是固定底部。 |
+| `scrollToBottomOnRunStart` | `boolean` | `true` | 新运行开始时滚动到底部。 |
+| `scrollToBottomOnInitialize` | `boolean` | `true` | 线程历史记录首次加载时滚动到底部。 |
+| `scrollToBottomOnThreadSwitch` | `boolean` | `true` | 切换到其他线程时滚动到底部。 |
 
 </RuntimeMode>
 
@@ -173,13 +173,13 @@ There's no equivalent pause on the runtime viewport: new messages always arrive 
 
 ### ScrollAnchor
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `messages` | `ScrollAnchorMessage[]` (`{ role: "user" \| "assistant"; text: string }`) | required | Appended one at a time on a 1300ms timer. |
-| `paused` | `boolean` | `false` | Stops appending further messages while `true`. |
-| `onSettled` | `() => void` | | Fires once every message has appended while still pinned to the bottom. |
-| `className` | `string` | | Merged onto the root. |
+| `messages` | `ScrollAnchorMessage[]`（`{ role: "user" \| "assistant"; text: string }`） | 必填 | 按 1300ms 的计时器逐条追加。 |
+| `paused` | `boolean` | `false` | 当 `true` 时停止继续追加消息。 |
+| `onSettled` | `() => void` | | 在所有消息都已追加且仍固定在底部时触发一次。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

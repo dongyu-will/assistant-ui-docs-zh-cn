@@ -1,20 +1,20 @@
 ---
-title: "Map"
-description: "A location answer: pins, a route between them, and the list they came from."
+title: "地图"
+description: "位置答案：可选择的标记、连接它们的路线，以及标记来源的列表。"
 ---
 
-MapAnswer lays location results on a schematic grid: pins you can select, an optional route between them, and the list they came from underneath. With a runtime the pins come from a tool call that looked places up; standalone you already hold them.
+MapAnswer 将位置结果显示在示意网格上：可供选择的标记、连接它们的可选路线，以及下方的来源列表。在运行时中，标记来自用于查找地点的工具调用；独立使用时，你已经持有这些标记。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-assistant-ui has no map or geocoding concept, and MapAnswer draws no real tiles or projection: `x` and `y` are plain 0 to 100 percentages that place a pin on the grid, not latitude and longitude. Whatever looks places up is responsible for turning real coordinates into that percentage layout before the result reaches this component.
+assistant-ui 没有地图或地理编码概念，MapAnswer 也不会绘制真实的地图瓦片或投影：`x` 和 `y` 只是用于在网格上放置标记的 0 到 100 百分比，而不是纬度和经度。负责查找地点的逻辑需要在结果传递给此组件之前，将真实坐标转换为这种百分比布局。
 
 <Steps>
   <Step>
 
-### Render the tool call
+### 渲染工具调用
 
 ```tsx title="components/assistant-ui/elements/find-places-tool-ui.tsx"
 "use client";
@@ -54,7 +54,7 @@ export const FindPlacesToolUI: ToolCallMessagePartComponent<
   </Step>
   <Step>
 
-### Register the tool
+### 注册工具
 
 ```tsx title="app/toolkit.ts"
 import { defineToolkit } from "@assistant-ui/react";
@@ -72,7 +72,7 @@ export const toolkit = defineToolkit({
 });
 ```
 
-`lookupPlaces` owns the coordinate math: normalize each result's real latitude and longitude against the bounding box of the whole set, so the closest pins end up close together on the grid. Wire the toolkit in with `Tools({ toolkit })`; see [Tool UI](/docs/tools/tool-ui).
+`lookupPlaces` 负责坐标计算：根据整个结果集的边界框，对每个结果的真实纬度和经度进行归一化，使距离最近的标记在网格上也彼此接近。使用 `Tools({ toolkit })` 接入工具包；请参阅 [工具 UI](/docs/tools/tool-ui)。
 
   </Step>
 </Steps>
@@ -81,12 +81,12 @@ export const toolkit = defineToolkit({
 
 <StandaloneMode>
 
-Standalone, you already hold the pins, their layout percentages, and which one is active.
+独立使用时，你已经持有这些标记、它们的布局百分比，以及当前处于激活状态的标记。
 
 <Steps>
   <Step>
 
-### Hold the active pin
+### 保存当前激活的标记
 
 ```tsx title="app/places.tsx"
 "use client";
@@ -114,9 +114,9 @@ export function Places() {
   </Step>
   <Step>
 
-### Replace the pin set
+### 替换标记集
 
-A new search swaps the whole array and resets which pin is active.
+新的搜索会替换整个数组，并重置当前激活的标记。
 
 ```tsx
 async function search(query: string) {
@@ -131,7 +131,7 @@ async function search(query: string) {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="map-answer">
@@ -145,43 +145,43 @@ async function search(query: string) {
 </div>
 ```
 
-The route line draws only when `route` is true and there are at least two pins. It is a static dashed polyline connecting pins strictly in array order, not a computed path, so reordering `pins` changes the drawn route without adding or removing a single pin. `x` and `y` place a marker by percentage inside a 0 to 100 viewBox; nothing clamps an out-of-range value. The active pin's marker grows and switches to a blue fill; every other marker stays a smaller, neutral fill, both sharing the same background-colored ring so they read clearly against the grid lines. Clicking a marker and clicking its row in the list below both call `onSelect` with the same `pin.id`, so either one moves the active pin. Every list row carries a top divider, including the first, since the list sits directly under the grid rather than under another row. An empty `pins` array renders an empty grid, its hairlines still visible, with an empty list underneath.
+仅当 `route` 为 true 且至少有两个标记时，才会绘制路线。它是一条严格按照数组顺序连接标记的静态虚线折线，而不是计算得出的路径，因此重新排列 `pins` 会改变绘制的路线，但不会添加或删除任何标记。`x` 和 `y` 会在 0 到 100 的 viewBox 中按百分比放置标记；超出范围的值不会被限制。激活标记的形状会变大，并切换为蓝色填充；其他标记保持较小的中性填充。两者都使用与背景同色的环形边框，因此在网格线背景上都能清晰显示。点击标记或点击下方列表中的对应行，都会使用相同的 `pin.id` 调用 `onSelect`，因此两种操作都会移动当前激活的标记。每个列表行都带有顶部分隔线，包括第一行，因为列表直接位于网格下方，而不是位于另一行下方。空的 `pins` 数组会渲染为空网格，网格细线仍然可见，下方则显示空列表。
 
-## Examples
+## 示例
 
-### Draw the route
+### 绘制路线
 
-The dashed line is decorative connectivity, not a routed path: it always runs in `pins` order and never adjusts itself to the active pin.
+虚线表示装饰性的连接关系，而不是规划出的路径：它始终按照 `pins` 的顺序绘制，且不会根据当前激活的标记进行调整。
 
 ```tsx
 <MapAnswer pins={pins} activeId={activeId} route onSelect={onSelect} />
 ```
 
-### Restyle the map
+### 重新设置地图样式
 
-Both lanes take `className` on the root. The grid background reads the shared `field` token, the card itself `paper`, and the list's detail column `mono`, all from `surfaces.tsx`.
+两条区域都会在根元素上接收 `className`。网格背景使用共享的 `field` 令牌，卡片本身使用 `paper`，列表的详情列使用 `mono`，这些令牌都来自 `surfaces.tsx`。
 
 ```tsx
 <MapAnswer className="max-w-none" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool-call render props
+### 工具调用渲染属性
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `args` | `TArgs` | Parsed arguments. Partial while the model is still streaming them. |
-| `argsText` | `string` | Raw JSON argument text streamed by the model. |
-| `result` | `TResult \| undefined` | The tool's return value once it completes. `undefined` while running. |
-| `status` | `ToolCallMessagePartStatus` | `status.type` is `"running"`, `"requires-action"`, `"complete"`, or `"incomplete"`. |
-| `toolName` | `string` | Name of the tool the model called. |
-| `toolCallId` | `string` | Stable id for this invocation. |
-| `isError` | `boolean \| undefined` | Whether `result` represents a tool execution error. |
+| `args` | `TArgs` | 解析后的参数。在模型仍处于流式传输状态时，该值可能不完整。 |
+| `argsText` | `string` | 模型流式传输的原始 JSON 参数文本。 |
+| `result` | `TResult \| undefined` | 工具完成后的返回值。运行期间为 `undefined`。 |
+| `status` | `ToolCallMessagePartStatus` | `status.type` 为 `"running"`、`"requires-action"`、`"complete"` 或 `"incomplete"`。 |
+| `toolName` | `string` | 模型调用的工具名称。 |
+| `toolCallId` | `string` | 此次调用的稳定 ID。 |
+| `isError` | `boolean \| undefined` | `result` 是否表示工具执行错误。 |
 
-Register the renderer on a toolkit entry's `render` field and attach the toolkit with `Tools({ toolkit })`. See [Tool UI](/docs/tools/tool-ui) for the full render-prop surface, including `addResult`, human tools, and approval gates.
+在工具包条目的 `render` 字段上注册渲染器，并使用 `Tools({ toolkit })` 附加工具包。完整的渲染属性接口请参阅[工具 UI](/docs/tools/tool-ui)，其中包括 `addResult`、人工工具和审批门控。
 
 </RuntimeMode>
 
@@ -189,24 +189,24 @@ Register the renderer on a toolkit entry's `render` field and attach the toolkit
 
 ### MapAnswer
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `pins` | `readonly MapPin[]` | required | The markers to place, in order. Also the order the route line connects them in. |
-| `activeId` | `string` | required | Id of the highlighted pin. An id matching no pin highlights none. |
-| `route` | `boolean` | | Draws a dashed line through `pins` in array order. No line below two pins even when `true`. |
-| `onSelect` | `(id: string) => void` | | Called with a pin's `id` from either its marker or its list row. |
-| `className` | `string` | | Merged onto the root. |
+| `pins` | `readonly MapPin[]` | 必填 | 要放置的标记，按顺序排列。路线也会按此顺序连接这些标记。 |
+| `activeId` | `string` | 必填 | 高亮标记的 ID。如果没有标记匹配该 ID，则不会高亮任何标记。 |
+| `route` | `boolean` | | 按数组顺序绘制一条穿过 `pins` 的虚线。即使 `true`，少于两个标记时也不会绘制路线。 |
+| `onSelect` | `(id: string) => void` | | 从标记或其列表行触发，并接收该标记的 `id`。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### MapPin
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
 | `id` | `string` | |
-| `label` | `string` | Marker `aria-label` and the list row's primary text. |
-| `detail` | `string` | Secondary text in the list row, for example a distance. |
-| `x` | `number` | Horizontal position, 0 to 100 percent. Not longitude. |
-| `y` | `number` | Vertical position, 0 to 100 percent. Not latitude. |
+| `label` | `string` | 标记的 `aria-label` 和列表行的主要文本。 |
+| `detail` | `string` | 列表行中的辅助文本，例如距离。 |
+| `x` | `number` | 水平位置，0 到 100 百分比。不是经度。 |
+| `y` | `number` | 垂直位置，0 到 100 百分比。不是纬度。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

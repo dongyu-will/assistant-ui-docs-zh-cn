@@ -1,20 +1,20 @@
 ---
-title: "Assistant sidebar"
-description: "A resizable side panel for copilot experiences and contextual assistance."
+title: "助手侧边栏"
+description: "用于副驾驶体验和上下文辅助的可调整大小侧面板。"
 ---
 
-Assistant sidebar splits the screen between your app and a Thread, with a drag handle between them. It has no standalone form, since the only state it holds is the resizable split itself, and the conversation pane is always a live Thread.
+助手侧边栏将屏幕划分为应用和线程，中间带有拖动手柄。它没有独立的表单，因为它唯一持有的状态就是可调整大小的分栏，而会话窗格始终是一个实时线程。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-`AssistantSidebar` needs nothing beyond a runtime provider higher up the tree and the content to show in the left pane.
+`AssistantSidebar`除了组件树上层的运行时提供程序以及要显示在左侧窗格中的内容外，无需其他配置。
 
 <Steps>
   <Step>
 
-### Wrap your app
+### 包裹你的应用
 
 ```tsx title="app/layout.tsx"
 import { AssistantSidebar } from "@/components/assistant-ui/elements/assistant-sidebar.aui";
@@ -24,7 +24,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 }
 ```
 
-Needs an `AssistantRuntimeProvider` ancestor. `children` renders in the left pane; a full [Thread](/elements/thread) fills the right one.
+需要一个 `AssistantRuntimeProvider` 祖先组件。`children` 会渲染在左侧窗格中；完整的[线程](/elements/thread)会填充右侧窗格。
 
   </Step>
 </Steps>
@@ -33,11 +33,11 @@ Needs an `AssistantRuntimeProvider` ancestor. `children` renders in the left pan
 
 <StandaloneMode>
 
-Assistant sidebar has no standalone form: its only prop is `children`, and the conversation pane is always the runtime-only Thread. For a resizable split with a static or otherwise non-runtime right pane, compose `ResizablePanelGroup` directly around your own content.
+助手侧边栏没有独立的表单：它唯一的 prop 是 `children`，会话窗格始终是仅运行时的线程。如果要使用静态或其他非运行时的右侧窗格创建可调整大小的分栏，请直接围绕你自己的内容组合 `ResizablePanelGroup`。
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <ResizablePanelGroup orientation="horizontal">
@@ -49,11 +49,11 @@ Assistant sidebar has no standalone form: its only prop is `children`, and the c
 </ResizablePanelGroup>
 ```
 
-Neither panel sets a `defaultSize` or `minSize`, so the group starts at an even split and either side can be dragged arbitrarily close to zero.
+两个窗格都没有设置 `defaultSize` 或 `minSize`，因此分组会从均等分栏开始，并且任一侧都可以拖动到无限接近零的宽度。
 
-## Examples
+## 示例
 
-### Constrain the split
+### 限制分栏范围
 
 ```tsx
 <ResizablePanelGroup orientation="horizontal">
@@ -67,24 +67,24 @@ Neither panel sets a `defaultSize` or `minSize`, so the group starts at an even 
 </ResizablePanelGroup>
 ```
 
-### Show a grip on the handle
+### 在手柄上显示抓手
 
 ```tsx
 <ResizableHandle withHandle />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### AssistantSidebarProps
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `children` | `ReactNode` | required | Rendered in the left pane. |
+| `children` | `ReactNode` | 必填 | 在左侧窗格中渲染。 |
 
-### Panels
+### 窗格
 
-`ResizablePanelGroup`, `ResizablePanel`, and `ResizableHandle` come from `@/components/ui/resizable`, a thin wrapper over `react-resizable-panels`; every prop of the underlying library, including `defaultSize`, `minSize`, `maxSize`, and `order`, passes straight through.
+`ResizablePanelGroup`、`ResizablePanel` 和 `ResizableHandle` 来自 `@/components/ui/resizable`，后者是对 `react-resizable-panels` 的轻量封装；底层库的所有 prop（包括 `defaultSize`、`minSize`、`maxSize` 和 `order`）都会直接透传。
 
 </RuntimeMode>

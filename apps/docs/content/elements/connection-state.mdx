@@ -1,20 +1,20 @@
 ---
-title: "Connection state"
-description: "The socket drops, the run keeps going on the server, and the stream is picked back up."
+title: "连接状态"
+description: "套接字断开后，运行仍在服务器上继续，流式传输随后会恢复。"
 ---
 
-A connection state banner tells the reader when the transport under a run has hiccuped: the socket dropped, the run is still going server side, or the stream just picked back up. With a runtime this maps to catching a transport failure and resuming the run; standalone you drive the phase directly.
+连接状态横幅会在运行期间的传输层出现短暂故障时提示读者：套接字已断开、运行仍在服务器端继续，或流式传输刚刚恢复。在运行时中，这对应于捕获传输失败并恢复运行；单独使用时，则由你直接驱动阶段。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-assistant-ui doesn't expose a single connection field on thread state, because a dropped socket is something an adapter observes, not a concept the runtime itself models. What it exposes instead is a resumable run: catch the failure where your adapter reports it, show the banner, then call `resumeRun` to pick the same run back up.
+assistant-ui 不会在线程状态上暴露单独的连接字段，因为套接字断开是适配器观察到的情况，而不是运行时自身建模的概念。它提供的是可恢复的运行：在适配器报告失败的位置捕获错误，显示横幅，然后调用 `resumeRun` 恢复同一个运行。
 
 <Steps>
   <Step>
 
-### Track the phase around the run
+### 跟踪运行周围的阶段
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 "use client";
@@ -44,14 +44,14 @@ function ConnectionBanner({ resumeFromId }: { resumeFromId: string | null }) {
 }
 ```
 
-Where `phase` first flips to `"dropped"` is adapter-specific: wherever your transport surfaces a network failure, which `ConnectionState` itself has no opinion on. `resumeRun` returns no promise to await; watch `isRunning` flip back to `true` to know the reconnect actually landed.
+`phase` 首次切换为 `"dropped"` 的位置取决于适配器：也就是传输层暴露网络故障的位置，`ConnectionState` 本身对此不做任何规定。`resumeRun` 不会返回可等待的 promise；观察 `isRunning` 切回 `true`，即可确认重新连接确实成功。
 
   </Step>
   <Step>
 
-### Resume instead of restarting
+### 恢复而不是重新启动
 
-`resumeRun` takes the same config shape as `startRun`, a `parentId` (and optional `sourceId` and `runConfig`), not a raw connection handle. Whether that continues the same generation or starts a fresh one is up to the adapter: assistant-ui's resumable transports retain the run server side and replay it rather than asking the model again:
+`resumeRun` 接受与 `startRun` 相同的配置形状：一个 `parentId`（以及可选的 `sourceId` 和 `runConfig`），而不是原始连接句柄。究竟是继续同一代运行还是启动新的一代运行，取决于适配器：assistant-ui 的可恢复传输会在服务器端保留运行并重放它，而不是再次请求模型：
 
 ```tsx
 aui.thread.resumeRun({ parentId: resumeFromId, sourceId: null });
@@ -64,12 +64,12 @@ aui.thread.resumeRun({ parentId: resumeFromId, sourceId: null });
 
 <StandaloneMode>
 
-Standalone, `ConnectionState` is a pure display: you own the phase and it renders the matching banner, or nothing at all.
+单独使用时，`ConnectionState` 只是一个纯展示组件：由你管理阶段，它会渲染匹配的横幅，或者什么也不渲染。
 
 <Steps>
   <Step>
 
-### Drive the phase
+### 驱动阶段
 
 ```tsx title="app/banner.tsx"
 "use client";
@@ -92,9 +92,9 @@ export function Banner() {
   </Step>
   <Step>
 
-### Clear it once resumed
+### 恢复后清除状态
 
-`"resumed"` is meant as a brief confirmation, not a resting state; move back to `"online"`, which renders nothing, after a short delay:
+`"resumed"` 用于短暂确认，而不是稳定状态；经过短暂延迟后，将其切回 `"online"`，后者不会渲染任何内容：
 
 ```tsx
 useEffect(() => {
@@ -109,7 +109,7 @@ useEffect(() => {
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="connection-state">
@@ -119,11 +119,11 @@ useEffect(() => {
 </div>
 ```
 
-`ConnectionState` renders nothing at all while `phase` is `"online"`, the only phase without a visible banner. The other three phases are mutually exclusive and each show a different icon and message; `attempt` and `resumedTokens` are optional counters shown only when you pass them.
+当 `phase` 为 `"online"` 时，`ConnectionState` 完全不会渲染，这是唯一不显示横幅的阶段。其他三个阶段互斥，并且分别显示不同的图标和消息；`attempt` 和 `resumedTokens` 是可选计数器，仅在传入时显示。
 
-## Examples
+## 示例
 
-### Every phase
+### 所有阶段
 
 ```tsx
 <ConnectionState phase="dropped" onRetry={() => {}} />
@@ -131,22 +131,22 @@ useEffect(() => {
 <ConnectionState phase="resumed" resumedTokens={340} />
 ```
 
-### Silence the online case explicitly
+### 明确静默在线状态
 
-Since `phase="online"` already renders `null`, conditionally mounting the banner at all is optional; leaving it mounted lets it animate in and out on its own fade and slide transition each time the phase changes away from `"online"`.
+由于 `phase="online"` 已经渲染 `null`，是否有条件地挂载横幅并非必需；让它保持挂载状态，可以在阶段每次离开 `"online"` 时，通过自身的淡入淡出和滑动过渡动画进出。
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Thread methods
+### 线程方法
 
-| Method | Type | Description |
+| 方法 | 类型 | 描述 |
 |--------|------|-------------|
-| `aui.thread.resumeRun(config)` | `(config: CreateResumeRunConfig) => void` | Reconnects to (or restarts, depending on the adapter) the run for `config.parentId`. Same shape as `startRun`. |
-| `aui.thread.cancelRun()` | `() => void` | Cancels the in-flight run outright, rather than resuming it. |
+| `aui.thread.resumeRun(config)` | `(config: CreateResumeRunConfig) => void` | 为 `config.parentId` 重新连接到运行（或根据适配器重新启动运行）。形状与 `startRun` 相同。 |
+| `aui.thread.cancelRun()` | `() => void` | 直接取消正在进行的运行，而不是恢复它。 |
 
-There is no built-in selector for "the socket is dropped": that phase lives in your adapter and the app state around it, not in `AssistantState`.
+没有用于判断“套接字已断开”的内置选择器：该阶段存在于你的适配器及其周围的应用状态中，而不在 `AssistantState` 中。
 
 </RuntimeMode>
 
@@ -154,14 +154,14 @@ There is no built-in selector for "the socket is dropped": that phase lives in y
 
 ### ConnectionState
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `phase` | `"online" \| "dropped" \| "reconnecting" \| "resumed"` | required | `"online"` renders nothing. |
-| `attempt` | `number` | | Shown next to the `"reconnecting"` message when set. |
-| `resumedTokens` | `number` | | Shown next to the `"resumed"` message when set. |
-| `onRetry` | `() => void` | | Called by the `"dropped"` phase's Reconnect button. |
-| `className` | `string` | | Merged onto the root. |
+| `phase` | `"online" \| "dropped" \| "reconnecting" \| "resumed"` | 必填 | `"online"` 不会渲染任何内容。 |
+| `attempt` | `number` | | 设置后显示在 `"reconnecting"` 消息旁边。 |
+| `resumedTokens` | `number` | | 设置后显示在 `"resumed"` 消息旁边。 |
+| `onRetry` | `() => void` | | 由 `"dropped"` 阶段的“重新连接”按钮调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

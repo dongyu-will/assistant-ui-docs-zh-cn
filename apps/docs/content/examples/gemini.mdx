@@ -1,31 +1,31 @@
 ---
 title: Gemini Clone
-description: Open-source Gemini clone in React with a centered greeting over an ambient glow, a single-row pill composer, avatar-free assistant replies, and disabled, ready, and stop send states.
+description: 使用 React 构建的开源 Gemini 克隆版，包含置于环境光晕上的居中问候语、单行胶囊式输入框、无头像的助手回复，以及禁用、就绪和停止发送状态。
 ---
 
-## Overview
+## 概览
 
-The Gemini Clone shows how to restyle assistant-ui to match Google Gemini's current interface. The empty state centers a single-line greeting over a soft blue glow, and a single-row pill composer is shared by both the empty and chat states. Assistant replies render as full-width markdown with no avatar, and user turns sit in a rounded grey bubble.
+Gemini Clone 展示了如何重新设计 assistant-ui 的样式，使其匹配 Google Gemini 的当前界面。空状态会将单行问候语置于柔和的蓝色光晕上方并居中显示，空状态和聊天状态共用单行胶囊式输入框。助手回复以无头像的全宽 Markdown 形式呈现，用户消息则位于圆角灰色气泡中。
 
-## Features
+## 功能
 
-- **Centered greeting**: one "How can I help you today?" headline, centered over a blurred radial glow.
-- **Single-row composer**: a 32px pill that holds the `+` menu, the input, the model picker, the mic, and send on one line.
-- **Combined `+` menu**: "Add photos & files" sits next to the Deep Research, Canvas, Create image, and Guided Learning tools.
-- **Model picker**: Fast and Thinking, each with a short description and a check mark on the active model.
-- **Send states**: a disabled grey arrow when empty, a blue arrow when ready, and a stop square while a response streams.
-- **Avatar-free replies**: assistant messages are full-width markdown, with the action bar revealed on hover.
-- **Grey user bubble**: a `rounded-3xl` warm-grey bubble, right-aligned, with copy and edit actions on hover.
+- **居中问候语**：一条“How can I help you today?”标题，置于模糊的径向光晕上方并居中显示。
+- **单行输入框**：一个 32px 的胶囊式输入框，在同一行容纳 `+` 菜单、输入框、模型选择器、麦克风和发送按钮。
+- **组合式 `+` 菜单**：“Add photos & files”与 Deep Research、Canvas、Create image 和 Guided Learning 工具并列显示。
+- **模型选择器**：Fast 和 Thinking 两个模型，各自带有简短描述，当前模型旁显示勾选标记。
+- **发送状态**：为空时显示禁用的灰色箭头，就绪时显示蓝色箭头，响应进行流式输出时显示停止方块。
+- **无头像回复**：助手消息以全宽 Markdown 形式呈现，悬停时显示操作栏。
+- **灰色用户气泡**：一个 `rounded-3xl` 暖灰色气泡，右对齐，悬停时显示复制和编辑操作。
 
-## Quick Start
+## 快速开始
 
 ```bash
 npx assistant-ui add thread
 ```
 
-## Code
+## 代码
 
-The empty and chat states render the same `Composer`. It is a flex column: an optional attachment row on top, then a single action row with the input as the `flex-1` middle and the controls bottom-aligned around it.
+空状态和聊天状态会渲染相同的 `Composer`。它是一个 flex 列布局：顶部是可选的附件行，下面是单行操作区，输入框位于 `flex-1` 中间，控件在其周围沿底部对齐。
 
 ```tsx
 import {
@@ -71,9 +71,9 @@ const Composer = () => (
 );
 ```
 
-### Send states
+### 发送状态
 
-The trailing slot swaps between Send and Cancel with `AuiIf`. `ComposerPrimitive.Send` disables itself while the composer is empty, so the disabled, ready, and running looks are all driven by state instead of manual class toggling:
+通过 `AuiIf`，末尾插槽会在 Send 和 Cancel 之间切换。输入框为空时，`ComposerPrimitive.Send` 会自动禁用自身，因此禁用、就绪和运行中的外观都由状态驱动，无需手动切换 class：
 
 ```tsx
 {/* Send: disabled grey when empty, blue when there is text */}
@@ -90,9 +90,9 @@ The trailing slot swaps between Send and Cancel with `AuiIf`. `ComposerPrimitive
 </AuiIf>
 ```
 
-### Combined `+` menu
+### 组合式 `+` 菜单
 
-The `+` button opens one menu for both attachments and tools. `ComposerPrimitive.AddAttachment` is rendered as the first item through the `render` prop, so picking it opens the file dialog and closes the menu:
+`+` 按钮会为附件和工具打开同一个菜单。`ComposerPrimitive.AddAttachment` 通过 `render` prop 作为第一项渲染，因此选择它会打开文件对话框并关闭菜单：
 
 ```tsx
 import {
@@ -123,9 +123,9 @@ import {
 </DropdownMenu>
 ```
 
-### Ambient glow
+### 环境光晕
 
-The empty state places a single blurred ellipse behind the greeting and composer. It is decorative, so it is `pointer-events-none` and `aria-hidden`:
+空状态会在问候语和输入框后方放置一个模糊的椭圆。它仅用于装饰，因此设置为 `pointer-events-none` 和 `aria-hidden`：
 
 ```tsx
 <div className="relative flex grow items-center justify-center">
@@ -140,21 +140,21 @@ The empty state places a single blurred ellipse behind the greeting and composer
 </div>
 ```
 
-### Color palette
+### 颜色调色板
 
-| Element            | Light                 | Dark      |
-| ------------------ | --------------------- | --------- |
-| Background         | `#fdfcfc`             | `#131314` |
-| Composer surface   | `#ffffff`             | `#1e1f20` |
-| Primary text       | `#1f1f1f`             | `#e3e3e3` |
-| Muted text & icons | `#444746`             | `#c4c7c5` |
-| User bubble        | `#f2f0f0`             | `#333537` |
-| Send (ready)       | `#d3e3fd`             | `#1f3760` |
-| Ambient glow       | `#a9d1fb`             | `#1d4068` |
+| 元素             | 浅色                  | 深色      |
+| ---------------- | --------------------- | --------- |
+| 背景             | `#fdfcfc`     | `#131314` |
+| 输入框表面       | `#ffffff`     | `#1e1f20` |
+| 主要文本         | `#1f1f1f`     | `#e3e3e3` |
+| 弱化文本和图标   | `#444746`     | `#c4c7c5` |
+| 用户气泡         | `#f2f0f0`     | `#333537` |
+| 发送（就绪）     | `#d3e3fd`     | `#1f3760` |
+| 环境光晕         | `#a9d1fb`     | `#1d4068` |
 
-### Messages
+### 消息
 
-Assistant replies have no avatar; the markdown spans the full content width and the action bar (feedback, copy, regenerate, more) fades in on hover. User turns sit in a rounded grey bubble, right-aligned, with copy and edit actions to its left:
+助手回复不包含头像；Markdown 会占据完整内容宽度，操作栏（反馈、复制、重新生成、更多）会在悬停时淡入。用户消息位于右对齐的圆角灰色气泡中，其左侧提供复制和编辑操作：
 
 ```tsx
 <div className="max-w-[75%] rounded-3xl bg-[#f2f0f0] px-5 py-3 dark:bg-[#333537]">
@@ -162,6 +162,6 @@ Assistant replies have no avatar; the markdown spans the full content width and 
 </div>
 ```
 
-## Source
+## 源码
 
 <SourceLink href="https://github.com/assistant-ui/assistant-ui/blob/main/apps/docs/components/pages/examples/gemini.tsx" />

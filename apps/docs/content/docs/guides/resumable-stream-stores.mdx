@@ -1,14 +1,14 @@
 ---
-title: Custom Resumable Stream Stores
-description: Implement the ResumableStreamStore interface to back resumable streams with Postgres, Cloudflare Durable Objects, Upstash REST, InstantDB, or any other backend.
+title: 自定义可恢复流存储
+description: 实现 ResumableStreamStore 接口，使用 Postgres、Cloudflare Durable Objects、Upstash REST、InstantDB 或任何其他后端为可恢复流提供支持。
 platforms: ["react"]
 ---
 
-The built-in InMemory and Redis adapters cover most deployments. Write your own `ResumableStreamStore` when you need a backend you already operate (Postgres, MySQL), an edge-native primitive (Cloudflare Durable Objects, Workers KV), an HTTP-only key-value service (Upstash REST), or a realtime database (InstantDB). The contract is six async methods over an opaque `streamId` and a monotonic byte log.
+内置的 InMemory 和 Redis 适配器已覆盖大多数部署场景。当你需要使用已经在运维的后端（Postgres、MySQL）、边缘原生原语（Cloudflare Durable Objects、Workers KV）、仅支持 HTTP 的键值服务（Upstash REST）或实时数据库（InstantDB）时，可以编写自己的 `ResumableStreamStore`。该契约围绕不透明的 `streamId` 和单调递增的字节日志，定义了六个异步方法。
 
-## Interface walkthrough
+## 接口说明
 
-The full interface lives in `assistant-stream/resumable`:
+完整接口位于 `assistant-stream/resumable`：
 
 ```ts title="packages/assistant-stream/src/resumable/types.ts"
 export interface ResumableStreamStore {
@@ -32,41 +32,41 @@ export interface ResumableStreamStore {
 }
 ```
 
-`acquire(streamId, options?)` arbitrates ownership. The first caller for a given `streamId` resolves to `"producer"`; every later caller, including those arriving after `finalize`, resolves to `"consumer"`. Implementations must perform the check and the insert atomically (see below). `options.ttlMs` overrides the store default for this stream; honor it when you set the expiration timestamp.
+`acquire(streamId, options?)` 负责仲裁所有权。对于给定的 `streamId`，第一个调用方会解析为 `"producer"`；所有后续调用方，包括在 `finalize` 之后到达的调用方，都会解析为 `"consumer"`。实现必须以原子方式执行检查和插入（见下文）。`options.ttlMs` 会覆盖此流的存储默认值；设置过期时间戳时必须遵守该值。
 
-`append(streamId, chunk)` adds a `Uint8Array` to the log under a fresh, monotonically increasing cursor. Callers expect the chunk to be observable to `read` before the promise resolves. Implementations should refresh the TTL on each call so a stream that is still actively producing does not expire mid-flight, and should reject when the stream is missing or already finalized.
+`append(streamId, chunk)` 会在日志中以新的、单调递增的游标添加一个 `Uint8Array`。调用方期望在 promise 解析之前，就能通过 `read` 观察到该数据块。实现应在每次调用时刷新 TTL，这样仍在主动生成数据的流不会在执行过程中途过期；当流不存在或已经完成时，应拒绝该调用。
 
-`finalize(streamId, status, error?)` flips the stream into a terminal state. Pending and future `read` iterables drain buffered entries and then either complete (`"done"`) or throw with `error` (`"error"`). Implementations must make `finalize` idempotent: a duplicate call with the same status is a no-op, and the producer task may retry on transient errors.
+`finalize(streamId, status, error?)` 会将流切换为终止状态。待处理和后续的 `read` 可迭代对象会排出缓冲条目，然后要么正常完成（`"done"`），要么以 `error` 抛出异常（`"error"`）。实现必须使 `finalize` 具备幂等性：使用相同状态的重复调用应为空操作，并且生产者任务可以在遇到临时错误时重试。
 
-`read(streamId, cursor, signal)` is the only streaming method. It yields every entry whose cursor sorts strictly after the supplied `cursor`, then waits for new appends, then completes when the stream finalizes. Aborting `signal` resolves the iterable cleanly without throwing. Networked stores typically combine a bounded fetch loop with pub/sub, long-poll, or notify wakeups; do not busy-loop.
+`read(streamId, cursor, signal)` 是唯一的流式方法。它会生成游标严格排在所提供 `cursor` 之后的所有条目，然后等待新的追加内容，最后在流完成时结束。中止 `signal` 会使可迭代对象正常解析而不抛出异常。网络存储通常会将有界获取循环与发布/订阅、长轮询或通知唤醒结合使用；不要进行忙等循环。
 
-`status(streamId)` returns one of `"streaming" | "done" | "error" | "missing"` synchronously with respect to the underlying store. It exists so the context can decide whether to start a new producer or attach a consumer without holding a `read` iterator open.
+`status(streamId)` 会相对于底层存储同步返回 `"streaming" | "done" | "error" | "missing"` 之一。这样，上下文就可以决定是启动新的生产者还是连接消费者，而无需保持打开 `read` 迭代器。
 
-`delete(streamId)` removes all state for the stream. It must be a no-op when the stream does not exist, and it should cause active `read` iterables to terminate (treat outstanding readers as if the stream finalized).
+`delete(streamId)` 会移除该流的所有状态。当流不存在时，该方法必须为空操作；同时，它应导致活动的 `read` 可迭代对象终止（将仍在读取的调用方视为流已完成）。
 
-## Acquire semantics
+## 获取语义
 
-`acquire` is the only method that requires linearizability across processes. Two route handlers that race to start the same `streamId` must see exactly one `"producer"` result; the loser becomes a `"consumer"` and replays the winner's bytes. A single-process store can guard a `Map` with a synchronous `if (!map.has(id)) map.set(id, ...)`. Networked stores need a primitive that does the check and the insert in one round trip:
+`acquire` 是唯一要求跨进程线性一致性的方法。两个路由处理程序竞争启动同一个 `streamId` 时，必须恰好看到一个 `"producer"` 结果；失败的一方会成为 `"consumer"`，并重放胜出方的字节。单进程存储可以使用同步的 `if (!map.has(id)) map.set(id, ...)` 保护 `Map`。网络存储则需要一种能在一次往返中完成检查和插入的原语：
 
-- Redis: `SET key value NX EX ttl`, or `INCR` against a per-stream counter.
-- Postgres: `INSERT ... ON CONFLICT (stream_id) DO NOTHING RETURNING ...`.
-- Durable Objects: a single object instance per `streamId` plus a boolean field.
-- Upstash REST: `set` with `nx=true`.
+- Redis：`SET key value NX EX ttl`，或针对每个流计数器使用 `INCR`。
+- Postgres：`INSERT ... ON CONFLICT (stream_id) DO NOTHING RETURNING ...`。
+- Durable Objects：为每个 `streamId` 使用一个对象实例，并配合布尔字段。
+- Upstash REST：结合 `nx=true` 使用 `set`。
 
-If your backend cannot offer atomicity, do not paper over it with read-then-write; you will silently produce two writers for the same stream under contention, and consumers will observe interleaved bytes.
+如果你的后端无法提供原子性，不要用先读后写来掩盖这一点；在竞争情况下，这会悄悄为同一流创建两个写入方，消费者将观察到交错的字节。
 
-## The cursor contract
+## 游标契约
 
-Cursors are opaque strings. Callers never inspect them; the store assigns them, the context echoes them back on the next `read` call, and the store uses them to resume from the correct position. Two rules:
+游标是不透明的字符串。调用方不会检查它们；存储会分配游标，上下文会在下一次 `read` 调用中将其传回，存储则使用它们从正确的位置继续读取。需要遵循两条规则：
 
-- Cursors must be strictly monotonic per stream. Whatever scheme you pick (sequence number, ULID, Postgres `bigserial`, Redis stream id), entry N+1 sorts after entry N.
-- The empty string means start from the beginning. `read(streamId, "", signal)` yields every entry the store has, oldest first.
+- 每个流中的游标必须严格单调递增。无论选择哪种方案（序列号、ULID、Postgres `bigserial`、Redis 流 ID），条目 N+1 的排序都必须位于条目 N 之后。
+- 空字符串表示从开头开始。`read(streamId, "", signal)` 会按从旧到新的顺序生成存储中的每个条目。
 
-You do not need cross-stream ordering. You do need a deterministic mapping from cursor back to position so that `read` can resume a consumer that disconnected mid-replay.
+你不需要保证跨流排序，但需要建立从游标回到位置的确定性映射，以便 `read` 能够继续读取在重放过程中断开连接的消费者。
 
-## A worked example
+## 完整示例
 
-A `Map`-backed implementation suitable for a single-process server. It is deliberately small and skips TTL eviction; treat it as a starting point for a custom backend rather than a replacement for `createInMemoryResumableStreamStore`.
+这是一个基于 `Map`、适用于单进程服务器的实现。示例刻意保持简小，并跳过 TTL 驱逐；请将其视为自定义后端的起点，而不是 `createInMemoryResumableStreamStore` 的替代方案。
 
 ```ts title="/lib/map-resumable-store.ts"
 import type { ResumableStreamStore } from "assistant-stream/resumable";
@@ -130,15 +130,15 @@ export function createMapResumableStreamStore(): ResumableStreamStore {
 }
 ```
 
-## TTL and eviction
+## TTL 和驱逐
 
-`acquire` receives `options.ttlMs`; if absent, fall back to a store-level default (the built-in stores use 24 hours). Refresh the expiration on every `append` and on `finalize` so a stream that finishes near the deadline still has time to be consumed. Persist the TTL alongside the entries so a worker reading the stream much later can decide whether the data is still valid.
+`acquire` 会接收 `options.ttlMs`；如果未提供，则回退到存储级别的默认值（内置存储使用 24 小时）。每次 `append` 和 `finalize` 调用时都刷新过期时间，这样即使流接近截止时间才完成，也仍有足够时间供消费者读取。将 TTL 与条目一起持久化，以便很久之后读取该流的工作进程能够判断数据是否仍然有效。
 
-When a stream expires, treat it the same as `finalize(streamId, "error", "Stream expired")`: any active `read` iterable must throw or terminate, and `status` must transition to `"missing"` once the eviction has run. Stores backed by Redis or a similar TTL-aware engine can lean on the engine's own expiration; SQL-backed stores need a periodic sweep, and Durable Objects can use `setAlarm`.
+当流过期时，将其视为与 `finalize(streamId, "error", "Stream expired")` 相同：任何活动的 `read` 可迭代对象都必须抛出异常或终止，并且在驱逐完成后，`status` 必须转换为 `"missing"`。由 Redis 或类似支持 TTL 的引擎提供支持的存储可以依赖引擎自身的过期机制；SQL 存储需要定期清理，而 Durable Objects 可以使用 `setAlarm`。
 
-## Wiring it up
+## 接入使用
 
-`createResumableStreamContext` takes any object that satisfies `ResumableStreamStore`. There is no registry and no extra configuration; pass your instance as `store`:
+`createResumableStreamContext` 接受任何满足 `ResumableStreamStore` 的对象。这里没有注册表，也不需要额外配置；将实例作为 `store` 传入：
 
 ```ts title="/lib/resumable-context.ts"
 import { createResumableStreamContext } from "assistant-stream/resumable";
@@ -149,4 +149,4 @@ export const resumableContext = createResumableStreamContext({
 });
 ```
 
-From this point the route handlers in [Resumable Streams](/docs/guides/resumable-streams) work unchanged: `resumableContext.run(streamId, makeStream)` calls your `acquire`, `append`, and `finalize`, and `resumableContext.resume(streamId)` calls your `read`.
+从此以后，[Resumable Streams](/docs/guides/resumable-streams) 中的路由处理程序无需任何改动即可工作：`resumableContext.run(streamId, makeStream)` 会调用你的 `acquire`、`append` 和 `finalize`，而 `resumableContext.resume(streamId)` 会调用你的 `read`。

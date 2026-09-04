@@ -1,6 +1,6 @@
 ---
-title: ChainOfThought
-description: Collapsible accordion for grouping reasoning steps and tool calls.
+title: 思维链
+description: 用于分组推理步骤和工具调用的可折叠手风琴组件。
 platforms: ["react"]
 ---
 
@@ -12,10 +12,10 @@ import {
   MessagePrimitive as MessagePrimitiveDocs,
 } from "@/generated/primitiveDocs";
 
-The ChainOfThought primitive is the legacy accordion API for grouped reasoning and tool-call parts. Reasoning models emit reasoning tokens and tool calls before producing a final answer.
+ChainOfThought 原语是用于对推理和工具调用部分进行分组的旧版手风琴 API。推理模型会先输出推理 token 和工具调用，然后生成最终答案。
 
 <Callout type="warn">
-For new grouped reasoning/tool-call UI, use `MessagePrimitive.GroupedParts`. `ChainOfThoughtPrimitive` and `components.ChainOfThought` remain available for maintaining existing code.
+对于新的分组推理/工具调用 UI，请使用 `MessagePrimitive.GroupedParts`。`ChainOfThoughtPrimitive` 和 `components.ChainOfThought` 仍可用于维护现有代码。
 </Callout>
 
 <Tabs items={["Preview", "Code"]}>
@@ -64,9 +64,9 @@ function AssistantMessage() {
   </Tab>
 </Tabs>
 
-## Recommended: GroupedParts
+## 推荐：GroupedParts
 
-Group reasoning and tool-call parts directly in your assistant message:
+直接在助手消息中对推理和工具调用部分进行分组：
 
 ```tsx
 import { MessagePrimitive, groupPartByType } from "@assistant-ui/react";
@@ -100,29 +100,29 @@ import { MessagePrimitive, groupPartByType } from "@assistant-ui/react";
 </MessagePrimitive.Root>
 ```
 
-### GroupedParts API Reference
+### GroupedParts API 参考
 
 <PrimitivesTypeTable type="MessagePrimitiveGroupedPartsProps" parameters={MessagePrimitiveDocs.GroupedParts.props} />
 
-## Legacy: ChainOfThoughtPrimitive
+## 旧版：ChainOfThoughtPrimitive
 
-### Quick Start
+### 快速开始
 
-Render your normal message parts with `MessagePrimitive.Parts`, then place a `ChainOfThought` component alongside them inside the same `MessagePrimitive.Root` only when maintaining older code that already uses the ChainOfThought primitive.
+使用 `MessagePrimitive.Parts` 渲染普通消息部分；仅当维护已经使用 ChainOfThought 原语的旧代码时，才将 `ChainOfThought` 组件与它们并列放置在同一个 `MessagePrimitive.Root` 中。
 
 <Callout type="info">
-Runtime setup: primitives require runtime context. Wrap your UI in `AssistantRuntimeProvider` with a runtime (for example `useLocalRuntime(...)`). See [Pick a Runtime](/docs/runtimes/pick-a-runtime).
+运行时设置：原语需要运行时上下文。将 UI 包裹在带有运行时的 `AssistantRuntimeProvider` 中（例如 `useLocalRuntime(...)`）。请参阅[选择运行时](/docs/runtimes/pick-a-runtime)。
 </Callout>
 
-### Concepts
+### 概念
 
-#### How Grouping Works
+#### 分组工作方式
 
-`ChainOfThoughtPrimitive.Parts` reads the current message's grouped reasoning and tool-call context from the legacy `components.ChainOfThought` path. New code should use `MessagePrimitive.GroupedParts` instead.
+`ChainOfThoughtPrimitive.Parts` 从旧版 `components.ChainOfThought` 路径读取当前消息中已分组的推理和工具调用上下文。新代码应改用 `MessagePrimitive.GroupedParts`。
 
-#### Collapsed State
+#### 折叠状态
 
-The accordion starts collapsed by default. `AccordionTrigger` toggles between collapsed and expanded. Use `AuiIf` to conditionally render parts based on the collapsed state:
+手风琴默认处于折叠状态。`AccordionTrigger` 可在折叠和展开状态之间切换。使用 `AuiIf` 根据折叠状态有条件地渲染部分内容：
 
 ```tsx
 import { AuiIf, ChainOfThoughtPrimitive } from "@assistant-ui/react";
@@ -139,9 +139,9 @@ import { AuiIf, ChainOfThoughtPrimitive } from "@assistant-ui/react";
 </ChainOfThoughtPrimitive.Root>
 ```
 
-#### Chevron Indicators
+#### Chevron 指示器
 
-Use `AuiIf` to show directional icons that reflect the current state:
+使用 `AuiIf` 显示反映当前状态的方向图标：
 
 ```tsx
 import { AuiIf, ChainOfThoughtPrimitive } from "@assistant-ui/react";
@@ -158,9 +158,9 @@ import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 </ChainOfThoughtPrimitive.AccordionTrigger>
 ```
 
-#### Parts Components
+#### Parts 组件
 
-`ChainOfThoughtPrimitive.Parts` accepts a deprecated `components` prop to control how each part type renders:
+`ChainOfThoughtPrimitive.Parts` 接受已弃用的 `components` 属性，用于控制每种部分类型的渲染方式：
 
 ```tsx
 <ChainOfThoughtPrimitive.Parts
@@ -184,17 +184,17 @@ import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 />
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `components.Reasoning` | `FC<{ text: string }>` | Renders reasoning parts |
-| `components.tools.Fallback` | `ToolCallMessagePartComponent` | Fallback for tool-call parts |
-| `components.Layout` | `ComponentType<PropsWithChildren>` | Wrapper around each rendered part |
+| `components.Reasoning` | `FC<{ text: string }>` | 渲染推理部分 |
+| `components.tools.Fallback` | `ToolCallMessagePartComponent` | 工具调用部分的回退渲染 |
+| `components.Layout` | `ComponentType<PropsWithChildren>` | 每个已渲染部分的包装器 |
 
-### Parts API Reference
+### Parts API 参考
 
 #### Root
 
-Container for the chain-of-thought disclosure UI. Renders a `<div>` element unless `asChild` is set.
+思维链披露 UI 的容器。当未设置 `<div>` 时，渲染一个 `asChild` 元素。
 
 ```tsx
 <ChainOfThoughtPrimitive.Root className="rounded-lg border">
@@ -204,7 +204,7 @@ Container for the chain-of-thought disclosure UI. Renders a `<div>` element unle
 
 #### AccordionTrigger
 
-Trigger that toggles the collapsed state. Renders a `<button>` element unless `asChild` is set.
+用于切换折叠状态的触发器。当未设置 `<button>` 时，渲染一个 `asChild` 元素。
 
 ```tsx
 <ChainOfThoughtPrimitive.AccordionTrigger className="flex w-full items-center justify-between px-4 py-2 text-sm">
@@ -214,7 +214,7 @@ Trigger that toggles the collapsed state. Renders a `<button>` element unless `a
 
 #### Parts
 
-Renders reasoning and tool-call parts. This component does not track collapsed state internally, so control visibility with `AuiIf` as shown in the patterns below.
+渲染推理和工具调用部分。此组件不会在内部跟踪折叠状态，因此请按照下面的模式，使用 `AuiIf` 控制可见性。
 
 ```tsx
 <ChainOfThoughtPrimitive.Parts
@@ -237,9 +237,9 @@ Renders reasoning and tool-call parts. This component does not track collapsed s
 
 <PrimitivesTypeTable type="ChainOfThoughtPrimitivePartsProps" parameters={ChainOfThoughtPrimitiveDocs.Parts.props} />
 
-### Patterns
+### 模式
 
-#### Minimal Accordion
+#### 最简手风琴
 
 ```tsx
 function ChainOfThought() {
@@ -264,7 +264,7 @@ function ChainOfThought() {
 }
 ```
 
-#### With Tool Calls
+#### 包含工具调用
 
 ```tsx
 function ChainOfThought() {
@@ -302,14 +302,14 @@ function ChainOfThought() {
 }
 ```
 
-### Relationship to Components
+### 与组件的关系
 
-The [Chain of Thought guide](/docs/guides/chain-of-thought) covers end-to-end setup with `MessagePrimitive.GroupedParts`, including backend configuration with reasoning models. See the complete [with-chain-of-thought example](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-chain-of-thought) for a full working implementation.
+[思维链指南](/docs/guides/chain-of-thought)介绍了使用 `MessagePrimitive.GroupedParts` 的端到端设置，包括使用推理模型时的后端配置。请参阅完整的[with-chain-of-thought 示例](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-chain-of-thought)
 
-### API Reference
+### API 参考
 
-For the complete guide including backend configuration, see [Chain of Thought](/docs/guides/chain-of-thought). For prop details, see the [ChainOfThoughtPrimitive source](https://github.com/assistant-ui/assistant-ui/tree/main/packages/react/src/primitives/chainOfThought).
+如需包含后端配置的完整指南，请参阅[思维链](/docs/guides/chain-of-thought)。如需了解属性详情，请参阅 [ChainOfThoughtPrimitive 源码](https://github.com/assistant-ui/assistant-ui/tree/main/packages/react/src/primitives/chainOfThought).
 
-Related:
-- [Chain of Thought Guide](/docs/guides/chain-of-thought)
+相关内容：
+- [思维链指南](/docs/guides/chain-of-thought)
 - [MessagePrimitive](/docs/primitives/message)

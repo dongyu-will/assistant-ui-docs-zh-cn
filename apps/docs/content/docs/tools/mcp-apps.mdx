@@ -1,38 +1,38 @@
 ---
 title: MCP Apps
-description: Render MCP App UI resources inline in chat. Native renderer for the Model Context Protocol Apps spec — sandboxed iframes, JSON-RPC bridge, AI SDK integration.
+description: 在聊天中内联渲染 MCP App UI 资源。Model Context Protocol Apps 规范的原生渲染器——沙盒 iframe、JSON-RPC 桥接和 AI SDK 集成。
 platforms: ["react"]
 ---
 
-[MCP Apps](https://apps.extensions.modelcontextprotocol.io/) lets a Model Context Protocol server ship a UI resource alongside a tool — a self-contained HTML widget that the chat host renders inline when the tool is called. assistant-ui ships a native renderer that mounts the widget in a sandboxed iframe via [`SafeContentFrame`](/safe-content-frame) and runs a JSON-RPC postMessage bridge so the widget can call tools, send messages, request a display mode, and read host context.
+[MCP Apps](https://apps.extensions.modelcontextprotocol.io/) 允许 Model Context Protocol 服务器随工具一同提供 UI 资源——一个自包含的 HTML 小组件，在调用工具时由聊天宿主内联渲染。assistant-ui 提供原生渲染器，通过 [`SafeContentFrame`](/safe-content-frame) 将小组件挂载到沙盒 iframe 中，并运行 JSON-RPC postMessage 桥接，使小组件能够调用工具、发送消息、请求显示模式以及读取宿主上下文。
 
-## Overview
+## 概览
 
-When an MCP server attaches a `_meta.ui.resourceUri` (the [`text/html;profile=mcp-app`](https://apps.extensions.modelcontextprotocol.io/api/index.html) MIME) to a tool, AI SDK forwards that metadata through the message stream. assistant-ui's renderer picks it up off the `mcp` field on `ToolCallMessagePart`, fetches the resource through your backend route, and mounts it.
+当 MCP 服务器为工具附加 `_meta.ui.resourceUri`（即 [`text/html;profile=mcp-app`](https://apps.extensions.modelcontextprotocol.io/api/index.html) MIME) 时，AI SDK 会通过消息流转发该元数据。assistant-ui 的渲染器会从 `ToolCallMessagePart` 的 `mcp` 字段中读取它，通过你的后端路由获取资源并挂载。
 
-The renderer only acts on URIs that start with `ui://` (per the MCP Apps spec). Tools whose `resourceUri` uses any other scheme are treated as non-MCP-Apps tools and fall through to your regular tool UI.
+渲染器只处理以 `ui://` 开头的 URI（符合 MCP Apps 规范）。`resourceUri` 使用其他 scheme 的工具会被视为非 MCP Apps 工具，并交由你常规的工具 UI 处理。
 
-The widget communicates back through a JSON-RPC bridge:
+小组件通过 JSON-RPC 桥接进行通信：
 
-- **widget → host requests**: `ui/initialize`, `tools/call`, `resources/read`, `resources/list`, `openLink`, `sendMessage`, `requestDisplayMode`, `updateModelContext`
-- **host → widget notifications**: tool input streaming, tool result, host context changes
-- **widget → host notifications**: initialized, size changed, log, error, request teardown
+- **小组件 → 宿主请求**：`ui/initialize`、`tools/call`、`resources/read`、`resources/list`、`openLink`、`sendMessage`、`requestDisplayMode`、`updateModelContext`
+- **宿主 → 小组件通知**：工具输入流式传输、工具结果、宿主上下文变化
+- **小组件 → 宿主通知**：已初始化、尺寸变化、日志、错误、请求拆除
 
-Capability presence is determined at mount time by which handlers you provide. Unknown methods return JSON-RPC `-32601`; bad params return `-32602`.
+是否具备某项能力取决于挂载时你提供了哪些处理器。未知方法返回 JSON-RPC `-32601`；参数错误返回 `-32602`。
 
-## Quick start
+## 快速开始
 
-The renderer talks to a backend route you expose — the MCP client lives server-side so credentials and transport stay out of the browser. The route receives `{ method, params }` POSTs and dispatches to your MCP client.
+渲染器会与你公开的后端路由通信——MCP 客户端位于服务端，因此凭证和传输层不会暴露在浏览器中。路由接收 `{ method, params }` POST 请求，并将其分发给 MCP 客户端。
 
-### Install the MCP client
+### 安装 MCP 客户端
 
-Install the AI SDK MCP client package used by the route handler:
+安装路由处理器使用的 AI SDK MCP 客户端包：
 
 <InstallCommand npm={["@ai-sdk/mcp"]} />
 
-### Client
+### 客户端
 
-Compose `McpAppRenderer({...})` into your `Tools` resource. Provide `host.url` pointing at your route. Any tool-call part carrying `mcp.app` metadata renders the MCP App widget automatically.
+将 `McpAppRenderer({...})` 组合到你的 `Tools` 资源中。提供指向路由的 `host.url`。任何携带 `mcp.app` 元数据的工具调用部分都会自动渲染 MCP App 小组件。
 
 ```tsx
 import {
@@ -64,11 +64,11 @@ function MyAssistant({ children }) {
 }
 ```
 
-`McpAppsRemoteHost` is the default host strategy — it POSTs `{ method, params }` to your route. A different strategy (e.g. a client-side MCP client) can be plugged in by writing a custom resource that returns the same `McpAppsHost` shape (`{ loadResource, callTool, readResource, listResources }`).
+`McpAppsRemoteHost` 是默认的宿主策略——它会将 `{ method, params }` POST 到你的路由。你也可以编写自定义资源，返回相同的 `McpAppsHost` 结构（`{ loadResource, callTool, readResource, listResources }`），从而接入其他策略（例如客户端 MCP 客户端）。
 
-Changes to `headers` or a custom `fetch` function apply to subsequent host requests without reloading the widget. When the account or workspace identity changes, key the host resource explicitly so its UI resource reloads.
+对 `headers` 或自定义 `fetch` 函数的修改，会应用于后续宿主请求，而无需重新加载小组件。当账户或工作区身份发生变化时，请显式为宿主资源设置 key，以便重新加载其 UI 资源。
 
-Install the resource helper:
+安装资源辅助工具：
 
 ```bash
 pnpm add @assistant-ui/tap
@@ -88,9 +88,9 @@ const mcpApp = McpAppRenderer({
 });
 ```
 
-`openLink` is auto-wired to `window.open(url, "_blank", "noopener,noreferrer")`. `sendMessage` is auto-wired to append a user message to the current thread. It accepts the MCP Apps `{ role, content }` params and appends each `text` block in order, plus the legacy `string`, `{ prompt }`, `{ text }`, and `{ message }` forms. The host advertises `message: { text: {} }` during `ui/initialize`, so non-text blocks are dropped, and a request carrying no text resolves to `{ isError: true }`.
+`openLink` 会自动连接到 `window.open(url, "_blank", "noopener,noreferrer")`。`sendMessage` 会自动连接为当前线程追加用户消息。它接受 MCP Apps 的 `{ role, content }` 参数，并按顺序追加每个 `text` 块，以及传统的 `string`、`{ prompt }`、`{ text }` 和 `{ message }` 形式。宿主会在 `ui/initialize` 期间公布 `message: { text: {} }`，因此非文本块会被丢弃；不包含文本的请求会解析为 `{ isError: true }`。
 
-Pass `handlers` when the widget needs host-side UI or lifecycle callbacks. The capabilities are advertised during mount, so provide the handlers before the widget initializes:
+当小组件需要宿主侧 UI 或生命周期回调时，传入 `handlers`。这些能力会在挂载期间公布，因此请在小组件初始化前提供处理器：
 
 ```tsx
 McpAppRenderer({
@@ -103,15 +103,15 @@ McpAppRenderer({
 });
 ```
 
-`requestDisplayMode` should update host chrome and return the mode that was actually honored. Echoing `{ mode }` without applying it tells the widget the change succeeded while the host stays `inline`.
+`requestDisplayMode` 应更新宿主界面，并返回实际接受的模式。仅回显 `{ mode }` 而不实际应用它，会让小组件认为修改成功，但宿主仍保持 `inline`。
 
-Caller handlers override the default `openLink` and `sendMessage` behavior and can provide `requestDisplayMode`, `updateModelContext`, and lifecycle hooks such as `onInitialized` and `onSizeChange`. `callTool`, `readResource`, and `listResources` remain bound to the configured `host`; use a custom host to change those data-plane operations.
+调用方处理器会覆盖默认的 `openLink` 和 `sendMessage` 行为，并可以提供 `requestDisplayMode`、`updateModelContext` 以及 `onInitialized`、`onSizeChange` 等生命周期钩子。`callTool`、`readResource` 和 `listResources` 仍绑定到已配置的 `host`；如需修改这些数据平面操作，请使用自定义宿主。
 
-### Per-app options
+### 每个应用的选项
 
-One renderer serves every MCP app in the thread, so `hostContext`, `handlers`, and the other display options are thread-wide defaults. Pass `forPart` when an app needs its own values. It runs for each MCP-app tool call, and every option it returns replaces the thread-wide one for that app alone.
+一个渲染器会服务线程中的所有 MCP App，因此 `hostContext`、`handlers` 及其他显示选项都是线程范围的默认值。当某个应用需要独立的值时，传入 `forPart`。它会针对每次 MCP App 工具调用运行，并且返回的每个选项都会仅替换该应用的线程级选项。
 
-`handlers` is the exception and merges per key, so a resolver that returns only `requestDisplayMode` keeps the thread-wide `onError` and `onInitialized` for that app. Its keys are capabilities negotiated with the widget rather than data, and replacing the whole bag to add one handler would withdraw the rest from that app with nothing to observe it by. Name a key to override it.
+`handlers` 是例外：它按 key 合并。因此，仅返回 `requestDisplayMode` 的解析器会为该应用保留线程范围的 `onError` 和 `onInitialized`。其中的 key 是与小组件协商的能力，而不是数据；如果为了添加一个处理器而替换整个对象，该应用的其他能力就会被撤回，且没有任何观察者能够感知这一变化。请指定要覆盖的 key。
 
 ```tsx
 const [modes, setModes] = useState<Record<string, McpAppDisplayMode>>({});
@@ -136,13 +136,13 @@ McpAppRenderer({
 });
 ```
 
-The resolver closes over the part, so `requestDisplayMode` knows which app asked and the granted mode reaches that app alone through `notifications/host_context/changed`. Returned values may be rebuilt on every render; a host context that is structurally unchanged never reaches the widget.
+解析器会闭包捕获该部分，因此 `requestDisplayMode` 知道是哪个应用发起了请求，授予的模式也只会通过 `notifications/host_context/changed` 传递给该应用。返回值可以在每次渲染时重新构建；如果宿主上下文的结构未发生变化，就不会传递给小组件。
 
-`forPart` resolves before a part's first render, so a per-part value is always in place from the start. What a *later* change to one reaches depends on the option. `hostContext` is delivered again whenever it changes. Handlers are called through live references, but which handler keys exist is captured when the frame mounts, so return the same keys for a part on every render. `hostInfo` and the frame settings in `sandbox` (`className` and `style` aside) are also read once at mount, so changing them mid-life does nothing until the app's resource URI changes and the frame is rebuilt.
+`forPart` 会在某个部分首次渲染前解析，因此每个部分从一开始就会使用对应的值。之后对某个选项的修改能否传递，取决于该选项。`hostContext` 会在每次变化时再次发送。处理器通过实时引用调用，但框架挂载时会捕获已存在的处理器 key，因此每次渲染时都应为同一部分返回相同的 key。`hostInfo` 以及 `sandbox` 中的框架设置（`className` 和 `style` 除外）也只会在挂载时读取一次，因此在生命周期中途修改它们不会生效，除非应用的资源 URI 发生变化并重新构建框架。
 
-### Route handler
+### 路由处理器
 
-The route accepts `POST` requests with `{ method, params }` JSON bodies. Dispatch by method name and return the result as JSON. Example for Next.js App Router:
+路由接受带有 `{ method, params }` JSON 请求体的 `POST` 请求。根据方法名进行分发，并将结果作为 JSON 返回。以下是 Next.js App Router 示例：
 
 ```ts
 // app/api/mcp-apps/route.ts
@@ -210,21 +210,21 @@ export async function POST(req: Request) {
 }
 ```
 
-The renderer POSTs four method names: `mcp-apps/read-resource`, `tools/call`, `resources/read`, `resources/list`. Reject anything else server-side and apply your own auth / rate limiting in the route.
+渲染器会 POST 四个方法名：`mcp-apps/read-resource`、`tools/call`、`resources/read`、`resources/list`。请在服务端拒绝其他请求，并在路由中自行应用身份验证和速率限制。
 
-### Multiple MCP servers
+### 多个 MCP 服务器
 
-When a tool part carries `mcp.app.serverId`, the renderer forwards it to the host operations as `params.serverId` so the route can select the MCP client that owns the resource or tool. The agent stack emits this routable identity in part metadata. For `@ag-ui/mcp-apps-middleware`, assistant-ui uses its configured `serverId`, falling back to `serverHash` when `serverId` is absent or empty. Match the route's map keys to whichever identity your setup emits: configure an explicit `serverId` on each middleware server, or key the map by the emitted hashes. Omitting `serverId` preserves the single-server behavior, as shown by the fallback client in the route example.
+当工具部分携带 `mcp.app.serverId` 时，渲染器会将其作为 `params.serverId` 转发给宿主操作，以便路由选择拥有该资源或工具的 MCP 客户端。代理栈会在部分元数据中发出这一可路由身份。对于 `@ag-ui/mcp-apps-middleware`，assistant-ui 使用其配置的 `serverId`；当 `serverId` 缺失或为空时，则回退到 `serverHash`。请将路由映射的 key 与你的设置实际发出的身份保持一致：可以在每个中间件服务器上配置显式的 `serverId`，也可以使用发出的哈希作为映射 key。省略 `serverId` 会保留单服务器行为，路由示例中的回退客户端展示了这一点。
 
-Per-name `setToolUI` registrations always win over the MCP fallback — you can still customize specific tools.
+按名称注册的 `setToolUI` 始终优先于 MCP 回退，因此你仍然可以自定义特定工具。
 
-## AI SDK integration
+## AI SDK 集成
 
-`@assistant-ui/ai-sdk` forwards `callProviderMetadata.mcp.app` from AI SDK tool UI parts into `ToolCallMessagePart.mcp.app`. With AI SDK 5.x and an MCP-Apps-capable MCP server, no extra wiring is required on the part shape.
+`@assistant-ui/ai-sdk` 会将 AI SDK 工具 UI 部分中的 `callProviderMetadata.mcp.app` 转发到 `ToolCallMessagePart.mcp.app`。使用 AI SDK 5.x 和支持 MCP Apps 的 MCP 服务器时，无需对部分结构进行额外接线。
 
-The rich UI comes from the MCP server's metadata, not from the model, so the path is identical whichever provider drives the conversation. Running Claude is just a different `model:` in `streamText` (`anthropic("claude-sonnet-4-6")` via `@ai-sdk/anthropic`); the MCP server, `splitMcpAppTools`, and the renderer are unchanged. MCP Apps is an open standard in the MCP ecosystem (Claude is one of its hosts), so a standard MCP-Apps server renders out of the box. The bridge below is only needed for servers that use OpenAI's `openai/outputTemplate` convention, again independent of which model you run.
+丰富的 UI 来自 MCP 服务器的元数据，而不是模型，因此无论由哪个提供商驱动对话，流程都相同。运行 Claude 只是 `streamText` 中不同的 `model:`（通过 `@ai-sdk/anthropic` 使用 `anthropic("claude-sonnet-4-6")`）；MCP 服务器、`splitMcpAppTools` 和渲染器都无需改变。MCP Apps 是 MCP 生态中的开放标准（Claude 是其宿主之一），因此标准 MCP Apps 服务器开箱即用。下面的桥接仅适用于使用 OpenAI `openai/outputTemplate` 约定的服务器，与运行哪个模型无关。
 
-On the chat route, use `splitMcpAppTools()` (from `@ai-sdk/mcp`) to keep app-only tools out of the model's view:
+在聊天路由中，使用 `splitMcpAppTools()`（来自 `@ai-sdk/mcp`），将仅供应用使用的工具排除在模型视图之外：
 
 ```ts
 import { splitMcpAppTools } from "@ai-sdk/mcp";
@@ -239,11 +239,11 @@ const result = streamText({
 });
 ```
 
-### OpenAI Apps SDK servers
+### OpenAI Apps SDK 服务器
 
-[OpenAI Apps SDK](https://developers.openai.com/apps-sdk) servers carry the same `ui://` template under a different convention: the pointer is `_meta["openai/outputTemplate"]` on the tool definition (not `_meta.ui.resourceUri`), and the resource is served as `text/html+skybridge` rather than `text/html;profile=mcp-app`. `@ai-sdk/mcp` does not recognize `openai/outputTemplate`, so it never populates `callProviderMetadata.mcp.app` and the renderer stays idle.
+[OpenAI Apps SDK](https://developers.openai.com/apps-sdk) 服务器使用另一种约定携带相同的 `ui://` 模板：工具定义上的指针是 `_meta["openai/outputTemplate"]`（而不是 `_meta.ui.resourceUri`），资源通过 `text/html+skybridge` 提供，而不是 `text/html;profile=mcp-app`。`@ai-sdk/mcp` 无法识别 `openai/outputTemplate`，因此不会填充 `callProviderMetadata.mcp.app`，渲染器也会保持空闲。
 
-The renderer needs no change; you only have to surface the pointer. assistant-ui reads the canonical `result._meta.ui.resourceUri` off tool results (and still accepts the deprecated flat `result._meta["ui/resourceUri"]`), so the smallest bridge is to copy the template onto the result by tool name. Build the map once from the tool listing, then stamp it inside each tool's `execute`:
+无需修改渲染器，只需将该指针暴露出来。assistant-ui 会从工具结果中读取规范的 `result._meta.ui.resourceUri`（同时仍接受已弃用的扁平字段 `result._meta["ui/resourceUri"]`），因此最简单的桥接方式是按工具名称将模板复制到结果中。根据工具列表构建一次映射，然后在每个工具的 `execute` 中写入：
 
 ```ts
 import type { Tool } from "ai";
@@ -275,7 +275,7 @@ const withTemplateUri = (tool: Tool, name: string): Tool => {
 };
 ```
 
-Wrap the AI SDK tool objects before handing them to `streamText`:
+将 AI SDK 工具对象传给 `streamText` 之前先进行包装：
 
 ```ts
 const aiTools = await client.tools();
@@ -285,13 +285,13 @@ const wrappedTools = Object.fromEntries(
 // pass wrappedTools to streamText
 ```
 
-Your `mcp-apps/read-resource` handler reads the `ui://` resource as in the route example above. Set the response `mimeType` to the `text/html;profile=mcp-app` literal that `McpAppResource` expects and keep the server's HTML in `html`; don't forward the raw `text/html+skybridge` value, which the type rejects.
+你的 `mcp-apps/read-resource` 处理器会读取 `ui://` 资源，方式与上面的路由示例相同。将响应的 `mimeType` 设置为 `McpAppResource` 所需的 `text/html;profile=mcp-app` 字面量，并将服务器的 HTML 保存在 `html` 中；不要转发原始的 `text/html+skybridge` 值，因为该类型会拒绝它。
 
-The cleaner long-term fix is upstream: if `@ai-sdk/mcp`'s `getMCPAppToolMeta` also read `openai/outputTemplate`, then `callProviderMetadata.mcp.app` would populate automatically and this bridge would be unnecessary.
+更长期、更简洁的修复方式是在上游解决：如果 `@ai-sdk/mcp` 的 `getMCPAppToolMeta` 也读取 `openai/outputTemplate`，那么 `callProviderMetadata.mcp.app` 就会自动填充，无需此桥接。
 
-## AG-UI integration
+## AG-UI 集成
 
-With `@assistant-ui/react-ag-ui`, the backend associates an MCP App with a tool call through an `ACTIVITY_SNAPSHOT`. Include the tool call ID, the app's `ui://` resource URI, and the MCP server identity when routing across multiple servers:
+使用 `@assistant-ui/react-ag-ui` 时，后端通过 `ACTIVITY_SNAPSHOT` 将 MCP App 与工具调用关联起来。在多个服务器之间路由时，请包含工具调用 ID、应用的 `ui://` 资源 URI 以及 MCP 服务器身份：
 
 ```json
 {
@@ -311,9 +311,9 @@ With `@assistant-ui/react-ag-ui`, the backend associates an MCP App with a tool 
 }
 ```
 
-`serverId` is optional. If it is absent, the runtime accepts `serverHash` as a fallback. Older middleware may omit `toolCallId`, in which case the snapshot applies to the last resolved tool call; new integrations should include it so concurrent tool calls are correlated unambiguously. Emit the snapshot after the tool call's `TOOL_CALL_START`. A snapshot that names a tool call restored from prior history applies to that message directly, so re-emitting the activity after a `MESSAGES_SNAPSHOT` rehydrates its widget; a snapshot for a tool call ID the runtime has never seen is silently ignored.
+`serverId` 是可选的。如果缺失，运行时会接受 `serverHash` 作为回退。较旧的中间件可能省略 `toolCallId`，此时快照会应用于最近解析的工具调用；新的集成应包含它，以便明确关联并发的工具调用。请在工具调用的 `TOOL_CALL_START` 之后发出快照。快照中指定了从历史记录恢复的工具调用时，它会直接应用于对应消息，因此在 `MESSAGES_SNAPSHOT` 后重新发出该活动即可重新水合其小组件；对于运行时从未见过的工具调用 ID，快照会被静默忽略。
 
-Send the normal `TOOL_CALL_RESULT` with a concise, model-visible summary:
+发送常规的 `TOOL_CALL_RESULT`，并附带简洁、对模型可见的摘要：
 
 ```json
 {
@@ -323,9 +323,9 @@ Send the normal `TOOL_CALL_RESULT` with a concise, model-visible summary:
 }
 ```
 
-The snapshot's `result` becomes the widget-visible `part.result`, while the `TOOL_CALL_RESULT.content` string is retained for the model as `part.modelContent`, a text content-part array (`[{ "type": "text", "text": "Map ready" }]`).
+快照的 `result` 会成为小组件可见的 `part.result`；而 `TOOL_CALL_RESULT.content` 字符串会作为 `part.modelContent` 保留给模型，即文本内容部分数组（`[{ "type": "text", "text": "Map ready" }]`）。
 
-Alternatively, AG-UI servers can place MCP host fields directly on `TOOL_CALL_RESULT`:
+或者，AG-UI 服务器也可以直接在 `TOOL_CALL_RESULT` 上放置 MCP 宿主字段：
 
 ```json
 {
@@ -338,44 +338,44 @@ Alternatively, AG-UI servers can place MCP host fields directly on `TOOL_CALL_RE
 }
 ```
 
-In this form, the runtime assembles a `CallToolResult`-shaped `part.result` from `content`, `structuredContent`, `_meta`, and `isError`. At least one of `structuredContent` or `_meta` must be present; when both are absent the enriched path does not activate and the result falls back to the plain `content` string. The `_meta` can also carry the app pointer itself (canonical `ui.resourceUri`, or the deprecated flat `"ui/resourceUri"`), in which case no `ACTIVITY_SNAPSHOT` is needed to activate the widget. A snapshot remains the only carrier for server identity (`serverId`), and when both provide a `resourceUri` the snapshot wins.
+在这种形式下，运行时会根据 `content`、`structuredContent`、`_meta` 和 `isError` 组装出符合 `CallToolResult` 结构的 `part.result`。`structuredContent` 或 `_meta` 至少必须存在一个；如果两者都不存在，则不会启用增强路径，结果会回退为普通的 `content` 字符串。`_meta` 也可以携带应用指针本身（规范字段 `ui.resourceUri` 或已弃用的扁平字段 `"ui/resourceUri"`），此时无需 `ACTIVITY_SNAPSHOT` 即可激活小组件。快照仍然是传递服务器身份（`serverId`）的唯一载体；如果两者都提供 `resourceUri`，则以快照为准。
 
-The visibility split follows the MCP Apps contract: `content` is model-visible; `structuredContent` and `_meta` are available only to the host and widget. When assistant-ui serializes history into a later AG-UI request, it sends the saved model-visible text and never includes `structuredContent` or `_meta`.
+可见性划分遵循 MCP Apps 契约：`content` 对模型可见；`structuredContent` 和 `_meta` 仅对宿主和小组件可用。当 assistant-ui 将历史记录序列化到后续 AG-UI 请求中时，会发送保存的模型可见文本，绝不会包含 `structuredContent` 或 `_meta`。
 
-## Bridge protocol
+## 桥接协议
 
-The bridge implements the MCP UI JSON-RPC protocol over `window.postMessage`, filtered by both `event.source === frame.iframe.contentWindow` AND `event.origin === frame.origin` — the cross-origin domain `SafeContentFrame` issues per render. Messages from any other origin or window are dropped silently.
+该桥接通过 `window.postMessage` 实现 MCP UI JSON-RPC 协议，并同时根据 `event.source === frame.iframe.contentWindow` 和 `event.origin === frame.origin` 进行过滤——跨源域 `SafeContentFrame` 会为每次渲染生成。来自其他源或窗口的消息会被静默丢弃。
 
-### Widget → host requests
+### 小组件 → 宿主请求
 
-| Method | Notes |
+| 方法 | 说明 |
 |---|---|
-| `ui/initialize` | Returns `{ protocolVersion, host, hostContext, capabilities }`. Always supported. |
-| `tools/call` | Routed to `host.url` with method `tools/call`. Optional `handlers.allowedTools` allowlist. Invalid `arguments` shape → `-32602`. |
-| `resources/read` | Routed to `host.url` with method `resources/read`. |
-| `resources/list` | Routed to `host.url` with method `resources/list`. |
-| `openLink` | Requires `handlers.openLink`. Rejects non-`http(s)` URLs with `-32602`. |
-| `sendMessage` | Requires `handlers.sendMessage`. |
-| `requestDisplayMode` | Requires `handlers.requestDisplayMode`. Modes: `inline`, `fullscreen`, `pip`. |
-| `updateModelContext` | Requires `handlers.updateModelContext`. |
+| `ui/initialize` | 返回 `{ protocolVersion, host, hostContext, capabilities }`。始终支持。 |
+| `tools/call` | 使用方法 `tools/call` 路由到 `host.url`。可选的 `handlers.allowedTools` 允许列表。`arguments` 结构无效 → `-32602`。 |
+| `resources/read` | 使用方法 `resources/read` 路由到 `host.url`。 |
+| `resources/list` | 使用方法 `resources/list` 路由到 `host.url`。 |
+| `openLink` | 需要 `handlers.openLink`。对于非 `http(s)` URL，使用 `-32602` 拒绝。 |
+| `sendMessage` | 需要 `handlers.sendMessage`。 |
+| `requestDisplayMode` | 需要 `handlers.requestDisplayMode`。模式：`inline`、`fullscreen`、`pip`。 |
+| `updateModelContext` | 需要 `handlers.updateModelContext`。 |
 
-When a handler isn't provided, the bridge returns JSON-RPC `-32601` (method not found) — which is also how `capabilities` is reported in the `ui/initialize` response.
+未提供处理器时，桥接会返回 JSON-RPC `-32601`（找不到方法）；在 `ui/initialize` 响应中，`capabilities` 也会以同样方式报告。
 
-### Host → widget notifications
+### 宿主 → 小组件通知
 
-- `notifications/tools/call/input` — sent whenever `part.args` (the streaming tool input) changes
-- `notifications/tools/call/result` — sent when the tool result lands (including error envelopes)
-- `notifications/host_context/changed` — sent when `hostContext` changes (e.g. user toggles theme)
+- `notifications/tools/call/input` — `part.args`（流式工具输入）发生变化时发送
+- `notifications/tools/call/result` — 工具结果到达时发送（包括错误封装）
+- `notifications/host_context/changed` — `hostContext` 发生变化时发送（例如用户切换主题）
 
-### Widget → host notifications
+### 小组件 → 宿主通知
 
-`notifications/initialized`, `notifications/size_changed`, `notifications/log`, `notifications/error`, `notifications/request_teardown` — wire them via `handlers.onInitialized`, `onSizeChange`, `onLog`, `onError`, `onRequestTeardown` respectively.
+`notifications/initialized`、`notifications/size_changed`、`notifications/log`、`notifications/error`、`notifications/request_teardown` — 分别通过 `handlers.onInitialized`、`onSizeChange`、`onLog`、`onError`、`onRequestTeardown` 接入。
 
-If the widget never sends `notifications/initialized` (broken or non-spec-compliant), the host flushes its queued notifications after a 5-second safety timeout so the iframe doesn't appear hung.
+如果小组件始终不发送 `notifications/initialized`（例如已损坏或不符合规范），宿主会在 5 秒安全超时后刷新排队中的通知，避免 iframe 看起来像是卡住了。
 
-## Sandboxing
+## 沙盒
 
-The iframe is built with [`SafeContentFrame`](/safe-content-frame), which serves each widget from a content-hashed cross-origin so the host page is not reachable by `same-origin` references. Default sandbox flags are `allow-same-origin allow-scripts`. Tune via the `sandbox` field on `McpAppRendererOptions`:
+iframe 使用 [`SafeContentFrame`](/safe-content-frame) 构建，它会从经过内容哈希的跨源中提供每个小组件，因此宿主页面无法通过 `same-origin` 引用访问它。默认的 sandbox 标志为 `allow-same-origin allow-scripts`。可以通过 `McpAppRendererOptions` 上的 `sandbox` 字段进行调整：
 
 ```tsx
 McpAppRenderer({
@@ -388,9 +388,9 @@ McpAppRenderer({
 });
 ```
 
-## Security notes
+## 安全说明
 
-- Widgets run cross-origin in a sandboxed iframe. The bridge filters incoming messages by both source window and origin.
-- The host route is your auth boundary — apply session checks, rate limiting, and per-tool allowlists there. The renderer trusts whatever the route returns.
-- `openLink` rejects non-`http(s)` URLs at the bridge layer, but your `openLink` handler should still treat the URL as untrusted (e.g. always use `noopener,noreferrer`).
-- Keep custom `host` and `handlers` references stable across renders (e.g. module-scope constants or `useMemo`); an unstable custom-host identity keeps the widget in `loadingFallback` while refetching on every parent re-render.
+- 小组件在沙盒 iframe 中跨源运行。桥接会同时根据源窗口和源进行过滤。
+- 宿主路由是你的身份验证边界——请在那里应用会话检查、速率限制和按工具设置的允许列表。渲染器会信任路由返回的所有内容。
+- `openLink` 会在桥接层拒绝非 `http(s)` URL，但你的 `openLink` 处理器仍应将 URL 视为不可信输入（例如始终使用 `noopener,noreferrer`）。
+- 请在多次渲染之间保持自定义 `host` 和 `handlers` 引用稳定（例如使用模块作用域常量或 `useMemo`）；不稳定的自定义宿主身份会使小组件保持在 `loadingFallback`，并在父组件每次重新渲染时重新获取资源。

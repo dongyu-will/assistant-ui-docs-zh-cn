@@ -1,15 +1,15 @@
 ---
-title: Rendering Lists
-description: How to efficiently render lists of items from store state.
+title: 渲染列表
+description: 如何高效地渲染来自状态存储的项目列表。
 ---
 
-## The pattern
+## 模式
 
-Rendering a list of items from store state follows a three-step pattern:
+从状态存储渲染项目列表遵循以下三个步骤：
 
-1. **Subscribe to the list length** with `useAuiState` — re-renders only when items are added or removed
-2. **Memoize the element array** with `useMemo` — avoids recreating elements on unrelated re-renders
-3. **Use `RenderChildrenWithAccessor`** inside each item — defers reading item state until the child actually needs it
+1. 使用 `useAuiState`**订阅列表长度** — 仅在添加或移除项目时重新渲染
+2. 使用 `useMemo`**记忆化元素数组** — 避免在无关的重新渲染中重新创建元素
+3. 在每个项目中使用 `RenderChildrenWithAccessor` — 将项目状态的读取推迟到子组件实际需要时
 
 ```tsx
 import { useMemo } from "react";
@@ -44,7 +44,7 @@ const TodoList = ({
 };
 ```
 
-Usage:
+用法：
 
 ```tsx
 <TodoList>
@@ -52,24 +52,24 @@ Usage:
 </TodoList>
 ```
 
-## Why this pattern?
+## 为什么采用这种模式？
 
-### Length-based subscription
+### 基于长度的订阅
 
-Subscribing to `.length` instead of the full array means the list component only re-renders when items are added or removed — not when an individual item's data changes. This is significantly cheaper than subscribing to keys or the full array.
+订阅 `.length` 而不是完整数组，意味着列表组件只会在添加或移除项目时重新渲染，而不会在单个项目的数据发生变化时重新渲染。这比订阅键或完整数组的开销低得多。
 
 ### RenderChildrenWithAccessor
 
-`RenderChildrenWithAccessor` provides a lazy accessor (`getItem`) instead of reading item state eagerly. This means:
+`RenderChildrenWithAccessor` 提供惰性访问器（`getItem`），而不是主动读取项目状态。这意味着：
 
-- **Deferred reads**: If the children render function never accesses the item, no subscription is created
-- **Propless memoization**: When children returns a propless component (e.g. `{() => <Todo />}`), the output is automatically memoized — it won't re-render on parent updates
+- **延迟读取**：如果 children 渲染函数从未访问该项目，则不会创建订阅
+- **无 props 记忆化**：当 children 返回一个无 props 的组件（例如 `{() => <Todo />}`）时，输出会自动进行记忆化 — 不会因父组件更新而重新渲染
 
-The `getItem` function is a getter that reads the latest state on demand. Wrap it in a lazy property (`get todo() { return getItem(); }`) so the state is only read when the consumer accesses it.
+`getItem` 函数是一个 getter，会按需读取最新状态。将它封装在惰性属性（`get todo() { return getItem(); }`）中，这样只有在使用者访问该属性时才会读取状态。
 
-## Built-in primitives
+## 内置原语
 
-All assistant-ui list primitives (Messages, Parts, Attachments, Suggestions, ThreadListItems, etc.) use this pattern internally. When using the children render function API, you get the lazy accessor behavior automatically:
+所有 assistant-ui 列表原语（Messages、Parts、Attachments、Suggestions、ThreadListItems 等）在内部都使用此模式。使用 children 渲染函数 API 时，会自动获得惰性访问器行为：
 
 ```tsx
 <ThreadPrimitive.Messages>

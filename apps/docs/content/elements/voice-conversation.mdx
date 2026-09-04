@@ -1,20 +1,20 @@
 ---
-title: "Voice conversation"
-description: "A live call: the orb tracks your voice, the caption names the turn, the transcript follows."
+title: "语音对话"
+description: "实时通话：轨道跟随你的语音，字幕标示当前回合，转录内容随之更新。"
 ---
 
-A voice conversation is a live call laid over the thread: an orb that tracks who's talking, a caption naming the turn, and the transcript filling in as it goes. With a runtime the orb, the caption, and the transcript all read straight off the thread's voice session; standalone you drive mode, amplitude, and the turns yourself.
+语音对话是在会话线程上叠加的一场实时通话：一个跟随说话者变化的轨道、一条标示当前回合的字幕，以及逐步填充的转录内容。在运行时中，轨道、字幕和转录内容都会直接读取会话线程的语音会话；独立使用时，则由你自行控制模式、振幅和对话回合。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-assistant-ui models a realtime voice call as `s.thread.voice`, populated once you call `connectVoice()` against a runtime configured with a realtime voice adapter. [`/elements/orb`](/elements/orb) covers wiring that adapter and its own states in full; this page covers the surrounding call screen.
+assistant-ui 将实时语音通话建模为 `s.thread.voice`；当你针对配置了实时语音适配器的运行时调用 `connectVoice()` 后，该对象会被填充。[`/elements/orb`](/elements/orb) 完整介绍了如何接入该适配器及其自身的状态；本页面介绍周边的通话界面。
 
 <Steps>
   <Step>
 
-### Read the call's mode and volume
+### 读取通话模式和音量
 
 ```tsx title="components/assistant-ui/elements/voice.aui.tsx"
 "use client";
@@ -45,14 +45,14 @@ function LiveCallScreen() {
 }
 ```
 
-The adapter only reports `"listening"` and `"speaking"` for `mode`; there's no separate `"thinking"` phase in the runtime, so a screen that wants one has to infer it itself, for example the gap after the user stops talking and before `mode` flips to `"speaking"`.
+对于 `mode`，适配器只会报告 `"listening"` 和 `"speaking"`；运行时中没有单独的 `"thinking"` 阶段，因此需要该阶段的界面必须自行推断，例如用户停止说话后、`mode` 切换为 `"speaking"` 之前的间隔。
 
   </Step>
   <Step>
 
-### Fill the transcript from the thread
+### 从会话线程填充转录内容
 
-Voice turns are appended as ordinary messages, so the transcript is the same `s.thread.messages` any text thread uses, not a separate voice-only log:
+语音回合会作为普通消息追加，因此转录内容与任何文本线程使用的 `s.thread.messages` 相同，而不是单独的语音专用日志：
 
 ```tsx
 import { useAuiState, type TextMessagePart } from "@assistant-ui/react";
@@ -76,12 +76,12 @@ const transcript = useAuiState((s) =>
 
 <StandaloneMode>
 
-Standalone, every part of the call is a prop: which mode it's in, how loud the input is, and the turns said so far.
+独立使用时，通话的每个部分都是一个 prop：当前所处的模式、输入音量，以及到目前为止说过的回合。
 
 <Steps>
   <Step>
 
-### Drive the call from state
+### 从状态驱动通话
 
 ```tsx title="app/call.tsx"
 "use client";
@@ -111,16 +111,16 @@ export function Call() {
   </Step>
   <Step>
 
-### Only show interrupt while speaking
+### 仅在说话时显示中断操作
 
-The orb's click target, labeled "Interrupt the assistant", only fires while `mode === "speaking"` and `onInterrupt` is set; pass `undefined` the rest of the time and the button disables itself rather than doing nothing on click.
+轨道的点击目标标记为“中断助手”，仅在 `mode === "speaking"` 且设置了 `onInterrupt` 时才会触发；其余时间传入 `undefined`，这样按钮会自行禁用，而不是点击后无任何反应。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="voice-conversation">
@@ -134,11 +134,11 @@ The orb's click target, labeled "Interrupt the assistant", only fires while `mod
 </div>
 ```
 
-The orb's rings scale with `amplitude` (clamped to `0..1`) only while `mode` is `"listening"` or `"speaking"`; in `"connecting"` and `"thinking"` they hold a fixed smaller scale and the center dot pulses instead. The caption under the orb reads "Mic off" whenever `muted` is true, taking priority over the interrupt hint even while speaking.
+轨道的环会根据 `amplitude` 缩放（限制在 `0..1` 范围内），但仅当 `mode` 为 `"listening"` 或 `"speaking"` 时才会缩放；在 `"connecting"` 和 `"thinking"` 状态下，环保持较小的固定比例，而中心圆点会改为脉动。轨道下方的字幕在 `muted` 为 true 时显示“麦克风已关闭”，即使正在说话，也会优先显示该提示，而不是中断提示。
 
-## Examples
+## 示例
 
-### Every mode
+### 所有模式
 
 ```tsx
 <VoiceConversation mode="connecting" amplitude={0} transcript={[]} />
@@ -147,11 +147,11 @@ The orb's rings scale with `amplitude` (clamped to `0..1`) only while `mode` is 
 <VoiceConversation mode="speaking" amplitude={0.7} transcript={[]} onInterrupt={() => {}} />
 ```
 
-### Ending the call
+### 结束通话
 
 <RuntimeMode>
 
-`useVoiceControls().disconnect()` is the only way to end a session; there's no separate hang-up action distinct from disconnecting, so wire it straight to `onEnd`:
+`useVoiceControls().disconnect()` 是结束会话的唯一方式；不存在与断开连接不同的独立挂断操作，因此请直接将其连接到 `onEnd`：
 
 ```tsx
 const { disconnect } = useVoiceControls();
@@ -163,29 +163,29 @@ const { disconnect } = useVoiceControls();
 
 <StandaloneMode>
 
-Standalone, `onEnd` is whatever your app decides ending a call means, closing the screen, resetting `mode` to `"connecting"` for a redial, or both.
+独立使用时，`onEnd` 的具体行为由应用决定，可以表示结束通话、关闭界面、将 `mode` 重置为 `"connecting"` 以便重新拨号，或同时执行这些操作。
 
 </StandaloneMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Voice hooks
+### 语音 hooks
 
-| Hook | Returns | Description |
+| Hook | 返回值 | 描述 |
 |------|---------|--------------|
-| `useVoiceState()` | `VoiceSessionState \| undefined` | `{ status, isMuted, mode }`. `undefined` before `connectVoice()` is called or after the session ends. |
-| `useVoiceVolume()` | `number` | Live input amplitude while a session is connected. |
-| `useVoiceControls()` | `{ connect, disconnect, mute, unmute }` | Each calls the matching `aui.thread.*Voice()` method. |
+| `useVoiceState()` | `VoiceSessionState \| undefined` | `{ status, isMuted, mode }`。在调用 `connectVoice()` 之前或会话结束后，`undefined`。 |
+| `useVoiceVolume()` | `number` | 会话连接期间的实时输入振幅。 |
+| `useVoiceControls()` | `{ connect, disconnect, mute, unmute }` | 每个方法都会调用对应的 `aui.thread.*Voice()` 方法。 |
 
-### Voice session state
+### 语音会话状态
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `status.type` | `"starting" \| "running" \| "ended"` | `"starting"` maps to the `"connecting"` mode shown here. |
-| `mode` | `"listening" \| "speaking"` | No `"thinking"` value; infer that gap yourself if you want to show it. |
-| `isMuted` | `boolean` | Reflects `mute()` and `unmute()`. |
+| `status.type` | `"starting" \| "running" \| "ended"` | `"starting"` 映射到此处显示的 `"connecting"` 模式。 |
+| `mode` | `"listening" \| "speaking"` | 没有 `"thinking"` 值；如果希望显示该阶段，请自行推断这段间隔。 |
+| `isMuted` | `boolean` | 反映 `mute()` 和 `unmute()`。 |
 
 </RuntimeMode>
 
@@ -193,17 +193,17 @@ Standalone, `onEnd` is whatever your app decides ending a call means, closing th
 
 ### VoiceConversation
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `mode` | `"connecting" \| "listening" \| "thinking" \| "speaking"` | required | Drives the orb, caption, and hint text. |
-| `amplitude` | `number` | required | Clamped to `0..1`; scales the orb's rings while listening or speaking. |
-| `transcript` | `readonly VoiceTurn[]` (`{ id, role, text }`) | required | Rendered in order below the orb. |
-| `muted` | `boolean` | | Shows the muted mic icon and the "Mic off" caption. |
-| `onToggleMute` | `() => void` | | Called by the mic button; the button disables without it. |
-| `onInterrupt` | `() => void` | | Enables the orb's click target; only meaningful while `mode === "speaking"`. |
-| `onEnd` | `() => void` | | Called by the end-call button; the button disables without it. |
-| `className` | `string` | | Merged onto the root. |
+| `mode` | `"connecting" \| "listening" \| "thinking" \| "speaking"` | 必填 | 驱动轨道、字幕和提示文本。 |
+| `amplitude` | `number` | 必填 | 限制在 `0..1` 范围内；在监听或说话时缩放轨道的环。 |
+| `transcript` | `readonly VoiceTurn[]` (`{ id, role, text }`) | 必填 | 按顺序渲染在轨道下方。 |
+| `muted` | `boolean` | | 显示麦克风静音图标和“麦克风已关闭”字幕。 |
+| `onToggleMute` | `() => void` | | 由麦克风按钮调用；没有该属性时按钮会禁用。 |
+| `onInterrupt` | `() => void` | | 启用轨道的点击目标；仅在 `mode === "speaking"` 时有意义。 |
+| `onEnd` | `() => void` | | 由结束通话按钮调用；没有该属性时按钮会禁用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` props 都会转发到根元素。
 
 </StandaloneMode>

@@ -1,20 +1,20 @@
 ---
-title: "Edit a sent message"
-description: "Rewrite a turn in place, told up front how many replies the edit throws away."
+title: "编辑已发送的消息"
+description: "就地重写一个回合，并预先告知编辑操作会丢弃多少条回复。"
 ---
 
-The sent bubble becomes a small composer in place: rewrite it, and a warning names how many replies sending the edit will throw away. With a runtime, editing opens the same message in its own composer and forks a new branch on send; standalone you hold the value, the editing flag, and the warning count yourself.
+已发送的消息气泡会就地变成一个小型输入框：重写消息时，警告会显示发送编辑内容将丢弃多少条回复。在运行时中，编辑会在消息自身的输入框中打开同一条消息，并在发送时创建一个新分支；独立使用时，则需要自行维护值、编辑状态标志和警告计数。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-`s.message.composer.isEditing` flips true the moment `ActionBarPrimitive.Edit` is pressed; render an edit composer in place of the bubble while it's true.
+`s.message.composer.isEditing` 会在按下 `ActionBarPrimitive.Edit` 的瞬间变为 true；为 true 时，将编辑输入框渲染在气泡原本的位置。
 
 <Steps>
   <Step>
 
-### Trigger editing from the bubble
+### 从消息气泡触发编辑
 
 ```tsx title="components/assistant-ui/elements/edit-message.tsx"
 "use client";
@@ -47,9 +47,9 @@ export function UserTurn() {
   </Step>
   <Step>
 
-### Render the edit composer
+### 渲染编辑输入框
 
-Inside a message that's editing, `ComposerPrimitive.*` scopes itself to that message's own composer rather than the thread's.
+在正在编辑的消息中，`ComposerPrimitive.*` 会将作用域限定为该消息自身的输入框，而不是线程的输入框。
 
 ```tsx
 import { ComposerPrimitive } from "@assistant-ui/react";
@@ -71,7 +71,7 @@ function EditComposer() {
 }
 ```
 
-`Thread` already ships this exact swap for user and assistant messages, without the discard warning covered below; install `@assistant-ui/thread` for the full composition.
+`Thread` 已经为用户消息和助手消息提供了这一完整的切换逻辑，但不包含下文介绍的丢弃警告；安装 `@assistant-ui/thread` 即可获得完整组合。
 
   </Step>
 </Steps>
@@ -80,12 +80,12 @@ function EditComposer() {
 
 <StandaloneMode>
 
-Standalone, `EditMessage` is a controlled component: the bubble calls `onStartEdit`, and while `editing` is true it renders a textarea plus Cancel and Send.
+独立使用时，`EditMessage` 是一个受控组件：气泡会调用 `onStartEdit`，而在 `editing` 为 true 时，它会渲染一个 textarea，以及 Cancel 和 Send。
 
 <Steps>
   <Step>
 
-### Hold the edit state
+### 保存编辑状态
 
 ```tsx title="app/turn.tsx"
 "use client";
@@ -117,16 +117,16 @@ export function Turn() {
   </Step>
   <Step>
 
-### Compute `discardedReplies` yourself
+### 自行计算 `discardedReplies`
 
-The element only renders the number you pass; count the replies that follow this message in your own transcript state before rendering it.
+该元素只会渲染你传入的数字；在渲染前，从你自己的记录状态中统计这条消息之后的回复数量。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="edit-message">
@@ -134,7 +134,7 @@ The element only renders the number you pass; count the replies that follow this
 </div>
 ```
 
-While editing, the same slot renders a different shape instead:
+编辑时，同一个插槽会改为渲染另一种结构：
 
 ```tsx
 <div data-slot="edit-message">
@@ -147,15 +147,15 @@ While editing, the same slot renders a different shape instead:
 </div>
 ```
 
-Standalone, `discardedReplies` is a plain number you supply and can define however your app models deletion. At runtime, editing does not delete anything: sending calls the message's edit composer's `send()`, which appends the rewrite as a new sibling of the original under the same parent, exactly like reloading an assistant message. The original message and everything under it stay in the thread's history, reachable again through the branch picker's `n / m` stepper, so nothing is actually discarded, only no longer the branch showing. If you want the same up-front warning, compute the count that would drop out of view: the assistant replies after this message on the branch currently displayed.
+独立使用时，`discardedReplies` 是你提供的普通数字，其定义方式可以符合应用对删除的建模方式。在运行时中，编辑不会删除任何内容：发送时会调用消息编辑输入框的 `send()`，在同一父级下将重写内容追加为原消息的新同级分支，行为与重新加载助手消息完全一致。原消息及其下的所有内容都会保留在线程历史中，并且可以通过分支选择器的 `n / m` 步进器再次访问，因此实际上没有任何内容被丢弃，只是不再显示在当前分支中。如果希望提供同样的预先警告，请计算将从视图中消失的数量：当前显示分支中位于这条消息之后的助手回复数量。
 
-## Examples
+## 示例
 
-### Compute the warning count
+### 计算警告数量
 
 <RuntimeMode>
 
-`s.message.index` is this message's position in the currently displayed branch; everything after it that would stop showing is `s.thread.messages.slice(s.message.index + 1)`.
+`s.message.index` 是这条消息在当前显示分支中的位置；位于它之后、将不再显示的所有内容就是 `s.thread.messages.slice(s.message.index + 1)`。
 
 ```tsx
 const discardedReplies = useAuiState(
@@ -167,53 +167,53 @@ const discardedReplies = useAuiState(
 
 <StandaloneMode>
 
-There's no transcript to derive from; pass whatever count matches how your app actually handles a resend; some apps really do delete, in which case the count is literal.
+这里没有可供推导的记录；请传入与你的应用实际如何处理重新发送相匹配的数量。有些应用确实会删除内容，此时该数量就是实际被删除的数量。
 
 </StandaloneMode>
 
-### Cancel drops the draft, not the branch
+### Cancel 丢弃草稿，而不是分支
 
 <RuntimeMode>
 
-`ComposerPrimitive.Cancel` calls the edit composer's `cancel()`, which discards the in-progress edit text and flips `isEditing` back to false; the original message is untouched, since nothing was sent.
+`ComposerPrimitive.Cancel` 会调用编辑输入框的 `cancel()`，丢弃正在进行的编辑文本，并将 `isEditing` 重置为 false；由于没有发送任何内容，原消息不会受到影响。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-`onCancel` should do the same: reset `value` to the original text (or just flip `editing` back to false and let the parent re-seed it) without touching whatever the message list actually holds.
+`onCancel` 也应执行相同操作：将 `value` 重置为原始文本（或者只将 `editing` 重置为 false，让父组件重新填充初始值），而不要修改消息列表实际保存的内容。
 
 </StandaloneMode>
 
-### Restyle the composer
+### 重新设置输入框样式
 
-Both lanes take `className` on the root; the `field` token from `surfaces.tsx` is the only surface either state uses.
+两种状态都会在根元素上接收 `className`；`field` 中的 `surfaces.tsx` token 是两种状态唯一使用的表面样式。
 
 ```tsx
 <EditMessage className="max-w-none" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### ActionBarPrimitive and ComposerPrimitive
+### ActionBarPrimitive 和 ComposerPrimitive
 
-| Part | Renders | Notes |
+| 部件 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `ActionBarPrimitive.Edit` | `button` | Calls `aui.composer.beginEdit()` for this message; disabled while already editing. |
-| `ComposerPrimitive.Root` | `form` | Scopes to the message's edit composer when rendered inside an editing message. |
-| `ComposerPrimitive.Input` | `textarea` | The editable text. |
-| `ComposerPrimitive.Cancel` | `button` | Discards the edit and exits editing mode. |
-| `ComposerPrimitive.Send` | `button` | Sends the edit as a new sibling branch; disabled while the text is empty. |
+| `ActionBarPrimitive.Edit` | `button` | 为此消息调用 `aui.composer.beginEdit()`；正在编辑时禁用。 |
+| `ComposerPrimitive.Root` | `form` | 在正在编辑的消息中渲染时，作用域限定为该消息的编辑输入框。 |
+| `ComposerPrimitive.Input` | `textarea` | 可编辑的文本。 |
+| `ComposerPrimitive.Cancel` | `button` | 丢弃编辑内容并退出编辑模式。 |
+| `ComposerPrimitive.Send` | `button` | 将编辑内容作为新的同级分支发送；文本为空时禁用。 |
 
-### Message and composer state
+### 消息和输入框状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.message.composer.isEditing` | `boolean` | Whether this message is currently being edited. |
-| `s.message.index` | `number` | This message's position in the currently displayed branch. |
-| `s.thread.messages` | `readonly MessageState[]` | The full displayed branch, in order. |
+| `s.message.composer.isEditing` | `boolean` | 此消息当前是否正在编辑。 |
+| `s.message.index` | `number` | 此消息在当前显示分支中的位置。 |
+| `s.thread.messages` | `readonly MessageState[]` | 按顺序排列的完整显示分支。 |
 
 </RuntimeMode>
 
@@ -221,17 +221,17 @@ Both lanes take `className` on the root; the `field` token from `surfaces.tsx` i
 
 ### EditMessage
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `value` | `string` | required | The text in the edit textarea. |
-| `discardedReplies` | `number` | required | Shown in the warning row when greater than `0`. |
-| `editing` | `boolean` | required | Switches between the bubble and the composer. |
-| `onValueChange` | `(value: string) => void` | | Called as the textarea changes. |
-| `onSave` | `() => void` | | Called when Send is pressed. |
-| `onCancel` | `() => void` | | Called when Cancel is pressed. |
-| `onStartEdit` | `() => void` | | Called when the bubble is clicked. |
-| `className` | `string` | | Merged onto the root. |
+| `value` | `string` | 必填 | 编辑 textarea 中的文本。 |
+| `discardedReplies` | `number` | 必填 | 大于 `0` 时显示在警告行中。 |
+| `editing` | `boolean` | 必填 | 在气泡和输入框之间切换。 |
+| `onValueChange` | `(value: string) => void` | | textarea 内容变化时调用。 |
+| `onSave` | `() => void` | | 按下 Send 时调用。 |
+| `onCancel` | `() => void` | | 按下 Cancel 时调用。 |
+| `onStartEdit` | `() => void` | | 点击气泡时调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` props 都会转发到根元素。
 
 </StandaloneMode>

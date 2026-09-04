@@ -1,8 +1,8 @@
 ---
 title: "Callout"
-description: "A quiet aside on a colored rule, for notes, warnings, and errors in prose."
+description: "用于正文中的备注、警告和错误信息，显示为带颜色横线的低调旁注。"
 links:
-  - label: Source
+  - label: 源码
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/callout.tsx
 ---
 
@@ -21,11 +21,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.CalloutSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="callout" />
 
-## Usage
+## 用法
 
 ```tsx
 import { Callout } from "@/components/ui/callout";
@@ -35,19 +35,19 @@ export function Example() {
 }
 ```
 
-In MDX the callout also renders from a plain blockquote, so prose can stay prose.
+在 MDX 中，Callout 也可以从普通的 blockquote 渲染而来，因此正文可以保持原有形式。
 
-## Examples
+## 示例
 
-### With a title and custom content
+### 带标题和自定义内容
 
-A title replaces the type word in the eyebrow. Inline code, kbd caps, links, and lists keep the ink register inside the aside.
+标题会替换眉题中的类型文字。行内代码、kbd 大写字母、链接和列表都能在旁注中保持墨色层级。
 
 <PreviewCode file="components/pages/design/specimens" name="CalloutTitledSpecimen" base={<CalloutTitledSpecimen />}>
   <RadixSpecimens.CalloutTitledSpecimen />
 </PreviewCode>
 
-## API Reference
+## API 参考
 
 ### Callout
 
@@ -58,17 +58,17 @@ A title replaces the type word in the eyebrow. Inline code, kbd caps, links, and
       name: "type",
       type: '"info" | "warning" | "error" | "success" | "idea" | "tip" | "note" | "warn"',
       default: '"info"',
-      description: "The rule hue and the eyebrow word. tip and note keep their own labels on the info hue; warn aliases warning.",
+      description: "规则颜色和眉题文字。tip 和 note 在 info 色调下保留各自的标签；warn 是 warning 的别名。",
     },
     {
       name: "title",
       type: "ReactNode",
-      description: "Replaces the type word in the eyebrow.",
+      description: "替换眉题中的类型文字。",
     },
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes.",
+      description: "附加的 CSS 类。",
     },
   ]}
 />

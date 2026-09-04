@@ -1,8 +1,8 @@
 ---
-title: "Code Block"
-description: "Highlighted code on a field panel, with a title bar and a copy button."
+title: "代码块"
+description: "字段面板中带有标题栏和复制按钮的高亮代码。"
 links:
-  - label: Source
+  - label: 原文
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/code-block.tsx
 ---
 
@@ -21,13 +21,13 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.CodeBlockSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="code-block" />
 
-## Usage
+## 用法
 
-The component is the chrome; pass it a `pre` element, highlighted or plain. In MDX every fenced code block on this site renders through it.
+该组件提供外观框架；向其传入一个 `pre` 元素，可以是高亮代码，也可以是普通代码。在此网站的 MDX 中，每个围栏代码块都会通过它进行渲染。
 
 ```tsx
 import { CodeBlock } from "@/components/ui/code-block";
@@ -43,17 +43,17 @@ export function Example() {
 }
 ```
 
-## Examples
+## 示例
 
-### Without a title
+### 不带标题
 
-When there is no header, the copy button floats in the corner and appears on hover.
+没有页眉时，复制按钮会浮动在角落，并在悬停时显示。
 
 <PreviewCode file="components/pages/design/specimens" name="CodeBlockBareSpecimen" base={<CodeBlockBareSpecimen />}>
   <RadixSpecimens.CodeBlockBareSpecimen />
 </PreviewCode>
 
-## API Reference
+## API 参考
 
 ### CodeBlock
 
@@ -63,24 +63,24 @@ When there is no header, the copy button floats in the corner and appears on hov
     {
       name: "title",
       type: "ReactNode",
-      description: "Header label, usually the file name. Without it the copy button floats in the corner.",
+      description: "页眉标签，通常是文件名。不设置时，复制按钮会浮动在角落。",
     },
     {
       name: "viewportClassName",
       type: "string",
-      description: "Classes for the scrollable code region, e.g. a max height.",
+      description: "可滚动代码区域的类，例如用于设置最大高度。",
     },
     {
       name: "copyText",
       type: "string",
-      description: "Text for the copy button; defaults to the rendered code's text.",
+      description: "复制按钮的文本；默认为渲染后代码的文本。",
     },
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes on the outer figure.",
+      description: "外层 figure 的附加 CSS 类。",
     },
   ]}
 />
 
-Lines marked `.highlighted` by the highlighter get the blue gutter bar, and `data-line-numbers` on the `pre` turns on the counter gutter. In dark mode each token falls back to its `--shiki-dark` variable.
+由高亮器标记为 `.highlighted` 的行会显示蓝色槽线，而在 `pre` 上设置 `data-line-numbers` 后，会启用计数槽。在深色模式下，每个 token 都会回退到其 `--shiki-dark` 变量。

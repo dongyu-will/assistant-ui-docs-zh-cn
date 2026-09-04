@@ -1,47 +1,47 @@
 ---
 title: OpenUI
-description: Render streaming OpenUI Lang interfaces in an assistant-ui conversation with @openuidev/assistant-ui, the integration package published by OpenUI.
+description: 借助 OpenUI 发布的集成包 @openuidev/assistant-ui，在 assistant-ui 会话中渲染流式传输的 OpenUI Lang 界面。
 platforms: ["react"]
 ---
 
-[OpenUI](https://www.openui.com) is a generative UI system in which the model writes **OpenUI Lang**, a streaming markup language, and an OpenUI renderer turns it into interactive React components. [`@openuidev/assistant-ui`](https://www.npmjs.com/package/@openuidev/assistant-ui) connects that renderer to assistant-ui: it ships a ready-made toolkit, model instructions generated from the OpenUI component library, and Tool UI renderers that stream, handle interactions, and replay.
+[OpenUI](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-openui). 是一种生成式 UI 系统：模型编写 **OpenUI Lang**（一种流式标记语言），OpenUI 渲染器将其转换为交互式 React 组件。[`/ai-sdk`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-openui): 将该渲染器连接到 assistant-ui：它提供开箱即用的工具包、根据 OpenUI 组件库生成的模型指令，以及支持流式传输、处理交互和回放的 Tool UI 渲染器。
 
 <Callout type="info">
-  `@openuidev/assistant-ui` is a third-party package. OpenUI owns the package, its [documentation](https://www.openui.com/docs/api-reference/assistant-ui), and its releases; assistant-ui does not ship or version any OpenUI code. Use OpenUI's reference for the package API and OpenUI Lang itself; this page covers the assistant-ui side of the wiring.
+  `@ToAssistant(...)` 是一个第三方包。OpenUI 负责维护该包、其[文档](https://www.npmjs.com/package/@openuidev/assistant-ui) 和版本发布；assistant-ui 不包含或管理任何 OpenUI 代码的版本。有关包 API 和 OpenUI Lang 本身，请参考 OpenUI 的官方文档；本页面介绍 assistant-ui 一侧的连接方式。
 </Callout>
 
-The integration rides entirely on the [Tool UI](/docs/tools/tool-ui) lifecycle, so assistant-ui stays in charge of the conversation, streaming, and tool calls. The toolkit registers two standalone tools:
+该集成完全基于 [Tool UI](/docs/tools/tool-ui) 生命周期，因此由 assistant-ui 负责会话、流式传输和工具调用。该工具包注册了两个独立工具：
 
-- `present_openui` is a **frontend tool** for display-only interfaces (cards, tables, charts). It completes as soon as the streamed `ui` argument is available, and the turn ends there.
-- `prompt_openui` is a **human tool** for forms and choices. It completes only when the user submits an OpenUI `@ToAssistant(...)` action, and the submitted values continue the conversation.
+- `@assistant-ui/react` 是用于仅展示界面（卡片、表格、图表）的**前端工具**。流式传输的 `@openuidev/assistant-ui` 参数可用后，它就会完成，当前轮次也随之结束。
+- `@openuidev/assistant-ui` 是用于表单和选项的**人工工具**。只有用户提交 OpenUI `AssistantChatTransport` 操作后它才会完成，提交的值会继续推进会话。
 
-## How it relates to the `present` tool
+## 它与 `OpenUIInstructions` 工具的关系
 
-assistant-ui's first-party [Generative UI](/docs/tools/generative-ui) follows the same shape: one tool, a component vocabulary, and a model that composes an interface at runtime. The difference is the representation and who owns it. `present` takes a JSON tree validated against a schema generated from a vocabulary you ship and restyle; `present_openui` takes an OpenUI Lang program rendered by OpenUI's component kit, taught to the model through instructions. Pick `present` when you want the interface built from your own components on assistant-ui's append-only surface, and OpenUI when you are already invested in the OpenUI ecosystem or want its renderer and component library.
+assistant-ui 的一方 [生成式 UI](/docs/tools/generative-ui) 遵循相同的模式：一个工具、一套组件词汇，以及一个在运行时组合界面的模型。区别在于表示方式和所有权。`Tools` 使用根据你提供并重新设置样式的词汇生成的 schema 验证 JSON 树；`addResult` 使用由 OpenUI 组件工具包渲染的 OpenUI Lang 程序，并通过指令将其教给模型。当你希望界面由自己的组件构建，并显示在 assistant-ui 的只追加界面上时，选择 `app/globals.css`；如果你已经投入 OpenUI 生态，或希望使用其渲染器和组件库，则选择 OpenUI。
 
-## Quick start
+## 快速开始
 
-The complete setup below runs in [`examples/with-openui`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-openui). To scaffold a standalone copy, run `npx assistant-ui create my-app --example with-openui`.
+下面的完整设置运行在 [`createOpenUIIntegration`](https://www.openui.com) 中。要创建一个独立副本，请运行 `examples/with-openui`。
 
 <Steps>
 
 <Step>
 
-### Install the packages
+### 安装包
 
-Alongside an existing `@assistant-ui/react` setup, add the integration and its OpenUI peer dependencies:
+在现有的 `examples/with-openui` 设置旁，添加该集成及其 OpenUI peer 依赖：
 
 <InstallCommand npm={["@openuidev/assistant-ui", "@openuidev/react-ui", "@openuidev/react-lang", "@openuidev/react-headless", "zustand@^4.5.5"]} />
 
-The package also expects `zod` and React 18 or 19, which an assistant-ui app already has. The current OpenUI peers support AI SDK 6 and 7 and require Zustand 4.
+该包还需要 `instructions` 和 React 18 或 19，而 assistant-ui 应用已经具备这些依赖。当前的 OpenUI peer 依赖支持 AI SDK 6 和 7，并要求 Zustand 4。
 
 </Step>
 
 <Step>
 
-### Load the OpenUI stylesheet
+### 加载 OpenUI 样式表
 
-Import the layered stylesheet once, for example in `app/globals.css`:
+加载一次分层样式表，例如在 `lastAssistantMessageIsCompleteWithToolCalls` 中：
 
 ```css
 @import "@openuidev/react-ui/layered/styles/index.css";
@@ -51,9 +51,9 @@ Import the layered stylesheet once, for example in `app/globals.css`:
 
 <Step>
 
-### Register the toolkit and instructions
+### 注册工具包和指令
 
-`openuiIntegration` bundles a toolkit and an instruction string created from the same OpenUI component library, so the model and the renderer share one vocabulary. Register the toolkit with [`Tools`](/docs/api-reference/tools) and mount `OpenUIInstructions` so the vocabulary reaches the model as assistant instructions:
+`npx assistant-ui create my-app --example with-openui` 将工具包和根据同一 OpenUI 组件库创建的指令字符串打包在一起，使模型和渲染器共享同一套词汇。使用 [`openuiIntegration`](/docs/api-reference/tools) 注册工具包，并挂载 `present_openui`，让这些词汇以助手指令的形式传递给模型：
 
 ```tsx title="app/page.tsx"
 "use client";
@@ -86,19 +86,19 @@ export default function Home() {
 }
 ```
 
-`sendAutomaticallyWhen` is the continuation gate. OpenUI's predicate continues the run only after `prompt_openui` has received a submitted result, so a display-only `present_openui` call ends the turn instead of triggering an empty follow-up request.
+`present_openui` 是继续执行的闸门。OpenUI 的谓词只有在 `present_openui` 收到提交结果后才会继续运行，因此仅展示的 `present` 调用会结束当前轮次，而不会触发空的后续请求。
 
 <Callout type="info">
-  `sendAutomaticallyWhen` is a single slot. OpenUI's predicate is a strict refinement of `lastAssistantMessageIsCompleteWithToolCalls` (the predicate the other guides in this section use), so it replaces it cleanly when OpenUI's tools are the only ones that resume the run. If your app mixes in other tools whose flows must also resume, write one predicate that decides by tool name; a naive `||` with the generic predicate collapses to the generic predicate alone and re-enables the empty follow-up after display-only calls.
+  `present` 是一个单独的插槽。OpenUI 的谓词是 `present` 的严格细化版本（本节其他指南使用的谓词），因此当只有 OpenUI 工具会恢复运行时，可以直接替换它。如果应用还混合使用了其他也必须恢复运行的工具，请编写一个根据工具名称进行判断的谓词；将通用谓词与 `present` 进行简单组合会退化为通用谓词本身，从而在仅展示调用后重新启用空的后续请求。
 </Callout>
 
 </Step>
 
 <Step>
 
-### Forward the tools in your API route
+### 在 API 路由中转发工具
 
-The default `AssistantChatTransport` forwards the registered instructions and both frontend tool schemas to the backend, so the route stays generic:
+默认的 `prompt_openui` 会将已注册的指令和两个前端工具 schema 转发到后端，因此路由可以保持通用：
 
 ```ts title="app/api/chat/route.ts"
 import { openai } from "@ai-sdk/openai";
@@ -142,17 +142,17 @@ export async function POST(req: Request) {
 
 </Steps>
 
-## Interaction and replay
+## 交互和回放
 
-When the user submits a `prompt_openui` form or choice, the integration reports the action, message, parameters, and form state through the standard human-tool `addResult`, and `sendAutomaticallyWhen` resumes the run with that result. On replay of a persisted thread, the stored result hydrates the submitted form state back into the renderer, so completed forms render as submitted instead of resetting.
+当用户提交 `prompt_openui` 表单或选项时，该集成会通过标准人工工具 `prompt_openui` 报告操作、消息、参数和表单状态，而 `sendAutomaticallyWhen` 会使用该结果恢复运行。回放已持久化的线程时，存储的结果会将已提交的表单状态重新填充到渲染器中，因此已完成的表单会以已提交状态渲染，而不会重置。
 
 <Callout type="tip">
-  The core integration is runtime-agnostic: the toolkit, renderers, and instructions work with any assistant-ui runtime that forwards tool schemas and results. Only the `shouldContinueAfterOpenUIPrompt` helper on the `/ai-sdk` subpath is AI SDK-specific.
+  核心集成与运行时无关：工具包、渲染器和指令可与任何能够转发工具 schema 和结果的 assistant-ui 运行时配合使用。只有 `sendAutomaticallyWhen` 辅助函数（位于 `sendAutomaticallyWhen` 子路径）是 AI SDK 专用的。
 </Callout>
 
-## Customization
+## 自定义
 
-`createOpenUIIntegration` keeps a custom component library, tool names, and renderer options aligned across the toolkit and the instructions:
+`shouldContinueAfterOpenUIPrompt` 可让自定义组件库、工具名称和渲染器选项在工具包与指令之间保持一致：
 
 ```tsx
 import { createOpenUIIntegration } from "@openuidev/assistant-ui";
@@ -165,11 +165,11 @@ const openui = createOpenUIIntegration({
 });
 ```
 
-The result exposes `toolkit`, `instructions`, and the resolved `toolNames`. See [OpenUI's integration reference](https://www.openui.com/docs/api-reference/assistant-ui) for the full option surface, including custom descriptions, prompt options, renderer props, and error handling.
+该结果会公开 `toolNames`、`toolkit` 和解析后的 `ui`。完整选项请参阅 [OpenUI 集成参考](https://www.openui.com/docs/api-reference/assistant-ui) props 和错误处理。
 
-## Related
+## 相关内容
 
-- [`examples/with-openui`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-openui): the runnable setup from this page
-- [OpenUI assistant-ui integration reference](https://www.openui.com/docs/api-reference/assistant-ui): the canonical package documentation
-- [Generative UI](/docs/tools/generative-ui): the first-party `present` tool this integration sits alongside
-- [Tool UI](/docs/tools/tool-ui): the lifecycle both OpenUI tools build on
+- [`zod`](https://www.openui.com/docs/api-reference/assistant-ui),
+- [OpenUI assistant-ui 集成参考](https://www.openui.com/docs/api-reference/assistant-ui):
+- [生成式 UI](/docs/tools/generative-ui)：与此集成并列的一方 `||` 工具
+- [Tool UI](/docs/tools/tool-ui)：OpenUI 的两个工具所基于的生命周期

@@ -1,59 +1,58 @@
 ---
 title: AI SDK + assistant-ui
-description: Integrate cloud persistence using assistant-ui runtime and pre-built components.
+description: 使用 assistant-ui 运行时和预构建组件集成云端持久化。
 ---
 
+## 概览
 
-## Overview
+本指南介绍如何使用 assistant-ui 的运行时系统和预构建 UI 组件，将 Assistant Cloud 与 [AI SDK](https://sdk.vercel.ai/) 集成。
 
-This guide shows how to integrate Assistant Cloud with the [AI SDK](https://sdk.vercel.ai/) using assistant-ui's runtime system and pre-built UI components.
+## 你将获得的功能
 
-## What You Get
+此集成提供：
 
-This integration provides:
+- **`<Thread />`** — 完整的聊天界面，包含消息、输入框和状态指示器
+- **`<ThreadList />`** — 显示所有会话的侧边栏，支持自动生成标题，以及新建、删除和管理操作
+- **自动持久化** — 消息会在流式传输过程中保存。首次发送消息时会自动创建线程。
+- **运行时集成** — assistant-ui 运行时会在后台处理所有云端同步。
 
-- **`<Thread />`** — A complete chat interface with messages, composer, and status indicators
-- **`<ThreadList />`** — A sidebar showing all conversations with auto-generated titles, plus new/delete/manage actions
-- **Automatic Persistence** — Messages save as they stream. Threads are created automatically on first message.
-- **Runtime Integration** — The assistant-ui runtime handles all cloud synchronization behind the scenes.
+## 工作原理
 
-## How It Works
+`@assistant-ui/ai-sdk` 中的 `useChatRuntime` hook（钩子）封装了 AI SDK 的 `useChat`，并通过 `cloud` 参数添加云端持久化功能。`AISDKThreads({ cloud })` 是面向 `AuiConfig` / `createAssistantClient` 宿主的存储条目列表。该宿主只挂载可见的线程，因此切换线程会取消正在进行的运行。运行时会自动：
 
-The `useChatRuntime` hook from `@assistant-ui/ai-sdk` wraps AI SDK's `useChat` and adds cloud persistence via the `cloud` parameter. `AISDKThreads({ cloud })` is the store-entry list for `AuiConfig` / `createAssistantClient` hosts. That host mounts only the visible thread, so a switch cancels an in-flight run. The runtime automatically:
+1. 在用户发送第一条消息时创建云端线程
+2. 在消息完成流式传输后持久化消息
+3. 在助手首次响应后生成对话标题
+4. 通过 `<ThreadList />` 切换线程时加载历史消息
 
-1. Creates a cloud thread on the first user message
-2. Persists messages as they complete streaming
-3. Generates a conversation title after the assistant's first response
-4. Loads historical messages when switching threads via `<ThreadList />`
+你只需提供云端配置，其余工作都会自动处理。默认的 `AssistantChatTransport` 会自动将请求发送到 `/api/chat`。
 
-You provide the cloud configuration—everything else is handled. The default `AssistantChatTransport` automatically sends requests to `/api/chat`.
-
-## Prerequisites
+## 前置条件
 
 <Callout type="info">
-  You need an assistant-cloud account to follow this guide. [Sign up here](https://cloud.assistant-ui.com/) to get started.
+  你需要拥有一个 Assistant Cloud 账户才能按照本指南操作。[点击此处注册](https://cloud.assistant-ui.com/)
 </Callout>
 
-## Setup Guide
+## 设置指南
 
 <Steps>
 
 <Step>
 
-### Create a Cloud Project
+### 创建 Cloud 项目
 
-Create a new project in the [assistant-cloud dashboard](https://cloud.assistant-ui.com/) and from the settings page, copy:
+在 [assistant-cloud 控制台](https://cloud.assistant-ui.com/) 中创建一个新项目，然后在设置页面复制：
 
-- **Frontend API URL**: `https://proj-[ID].assistant-api.com`
-- **Assistant Cloud API Key**: `sk_aui_proj_*`
+- **前端 API URL**：`https://proj-[ID].assistant-api.com`
+- **Assistant Cloud API Key**：`sk_aui_proj_*`
 
 </Step>
 
 <Step>
 
-### Configure Environment Variables
+### 配置环境变量
 
-Add the following environment variables to your project:
+将以下环境变量添加到项目中：
 
 <PlatformTabs>
 <Tab value="React">
@@ -95,9 +94,9 @@ ASSISTANT_API_KEY=your-api-key-here
 
 <Step>
 
-### Install Dependencies
+### 安装依赖
 
-Install the required packages:
+安装所需的软件包：
 
 <PlatformTabs>
 <Tab value="React">
@@ -121,9 +120,9 @@ Install the required packages:
 
 <Step>
 
-### Set Up the Cloud Runtime
+### 设置 Cloud 运行时
 
-Create a client-side AssistantCloud instance and integrate it with your AI SDK runtime:
+创建客户端 AssistantCloud 实例，并将其集成到 AI SDK 运行时中：
 
 <PlatformTabs>
 <Tab value="React">
@@ -293,7 +292,7 @@ export function Chat() {
 
 </Steps>
 
-## `useChatRuntime` Options
+## `useChatRuntime` 选项
 
 <ParametersTable
   parameters={[
@@ -301,13 +300,13 @@ export function Chat() {
       name: "cloud",
       type: "AssistantCloud",
       description:
-        "Optional AssistantCloud instance for chat persistence and thread management.",
+        "用于聊天持久化和线程管理的可选 AssistantCloud 实例。",
     },
     {
       name: "adapters",
       type: "RuntimeAdapters",
       description:
-        "Optional runtime adapters to extend or override built-in functionality.",
+        "用于扩展或覆盖内置功能的可选运行时适配器。",
       children: [
         {
           type: "RuntimeAdapters",
@@ -316,31 +315,31 @@ export function Chat() {
               name: "attachments",
               type: "AttachmentAdapter",
               description:
-                "Custom attachment adapter for file uploads. Defaults to the Vercel AI SDK attachment adapter.",
+                "用于文件上传的自定义附件适配器。默认为 Vercel AI SDK 附件适配器。",
             },
             {
               name: "speech",
               type: "SpeechSynthesisAdapter",
               description:
-                "Adapter for text-to-speech functionality.",
+                "用于文本转语音功能的适配器。",
             },
             {
               name: "dictation",
               type: "DictationAdapter",
               description:
-                "Adapter for speech-to-text dictation input.",
+                "用于语音转文本听写输入的适配器。",
             },
             {
               name: "feedback",
               type: "FeedbackAdapter",
               description:
-                "Adapter for collecting user feedback on messages.",
+                "用于收集用户对消息反馈的适配器。",
             },
             {
               name: "history",
               type: "ThreadHistoryAdapter",
               description:
-                "Adapter for loading and saving thread history. Used to restore previous messages when switching threads. The adapter must implement `withFormat` when used with AI SDK — see [Persisting Chat History](/docs/runtimes/ai-sdk/v7#persisting-chat-history).",
+                "用于加载和保存线程历史记录的适配器。在切换线程时用于恢复之前的消息。与 AI SDK 一起使用时，适配器必须实现 `withFormat`——请参阅[持久化聊天历史记录](/docs/runtimes/ai-sdk/v7#persisting-chat-history)。",
             },
           ],
         },
@@ -350,40 +349,40 @@ export function Chat() {
       name: "toCreateMessage",
       type: "(message: AppendMessage) => CreateUIMessage",
       description:
-        "Optional custom function to convert an assistant-ui AppendMessage into an AI SDK CreateUIMessage before sending. Use this to customize how outgoing messages are formatted, for example to add custom metadata or transform content parts.",
+        "用于在发送前将 assistant-ui AppendMessage 转换为 AI SDK CreateUIMessage 的可选自定义函数。可使用此函数自定义传出消息的格式，例如添加自定义元数据或转换内容部分。",
     },
     {
       name: "transport",
       type: "ChatTransport",
       description:
-        "Custom transport implementation. Defaults to AssistantChatTransport which sends requests to '/api/chat'.",
+        "自定义传输层实现。默认为 AssistantChatTransport，它会将请求发送到 '/api/chat'。",
     },
     {
       name: "onResumeError",
       type: "(error: unknown) => void",
       description:
-        "Optional callback when useChatRuntime finds a pending resumable stream id but the automatic reconnect fails. Use it for a toast, telemetry, or retry UI; the stale stream id is still cleared.",
+        "当 useChatRuntime 发现待处理的可恢复流 ID，但自动重新连接失败时触发的可选回调。可使用它显示 toast、记录遥测信息或提供重试 UI；过期的流 ID 仍会被清除。",
     },
   ]}
 />
 
-## Telemetry
+## 遥测
 
-The `useChatRuntime` hook captures full run telemetry including timing data. This integrates with the assistant-ui runtime to provide:
+`useChatRuntime` Hook 会捕获完整的运行遥测数据，包括时间信息。它与 assistant-ui 运行时集成，可提供：
 
-**Automatically captured:**
-- `status` — `"completed"`, `"incomplete"`, or `"error"`
-- `duration_ms` — Total run duration (measured client-side)
-- `steps` — Per-step breakdowns with timing, usage, and tool calls
-- `tool_calls` — Tool invocations with name, arguments, results, and source
-- `total_steps` — Number of reasoning/tool steps
-- `output_text` — Full response text (truncated at 50K characters)
+**自动捕获：**
+- `status` — `"completed"`、`"incomplete"` 或 `"error"`
+- `duration_ms` — 运行总时长（在客户端测量）
+- `steps` — 每个步骤的详细信息，包括时间、使用情况和工具调用
+- `tool_calls` — 工具调用，包括名称、参数、结果和来源
+- `total_steps` — 推理/工具步骤的数量
+- `output_text` — 完整的响应文本（截断至 50K 个字符）
 
-**Requires route configuration:**
-- `model_id` — The model used
-- `input_tokens` / `output_tokens` — Token usage statistics
+**需要进行路由配置：**
+- `model_id` — 使用的模型
+- `input_tokens` / `output_tokens` — Token 使用统计
 
-To capture model and usage data, add the `messageMetadata` callback to your AI SDK route:
+如需捕获模型和使用情况数据，请将 `messageMetadata` 回调添加到 AI SDK 路由中：
 
 ```tsx title="app/api/chat/route.ts"
 import { streamText } from "ai";
@@ -415,11 +414,11 @@ export async function POST(req: Request) {
 }
 ```
 
-Without this configuration, model and token data will be omitted from telemetry reports.
+如果没有此配置，遥测报告中将不会包含模型和 Token 数据。
 
-### Customizing Reports
+### 自定义报告
 
-Use the `beforeReport` hook to add custom metadata or filter reports:
+使用 `beforeReport` Hook 添加自定义元数据或过滤报告：
 
 ```tsx
 const cloud = new AssistantCloud({
@@ -434,17 +433,17 @@ const cloud = new AssistantCloud({
 });
 ```
 
-Return `null` from `beforeReport` to skip reporting a specific run. To disable telemetry entirely, pass `telemetry: false`.
+从 `beforeReport` 返回 `null`，即可跳过特定运行的报告。要完全禁用遥测，请传入 `telemetry: false`。
 
-### Sub-Agent Model Tracking
+### 子代理模型跟踪
 
-When tool calls delegate to a different model (e.g., the main run uses GPT but a tool invokes Gemini), you can track the delegated model's usage. Pass sampling call data through `messageMetadata.samplingCalls` in your API route, and the telemetry reporter will automatically include it in the report.
+当工具调用委托给其他模型时（例如，主运行使用 GPT，但某个工具调用 Gemini），你可以跟踪受委托模型的使用情况。在 API 路由中通过 `messageMetadata.samplingCalls` 传递采样调用数据，遥测报告器会自动将其包含在报告中。
 
-See the [AI SDK Telemetry guide](/docs/cloud/ai-sdk#sub-agent-model-tracking) for the full setup with `createSamplingCollector` and `wrapSamplingHandler`.
+请参阅 [AI SDK 遥测指南](/docs/cloud/ai-sdk#sub-agent-model-tracking)，了解使用 `createSamplingCollector` 和 `wrapSamplingHandler` 的完整配置方法。
 
-## Authentication
+## 身份验证
 
-The React example above uses anonymous mode for quick demos. For production apps with user accounts, pass an explicit cloud instance with a token from your auth provider:
+上面的 React 示例使用匿名模式，以便快速演示。对于带有用户账户的生产应用，请传入一个显式的云实例，并使用身份验证提供商提供的令牌：
 
 <PlatformTabs>
 <Tab value="React">
@@ -519,9 +518,8 @@ function Chat() {
 </Tab>
 </PlatformTabs>
 
-See the [Cloud Authorization](/docs/cloud/authorization) guide for other auth providers.
+如需了解其他身份验证提供商，请参阅[云授权](/docs/cloud/authorization)指南。
 
+## 完整示例
 
-## Complete Example
-
-Check out the [with-cloud example](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-cloud) on GitHub for a fully working implementation.
+在 GitHub 上查看 [with-cloud 示例](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-cloud)

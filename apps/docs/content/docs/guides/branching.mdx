@@ -1,23 +1,23 @@
 ---
-title: Message Branching
-description: Edit messages or regenerate AI responses, then switch between alternative replies. Branching navigation built into assistant-ui's React chat UI.
+title: 消息分支
+description: 编辑消息或重新生成 AI 回复，然后在不同的备选回复之间切换。assistant-ui 的 React 聊天 UI 内置分支导航。
 platforms: ["react"]
 ---
 
 import { BranchingSample } from "@/components/pages/docs/samples/branching";
 
-Branching lets users navigate between alternative versions of a message. A new branch is created when:
+分支功能允许用户在消息的不同版本之间导航。以下情况会创建新分支：
 
-- A user message is edited
-- An assistant message is reloaded (reload creates a new branch on the same message)
+- 编辑用户消息
+- 重新加载助手消息（重新加载会在同一消息上创建新分支）
 
-Branches are automatically tracked by assistant-ui by observing changes to the `messages` array.
+assistant-ui 会通过观察 `messages` 数组的变化，自动跟踪分支。
 
-## Shortest Working Pattern
+## 最简可用模式
 
 <BranchingSample />
 
-Place a branch picker inside your message component:
+将分支选择器放置在消息组件中：
 
 ```tsx
 import { BranchPickerPrimitive } from "@assistant-ui/react";
@@ -31,11 +31,11 @@ const BranchPicker = () => (
 );
 ```
 
-`BranchPickerPrimitive.Previous` and `.Next` automatically disable at branch boundaries and while a run is in flight (unless the runtime supports `switchBranchDuringRun`). For the full primitive API, see [BranchPickerPrimitive](/docs/primitives/branch-picker).
+`BranchPickerPrimitive.Previous` 和 `.Next` 会在分支边界处以及运行正在进行时自动禁用（除非运行时支持 `switchBranchDuringRun`）。如需查看完整的原语 API，请参阅 [BranchPickerPrimitive](/docs/primitives/branch-picker)。
 
-## Triggering Reload
+## 触发重新加载
 
-`ActionBarPrimitive.Reload` creates a new branch on an assistant message and re-runs from there:
+`ActionBarPrimitive.Reload` 会在助手消息上创建新分支，并从该分支重新运行：
 
 ```tsx
 import { ActionBarPrimitive, MessagePrimitive } from "@assistant-ui/react";
@@ -50,11 +50,11 @@ const AssistantMessage = () => (
 );
 ```
 
-`Reload` is disabled while `thread.isRunning` or `thread.isDisabled` is true. See [ActionBarPrimitive](/docs/primitives/action-bar) for the full reference.
+当 `thread.isRunning` 或 `thread.isDisabled` 为 true 时，`Reload` 会被禁用。如需查看完整参考，请参阅 [ActionBarPrimitive](/docs/primitives/action-bar)。
 
-## Programmatic Branch Navigation
+## 以编程方式进行分支导航
 
-For headless or keyboard-shortcut flows, navigate directly to a branch by id via `aui.message.switchToBranch`:
+对于无头模式或键盘快捷键流程，可以通过 `aui.message.switchToBranch` 直接导航到指定 id 的分支：
 
 ```tsx
 import { useAui } from "@assistant-ui/react";
@@ -69,8 +69,8 @@ const SwitchToBranch = ({ branchId }: { branchId: string }) => {
 };
 ```
 
-This must be called inside a message context (e.g. nested within `MessagePrimitive.Root`).
+必须在消息上下文中调用此方法（例如嵌套在 `MessagePrimitive.Root` 中）。
 
-## Grouped Parts After Branching
+## 分支后的分组部分
 
-Each branch is a distinct message version with its own content parts. `MessagePrimitive.GroupedParts` provides hierarchical adjacent grouping of those parts, useful when a message mixes tool calls and text across branches. See the [MessagePrimitive](/docs/primitives/message) reference for `GroupedParts` usage.
+每个分支都是一个独立的消息版本，并拥有自己的内容部分。`MessagePrimitive.GroupedParts` 会对这些部分进行层级相邻分组；当一条消息跨分支混合工具调用和文本时，这非常有用。有关 `GroupedParts` 的用法，请参阅 [MessagePrimitive](/docs/primitives/message) 参考文档。

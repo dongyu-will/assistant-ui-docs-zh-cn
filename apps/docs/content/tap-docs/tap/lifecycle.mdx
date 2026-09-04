@@ -1,14 +1,14 @@
 ---
-title: Lifecycle
-description: How resources render, mount, update, and unmount.
+title: 生命周期
+description: 资源如何渲染、挂载、更新和卸载。
 ---
 
-## Render and commit
+## 渲染与提交
 
-Like React, tap splits work into two phases:
+与 React 一样，tap 将工作拆分为两个阶段：
 
-1. **Render**: the resource function runs, hooks record their data, and a return value is produced. This phase has no side effects.
-2. **Commit**: effects whose dependencies changed run. If an effect is re-running, its previous cleanup executes first. The resource is considered mounted after this phase.
+1. **渲染**：资源函数运行，Hook 记录其数据，并生成返回值。此阶段不会产生副作用。
+2. **提交**：依赖发生变化的 effect 运行。如果 effect 正在重新运行，则会先执行其之前的清理函数。资源在此阶段之后被视为已挂载。
 
 ```ts
 import { resource } from "@assistant-ui/tap";
@@ -30,11 +30,11 @@ const useApp = () => {
 const App = resource(useApp);
 ```
 
-### Effect ordering
+### Effect 执行顺序
 
-In React, effects run children-first, then parents (inside-out). This is because components can only render children by returning them, there's no way to run an effect after a child's effects.
+在 React 中，effect 按照先子组件、后父组件的顺序运行（由内向外）。这是因为组件只能通过返回子组件来渲染它们，无法在子组件的 effect 执行后再运行 effect。
 
-In tap, **effects run in the exact order they are called during the render pass**. Since `useResource` is just another hook, you can place `useEffect` calls before or after it:
+在 tap 中，**effect 按照它们在渲染过程中被调用的确切顺序运行**。由于 `useResource` 只是另一个 Hook，因此你可以将 `useEffect` 调用放在它之前或之后：
 
 ```ts
 import { resource, useResource } from "@assistant-ui/tap";
@@ -66,40 +66,38 @@ const Child = resource(useChild);
 // Mount order: 1, 2, 3
 ```
 
-This is intentional, it lets you run setup logic both before and after children, which is useful when a parent needs to react to data provided by a child.
+这是有意为之的，它允许你在子组件之前和之后运行设置逻辑。当父资源需要响应子资源提供的数据时，这一特性非常有用。
 
-Cleanup on unmount runs in the same order as mount (FIFO), matching the order effects were originally registered.
+卸载时的清理操作按照与挂载相同的顺序运行（FIFO），与 effect 最初注册的顺序一致。
 
-## Mount and unmount
+## 挂载与卸载
 
-A resource is **mounted** after its first commit. At this point, effects have run and the resource is live.
+资源在首次提交后被**挂载**。此时，effect 已经运行，资源处于活动状态。
 
-A resource is **unmounted** when its owner removes it, all effect cleanups run and the resource is disposed. This happens automatically when:
+当资源的所有者移除资源时，资源会被**卸载**，所有 effect 清理函数都会运行，资源也会被释放。以下情况会自动触发这一过程：
 
-- A parent resource stops rendering the child via `useResource`
-- A React component using `useResource` unmounts
-- `root.unmount()` is called on a `createTapRoot` root
+- 父资源通过 `useResource` 停止渲染子资源
+- 使用 `useResource` 的 React 组件卸载
+- 在 `createTapRoot` 根上调用 `root.unmount()`
 
-## Concurrent mode
+## 并发模式
 
-Tap has full interoperability with React's concurrent mode. Resources rendered via `useResource` work correctly with `startTransition`, `useDeferredValue`, `<Suspense>`, and other concurrent features, state updates are applied consistently without tearing.
+Tap 与 React 的并发模式完全互操作。通过 `useResource` 渲染的资源可以与 `startTransition`、`useDeferredValue`、`<Suspense>` 以及其他并发特性正确协作，状态更新能够一致地应用，不会出现撕裂。
 
 <Callout type="warn">
-The `@assistant-ui/store` layer currently relies on `useSyncExternalStore` to bridge tap resources into React. This means store subscriptions always trigger synchronous re-renders, opting out of concurrent scheduling for those reads. This may change in a future release.
+`@assistant-ui/store` 层目前依赖 `useSyncExternalStore` 将 tap 资源桥接到 React。这意味着 store 订阅始终会触发同步重新渲染，使这些读取退出并发调度。未来版本可能会改变这一行为。
 </Callout>
 
 ## Offscreen / Activity
 
-When a resource is hidden by `<Activity mode="hidden">`, state updates that arrive while it's hidden are tracked and replayed once it becomes visible again. No configuration needed.
+当资源被 `<Activity mode="hidden">` 隐藏时，隐藏期间到达的状态更新会被跟踪，并在资源重新可见后重放。无需进行任何配置。
 
-A `createTapRoot` root with `mountOnSubscribe: true` follows the same model when
-its subscriber count drops to zero: effect cleanups run, state is preserved, and
-the next subscriber remounts the tree — like an Activity going hidden and
-visible again.
+当 `createTapRoot` 根使用 `mountOnSubscribe: true`，且其订阅者数量降为零时，也遵循相同的模型：
+effect 清理函数会运行，状态会被保留，下一个订阅者会重新挂载整棵树——就像 Activity 在隐藏和重新可见之间切换一样。
 
-## Strict mode
+## 严格模式
 
-In development, resources render twice on mount to surface side effects in render, the same as React's `<StrictMode>`.
+在开发环境中，资源在挂载时会渲染两次，以便暴露渲染过程中的副作用，这与 React 的 `<StrictMode>` 相同。
 
-- **`useResource`** inherits the surrounding `<StrictMode>`.
-- **`createTapRoot`** enables it automatically in development.
+- **`useResource`** 继承周围的 `<StrictMode>`。
+- **`createTapRoot`** 会在开发环境中自动启用该模式。

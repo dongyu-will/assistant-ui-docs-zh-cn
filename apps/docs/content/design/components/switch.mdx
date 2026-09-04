@@ -1,8 +1,8 @@
 ---
 title: "Switch"
-description: "A binary control in two sizes; the only capsule in the kit."
+description: "两种尺寸的二元控件；套件中唯一的胶囊形控件。"
 links:
-  - label: Source
+  - label: 官方原文
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/switch.tsx
   - label: Base UI Switch
     url: https://base-ui.com/react/components/switch
@@ -23,11 +23,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.SwitchSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="switch" />
 
-## Usage
+## 用法
 
 ```tsx
 import { Switch } from "@/components/ui/switch";
@@ -42,21 +42,21 @@ export function Example() {
 }
 ```
 
-## Examples
+## 示例
 
-### Sizes and disabled
+### 尺寸和禁用状态
 
-`default` measures 32×18 and `sm` 24×14. A disabled switch keeps its state visible at half opacity.
+`default`尺寸为 32×18，`sm`尺寸为 24×14。禁用的 Switch 会以半透明度保持其状态可见。
 
 <PreviewCode file="components/pages/design/specimens" name="SwitchSizesSpecimen" base={<SwitchSizesSpecimen />}>
   <RadixSpecimens.SwitchSizesSpecimen />
 </PreviewCode>
 
-## API Reference
+## API 参考
 
 ### Switch
 
-Wraps Base UI's Switch and accepts its props.
+封装 Base UI 的 Switch，并接受其属性。
 
 <ParametersTable
   type="SwitchProps"
@@ -65,29 +65,29 @@ Wraps Base UI's Switch and accepts its props.
       name: "size",
       type: '"sm" | "default"',
       default: '"default"',
-      description: "The control size.",
+      description: "控件尺寸。",
     },
     {
       name: "checked",
       type: "boolean",
-      description: "Controlled checked state.",
+      description: "受控的选中状态。",
     },
     {
       name: "onCheckedChange",
       type: "(checked: boolean) => void",
-      description: "Called when the state changes.",
+      description: "状态发生变化时调用。",
     },
     {
       name: "defaultChecked",
       type: "boolean",
       default: "false",
-      description: "Uncontrolled initial state.",
+      description: "非受控的初始状态。",
     },
     {
       name: "disabled",
       type: "boolean",
       default: "false",
-      description: "Prevents interaction.",
+      description: "阻止交互。",
     },
   ]}
 />

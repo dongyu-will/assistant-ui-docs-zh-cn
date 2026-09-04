@@ -1,20 +1,20 @@
 ---
-title: "Approval card"
-description: "Human in the loop: the agent asks before it runs anything with side effects."
+title: "审批卡片"
+description: "人在回路：助手在执行任何具有副作用的操作前会先征求同意。"
 ---
 
-A card that names what the agent wants to run, shows the command, and waits for a decision before switching to a status line for running, done, or denied. With a runtime the decision flows through the tool call's own approval gate; standalone you hold the state and answer the callbacks yourself.
+这是一张卡片，用于说明助手想要执行的操作、显示命令，并在切换为运行中、已完成或已拒绝的状态行之前等待用户决定。在运行时中，决定会通过工具调用自身的审批门传递；单独使用时，则由你维护状态并自行响应回调。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-A request like this is exactly what server-side tool approval gates are for: the tool call carries an `approval` object until the user answers, and `respondToApproval` sends the answer back.
+类似这样的请求正是服务端工具审批门的用途：在用户作出回答之前，工具调用会携带一个 `approval` 对象，而 `respondToApproval` 会将回答发送回去。
 
 <Steps>
   <Step>
 
-### Render the tool call
+### 渲染工具调用
 
 ```tsx title="app/toolkit.tsx"
 "use client";
@@ -61,12 +61,12 @@ export const toolkit = defineToolkit({
 });
 ```
 
-`approval.approved` is `undefined` until answered, so that is the only window in which `respondToApproval` is legal. Sending an `optionId` records which of the host's three options was chosen rather than a plain yes or no; see [Approval options](/docs/tools/tool-ui#approval-options) for how the host declares `"once"`, `"always"`, and `"deny"` as `allow-once`, `allow-always`, and `reject-once`.
+在得到回答之前，`approval.approved` 始终是 `undefined`，因此只有在此期间调用 `respondToApproval` 才是合法的。发送 `optionId` 会记录主机三种选项中的具体选择，而不只是简单的“是”或“否”；请参阅[审批选项](/docs/tools/tool-ui#approval-options)，了解主机如何将 `"once"`、`"always"` 和 `"deny"` 声明为 `allow-once`、`allow-always` 和 `reject-once`。
 
   </Step>
   <Step>
 
-### Register the toolkit
+### 注册工具包
 
 ```tsx title="app/MyRuntimeProvider.tsx"
 import { AssistantRuntimeProvider, AuiConfig, Tools } from "@assistant-ui/react";
@@ -83,7 +83,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-Approval gates require a runtime that emits them; the AI SDK v7 runtime does for `toolApproval`-gated tools, and `LocalRuntime` does for gates your `ChatModelAdapter` emits.
+审批门需要由能够发出审批请求的运行时提供；对于由 `toolApproval` 控制的工具，AI SDK v7 运行时可以提供此能力；对于你的 `ChatModelAdapter` 发出的审批门，`LocalRuntime` 可以提供此能力。
 
   </Step>
 </Steps>
@@ -92,12 +92,12 @@ Approval gates require a runtime that emits them; the AI SDK v7 runtime does for
 
 <StandaloneMode>
 
-Standalone, the element is a controlled display: you own `state` and decide what each button does.
+单独使用时，该元素是一个受控显示组件：由你负责维护 `state`，并决定每个按钮的行为。
 
 <Steps>
   <Step>
 
-### Hold the approval state
+### 保存审批状态
 
 ```tsx title="app/approval.tsx"
 "use client";
@@ -128,7 +128,7 @@ export function Approval() {
   </Step>
   <Step>
 
-### Resolve the run
+### 解析运行结果
 
 ```tsx
 async function run() {
@@ -137,14 +137,14 @@ async function run() {
 }
 ```
 
-There is no prop for the exit code; `state: "done"` always reads as "Finished with exit 0" in this version.
+这里没有用于设置退出代码的属性；在此版本中，`state: "done"` 始终显示为“以退出代码 0 完成”。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="approval-card">
@@ -161,23 +161,23 @@ There is no prop for the exit code; `state: "done"` always reads as "Finished wi
 </div>
 ```
 
-The footer is one of two things: the three-button strip while `state` is `"request"`, or a single status line once it is not. The status line's icon and text are fixed per state (a spinner for `"running"`, an X for `"denied"`, a check for `"done"`) rather than driven by further props. The card holds no state of its own and runs no timers; every transition comes from the `state` you pass in and the callbacks fire only from the request row.
+页脚有两种形式：当 `state` 为 `"request"` 时显示三按钮栏，否则显示单行状态。状态行的图标和文本由状态固定决定（`"running"` 使用加载指示器，`"denied"` 使用 X，`"done"` 使用勾号），而不是由其他属性驱动。卡片自身不保存状态，也不会运行计时器；所有状态转换都来自你传入的 `state`，并且回调只会从请求行触发。
 
-## Examples
+## 示例
 
-### Restyle the card
+### 重新设置卡片样式
 
-Both lanes take `className` on the root. The command block uses the `field` surface and the primary button uses `inkButton`, both from `surfaces.tsx`.
+两种模式都会在根元素上接收 `className`。命令块使用 `surfaces.tsx` 中的 `field` 表面，主按钮使用其中的 `inkButton`。
 
 ```tsx
 <ApprovalCard className="max-w-md" /* ... */ />
 ```
 
-### Denying with a reason
+### 拒绝并提供理由
 
 <RuntimeMode>
 
-`respondToApproval` accepts a `reason` alongside the decision, which the host can show back to the model:
+`respondToApproval` 接受与决定一起传入的 `reason`，主机可以将其展示给模型：
 
 ```tsx
 onDeny={() =>
@@ -189,7 +189,7 @@ onDeny={() =>
 
 <StandaloneMode>
 
-The element has no reason field; collect one in your own UI before calling `onDeny`, or route the reason through your app state instead.
+该元素没有理由字段；请在调用 `onDeny` 之前在自己的 UI 中收集理由，或者改为通过应用状态传递理由。
 
 ```tsx
 onDeny={() => {
@@ -200,18 +200,18 @@ onDeny={() => {
 
 </StandaloneMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Render props
+### 渲染属性
 
-| Source | Type | Description |
+| 来源 | 类型 | 描述 |
 |--------|------|-------------|
-| `args.command` / `args.title` / `args.subtitle` | `string` | The command and its framing copy. |
-| `approval?.approved` | `boolean \| undefined` | `undefined` maps to `"request"`, `false` to `"denied"`, `true` to `"running"` or `"done"` depending on `result`. |
-| `result` | `unknown` | Presence (once `approved` is `true`) maps to `"done"`. |
-| `respondToApproval(response)` | `(response: ToolApprovalResponse) => Promise<void>` | Sends the decision. Legal only while `approval.approved` is `undefined`. Rejects when the runtime could not record the response. |
+| `args.command` / `args.title` / `args.subtitle` | `string` | 命令及其说明文案。 |
+| `approval?.approved` | `boolean \| undefined` | `undefined` 映射到 `"request"`，`false` 映射到 `"denied"`，`true` 根据 `result` 映射到 `"running"` 或 `"done"`。 |
+| `result` | `unknown` | 当 `approved` 为 `true` 后，其存在性会映射到 `"done"`。 |
+| `respondToApproval(response)` | `(response: ToolApprovalResponse) => Promise<void>` | 发送决定。仅当 `approval.approved` 为 `undefined` 时才合法。当运行时无法记录响应时会拒绝。 |
 
 </RuntimeMode>
 
@@ -219,17 +219,17 @@ onDeny={() => {
 
 ### ApprovalCard
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `state` | `"request" \| "running" \| "done" \| "denied"` | required | Which footer renders. |
-| `command` | `string` | required | Shown in the monospace command block. |
-| `title` | `string` | required | Header title. |
-| `subtitle` | `string` | required | Header subtitle. |
-| `onAllowOnce` | `() => void` | | Fires from the request row's primary button. |
-| `onAlwaysAllow` | `() => void` | | Fires from the request row's secondary button. |
-| `onDeny` | `() => void` | | Fires from the request row's Deny button. |
-| `className` | `string` | | Merged onto the root. |
+| `state` | `"request" \| "running" \| "done" \| "denied"` | 必填 | 要渲染的页脚。 |
+| `command` | `string` | 必填 | 显示在等宽字体命令块中。 |
+| `title` | `string` | 必填 | 标题。 |
+| `subtitle` | `string` | 必填 | 副标题。 |
+| `onAllowOnce` | `() => void` | | 由请求行的主按钮触发。 |
+| `onAlwaysAllow` | `() => void` | | 由请求行的次按钮触发。 |
+| `onDeny` | `() => void` | | 由请求行的“拒绝”按钮触发。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

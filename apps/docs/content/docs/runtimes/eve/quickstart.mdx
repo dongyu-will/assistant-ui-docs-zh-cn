@@ -1,11 +1,11 @@
 ---
-title: Quickstart
-description: Template, Eve CLI, and manual setup paths to a working Eve agent chat in assistant-ui.
+title: 快速开始
+description: 通过模板、Eve CLI 和手动设置路径，构建可运行的 Eve 助手聊天 assistant-ui 应用。
 ---
 
-Three paths to a running Eve-powered assistant-ui app. The template is fastest, `eve add` drops assistant-ui into an Eve app you already have, and the manual path is what you adapt when integrating into an existing Next.js project.
+有三种方式可以运行由 Eve 驱动的 assistant-ui 应用。模板最快，`eve add`可将 assistant-ui 添加到已有的 Eve 应用中，而手动路径适用于将其集成到现有的 Next.js 项目中。
 
-## From the template
+## 使用模板
 
 <PlatformTabs>
 <Tab value="React">
@@ -15,7 +15,7 @@ npx create-assistant-ui@latest -t eve my-app
 cd my-app
 ```
 
-Set a model credential:
+设置模型凭据：
 
 ```sh title=".env.local"
 AI_GATEWAY_API_KEY=your-api-key
@@ -25,42 +25,42 @@ AI_GATEWAY_API_KEY=your-api-key
 npm run dev
 ```
 
-Open http://localhost:3000 and send a message. The template includes:
+打开 http://localhost:3000 并发送一条消息。模板包含：
 
-- `agent/agent.ts` for Eve runtime config.
-- `agent/instructions.md` for the always-on system prompt.
-- `next.config.ts` with `withEve(withAui(nextConfig))`.
-- `app/page.tsx` with `useEveAgentRuntime()`.
+- `agent/agent.ts`，用于 Eve 运行时配置。
+- `agent/instructions.md`，用于始终启用的系统提示词。
+- `next.config.ts`，包含 `withEve(withAui(nextConfig))`。
+- `app/page.tsx`，包含 `useEveAgentRuntime()`。
 
 </Tab>
 <Tab value="React Native">
 
-There is not a React Native Eve template yet.
+目前还没有 React Native Eve 模板。
 
 </Tab>
 <Tab value="React Ink">
 
-Use Eve's terminal UI directly for command-line agent sessions.
+直接使用 Eve 的终端 UI 运行命令行助手会话。
 
 </Tab>
 </PlatformTabs>
 
-## With the Eve CLI
+## 使用 Eve CLI
 
-For an Eve app that already exists, register the assistant-ui registry once and install the chat page from it:
+对于已有的 Eve 应用，注册一次 assistant-ui registry，然后从中安装聊天页面：
 
 ```sh
 eve registry add @assistant-ui=https://r.assistant-ui.com/{name}.json
 eve add @assistant-ui/eve-chat --overwrite
 ```
 
-`eve registry add` records the namespace in your `package.json`. `eve add` then installs `@assistant-ui/react` and `@assistant-ui/eve`, writes `app/page.tsx`, and writes the thread component together with everything it imports into `components/assistant-ui` and `components/ui`. It expects an Eve app that carries the Next.js Web Chat scaffold, because the installed files import `@/lib/utils` through the `@/*` alias that `eve init --channel-web-nextjs` sets up.
+`eve registry add`会在你的 `package.json` 中记录命名空间。随后，`eve add`会安装 `@assistant-ui/react` 和 `@assistant-ui/eve`，写入 `app/page.tsx`，并将线程组件及其导入的所有内容写入 `components/assistant-ui` 和 `components/ui`。它要求 Eve 应用包含 Next.js Web Chat 脚手架，因为已安装的文件会通过 `@/*` 别名导入 `@/lib/utils`，而该别名由 `eve init --channel-web-nextjs` 设置。
 
-`--overwrite` is global rather than per file. It is what lets the item replace the scaffold's own `app/page.tsx`, and it also replaces any `components/assistant-ui` or `components/ui` file already in the project, including `avatar`, `button`, `collapsible`, `dialog`, and `tooltip`, so install on a clean tree and read the diff before keeping it. A plain `eve add` skips every pre-existing file instead, which leaves `app/page.tsx` untouched. Inspect an item before installing it with `eve registry view @assistant-ui/eve-chat`, and browse the rest of the registry with `eve registry list --registry @assistant-ui`.
+`--overwrite`是全局选项，而不是针对单个文件的选项。它允许该条目替换脚手架自带的 `app/page.tsx`，同时也会替换项目中已有的任何 `components/assistant-ui` 或 `components/ui` 文件，包括 `avatar`、`button`、`collapsible`、`dialog` 和 `tooltip`。因此，请在干净的工作树上安装，并在保留更改前查看差异。普通的 `eve add` 则会跳过所有已存在的文件，从而保持 `app/page.tsx` 不变。安装前可使用 `eve registry view @assistant-ui/eve-chat` 检查条目，也可以使用 `eve registry list --registry @assistant-ui` 浏览 registry 中的其他内容。
 
-That namespace serves the Radix flavor, which matches the shadcn components in Eve's Next.js scaffold. Point it at `https://r.assistant-ui.com/base/{name}.json` instead for a Base UI project.
+该命名空间对应 Radix 风格，与 Eve 的 Next.js 脚手架中的 shadcn 组件相匹配。对于 Base UI 项目，请改为指向 `https://r.assistant-ui.com/base/{name}.json`。
 
-The Eve CLI writes registry files without editing CSS, so add the styles the reasoning and tool components animate with to `app/globals.css` yourself:
+Eve CLI 写入 registry 文件时不会编辑 CSS，因此请自行将推理和工具组件动画所需的样式添加到 `app/globals.css`：
 
 ```css title="app/globals.css"
 @import "tw-shimmer";
@@ -94,19 +94,19 @@ The Eve CLI writes registry files without editing CSS, so add the styles the rea
 }
 ```
 
-## Manual setup in an existing app
+## 在现有应用中手动设置
 
 <Steps>
 <Step>
 
-### Install dependencies
+### 安装依赖
 
 <InstallCommand npm={["@assistant-ui/react", "@assistant-ui/eve", "eve"]} />
 
 </Step>
 <Step>
 
-### Mount Eve in Next.js
+### 在 Next.js 中挂载 Eve
 
 ```ts title="next.config.ts"
 import { withAui } from "@assistant-ui/next";
@@ -121,7 +121,8 @@ export default withEve(withAui(nextConfig));
 </Step>
 <Step>
 
-### Add an Eve agent
+### 添加 Eve 助手
+
 
 ```ts title="agent/agent.ts"
 import { defineAgent } from "eve";
@@ -138,7 +139,8 @@ You are a concise assistant. Use tools when they are available.
 </Step>
 <Step>
 
-### Create the runtime
+### 创建运行时
+
 
 ```tsx title="app/page.tsx"
 "use client";
@@ -161,9 +163,9 @@ export default function Home() {
 </Step>
 </Steps>
 
-## Production auth
+## 生产环境身份验证
 
-The default Eve channel is convenient for local development. For production browser users, define `agent/channels/eve.ts` and replace the default auth policy with your app's auth.
+默认的 Eve 通道便于本地开发。对于生产环境中的浏览器用户，请定义 `agent/channels/eve.ts`，并将默认身份验证策略替换为应用自己的身份验证策略。
 
 ```ts title="agent/channels/eve.ts"
 import { localDev, vercelOidc } from "eve/channels/auth";
@@ -174,19 +176,19 @@ export default eveChannel({
 });
 ```
 
-That example keeps the development defaults. Swap in your Clerk, Auth.js, OIDC, or JWT verification before going live.
+该示例保留了开发环境默认设置。正式上线前，请替换为 Clerk、Auth.js、OIDC 或 JWT 验证。
 
-## Next
+## 下一步
 
 <Cards>
   <Card
-    title="Eve overview"
-    description="Architecture, requirements, and runtime behavior."
+    title="Eve 概览"
+    description="架构、要求和运行时行为。"
     href="/docs/runtimes/eve/overview"
   />
   <Card
-    title="API reference"
-    description="useEveAgentRuntime and message conversion helpers."
+    title="API 参考"
+    description="useEveAgentRuntime 和消息转换辅助函数。"
     href="/docs/api-reference/integrations/eve"
   />
 </Cards>

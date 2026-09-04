@@ -1,20 +1,20 @@
 ---
-title: "Retrieval chunks"
-description: "The passages a retrieval answer stands on, scored, before the answer itself arrives."
+title: "检索分块"
+description: "检索答案所依据的段落会先进行评分，然后答案才会到达。"
 ---
 
-Retrieval chunks show a query, a status line, and the passages a retrieval call found, each with its source, a locator, a relevance score, and a score bar. With a runtime the query and passages come from a tool call the model made; standalone you drive `query`, `chunks`, and how many of them are visible.
+检索分块会显示查询、状态行，以及检索调用找到的段落；每个段落都包含其来源、定位信息、相关性评分和评分条。在运行时中，查询和段落来自模型发起的工具调用；独立使用时，你可以控制 `query`、`chunks` 以及可见分块的数量。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-A retrieval tool renders through that tool's own toolkit entry: the model's query arrives as `args`, the retrieved passages as `result`, and the call's lifecycle as `status`.
+检索工具会通过该工具自己的工具包条目进行渲染：模型的查询作为 `args` 传入，检索到的段落作为 `result` 传入，而调用的生命周期则作为 `status` 传入。
 
 <Steps>
   <Step>
 
-### Define the retrieval toolkit
+### 定义检索工具包
 
 ```tsx title="app/toolkit.tsx"
 "use generative";
@@ -37,12 +37,12 @@ export default defineToolkit({
 });
 ```
 
-`execute: externalTool()` marks a tool a backend route or vector store runs, not the browser: the compiler drops it from the client bundle and keeps only `render`.
+`execute: externalTool()` 用于标记由后端路由或向量存储运行、而非在浏览器中运行的工具：编译器会将其从客户端构建包中移除，只保留 `render`。
 
   </Step>
   <Step>
 
-### Register the toolkit
+### 注册工具包
 
 ```tsx title="app/MyRuntimeProvider.tsx"
 "use client";
@@ -64,7 +64,7 @@ export function App() {
 }
 ```
 
-Every `search_docs` tool call in the thread now renders as this element, wherever `MessagePrimitive.Parts` places it in the assistant's reply.
+现在，线程中的每个 `search_docs` 工具调用都会渲染为此元素，无论 `MessagePrimitive.Parts` 将其放置在助手回复中的什么位置。
 
   </Step>
 </Steps>
@@ -73,12 +73,12 @@ Every `search_docs` tool call in the thread now renders as this element, whereve
 
 <StandaloneMode>
 
-Standalone, `RetrievalChunks` is fully controlled: you hold the query, the full chunk list, and how many of them are visible.
+独立使用时，`RetrievalChunks` 完全由你控制：你需要保存查询、完整的分块列表，以及其中可见的分块数量。
 
 <Steps>
   <Step>
 
-### Hold the retrieval state
+### 保存检索状态
 
 ```tsx title="app/answer.tsx"
 "use client";
@@ -124,9 +124,9 @@ export function Retrieval() {
   </Step>
   <Step>
 
-### Reveal chunks as retrieval finishes
+### 随检索完成逐步显示分块
 
-Flip `searching` off and step `visibleCount` up once the passages are ready, instead of jumping straight to the full list:
+段落准备好后，将 `searching` 关闭，并将 `visibleCount` 逐步增加，而不是直接跳转到完整列表：
 
 ```tsx
 useEffect(() => {
@@ -144,7 +144,7 @@ useEffect(() => {
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="retrieval-chunks">
@@ -156,13 +156,13 @@ useEffect(() => {
 </div>
 ```
 
-`visibleCount` clamps to `0…chunks.length`, so a value out of range never throws: negative or `NaN` shows nothing, one past the end shows everything. The status line, unlike web search's, does read `chunks.length` once retrieval finishes. A chunk's score bar fills to `score` as a percentage of `1`, and the score text turns emerald at `0.8` and above; anything below reads in the muted foreground color. `text` is clamped to two lines and does not expand on its own.
+`visibleCount` 会限制在 `0…chunks.length` 范围内，因此超出范围的值不会抛出异常：负值或 `NaN` 不显示任何内容，超过末尾一个位置则显示全部内容。与网页搜索不同，检索完成后，状态行确实会显示 `chunks.length`。分块的评分条会按照 `1` 的百分比填充到 `score`；评分达到 `0.8` 或更高时，评分文本会变为翡翠绿色；低于该值时，则使用弱化的前景色显示。`text` 会限制为两行，且不会自动展开。
 
-## Examples
+## 示例
 
-### Filtering by score before rendering
+### 渲染前按评分筛选
 
-Nothing in the element enforces a relevance floor: pass a shorter `chunks` array to drop passages below your own threshold, rather than trying to hide them with `visibleCount`.
+该元素不会强制执行相关性下限：传入更短的 `chunks` 数组，以移除低于你自定义阈值的段落，而不是尝试使用 `visibleCount` 将其隐藏。
 
 ```tsx
 <RetrievalChunks
@@ -173,27 +173,27 @@ Nothing in the element enforces a relevance floor: pass a shorter `chunks` array
 />
 ```
 
-### Restyle the chunks
+### 重新设置分块样式
 
-Both lanes take `className` on the root. The query pill uses the shared `field` surface, the chunk cards use `paper`, and the locator and score use `mono`, all from `surfaces.tsx`.
+两条轨道的根元素都接受 `className`。查询标签使用共享的 `field` 表面，分块卡片使用 `paper`，定位信息和评分使用 `mono`；这些样式都来自 `surfaces.tsx`。
 
 ```tsx
 <RetrievalChunks className="max-w-none" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool render props
+### 工具渲染属性
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `args` | `{ query?: string }` | Model-supplied arguments. Partial while streaming. |
-| `result` | `{ chunks: RetrievalChunk[] } \| undefined` | Set once the tool call resolves. |
-| `status.type` | `"running" \| "complete" \| "incomplete" \| "requires-action"` | Lifecycle of the call. `"running"` is the only state that should show the retrieving shimmer. |
+| `args` | `{ query?: string }` | 模型提供的参数。流式传输期间可能不完整。 |
+| `result` | `{ chunks: RetrievalChunk[] } \| undefined` | 工具调用解析后设置。 |
+| `status.type` | `"running" \| "complete" \| "incomplete" \| "requires-action"` | 调用的生命周期。只有 `"running"` 状态应显示检索中的闪烁效果。 |
 
-`RetrievalChunk` is `{ id: string; source: string; locator: string; score: number; text: string }`. See [Tool UI](/docs/tools/tool-ui) for the full tool-call part shape.
+`RetrievalChunk` 是 `{ id: string; source: string; locator: string; score: number; text: string }`。完整的工具调用部分结构请参阅[工具 UI](/docs/tools/tool-ui)。
 
 </RuntimeMode>
 
@@ -201,14 +201,14 @@ Both lanes take `className` on the root. The query pill uses the shared `field` 
 
 ### RetrievalChunks
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `query` | `string` | required | The query shown in the pill. |
-| `chunks` | `readonly RetrievalChunk[]` | required | The full passage list. |
-| `visibleCount` | `number` | required | How many chunks, from the start of `chunks`, to render. |
-| `searching` | `boolean` | required | Shows the shimmering "Retrieving" label in place of the passage count while true. |
-| `className` | `string` | | Merged onto the root. |
+| `query` | `string` | 必填 | 标签中显示的查询。 |
+| `chunks` | `readonly RetrievalChunk[]` | 必填 | 完整的段落列表。 |
+| `visibleCount` | `number` | 必填 | 从 `chunks` 开始渲染的分块数量。 |
+| `searching` | `boolean` | 必填 | 为 true 时，在段落数量的位置显示带闪烁效果的“检索中”标签。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-`RetrievalChunk` is `{ id: string; source: string; locator: string; score: number; text: string }`. All other `div` props are forwarded to the root.
+`RetrievalChunk` 是 `{ id: string; source: string; locator: string; score: number; text: string }`。其他所有 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

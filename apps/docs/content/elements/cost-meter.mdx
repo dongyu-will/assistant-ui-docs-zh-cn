@@ -1,20 +1,20 @@
 ---
-title: "Cost meter"
-description: "What the run spent, split by model, against the session total."
+title: "成本计量器"
+description: "按模型拆分运行消耗，并与会话总计进行对比。"
 ---
 
-CostMeter shows what a run cost as a big number, a segmented bar split by model, and a row per model with its token counts and price. With a runtime you build the numbers from the message's own step usage; standalone you already hold them.
+CostMeter 以醒目的数字、按模型拆分的分段条，以及每个模型一行的令牌数量和价格，展示一次运行的成本。使用运行时，你可以根据消息自身每个步骤的使用情况计算这些数值；独立使用时，你已经持有这些数值。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-assistant-ui tracks token usage per step of a run, but not dollars and not which model produced a given step, both of those are your own bookkeeping. The closest real data is `message.metadata.steps`, an array of `{ usage: { inputTokens, outputTokens } }` entries.
+assistant-ui 会跟踪一次运行中每个步骤的 token 用量，但不会跟踪费用，也不会记录某个步骤由哪个模型生成；这两项都需要由你自行记录。最接近真实数据的是 `message.metadata.steps`，即一个由 `{ usage: { inputTokens, outputTokens } }` 条目组成的数组。
 
 <Steps>
   <Step>
 
-### Turn a run's steps into a cost line
+### 将一次运行的步骤转换为成本明细
 
 ```tsx title="components/assistant-ui/elements/run-cost.tsx"
 "use client";
@@ -51,12 +51,12 @@ export function RunCost({ model }: { model: string }) {
 }
 ```
 
-`PRICE_PER_MILLION` and the `model` label are yours; assistant-ui never names a price or a provider.
+`PRICE_PER_MILLION` 和 `model` 标签由你定义；assistant-ui 从不会指定价格或提供商。
 
   </Step>
   <Step>
 
-### Add a session total
+### 添加会话总计
 
 ```tsx
 const sessionTokens = useAuiState((s) =>
@@ -74,7 +74,7 @@ const sessionTokens = useAuiState((s) =>
 );
 ```
 
-`s.thread.messages` is every message on the active branch, so summing its assistant messages' steps gives a real session total in tokens. Turning that into `sessionCost` still takes your own price table, and if a thread genuinely calls more than one model, keeping track of which message used which model is on you too, `ThreadStep` carries no model name.
+`s.thread.messages` 包含活动分支中的每条消息，因此汇总其中助手消息的步骤，就能得到真实的会话 token 总量。要将其转换为 `sessionCost`，仍然需要使用你自己的价格表；如果一个线程确实调用了多个模型，你也需要自行跟踪每条消息使用的是哪个模型，因为 `ThreadStep` 不包含模型名称。
 
   </Step>
 </Steps>
@@ -83,12 +83,12 @@ const sessionTokens = useAuiState((s) =>
 
 <StandaloneMode>
 
-Standalone, you already have the numbers, from wherever your backend reports them.
+单独来看，你已经拥有这些数值，它们来自后端报告数据的任意来源。
 
 <Steps>
   <Step>
 
-### Hold the lines and totals
+### 保留明细和总计
 
 ```tsx title="app/usage.tsx"
 "use client";
@@ -114,7 +114,7 @@ export function Usage() {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="cost-meter">
@@ -130,21 +130,21 @@ export function Usage() {
 </div>
 ```
 
-The segmented bar's color is assigned by index, not by value: the first line always gets the solid blue tone, the second a faded blue, and every line after that shares one neutral gray, regardless of how large its `share` is. `share` isn't validated against the others, so shares that don't sum to 1 leave the bar under or overfull. `inputTokens` and `outputTokens` are raw numbers the component formats to one decimal in thousands (`48200` becomes `"48.2k in"`); `runCost`, `sessionCost`, and each line's `cost` are already-formatted strings the component only displays, it does no currency math of its own.
+分段条的颜色按索引而不是按数值分配：第一行始终使用纯蓝色调，第二行使用淡蓝色调，之后的每一行都共用一种中性灰色，无论其 `share` 数值多大。`share` 不会与其他值进行校验，因此总和不为 1 的份额会导致分段条显示不足或超出。`inputTokens` 和 `outputTokens` 是原始数字，组件会将其格式化为以千为单位、保留一位小数的形式（`48200` 会变为 `"48.2k in"`）；`runCost`、`sessionCost` 以及每一行的 `cost` 都是已经格式化的字符串，组件只负责显示，不会自行进行货币计算。
 
-## Examples
+## 示例
 
-### Restyle the meter
+### 重新设置计量器样式
 
-Both lanes take `className` on the root. The root uses `paper`; token counts and cost use `mono`.
+两个泳道都在根元素上接收 `className`。根元素使用 `paper`；令牌计数和成本使用 `mono`。
 
 ```tsx
 <CostMeter className="max-w-none" /* ... */ />
 ```
 
-### Computing share from raw costs
+### 根据原始成本计算占比
 
-Whichever lane supplies the dollar amounts, `share` is just each line's fraction of the total, the bar doesn't compute this for you.
+无论哪个泳道提供金额，`share` 都只是每一行占总额的比例，条形图不会替你计算。
 
 ```tsx
 const raw = [
@@ -161,18 +161,18 @@ const lines: CostLine[] = raw.map((r) => ({
 }));
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Message and thread state
+### 消息和线程状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.message.metadata.steps` | `readonly ThreadStep[]` | Present on assistant messages. Each step's `usage` gives `inputTokens` / `outputTokens` for that step; sum across steps for one message's run cost. |
-| `s.thread.messages` | `readonly MessageState[]` | Every message on the active branch. Sum `.metadata.steps` across its assistant messages for a session total. |
+| `s.message.metadata.steps` | `readonly ThreadStep[]` | 助手消息中提供。每个步骤的 `usage` 会给出该步骤的 `inputTokens` / `outputTokens`；将所有步骤相加即可得到一条消息的运行成本。 |
+| `s.thread.messages` | `readonly MessageState[]` | 活动分支中的每条消息。将其中助手消息的 `.metadata.steps` 相加，即可得到整个会话的总量。 |
 
-assistant-ui tracks token counts, not dollars, and `ThreadStep` carries no model name. `cost`, `share`, and any per-model split are computed by your own price table and your own record of which model ran which message.
+assistant-ui 跟踪的是令牌数量，而不是金额，并且 `ThreadStep` 不包含模型名称。`cost`、`share` 以及按模型拆分的任何数据，都需要根据你自己的价格表，以及你自己记录的每条消息由哪个模型运行来计算。
 
 </RuntimeMode>
 
@@ -180,23 +180,23 @@ assistant-ui tracks token counts, not dollars, and `ThreadStep` carries no model
 
 ### CostMeter
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `runCost` | `string` | required | Pre-formatted total for this run, shown large. |
-| `sessionCost` | `string` | required | Pre-formatted running total, shown at the end of the header row. |
-| `lines` | `readonly CostLine[]` | required | One row per model, in the order they render. |
-| `className` | `string` | | Merged onto the root. |
+| `runCost` | `string` | 必填 | 此次运行的预格式化总额，以大字号显示。 |
+| `sessionCost` | `string` | 必填 | 预格式化的实时累计总额，显示在标题行末尾。 |
+| `lines` | `readonly CostLine[]` | 必填 | 每个模型占一行，顺序与其渲染顺序一致。 |
+| `className` | `string` | | 合并到根元素。 |
 
 ### CostLine
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `model` | `string` | Row label, truncated if long. |
-| `inputTokens` | `number` | Formatted by the component as `"{n}k in"`. |
-| `outputTokens` | `number` | Formatted by the component as `"{n}k out"`. |
-| `cost` | `string` | Pre-formatted, shown as-is. |
-| `share` | `number` | This line's fraction of the segmented bar. The first two lines get distinct blue tones, the rest share one neutral tone; shares aren't normalized for you. |
+| `model` | `string` | 行标签，过长时会截断。 |
+| `inputTokens` | `number` | 由组件格式化为 `"{n}k in"`。 |
+| `outputTokens` | `number` | 由组件格式化为 `"{n}k out"`。 |
+| `cost` | `string` | 预格式化后原样显示。 |
+| `share` | `number` | 此行在分段条中的占比。前两行使用不同的蓝色调，其余行共用一种中性色调；占比不会由组件代为归一化。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

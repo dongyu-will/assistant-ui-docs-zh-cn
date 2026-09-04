@@ -1,6 +1,6 @@
 ---
-title: Message Part Grouping
-description: Organize message parts into custom groups with flexible grouping functions.
+title: 消息部分分组
+description: 使用灵活的分组函数，将消息部分组织成自定义组。
 platforms: ["react"]
 ---
 
@@ -8,9 +8,9 @@ import { PartGroupingSample } from "@/components/pages/docs/samples/part-groupin
 
 <PartGroupingSample />
 
-## Basic Usage
+## 基本用法
 
-For adjacent grouping, use `MessagePrimitive.GroupedParts`. For the common case — grouping by `part.type` — pass `groupPartByType` to map each part type to a group-key path. Adjacent parts that share a group key are coalesced and rendered through the group case.
+对于相邻分组，请使用 `MessagePrimitive.GroupedParts`。对于常见的按 `part.type` 分组场景，将 `groupPartByType` 传入，以将每种部分类型映射到组键路径。共享组键的相邻部分会合并，并通过组分支进行渲染。
 
 ```tsx title="/components/assistant-ui/elements/thread.aui.tsx"
 import { MessagePrimitive, groupPartByType } from "@assistant-ui/react";
@@ -43,23 +43,23 @@ const AssistantMessage: FC = () => {
 };
 ```
 
-Reach for an inline `groupBy={(part) => …}` only when the helper isn't expressive enough — e.g. you need to branch on `part.toolName`, `part.parentId`, or part metadata.
+只有在辅助函数无法满足表达需求时，才使用内联 `groupBy={(part) => …}` ——例如需要根据 `part.toolName`、`part.parentId` 或部分元数据进行分支处理。
 
-## How Adjacent Grouping Works
+## 相邻分组的工作方式
 
-`groupBy` receives each part and returns either `null` for an ungrouped leaf or a group-key path such as `["group-chainOfThought", "group-tool"]`. Group keys must start with `"group-"` so your render function can distinguish synthetic groups from real part types.
+`groupBy` 接收每个部分，并返回 `null`（表示未分组的叶部分）或类似 `["group-chainOfThought", "group-tool"]` 的组键路径。组键必须以 `"group-"` 开头，以便渲染函数区分合成组和真实的部分类型。
 
-The render function receives both group nodes and leaf parts through `{ part, children }`. Only group cases should render `children`; leaf cases should render their own UI or return `null`.
+渲染函数通过 `{ part, children }` 同时接收组节点和叶部分。只有组分支应渲染 `children`；叶分支应渲染自身 UI，或返回 `null`。
 
 <Callout type="warn">
-  `MessagePrimitive.Unstable_PartsGrouped` remains available for rare non-adjacent clustering where one group needs to collect parts from different positions in the message. For normal consecutive reasoning/tool grouping, use `GroupedParts`.
+  `MessagePrimitive.Unstable_PartsGrouped` 仍可用于少见的非相邻聚类场景，即一个组需要收集消息中不同位置的部分。对于正常的连续推理/工具分组，请使用 `GroupedParts`。
 </Callout>
 
-## Use Cases & Examples
+## 使用场景与示例
 
-### Group by Parent ID
+### 按父级 ID 分组
 
-Group adjacent content that shares the same parent relationship:
+将共享相同父级关系的相邻内容分组：
 
 ```tsx
 import { useState, type PropsWithChildren } from "react";
@@ -113,9 +113,9 @@ function ParentGroup({
 </MessagePrimitive.GroupedParts>
 ```
 
-### Group by Tool Name
+### 按工具名称分组
 
-Organize adjacent tool calls by tool name:
+按工具名称组织相邻的工具调用：
 
 ```tsx
 <MessagePrimitive.GroupedParts
@@ -144,9 +144,9 @@ Organize adjacent tool calls by tool name:
 </MessagePrimitive.GroupedParts>
 ```
 
-### Group Consecutive Text Parts
+### 将连续的文本部分分组
 
-Combine multiple text parts into cohesive blocks:
+将多个文本部分合并为连贯的内容块：
 
 ```tsx
 <MessagePrimitive.GroupedParts
@@ -173,9 +173,9 @@ Combine multiple text parts into cohesive blocks:
 </MessagePrimitive.GroupedParts>
 ```
 
-### Group by Content Type
+### 按内容类型分组
 
-Separate different types of content for distinct visual treatment:
+分离不同类型的内容，以便采用不同的视觉样式：
 
 ```tsx
 <MessagePrimitive.GroupedParts
@@ -206,11 +206,11 @@ Separate different types of content for distinct visual treatment:
 </MessagePrimitive.GroupedParts>
 ```
 
-### Keep Standalone Tool UIs Out of the Trace
+### 将独立的工具 UI 排除在追踪记录之外
 
-Tool UIs fall into three buckets: prompting the user (human-in-the-loop), informing the user (generative UI), and traces of what the model is doing (routine tool calls). The first two should be surfaced on their own, while the last belongs folded into a collapsible chain-of-thought group.
+工具 UI 可分为三类：提示用户（人在回路）、告知用户（生成式 UI），以及记录模型正在执行的操作（常规工具调用）。前两类应单独呈现，而最后一类应折叠到可展开的思维链组中。
 
-Mark a tool with `display: "standalone"` to keep its UI out of the grouped trace. `human` tools and MCP apps are standalone automatically; every other tool defaults to `"inline"` and opts in explicitly:
+为工具标记 `display: "standalone"`，即可将其 UI 排除在分组追踪记录之外。`human` 工具和 MCP 应用会自动独立显示；其他工具默认使用 `"inline"`，需要显式选择加入：
 
 ```tsx
 const toolkit = defineToolkit({
@@ -224,7 +224,7 @@ const toolkit = defineToolkit({
 });
 ```
 
-The synthetic `"standalone-tool-call"` key on `groupPartByType` matches all of these. `MessagePrimitive.GroupedParts` passes the live tool-UI registry to `groupBy` as a second `context` argument, and the helper reads it to resolve the registry-driven cases — MCP-app calls are detected from the part alone, so nothing is threaded in:
+`groupPartByType` 上的合成 `"standalone-tool-call"` 键会匹配所有这些工具。`MessagePrimitive.GroupedParts` 会将实时工具 UI 注册表作为第二个 `context` 参数传递给 `groupBy`，辅助函数会读取该注册表，以解析由注册表驱动的分支 ——MCP 应用调用可仅根据部分本身检测，因此无需传入任何额外内容：
 
 ```tsx
 <MessagePrimitive.GroupedParts
@@ -248,9 +248,9 @@ The synthetic `"standalone-tool-call"` key on `groupPartByType` matches all of t
 </MessagePrimitive.GroupedParts>;
 ```
 
-### Render Tool Calls as Flat Rows
+### 将工具调用渲染为平铺行
 
-The previous section keeps `"tool-call"` folded into the chain-of-thought and only lifts standalone tool UIs out. To keep reasoning collapsed in a group while every tool call renders as its own row in the message flow, map both tool keys to `[]`:
+上一节会将 `"tool-call"` 折叠到思维链中，只将独立的工具 UI 提取出来。若要在组中保持推理折叠，同时让每个工具调用都作为消息流中的独立行进行渲染，请将两个工具键都映射到 `[]`：
 
 ```tsx
 <MessagePrimitive.GroupedParts
@@ -280,15 +280,15 @@ The previous section keeps `"tool-call"` folded into the chain-of-thought and on
 </MessagePrimitive.GroupedParts>
 ```
 
-Adjacent `reasoning` parts still coalesce into one `group-thought`, while each tool call is a leaf at the same level as text — the `"standalone-tool-call"` entry is mapped to `[]` too so human-in-the-loop and generative-UI tools stay flat alongside routine calls instead of falling through to `"tool-call"`. Tool-call leaves keep their stable identity keys across re-renders, so rows don't remount as the message streams.
+相邻的 `reasoning` 部分仍会合并为一个 `group-thought`，而每个工具调用则会成为与文本处于同一层级的叶部分 ——`"standalone-tool-call"` 条目也会映射到 `[]`，因此人在回路和生成式 UI 工具会与常规调用一样保持平铺，而不会落入 `"tool-call"`。工具调用叶部分会在重新渲染时保留稳定的身份键，因此消息流式传输时行不会重新挂载。
 
 <Callout type="warn">
-  This renders tool calls flat **in the message flow** — each leaf sits where the part appears, in order. It does not pin, portal, float, or otherwise move tool UIs out of the flow into a sidebar or fixed region. For out-of-flow placement you still own the layout outside `GroupedParts`.
+  这会在**消息流中**平铺渲染工具调用 ——每个叶部分都按照部分出现的顺序位于相应位置。它不会固定、传送、浮动，也不会以其他方式将工具 UI 移出消息流并放入侧边栏或固定区域。若要将内容放置在消息流之外，仍需在 `GroupedParts` 外部自行管理布局。
 </Callout>
 
-### Group by Custom Metadata
+### 按自定义元数据分组
 
-Use any custom metadata in your parts for grouping:
+可以使用部分中的任意自定义元数据进行分组：
 
 ```tsx
 const priorityStyles = {
@@ -326,11 +326,11 @@ const priorityStyles = {
 </MessagePrimitive.GroupedParts>
 ```
 
-## Integration with Assistant Streams
+## 与 Assistant Streams 集成
 
-When using assistant-stream libraries, you can add custom metadata to parts:
+使用 assistant-stream 库时，可以向部分添加自定义元数据：
 
-### Python (assistant-stream)
+### Python（assistant-stream）
 
 ```python
 from assistant_stream import create_run
@@ -348,7 +348,7 @@ async def my_run(controller):
     controller.append_text("High priority finding")
 ```
 
-### TypeScript (assistant-stream)
+### TypeScript（assistant-stream）
 
 ```typescript
 import { createAssistantStream } from "assistant-stream";
@@ -372,7 +372,7 @@ const stream = createAssistantStream(async (controller) => {
 });
 ```
 
-## API Reference
+## API 参考
 
 ### MessagePrimitive.GroupedParts
 
@@ -383,22 +383,22 @@ const stream = createAssistantStream(async (controller) => {
       name: "groupBy",
       type: "(part: PartState) => readonly `group-${string}`[]",
       description:
-        "Maps a part to a group-key path. Return `[]` to leave the part ungrouped. Group keys must start with `group-`. Prefer `groupPartByType` for the common `part.type → path` case.",
+        "将部分映射到组键路径。返回 `[]` 可使部分保持未分组状态。组键必须以 `group-` 开头。对于常见的 `part.type → path` 场景，优先使用 `groupPartByType`。",
       required: true,
     },
     {
       name: "children",
       type: "({ part, children }) => ReactNode",
       description:
-        "Render function called for group nodes and leaf parts. Group nodes expose children; leaf parts should render their own UI or return null.",
+        "在组节点和叶部分上调用的渲染函数。组节点会公开子项；叶部分应渲染自身 UI 或返回 null。",
       required: true,
     },
   ]}
 />
 
-### groupPartByType helper
+### groupPartByType 辅助函数
 
-`groupPartByType` builds a `groupBy` from a `part.type → group-key path` map. Part types missing from the map are left ungrouped. The returned function carries an internal memo fingerprint so the tree survives unrelated re-renders.
+`groupPartByType` 根据 `part.type → group-key path` 映射构建 `groupBy`。映射中未包含的部分类型将保持未分组状态。返回的函数带有内部记忆指纹，因此即使发生无关的重新渲染，树也能保持不变。
 
 ```typescript
 import { groupPartByType } from "@assistant-ui/react";
@@ -409,7 +409,7 @@ groupPartByType({
 });
 ```
 
-### GroupPart Type
+### GroupPart 类型
 
 ```typescript
 type GroupPart<TKey extends `group-${string}` = `group-${string}`> = {
@@ -419,18 +419,18 @@ type GroupPart<TKey extends `group-${string}` = `group-${string}`> = {
 };
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Keep grouping local**: `GroupedParts` groups adjacent runs. If the same key appears again later, it becomes a new group in that position.
-2. **Handle ungrouped parts**: Always include leaf cases for the part types your message can render.
-3. **Only render `children` for groups**: Leaf parts receive a sentinel `children` value that throws if rendered accidentally.
-4. **Use `group-` prefixes**: Synthetic group keys must start with `group-` so they cannot collide with real part types.
+1. **保持分组局部化**：`GroupedParts` 会将相邻的连续部分分组。如果同一个键稍后再次出现，它会在该位置成为一个新组。
+2. **处理未分组的部分**：始终为消息可以渲染的部分类型包含叶分支。
+3. **仅对组渲染 `children`**：叶部分会接收到哨兵值 `children`，如果误将其渲染，就会抛出错误。
+4. **使用 `group-` 前缀**：合成组键必须以 `group-` 开头，以避免与真实的部分类型冲突。
 
-## Common Patterns
+## 常见模式
 
-### Nested Grouping
+### 嵌套分组
 
-Create hierarchical adjacent groups by returning multiple keys:
+通过返回多个键创建层级化的相邻组：
 
 ```tsx
 <MessagePrimitive.GroupedParts
@@ -454,9 +454,9 @@ Create hierarchical adjacent groups by returning multiple keys:
 </MessagePrimitive.GroupedParts>
 ```
 
-### Dynamic Group Rendering
+### 动态组渲染
 
-Adjust group appearance based on the group node's status or indices:
+根据组节点的状态或索引调整组的外观：
 
 ```tsx
 <MessagePrimitive.GroupedParts
@@ -489,9 +489,9 @@ Adjust group appearance based on the group node's status or indices:
 </MessagePrimitive.GroupedParts>
 ```
 
-## Non-adjacent grouping (Unstable)
+## 非相邻分组（不稳定）
 
-Use `MessagePrimitive.Unstable_PartsGrouped` only when you need to collect non-adjacent parts into the same rendered group, such as gathering every part with the same parent ID even when other parts appear between them. This API is unstable and should not be used for normal consecutive reasoning or tool-call grouping.
+仅当需要将非相邻部分收集到同一个渲染组中时，才使用 `MessagePrimitive.Unstable_PartsGrouped`，例如：即使相同父级 ID 的部分之间存在其他部分，也要收集所有这些部分。此 API 不稳定，不应当用于常规的连续推理或工具调用分组。
 
 ```tsx
 <MessagePrimitive.Unstable_PartsGrouped
@@ -528,14 +528,14 @@ Use `MessagePrimitive.Unstable_PartsGrouped` only when you need to collect non-a
       name: "groupingFunction",
       type: "(parts: readonly PartState[]) => MessagePartGroup[]",
       description:
-        "Function that takes all message parts and returns non-adjacent group descriptors.",
+        "接收所有消息部分并返回非相邻组描述符的函数。",
       required: true,
     },
     {
       name: "components",
       type: "object",
       description:
-        "Legacy component map used to render message part types and group wrappers.",
+        "用于渲染消息部分类型和组包装器的旧版组件映射。",
       children: [
         {
           type: "Components",
@@ -543,51 +543,51 @@ Use `MessagePrimitive.Unstable_PartsGrouped` only when you need to collect non-a
             {
               name: "Empty",
               type: "EmptyMessagePartComponent",
-              description: "Component for rendering empty messages",
+              description: "用于渲染空消息的组件",
             },
             {
               name: "Text",
               type: "TextMessagePartComponent",
-              description: "Component for rendering text content",
+              description: "用于渲染文本内容的组件",
             },
             {
               name: "Reasoning",
               type: "ReasoningMessagePartComponent",
               description:
-                "Component for rendering reasoning content (typically hidden)",
+                "用于渲染推理内容的组件（通常处于隐藏状态）",
             },
             {
               name: "Source",
               type: "SourceMessagePartComponent",
-              description: "Component for rendering source content",
+              description: "用于渲染来源内容的组件",
             },
             {
               name: "Image",
               type: "ImageMessagePartComponent",
-              description: "Component for rendering image content",
+              description: "用于渲染图像内容的组件",
             },
             {
               name: "File",
               type: "FileMessagePartComponent",
-              description: "Component for rendering file content",
+              description: "用于渲染文件内容的组件",
             },
             {
               name: "Unstable_Audio",
               type: "Unstable_AudioMessagePartComponent",
               description:
-                "Component for rendering audio content (deprecated, render audio/* from File)",
+                "用于渲染音频内容的组件（已弃用，请从 File 渲染 audio/*）",
             },
             {
               name: "tools",
               type: "object | { Override: ComponentType }",
               description:
-                "Configuration for tool call rendering. Can be an object with by_name map and Fallback component, or an Override component.",
+                "用于配置工具调用渲染。可以是包含 by_name 映射和 Fallback 组件的对象，也可以是 Override 组件。",
             },
             {
               name: "Group",
               type: "ComponentType<PropsWithChildren<{ groupKey: string | undefined; indices: number[] }>>",
               description:
-                "Component for rendering grouped message parts. Receives groupKey, indices array, and children to render.",
+                "用于渲染分组消息部分的组件。接收 groupKey、indices 数组以及要渲染的 children。",
             },
           ],
         },
@@ -596,7 +596,7 @@ Use `MessagePrimitive.Unstable_PartsGrouped` only when you need to collect non-a
   ]}
 />
 
-### MessagePartGroup Type
+### MessagePartGroup 类型
 
 ```typescript
 type MessagePartGroup = {
@@ -605,10 +605,10 @@ type MessagePartGroup = {
 };
 ```
 
-### Group Component Props
+### 组组件属性
 
-The `Group` component receives:
+`Group` 组件接收：
 
-- `groupKey`: The group identifier (or `undefined` for ungrouped parts)
-- `indices`: Array of indices for the parts in this group
-- `children`: The rendered message part components
+- `groupKey`：组标识符（未分组部分则为 `undefined`）
+- `indices`：该组中各部分的索引数组
+- `children`：渲染后的消息部分组件

@@ -1,12 +1,12 @@
 ---
 title: useAssistantInstructions
-description: React hook for setting system instructions to guide assistant behavior.
+description: 用于设置系统指令以引导助手行为的 React hook。
 platforms: ["react"]
 ---
 
-`useAssistantInstructions` is a React hook that allows you to set system instructions for your assistant-ui components.
+`useAssistantInstructions` 是一个 React hook，可用于为 assistant-ui 组件设置系统指令。
 
-## Usage
+## 用法
 
 ```tsx
 import { useAssistantInstructions } from "@assistant-ui/react";
@@ -25,27 +25,27 @@ function MyComponent() {
 }
 ```
 
-## API Reference
+## API 参考
 
-### Parameters
+### 参数
 
-The hook accepts either:
+该 hook 接受以下任一参数：
 
-- A string containing the system instructions
-- A configuration object with:
-  - `instruction`: The system instructions
-  - `disabled`: Optional boolean to disable the instructions
+- 包含系统指令的字符串
+- 配置对象，其中包含：
+  - `instruction`：系统指令
+  - `disabled`：可选的布尔值，用于禁用这些指令
 
-### Behavior
+### 行为
 
-The hook will:
+该 hook 将：
 
-1. Register the provided instructions as system instructions in the model context
-2. Automatically clean up when the component unmounts
-3. Update when the instructions change
-4. Do nothing if disabled is set to true
+1. 在模型上下文中将提供的指令注册为系统指令
+2. 在组件卸载时自动清理
+3. 在指令发生变化时更新
+4. 如果将 disabled 设置为 true，则不执行任何操作
 
-## Example
+## 示例
 
 ```tsx
 function SmartForm() {

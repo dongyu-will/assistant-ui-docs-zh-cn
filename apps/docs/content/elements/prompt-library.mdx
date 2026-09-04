@@ -1,22 +1,22 @@
 ---
-title: "Prompt library"
-description: "Prompts you saved, searchable, with their variables shown before you insert one."
+title: "提示词库"
+description: "你保存的提示词，可搜索，并会在插入前显示其变量。"
 ---
 
-A searchable list of saved prompts that previews the highlighted one, body and variable placeholders included, before you commit to it. With a runtime only the final insert reaches into assistant-ui state; standalone you own selection and insertion too.
+这是一个可搜索的已保存提示词列表。在你确认使用之前，它会预览当前高亮提示词的正文和变量占位符。使用运行时（runtime）时，只有最终插入操作会触及 assistant-ui 状态；在独立模式下，你还需要自行管理选择和插入。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-With a runtime, there is no saved-prompt library to read: assistant-ui has no concept of prompts you bookmarked for reuse. That catalog, its storage, and its search are entirely yours, exactly as in the standalone lane. The one place a runtime is actually involved is the moment a prompt gets used.
+使用运行时时，没有可供读取的已保存提示词库：assistant-ui 不负责管理你为重复使用而收藏的提示词。该目录、存储和搜索完全由你负责，与独立模式相同。运行时真正参与的唯一环节，是提示词被使用的时刻。
 
 <Steps>
   <Step>
 
-### Wire insert to the composer
+### 将插入操作连接到输入框
 
-`onInsert` fires on Enter or a double click. Write the chosen prompt's body straight into the live composer; the element does not touch variable placeholders like `{topic}`, so substituting them, if you want that, happens before this call.
+`onInsert` 会在按下 Enter 或双击时触发。将所选提示词的正文直接写入当前输入框；该元素不会处理类似 `{topic}` 的变量占位符，因此如果你希望替换它们，应在调用此方法之前完成。
 
 ```tsx title="components/assistant-ui/elements/prompt-library-panel.tsx"
 "use client";
@@ -60,12 +60,12 @@ export function PromptLibraryPanel({
 
 <StandaloneMode>
 
-Standalone, `PromptLibrary` filters, previews, and handles its own arrow-key and Enter navigation; you hold the list, the query, and the selection, and decide what `onInsert` actually does.
+在独立模式下，`PromptLibrary` 会负责筛选、预览，以及处理自己的方向键和 Enter 导航；你需要持有列表、查询文本和选择状态，并决定 `onInsert` 的具体行为。
 
 <Steps>
   <Step>
 
-### Hold the list, the query, and the selection
+### 持有列表、查询文本和选择状态
 
 ```tsx title="app/prompt-library-panel.tsx"
 "use client";
@@ -117,7 +117,7 @@ export function PromptLibraryPanel({
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="prompt-library">
@@ -133,37 +133,37 @@ export function PromptLibraryPanel({
 </div>
 ```
 
-Filtering matches `prompts` against `query` by substring on `name` only, case-insensitively; the preview panel at the bottom renders only when `selectedId` is among the current matches, so a query that filters the selected prompt out of the list hides its preview along with it. Arrow keys move the highlighted row within the current matches; if the previously selected id has been filtered out, the first press starts from the edge the direction implies rather than jumping from a phantom position. Enter inserts the highlighted match, the same action a double click on a row performs.
+筛选时，仅在 `name` 上以不区分大小写的子字符串方式，将 `prompts` 与 `query` 进行匹配；只有当 `selectedId` 位于当前匹配项中时，底部的预览面板才会渲染。因此，如果查询将选中的提示词筛除，其预览也会一并隐藏。方向键会在当前匹配项中移动高亮行；如果之前选中的 id 已被筛除，第一次按键会从该方向所对应的边缘开始，而不会从一个不存在的位置跳转。Enter 会插入高亮的匹配项，这与双击某一行执行的操作相同。
 
-## Examples
+## 示例
 
-### Formatting the variable count
+### 设置变量数量的格式
 
-The chip next to a match, and the chips in the preview, are display only; the element counts and lists `variables` but never substitutes them into `body`.
+匹配项旁边的标签以及预览中的标签仅用于显示；该元素会统计并列出 `variables`，但不会将它们替换到 `body` 中。
 
 ```tsx
 {prompt.variables.length > 0 && <span>{prompt.variables.length} vars</span>}
 ```
 
-### Restyle the list
+### 重新设置列表样式
 
-The search field and the preview panel both use the shared `field` surface, and every count uses `mono`, from `surfaces.tsx`.
+搜索字段和预览面板都使用共享的 `field` 表面，而每个数量值都使用 `mono`，来源为 `surfaces.tsx`。
 
 ```tsx
 <PromptLibrary className="max-w-md" prompts={prompts} query={query} selectedId={selectedId} onQueryChange={setQuery} onSelect={setSelectedId} onInsert={onInsert} />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Composer action
+### 输入框操作
 
-| Selector / call | Type | Description |
+| 选择器 / 调用 | 类型 | 描述 |
 |------------------|------|-------------|
-| `aui.composer.setText(text)` | `(text: string) => void` | Writes text into the active composer, using the client from `useAui()`. The natural target for `onInsert`. |
+| `aui.composer.setText(text)` | `(text: string) => void` | 使用来自 `useAui()` 的客户端，将文本写入活动输入框。`onInsert` 的自然目标。 |
 
-There is no selector for a saved-prompt catalog: the list, its storage, and its search all live in your own state.
+没有用于已保存提示词目录的选择器：列表、存储和搜索都由你自己的状态管理。
 
 </RuntimeMode>
 
@@ -171,25 +171,25 @@ There is no selector for a saved-prompt catalog: the list, its storage, and its 
 
 ### PromptLibrary
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `prompts` | `readonly SavedPrompt[]` | required | Everything saved. Filtering happens inside against the name. |
-| `query` | `string` | required | Current search text. |
-| `selectedId` | `string` | required | Which prompt is previewed below the list. |
-| `onQueryChange` | `(query: string) => void` | | Called as the search is typed. |
-| `onSelect` | `(id: string) => void` | | Called when a prompt is highlighted. |
-| `onInsert` | `(id: string) => void` | | Called on double click or Enter, to drop the prompt into the composer. |
-| `className` | `string` | | Merged onto the root. |
+| `prompts` | `readonly SavedPrompt[]` | 必填 | 所有已保存的内容。筛选会在组件内部根据名称进行。 |
+| `query` | `string` | 必填 | 当前搜索文本。 |
+| `selectedId` | `string` | 必填 | 列表下方要预览的提示词。 |
+| `onQueryChange` | `(query: string) => void` | | 输入搜索内容时调用。 |
+| `onSelect` | `(id: string) => void` | | 高亮提示词时调用。 |
+| `onInsert` | `(id: string) => void` | | 双击或按下 Enter 时调用，以便将提示词放入输入框。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### SavedPrompt
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `id` | `string` | required | Stable identity, compared against `selectedId`. |
-| `name` | `string` | required | Prompt name, and the only field the search filters on. |
-| `body` | `string` | required | The prompt text, shown in the preview below the list. |
-| `variables` | `readonly string[]` | required | Placeholder names in the body, listed so you know what the prompt will ask for. |
+| `id` | `string` | 必填 | 稳定的标识，与 `selectedId` 进行比较。 |
+| `name` | `string` | 必填 | 提示词名称，也是搜索筛选的唯一字段。 |
+| `body` | `string` | 必填 | 提示词文本，显示在列表下方的预览中。 |
+| `variables` | `readonly string[]` | 必填 | 正文中的占位符名称，会列出这些名称，以便你了解该提示词会要求填写哪些内容。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

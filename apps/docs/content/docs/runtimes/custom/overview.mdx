@@ -1,20 +1,20 @@
 ---
-title: Custom Runtime
-description: Build a React chat UI for any AI backend with assistant-ui — four runtime patterns covering local state, REST, custom protocols, and external runtimes.
+title: 自定义运行时
+description: 使用 assistant-ui 为任意 AI 后端构建 React 聊天 UI——涵盖本地状态、REST、自定义协议和外部运行时的四种运行时模式。
 ---
 
-If no [framework adapter](/docs/runtimes/pick-a-runtime) fits your backend, this section gives you four building blocks. All four are built on one of the two core runtimes; understanding the layering (see [architecture](/docs/runtimes/concepts/architecture)) makes the choice clear.
+如果没有适合你的后端的[框架适配器](/docs/runtimes/pick-a-runtime)，本节将提供四种构建方式。它们都构建在两种核心运行时之一之上；理解其分层结构（参阅[架构](/docs/runtimes/concepts/architecture)）即可明确如何选择。
 
-## The four paths
+## 四种路径
 
-| Path | Layered on | Wire shape | Choose when |
+| 路径 | 构建于 | 通信格式 | 适用场景 |
 | --- | --- | --- | --- |
-| [`LocalRuntime`](/docs/runtimes/custom/local-runtime) | Core | You write a `ChatModelAdapter.run` function | The simplest case: you have a `fetch` call to make, want assistant-ui to handle state |
-| [`ExternalStoreRuntime`](/docs/runtimes/custom/external-store) | Core | You provide messages + callbacks | You already have state in redux, zustand, tanstack-query, or anywhere |
-| [`DataStream`](/docs/runtimes/custom/data-stream) | LocalRuntime + protocol | Your backend emits the data stream protocol | You want a thin message-stream contract, or you are migrating from AI SDK v4 |
-| [`AssistantTransport`](/docs/runtimes/custom/assistant-transport) | ExternalStoreRuntime + protocol | Your backend streams agent state snapshots | Your agent has rich internal state and you want it surfaced in the UI; or you need bidirectional commands |
+| [`LocalRuntime`](/docs/runtimes/custom/local-runtime) | Core | 你编写一个 `ChatModelAdapter.run` 函数 | 最简单的情况：你需要发起 `fetch` 调用，并希望 assistant-ui 处理状态 |
+| [`ExternalStoreRuntime`](/docs/runtimes/custom/external-store) | Core | 你提供消息和回调 | 你已经在 redux、zustand、tanstack-query 或其他位置管理状态 |
+| [`DataStream`](/docs/runtimes/custom/data-stream) | LocalRuntime + 协议 | 你的后端输出数据流协议 | 你需要精简的消息流契约，或正在从 AI SDK v4 迁移 |
+| [`AssistantTransport`](/docs/runtimes/custom/assistant-transport) | ExternalStoreRuntime + 协议 | 你的后端流式传输 agent 状态快照 | 你的 agent 具有丰富的内部状态，并希望在 UI 中呈现；或者你需要双向命令 |
 
-## Decision tree
+## 决策树
 
 ```text
 do you have an AI SDK / LangGraph / Google ADK / A2A backend?
@@ -31,41 +31,41 @@ do you have an AI SDK / LangGraph / Google ADK / A2A backend?
         └── no, the backend already speaks data stream protocol → DataStream
 ```
 
-## What each path gives you
+## 各路径提供的能力
 
-**`LocalRuntime`** is the lowest-friction path. You implement one method (`run` or `async *run`). Branching, editing, regeneration, multi-thread, and adapter slots all work without extra code.
+**`LocalRuntime`** 是阻力最低的路径。你只需实现一个方法（`run` 或 `async *run`）。分支、编辑、重新生成、多线程和 adapter 插槽均无需额外代码即可使用。
 
-**`ExternalStoreRuntime`** is the inverse: you own the message array and provide callbacks for each interaction. UI features turn on based on which callbacks you provide. Ideal when chat state is a first-class entity in your existing store.
+**`ExternalStoreRuntime`** 则相反：你拥有消息数组，并为每次交互提供回调。UI 功能会根据你提供的回调启用。当聊天状态是现有存储中的一等实体时，这是理想选择。
 
-**`DataStream`** is `LocalRuntime` plus a wire protocol. You do not write a `ChatModelAdapter`; your backend emits a standardized stream of message parts and the runtime consumes it directly.
+**`DataStream`** 是 `LocalRuntime` 加上通信协议。你无需编写 `ChatModelAdapter`；后端会输出标准化的消息部分流，运行时直接消费该流。
 
-**`AssistantTransport`** is `ExternalStoreRuntime` plus a state-streaming protocol. Instead of sending message parts, your backend sends snapshots of its full agent state. The UI is a stateless view on top of that state. Supports custom commands beyond the built-in `add-message` and `add-tool-result`.
+**`AssistantTransport`** 是 `ExternalStoreRuntime` 加上状态流式传输协议。后端不会发送消息部分，而是发送其完整 agent 状态的快照。UI 是该状态之上的无状态视图。除内置的 `add-message` 和 `add-tool-result` 外，还支持自定义命令。
 
-## Common building blocks
+## 通用构建模块
 
-Regardless of which path you pick, the [adapter](/docs/runtimes/concepts/adapters) and [thread](/docs/runtimes/concepts/threads) interfaces work the same way. Wire attachments, history, speech, feedback, suggestions, and multi-thread support through those shared contracts.
+无论选择哪种路径，[adapter](/docs/runtimes/concepts/adapters) 和 [thread](/docs/runtimes/concepts/threads) 接口的工作方式都相同。通过这些共享契约连接附件、历史记录、语音、反馈、建议和多线程支持。
 
-## Next
+## 下一步
 
 <Cards>
   <Card
     title="LocalRuntime"
-    description="Write a single ChatModelAdapter.run function."
+    description="编写一个 ChatModelAdapter.run 函数。"
     href="/docs/runtimes/custom/local-runtime"
   />
   <Card
     title="ExternalStoreRuntime"
-    description="Bring redux, zustand, tanstack-query, or your own state."
+    description="接入 redux、zustand、tanstack-query 或你自己的状态。"
     href="/docs/runtimes/custom/external-store"
   />
   <Card
     title="Data Stream"
-    description="Standard message-stream protocol on top of LocalRuntime."
+    description="LocalRuntime 之上的标准消息流协议。"
     href="/docs/runtimes/custom/data-stream"
   />
   <Card
     title="Assistant Transport"
-    description="Stream full agent state snapshots and bidirectional commands."
+    description="流式传输完整 agent 状态快照和双向命令。"
     href="/docs/runtimes/custom/assistant-transport"
   />
 </Cards>

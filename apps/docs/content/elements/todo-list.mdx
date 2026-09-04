@@ -1,22 +1,22 @@
 ---
-title: "Todo list"
-description: "The agent's own working list, rewritten mid-run as it discovers what else is needed."
+title: "待办事项列表"
+description: "助手自己的工作列表，会在运行过程中发现其他所需事项时重新编写。"
 ---
 
-A todo list shows the plan an agent is working through right now: what is done, what is active, and what is still pending. With a runtime the list comes from a tool call the model keeps rewriting as it works; standalone you pass the items in yourself.
+待办事项列表展示助手当前正在执行的计划：哪些已完成、哪些正在进行，以及哪些仍待处理。在运行时中，列表来自模型不断重写的工具调用；单独使用时，则由你自行传入这些项目。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-Nothing in the runtime tracks a todo list on its own. The list is ordinary tool output: define a tool whose arguments are the current items, and render it with the `TodoList` element.
+运行时不会自行跟踪待办事项列表。列表只是普通的工具输出：定义一个参数为当前项目的工具，并使用 `TodoList` 元素进行渲染。
 
 <Steps>
   <Step>
 
-### Define the todo tool
+### 定义待办事项工具
 
-A frontend tool is enough here: the model just needs somewhere to write the plan, and the renderer reads it straight off `args`.
+这里使用前端工具就足够了：模型只需要一个写入计划的位置，而渲染器会直接从 `args` 读取计划。
 
 ```tsx title="app/toolkit.ts"
 import { defineToolkit } from "@assistant-ui/react";
@@ -42,12 +42,12 @@ export const toolkit = defineToolkit({
 });
 ```
 
-See [Defining tools](/docs/tools/defining-tools) for toolkit registration and server-side wiring.
+有关工具包注册和服务端连接方式，请参阅[定义工具](/docs/tools/defining-tools)。
 
   </Step>
   <Step>
 
-### Register the toolkit
+### 注册工具包
 
 ```tsx title="app/MyRuntimeProvider.tsx"
 "use client";
@@ -67,7 +67,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-Each call to `update_todos` becomes its own tool-call message part, so a model that revises the plan three times leaves three cards in the transcript. Set `display: "standalone"` on the entry to keep each one out of the inline chain-of-thought trace and presented as its own block.
+每次调用 `update_todos` 都会成为独立的工具调用消息部分，因此模型修改三次计划后，记录中会留下三张卡片。在条目上设置 `display: "standalone"`，即可让每张卡片脱离内联思维链轨迹，并作为独立区块呈现。
 
   </Step>
 </Steps>
@@ -76,12 +76,12 @@ Each call to `update_todos` becomes its own tool-call message part, so a model t
 
 <StandaloneMode>
 
-Standalone, the element is fully controlled: you hold the array of items and hand it the whole list on every render.
+单独使用时，该元素完全由你控制：保存项目数组，并在每次渲染时将整个列表传给它。
 
 <Steps>
   <Step>
 
-### Hold the todo state
+### 保存待办事项状态
 
 ```tsx title="app/plan.tsx"
 "use client";
@@ -104,9 +104,9 @@ export function Plan() {
   </Step>
   <Step>
 
-### Update an item's status
+### 更新项目状态
 
-Replace the item rather than mutate it; the row keys off `id`, so the same id keeps its place while the new status re-renders its icon and text style.
+替换项目，而不是修改它；行以 `id` 作为键，因此相同的 id 会保留原位置，同时新状态会重新渲染其图标和文本样式。
 
 ```tsx
 function advance(id: string) {
@@ -125,7 +125,7 @@ function advance(id: string) {
 
 </StandaloneMode>
 
-## Anatomy
+## 构成
 
 ```tsx
 <div data-slot="todo-list">
@@ -143,15 +143,15 @@ function advance(id: string) {
 </div>
 ```
 
-Each row shows one of three status icons: a checked box for `done`, a spinning loader for `active`, and an empty outlined box for `pending`. Text dims and gets struck through when done, reads at full opacity when active, and sits at reduced opacity while pending. Rows key off `item.id`; passing a new array with the same ids only restyles the existing rows, while a genuinely new id mounts a row that fades and slides in.
+每一行会显示三种状态图标之一：`done` 对应已勾选的方框，`active` 对应旋转的加载图标，`pending` 对应空的轮廓方框。完成后，文本会变暗并添加删除线；进行中时保持完整不透明度；待处理时则使用较低的不透明度。各行以 `item.id` 作为键；传入包含相同 id 的新数组只会重新设置现有行的样式，而真正新增的 id 会挂载一个淡入并滑入的行。
 
-With zero items the header still renders `0/0` and the list is simply empty; there is no placeholder message. `revision` is decorative and does not affect the count or the render; it only appends `· rev {revision}` next to the ratio when you pass a number.
+当项目数为零时，标题仍会渲染 `0/0`，列表则保持为空；不会显示占位消息。`revision` 仅用于装饰，不会影响计数或渲染；只有在传入数字时，它才会在比例旁追加 `· rev {revision}`。
 
-## Examples
+## 示例
 
-### Item states
+### 项目状态
 
-The three states rendered together, independent of how the list is produced:
+无论列表如何生成，三种状态都会同时渲染：
 
 ```tsx
 <TodoList
@@ -163,11 +163,11 @@ The three states rendered together, independent of how the list is produced:
 />
 ```
 
-### Where the list comes from
+### 列表的来源
 
 <RuntimeMode>
 
-While the tool call is still streaming, `args.items` is a partial parse: fields can be missing until the model finishes writing them. `useToolArgsStatus` reports whether the `items` argument itself is still arriving, which is enough to dim the whole list without claiming a specific item is settled:
+工具调用仍在流式传输时，`args.items` 是部分解析结果：在模型完成写入之前，字段可能缺失。`useToolArgsStatus` 会报告 `items` 参数本身是否仍在接收，这足以让整个列表变暗，而无需断言某个具体项目已经确定：
 
 ```tsx
 import { useToolArgsStatus } from "@assistant-ui/react";
@@ -187,7 +187,7 @@ function TodoToolUI({ args }: { args: { items?: TodoItem[] } }) {
 
 <StandaloneMode>
 
-A discovered step is just an append; nothing about the component distinguishes "the agent found new work" from any other update:
+发现一个步骤时，只需追加即可；组件不会区分“助手发现了新工作”和其他任何更新：
 
 ```tsx
 function addItem(text: string) {
@@ -200,33 +200,33 @@ function addItem(text: string) {
 
 </StandaloneMode>
 
-### Restyle the list
+### 重新设置列表样式
 
-Both lanes take `className` on the root, and the revision counter uses the shared `mono` surface from `surfaces.tsx`.
+两条路径都会在根元素上接收 `className`，而修订计数器使用来自 `surfaces.tsx` 的共享 `mono` 表面。
 
 ```tsx
 <TodoList className="max-w-md gap-2" items={items} revision={3} />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool definition
+### 工具定义
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `parameters` | Zod schema | Shape of `args`; use one field carrying the item array. |
-| `execute` | `(args) => TResult \| Promise<TResult>` | Runs once the call resolves; the result is separate from what the renderer shows. |
-| `render` | `ToolCallMessagePartComponent<TArgs, TResult>` | Receives `args`, `status`, and `result` for this call; re-runs as `args` streams in. |
-| `display` | `"standalone" \| "inline"` | `"standalone"` surfaces the card outside the chain-of-thought trace. Defaults to `"inline"`. |
+| `parameters` | Zod schema | `args` 的结构；使用一个携带项目数组的字段。 |
+| `execute` | `(args) => TResult \| Promise<TResult>` | 调用解析后运行一次；其结果与渲染器显示的内容相互独立。 |
+| `render` | `ToolCallMessagePartComponent<TArgs, TResult>` | 接收本次调用的 `args`、`status` 和 `result`；随着 `args` 的流式传输而重新运行。 |
+| `display` | `"standalone" \| "inline"` | `"standalone"` 会将卡片显示在思维链轨迹之外。默认为 `"inline"`。 |
 
-### Tool-call part state
+### 工具调用消息部分状态
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `part.status.type` | `"running" \| "complete" \| "incomplete" \| "requires-action"` | Lifecycle of the call backing the render. |
-| `useToolArgsStatus().propStatus` | `Partial<Record<keyof TArgs, "streaming" \| "complete">>` | Per top-level argument streaming state; called from inside the renderer. |
+| `part.status.type` | `"running" \| "complete" \| "incomplete" \| "requires-action"` | 支持渲染的调用生命周期。 |
+| `useToolArgsStatus().propStatus` | `Partial<Record<keyof TArgs, "streaming" \| "complete">>` | 顶层参数的流式传输状态；从渲染器内部调用。 |
 
 </RuntimeMode>
 
@@ -234,20 +234,20 @@ Both lanes take `className` on the root, and the revision counter uses the share
 
 ### TodoList
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `items` | `readonly TodoItem[]` | required | The rows to render, in order. |
-| `revision` | `number` | | When set, appended to the counter as `· rev {revision}`. |
-| `className` | `string` | | Merged onto the root. |
+| `items` | `readonly TodoItem[]` | 必填 | 按顺序渲染的行。 |
+| `revision` | `number` | | 设置后，会以 `· rev {revision}` 的形式追加到计数器。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### TodoItem
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | Row key; stable ids keep entrance animation from replaying on every render. |
-| `text` | `string` | The step's label. |
-| `status` | `"pending" \| "active" \| "done"` | Drives the icon and text styling. |
+| 字段 | 类型 | 描述 |
+|------|------|-------------|
+| `id` | `string` | 行键；稳定的 id 可避免每次渲染时重复播放进入动画。 |
+| `text` | `string` | 步骤的标签。 |
+| `status` | `"pending" \| "active" \| "done"` | 控制图标和文本样式。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` props 都会转发到根元素。
 
 </StandaloneMode>

@@ -1,40 +1,39 @@
 ---
 title: LangGraph + assistant-ui
-description: Integrate cloud persistence and thread management with LangGraph Cloud.
+description: 使用 LangGraph Cloud 集成云端持久化和线程管理。
 ---
 
+## 概览
 
-## Overview
+本指南介绍如何使用 assistant-ui 的运行时系统和预构建 UI 组件，将 Assistant Cloud 与 [LangGraph Cloud](https://docs.langchain.com/langsmith/deploy-to-cloud-overview) 集成。
 
-This guide shows how to integrate Assistant Cloud with [LangGraph Cloud](https://docs.langchain.com/langsmith/deploy-to-cloud-overview) using assistant-ui's runtime system and pre-built UI components.
-
-## Prerequisites
+## 前置条件
 
 <Callout type="info">
-  You need an assistant-cloud account to follow this guide. [Sign up
-  here](https://cloud.assistant-ui.com/) to get started.
+  你需要一个 Assistant Cloud 账户才能按照本指南操作。[点击此处注册
+  ](https://cloud.assistant-ui.com/) 开始使用。
 </Callout>
 
-## Setup Guide
+## 设置指南
 
 <Steps>
 
 <Step>
 
-### Create a Cloud Project
+### 创建 Cloud 项目
 
-Create a new project in the [assistant-cloud dashboard](https://cloud.assistant-ui.com/) and from the settings page, copy:
+在 [assistant-cloud 控制台](https://cloud.assistant-ui.com/)
 
-- **Frontend API URL**: `https://proj-[ID].assistant-api.com`
-- **API Key**: For server-side operations
+- **Frontend API URL**：`https://proj-[ID].assistant-api.com`
+- **API Key**：用于服务器端操作
 
 </Step>
 
 <Step>
 
-### Configure Environment Variables
+### 配置环境变量
 
-Add the following environment variables to your project:
+将以下环境变量添加到你的项目中：
 
 <PlatformTabs>
 <Tab value="React">
@@ -76,9 +75,9 @@ ASSISTANT_API_KEY=your-api-key-here
 
 <Step>
 
-### Install Dependencies
+### 安装依赖
 
-Install the required packages:
+安装所需的软件包：
 
 <PlatformTabs>
 <Tab value="React">
@@ -102,9 +101,9 @@ Install the required packages:
 
 <Step>
 
-### Create the Runtime Provider
+### 创建运行时提供程序
 
-Create a runtime provider that integrates LangGraph with assistant-cloud. Choose between anonymous mode for demos/prototypes or authenticated mode for production:
+创建一个将 LangGraph 与 assistant-cloud 集成的运行时提供程序。对于演示或原型，可以选择匿名模式；对于生产环境，则应选择经过身份验证的模式：
 
 <PlatformTabs>
 <Tab value="React">
@@ -243,8 +242,7 @@ export function MyRuntimeProvider({
 ```
 
 <Callout type="info">
-  For Clerk authentication, configure the `"assistant-ui"` token template in
-  your Clerk dashboard.
+  对于 Clerk 身份验证，请在 Clerk 控制面板中配置 `"assistant-ui"` 令牌模板。
 </Callout>
 
 </Tab>
@@ -381,20 +379,20 @@ export function MyRuntimeProvider({ children }: { children: ReactNode }) {
 </PlatformTabs>
 
 <Callout type="info">
-  The `useLangGraphRuntime` hook accepts `cloud`, `create`, `load`, and `delete` parameters for simplified thread management. The runtime handles the thread lifecycle internally.
+  `useLangGraphRuntime` 钩子接受 `cloud`、`create`、`load` 和 `delete` 参数，以简化线程管理。运行时会在内部处理线程生命周期。
 
-  - **`create`**: Called when creating a new thread. Returns `{ externalId }` with your backend's thread ID.
-  - **`load`**: Called when switching to an existing thread. Returns the thread's messages (and optionally interrupts).
-  - **`delete`**: Called when deleting a thread. Receives the thread's `externalId`. When provided, users can delete threads from the thread list UI.
+  - **`create`**：创建新线程时调用。返回包含后端线程 ID 的 `{ externalId }`。
+  - **`load`**：切换到现有线程时调用。返回该线程的消息（以及可选的中断）。
+  - **`delete`**：删除线程时调用。接收线程的 `externalId`。提供此参数后，用户便可以在线程列表 UI 中删除线程。
 </Callout>
 
 </Step>
 
 <Step>
 
-### Add Thread UI Components
+### 添加线程 UI 组件
 
-Install the thread list component:
+安装线程列表组件：
 
 <PlatformTabs>
 <Tab value="React">
@@ -413,7 +411,7 @@ npx assistant-ui@latest add thread-list
 npx shadcn@latest add @assistant-ui/thread-list
 ```
 
-The `@assistant-ui` namespace resolves through the registry entry configured in [Manual Setup](/docs/installation#manual-setup).
+`@assistant-ui` 命名空间通过[手动设置](/docs/installation#manual-setup)中配置的注册表条目解析。
 
   </Tab>
   <Tab>
@@ -425,7 +423,7 @@ npx shadcn@latest add https://r.assistant-ui.com/thread-list.json
   </Tab>
 </Tabs>
 
-Then add it to your application layout:
+然后将其添加到应用布局中：
 
 ```tsx title="app/chat/page.tsx"
 import { Thread } from "@/components/assistant-ui/elements/thread.aui";
@@ -444,7 +442,7 @@ export default function ChatPage() {
 </Tab>
 <Tab value="React Native">
 
-Follow the [React Native setup](/docs/react-native) for `Thread`, then compose it with the native thread-list primitives:
+按照`Thread`的 [React Native 设置](/docs/react-native)进行配置，然后将其与原生线程列表原语组合使用：
 
 ```tsx title="app/chat.tsx"
 import { Text, View } from "react-native";
@@ -488,7 +486,7 @@ export default function ChatPage() {
 </Tab>
 <Tab value="React Ink">
 
-Follow the [Ink setup](/docs/ink) for `Thread`, then compose it with the terminal thread-list primitives:
+按照`Thread`的 [Ink 设置](/docs/ink)进行配置，然后将其与终端线程列表原语组合使用：
 
 ```tsx title="chat.tsx"
 import { Box, Text } from "ink";
@@ -536,19 +534,19 @@ export function ChatPage() {
 
 </Steps>
 
-## Authentication
+## 身份验证
 
-The React runtime-provider tab shows two authentication modes:
+React 运行时提供器标签页展示了两种身份验证模式：
 
-- **Anonymous**: Suitable for React demos and prototypes. Creates a browser session-based user ID.
-- **Authenticated**: For production use with user accounts. The authenticated example uses [Clerk](https://clerk.com/), but you can integrate any auth provider.
+- **匿名**：适用于 React 演示和原型。会创建基于浏览器会话的用户 ID。
+- **已验证**：适用于带有用户账户的生产环境。已验证示例使用 [Clerk](https://clerk.com/),
 
-The React Native and React Ink tabs use explicit `authToken` callbacks, which is the recommended shape outside browser-session-based demos.
+React Native 和 React Ink 标签页使用显式的 `authToken` 回调，这是浏览器会话身份验证演示之外推荐使用的形式。
 
-For other authentication providers or custom implementations, see the [Cloud Authorization](/docs/cloud/authorization) guide.
+如需了解其他身份验证提供商或自定义实现，请参阅[云授权](/docs/cloud/authorization)指南。
 
-## Next Steps
+## 后续步骤
 
-- Learn about [LangGraph runtime setup](/docs/runtimes/langgraph/overview) for your application
-- Explore [ThreadListRuntime](/docs/api-reference/runtimes/thread-list-runtime) for advanced thread management
-- Check out the [LangGraph example](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-langgraph) on GitHub
+- 了解适用于你的应用的 [LangGraph 运行时设置](/docs/runtimes/langgraph/overview)
+- 探索用于高级线程管理的 [ThreadListRuntime](/docs/api-reference/runtimes/thread-list-runtime)
+- 查看 [LangGraph 示例](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-langgraph) 在 GitHub 上

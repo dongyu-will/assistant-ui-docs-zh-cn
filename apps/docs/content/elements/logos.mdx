@@ -1,20 +1,20 @@
 ---
-title: "Model logos"
-description: "Inline SVG marks for OpenAI, Anthropic, and Google model providers."
+title: "模型 logo"
+description: "适用于 OpenAI、Anthropic 和 Google 模型提供商的内联 SVG 标志。"
 ---
 
-`ClaudeLogo`, `OpenAILogo`, and `GeminiLogo` are inline SVG marks for the three model providers, sized and colored like any other icon. With a runtime you typically hand one to a model list as its icon; standalone you drop it wherever you'd show a provider mark.
+`ClaudeLogo`、`OpenAILogo` 和 `GeminiLogo` 是三个模型提供商的内联 SVG 标志，尺寸和颜色行为与其他图标一致。使用运行时（runtime）时，通常会将其中一个作为图标传给模型列表；单独使用时，则可以将其放在任何需要展示提供商标志的位置。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-`ModelSelector`'s own `ModelOption` type carries an optional `icon: ReactNode`, rendered next to the model's name in both the trigger and the list. assistant-ui doesn't know which mark belongs to which provider, that mapping is yours to set when you build the option list.
+`ModelSelector` 自带的 `ModelOption` 类型包含一个可选的 `icon: ReactNode`，会在触发器和列表中显示在模型名称旁边。assistant-ui 不知道哪个标志对应哪个提供商；构建选项列表时，需要由你自行设置这种映射关系。
 
 <Steps>
   <Step>
 
-### Attach a logo to each model option
+### 为每个模型选项附加 logo
 
 ```tsx title="components/assistant-ui/elements/model-catalog.ts"
 import { ClaudeLogo, OpenAILogo, GeminiLogo } from "@/components/assistant-ui/elements/logos";
@@ -27,7 +27,7 @@ export const models: ModelOption[] = [
 ];
 ```
 
-Pass `models` to `ModelSelectorRoot`, or the runtime-connected `ModelSelector` kit component, the way [Model selector](/elements/model-selector) documents; the icon shows up for free once it's on the option.
+按照 [模型选择器](/elements/model-selector) 文档中的方式，将 `models` 传给 `ModelSelectorRoot`，或传给连接运行时的 `ModelSelector` kit 组件；只要图标位于选项中，它就会自动显示。
 
   </Step>
 </Steps>
@@ -36,12 +36,12 @@ Pass `models` to `ModelSelectorRoot`, or the runtime-connected `ModelSelector` k
 
 <StandaloneMode>
 
-Standalone, there's no state at all: render the mark you need, sized and colored like any other icon.
+单独使用时完全不涉及状态：渲染所需的标志即可，其尺寸和颜色行为与其他图标一致。
 
 <Steps>
   <Step>
 
-### Render a mark
+### 渲染标志
 
 ```tsx title="app/providers.tsx"
 import { ClaudeLogo, OpenAILogo, GeminiLogo } from "@/components/assistant-ui/elements/logos";
@@ -62,50 +62,50 @@ export function Providers() {
 
 </StandaloneMode>
 
-## Examples
+## 示例
 
-### Recoloring
+### 重新着色
 
-`OpenAILogo` fills with `currentColor`, so it follows a text color class like any other icon:
+`OpenAILogo` 使用 `currentColor` 填充，因此和其他图标一样，会遵循文本颜色类：
 
 ```tsx
 <OpenAILogo className="size-5 text-foreground/60" />
 ```
 
-`ClaudeLogo` and `GeminiLogo` carry their own fixed brand color, a flat orange fill and a left-to-right gradient, so a text color class has no effect on either.
+`ClaudeLogo` 和 `GeminiLogo` 使用各自固定的品牌颜色，分别是纯橙色填充和从左到右的渐变，因此文本颜色类对它们都不起作用。
 
-### Every prop `svg` takes, still works
+### `svg` 接受的每个 prop 仍然有效
 
-`LogoProps` is exactly `ComponentProps<"svg">`, so `width`, `height`, `aria-hidden`, and any other native `svg` attribute pass straight through, each overriding this file's own defaults (`aria-hidden="true"`, and for OpenAI and Gemini, `fill`).
+`LogoProps` 与 `ComponentProps<"svg">` 完全一致，因此 `width`、`height`、`aria-hidden` 以及其他原生 `svg` 属性都会直接透传，并分别覆盖此文件自身的默认值（`aria-hidden="true"`；对于 OpenAI 和 Gemini，还包括 `fill`）。
 
 ```tsx
 <ClaudeLogo width={20} height={20} aria-hidden={false} role="img" />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### ModelOption
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `icon` | `ReactNode` | Rendered next to the model's name by `ModelSelector`'s trigger and list. Any of these three logos fits; nothing computes this mapping for you. |
+| `icon` | `ReactNode` | `ModelSelector` 的触发器和列表会将其渲染在模型名称旁边。三个 logo 中的任意一个都可以使用；这种映射不会由系统自动计算。 |
 
-There's no dedicated selector: this is a field you set on the array you already pass to `ModelSelectorRoot`. See [Model selector](/elements/model-selector) for the rest of that shape.
+这里没有专用的选择器：这是一个由你设置的字段，位于你已经传给 `ModelSelectorRoot` 的数组中。其余数据结构请参阅[模型选择器](/elements/model-selector)。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-### ClaudeLogo, OpenAILogo, GeminiLogo
+### ClaudeLogo、OpenAILogo、GeminiLogo
 
-| Export | Fill | Notes |
+| 导出项 | 填充 | 备注 |
 |--------|------|-------|
-| `ClaudeLogo` | Fixed, `#D97757` | Ignores `currentColor`; only the `<path>`'s own fill draws it. |
-| `OpenAILogo` | `currentColor` | Recolors with text color utilities. |
-| `GeminiLogo` | Fixed, left-to-right gradient | Generates a fresh gradient id per instance with `useId`, so multiple copies on one page never collide. |
+| `ClaudeLogo` | 固定，`#D97757` | 忽略 `currentColor`；只有 `<path>` 自身的填充会绘制该标志。 |
+| `OpenAILogo` | `currentColor` | 会使用文本颜色工具类重新着色。 |
+| `GeminiLogo` | 固定，从左到右的渐变 | 通过 `useId` 为每个实例生成全新的渐变 ID，因此同一页面上的多个副本不会发生冲突。 |
 
-Each accepts `LogoProps`, exactly `ComponentProps<"svg">`. None of the three sets a default size; unsized, they render at the SVG's intrinsic size, so pass `className="size-N"` or `width` / `height` explicitly.
+每个组件都接受 `LogoProps`，其内容与 `ComponentProps<"svg">` 完全一致。三个组件都不会设置默认尺寸；未指定尺寸时，它们会以 SVG 的固有尺寸渲染，因此请显式传入 `className="size-N"` 或 `width` / `height`。
 
 </StandaloneMode>

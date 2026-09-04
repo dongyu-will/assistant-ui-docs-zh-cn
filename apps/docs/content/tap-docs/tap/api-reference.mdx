@@ -1,11 +1,11 @@
 ---
-title: API Reference
-description: Public API exported from @assistant-ui/tap.
+title: API 参考
+description: 从 @assistant-ui/tap 导出的公共 API。
 ---
 
 ## resource
 
-Turns a Hook into a resource factory.
+将 Hook 转换为资源工厂。
 
 ```ts
 function resource<R, A extends readonly unknown[]>(
@@ -13,8 +13,8 @@ function resource<R, A extends readonly unknown[]>(
 ): Resource<R, A>;
 ```
 
-The Hook should use a **`use`-prefixed** name so the rules of Hooks lint its
-body.
+Hook 应使用以 **`use` 开头的名称**，以便 Hooks 规则检查其
+函数体。
 
 ```ts
 import { resource } from "@assistant-ui/tap";
@@ -28,11 +28,11 @@ const useCounter = (props: { initialValue: number }) => {
 const Counter = resource(useCounter);
 ```
 
-Calling the factory produces a [`ResourceElement`](#resourceelement).
+调用该工厂会生成一个 [`ResourceElement`](#resourceelement)。
 
 ## withKey
 
-Attaches a key to a resource element or resource factory.
+为资源元素或资源工厂附加一个 key。
 
 ```ts
 function withKey<E extends ResourceElement<any>>(
@@ -47,8 +47,8 @@ function withKey<F extends Resource<any, any[]>>(
 ): F;
 ```
 
-Keyed elements preserve their identity in
-[`useResources`](#useresources). Keys in the same list must be unique.
+带 key 的元素会在
+[`useResources`](#useresources) 中保留其身份。同一列表中的 key 必须唯一。
 
 ```ts
 import { withKey } from "@assistant-ui/tap";
@@ -57,11 +57,10 @@ const element = withKey("my-key", Counter({ initialValue: 0 }));
 ```
 
 <Callout type="warn">
-Passing a resource factory to `withKey` is experimental and may change.
+将资源工厂传递给 `withKey` 属于实验性功能，未来可能变更。
 </Callout>
 
-Passing a resource factory returns a factory that adds the key to every element
-it creates:
+传递资源工厂会返回一个工厂，为其创建的每个元素添加该 key：
 
 ```ts
 const KeyedCounter = withKey("my-key", Counter);
@@ -69,37 +68,35 @@ const element = KeyedCounter({ initialValue: 0 });
 ```
 
 <Callout type="warn">
-Passing `deps` to `withKey` is experimental and may change.
+将 `deps` 传递给 `withKey` 属于实验性功能，未来可能变更。
 </Callout>
 
-The optional `deps` array applies only to an element. In `useResources`, an
-element with unchanged dependencies can reuse its last committed value without
-rendering again. State updates and context changes still render it.
+可选的 `deps` 数组仅适用于元素。在 `useResources` 中，依赖项未变化的
+元素可以复用其上一次提交的值，而无需再次渲染。状态更新和上下文变化仍会触发其渲染。
 
 ## Hooks
 
-Inside a resource body you use React's own hooks, imported from `"react"`:
-`useState`, `useReducer`, `useEffect`, `useMemo`, `useCallback`, `useRef`,
-`useLayoutEffect`, `useInsertionEffect`, `useEffectEvent`,
-`useSyncExternalStore`, `useDebugValue`, `useContext`, and `use` (tap contexts
-only — promises are not supported). They follow React's rules of Hooks, with a
-few [differences](/tap/docs/tap/differences-from-react). Hooks compiled by
-React Compiler also work: tap implements the compiler's memo-cache primitive.
+在资源函数体内使用 React 自带的 Hooks，这些 Hooks 从 `"react"` 导入：
+`useState`、`useReducer`、`useEffect`、`useMemo`、`useCallback`、`useRef`、
+`useLayoutEffect`、`useInsertionEffect`、`useEffectEvent`、
+`useSyncExternalStore`、`useDebugValue`、`useContext` 和 `use`（仅限 tap 上下文 — 不支持
+promise）。它们遵循 React 的 Hooks 规则，但存在一些
+[差异](/tap/docs/tap/differences-from-react)。由
+React Compiler 编译的 Hooks 同样有效：tap 实现了编译器的 memo-cache 原语。
 
-The remaining React hooks are not supported inside a resource body: `useId`,
-`useTransition`, `useDeferredValue`, `useImperativeHandle`, `useOptimistic`,
-and `useActionState`. Calling one inside a resource throws a `TypeError` naming
-the hook, for example `useId is not a function`. This restricts only the
-resource body itself: a React component hosting a resource can still wrap
-`useResource` in concurrent features like `useDeferredValue`
-([lifecycle](/tap/docs/tap/lifecycle)).
+其余 React Hooks 不支持在资源函数体内使用：`useId`、
+`useTransition`、`useDeferredValue`、`useImperativeHandle`、`useOptimistic`、
+以及 `useActionState`。在资源内部调用其中任何一个都会抛出一个 `TypeError`，其中包含
+该 Hook 的名称，例如 `useId is not a function`。这只限制
+资源函数体本身：承载资源的 React 组件仍然可以在并发功能（例如 `useDeferredValue`）
+中包装 `useResource`
+（[生命周期](/tap/docs/tap/lifecycle)）。
 
-The Hooks below are exported by tap.
+以下 Hooks 由 tap 导出。
 
 ## useResource
 
-Hosts a single resource element and returns its value. It works inside either a
-React component or another resource.
+承载单个资源元素并返回其值。它既可以在 React 组件中使用，也可以在另一个资源中使用。
 
 ```ts
 function useResource<V>(element: ResourceElement<V>): V;
@@ -111,10 +108,9 @@ const value = useResource(Counter({ initialValue: 0 }));
 
 ## useResources
 
-Hosts a dynamic list of resource elements and returns their values in the same
-order. Every element must have a unique key attached with
-[`withKey`](#withkey). It works inside either a React component or another
-resource.
+承载资源元素的动态列表，并按相同顺序返回它们的值。每个元素都必须通过
+[`withKey`](#withkey) 附加唯一的 key。它既可以在 React 组件中使用，也可以在另一个
+资源中使用。
 
 ```ts
 function useResources<V>(
@@ -130,9 +126,7 @@ const values = useResources(
 
 ## useTapRoot
 
-Hosts a render callback behind a subscribable boundary. It returns a stable root
-handle instead of the render value, and works inside either a React component or
-another resource.
+在可订阅边界后承载渲染回调。它返回稳定的根句柄，而不是渲染值，并且既可以在 React 组件中使用，也可以在另一个资源中使用。
 
 ```ts
 function useTapRoot<R>(render: () => R): {
@@ -141,8 +135,8 @@ function useTapRoot<R>(render: () => R): {
 };
 ```
 
-Use a named function so the rules of Hooks lint the callback body. See
-[Trees & Re-renders](/tap/docs/tap/trees-and-rerenders#separate-scheduling-with-usetaproot).
+请使用命名函数，以便 Hooks 规则检查回调函数体。请参阅
+[树与重新渲染](/tap/docs/tap/trees-and-rerenders#separate-scheduling-with-usetaproot)。
 
 ```ts
 const handle = useTapRoot(function CounterRoot() {
@@ -154,7 +148,7 @@ handle.subscribe(() => {});
 
 ## useTapHost
 
-Hosts a resource render callback inside a React component.
+在 React 组件内承载资源渲染回调。
 
 ```ts
 function useTapHost<R>(render: () => R): {
@@ -163,11 +157,11 @@ function useTapHost<R>(render: () => R): {
 };
 ```
 
-The resource renders with the component and commits in a passive effect.
-`effects` is the per-render commit callback, not a Hook. The host calls it
-automatically. A descendant can also pass it to a dependency-less `useEffect`
-to commit before that descendant's other effects; the first call commits the
-render.
+资源会与组件一起渲染，并在被动 effect 中提交。
+`effects` 是每次渲染的提交回调，而不是 Hook。宿主会
+自动调用它。后代还可以将其传递给无依赖项的 `useEffect`，
+以便在该后代的其他 effect 之前提交；第一次调用会提交
+此次渲染。
 
 ```tsx
 function CounterProvider({ children }: { children: ReactNode }) {
@@ -190,7 +184,7 @@ function TapEffects({ effects }: { effects: () => void }) {
 
 ## createTapRoot
 
-Hosts a render callback [outside React](/tap/docs/tap/outside-react).
+[在 React 外部](/tap/docs/tap/outside-react)承载渲染回调。
 
 ```ts
 function createTapRoot<R>(
@@ -212,36 +206,33 @@ root.subscribe(() => {});
 root.unmount();
 ```
 
-With `mountOnSubscribe: true` the lifecycle is derived from subscribers
-instead: the root renders lazily on the first `getValue()` or `subscribe()`,
-effects commit when the first subscriber attaches, and after the last
-unsubscriber the root soft-unmounts on the next scheduler flush — effect
-cleanups run, but state is preserved and the next subscriber remounts it.
-Because the unmount is deferred, an unsubscribe followed by a resubscribe in
-the same tick (React StrictMode's subscription bounce, `useSyncExternalStore`
-churn, a subscribing component remounting) is absorbed without touching
-effects. `unmount()` throws in this mode.
+使用 `mountOnSubscribe: true` 时，生命周期会改为由订阅者决定：
+根会在第一次 `getValue()` 或 `subscribe()` 时延迟渲染，
+effect 会在第一个订阅者附加时提交；最后一个取消订阅者完成取消订阅后，根会在下一次调度器刷新时软卸载 — effect
+清理函数会运行，但状态会保留，下一个订阅者会重新挂载它。
+由于卸载会延迟执行，同一 tick 内先取消订阅再重新订阅（React StrictMode 的订阅反弹、`useSyncExternalStore`
+变动，或订阅组件重新挂载）会在不触及 effect 的情况下被吸收。`unmount()` 在此模式下会抛出异常。
 
 ## flushTapSync
 
-Runs a callback and synchronously flushes the tap updates it schedules. The
-callback's return value is returned.
+运行回调，并同步刷新该回调所调度的 tap 更新。返回
+回调的返回值。
 
 ```ts
 function flushTapSync<T>(callback: () => T): T;
 ```
 
-This applies to tap-scheduled trees created by `createTapRoot` or `useTapRoot`.
-For a resource hosted directly in React, use `flushSync` from `react-dom`.
+这适用于由 `createTapRoot` 或 `useTapRoot` 创建的 tap 调度树。
+对于直接在 React 中承载的资源，请使用来自 `react-dom` 的 `flushSync`。
 
 ```ts
 flushTapSync(() => handle.getValue().increment());
 ```
 
-## Context
+## 上下文
 
-Create a [context](/tap/docs/tap/context) with `createContext` from `"react"`.
-Read it with `use` or `useContext` from `"react"`.
+使用来自 `"react"` 的 `createContext` 创建[上下文](/tap/docs/tap/context)。
+使用来自 `"react"` 的 `use` 或 `useContext` 读取它。
 
 ```ts
 const ThemeContext = createContext("light");
@@ -249,8 +240,7 @@ const ThemeContext = createContext("light");
 
 ## useContextProvider
 
-Provides a React context value to every resource rendered inside a callback and
-returns the callback's value.
+向回调内部渲染的每个资源提供 React 上下文值，并返回回调的值。
 
 ```ts
 function useContextProvider<T, R>(
@@ -264,7 +254,7 @@ function useContextProvider<T, R>(
 useContextProvider(ThemeContext, "dark", () => useResource(Button()));
 ```
 
-## Types
+## 类型
 
 ### Resource
 
@@ -274,8 +264,8 @@ type Resource<R, A extends readonly unknown[] = any[]> = (
 ) => ResourceElement<R>;
 ```
 
-The factory returned by `resource()`. `R` is the Hook's return value and `A` is
-its argument tuple. For a Hook with one props object, `A` is `[Props]`.
+由 `resource()` 返回的工厂。`R` 是 Hook 的返回值，`A` 是
+其参数元组。对于只有一个 props 对象的 Hook，`A` 是 `[Props]`。
 
 ### ResourceElement
 
@@ -288,5 +278,5 @@ type ResourceElement<R> = {
 };
 ```
 
-An inert description of a resource to host. `resource()` supplies `hook` and
-`args`; [`withKey`](#withkey) can add `key` and `deps`.
+要承载的资源的非活动描述。`resource()` 提供 `hook` 和
+`args`；[`withKey`](#withkey) 可以添加 `key` 和 `deps`。

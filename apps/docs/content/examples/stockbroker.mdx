@@ -1,38 +1,38 @@
 ---
-title: LangGraph Stockbroker Demo
-description: Human-in-the-loop AI stockbroker built on LangGraph and assistant-ui — interrupt handling, tool approval, and an interactive React chat UI.
+title: LangGraph 股票经纪演示
+description: 基于 LangGraph 和 assistant-ui 构建的、人在回路（human in the loop）的 AI 股票经纪助手——支持中断处理、工具审批和交互式 React 聊天 UI。
 ---
 
-## Overview
+## 概述
 
-A stock trading assistant built with LangGraph that demonstrates human-in-the-loop workflows. The assistant can research stocks, analyze market data, and prepare trades, but requires explicit user approval before executing any transactions. This pattern is essential for applications where AI assists with high-stakes decisions.
+一个使用 LangGraph 构建的股票交易助手，用于演示人在回路（human in the loop）工作流。该助手可以研究股票、分析市场数据并准备交易，但在执行任何交易前都需要用户明确批准。对于 AI 协助处理高风险决策的应用，此模式至关重要。
 
-## Features
+## 功能
 
-- **Multi-step Workflows**: Complex operations broken into LangGraph nodes
-- **Human-in-the-Loop**: Critical actions require user confirmation
-- **State Persistence**: Workflow state maintained across interactions
-- **Tool Integration**: Connected to stock market APIs
-- **Approval UI**: Clear interface for reviewing and approving actions
-- **Audit Trail**: Complete history of AI decisions and user approvals
+- **多步骤工作流**：将复杂操作拆分为 LangGraph 节点
+- **人在回路**：关键操作需要用户确认
+- **状态持久化**：在多次交互之间维护工作流状态
+- **工具集成**：连接股票市场 API
+- **审批 UI**：提供清晰的界面，用于审核和批准操作
+- **审计跟踪**：完整记录 AI 决策和用户审批历史
 
-## How It Works
+## 工作原理
 
 ```mermaid
 flowchart LR
     research["Research Stock"] --> analyze["Analyze Data"] --> prepare["Prepare Trade"] --> approval["Human Approval<br/>(Required)"] --> execute["Execute Trade"]
 ```
 
-1. User asks about a stock (e.g., "Should I buy AAPL?")
-2. AI researches the stock and analyzes market data
-3. AI prepares a trade recommendation
-4. **Workflow pauses** for user approval
-5. User reviews and approves/rejects the trade
-6. If approved, trade executes
+1. 用户询问某只股票（例如：“我应该买入 AAPL 吗？”）
+2. AI 研究该股票并分析市场数据
+3. AI 准备交易建议
+4. **工作流暂停**，等待用户批准
+5. 用户审核并批准或拒绝交易
+6. 如果获得批准，则执行交易
 
-## Integration
+## 集成
 
-Uses `@assistant-ui/react-langgraph` for LangGraph integration:
+使用 `@assistant-ui/react-langgraph` 集成 LangGraph：
 
 ```tsx
 import { useLangGraphRuntime } from "@assistant-ui/react-langgraph";
@@ -72,9 +72,9 @@ export default function StockbrokerChat() {
 }
 ```
 
-### Human-in-the-Loop Pattern
+### 人在回路模式
 
-In your LangGraph workflow, define an interrupt point:
+在 LangGraph 工作流中定义一个中断点：
 
 ```python
 from langgraph.graph import StateGraph
@@ -98,7 +98,7 @@ graph.add_edge("prepare", "execute")
 app = graph.compile(interrupt_before=["execute"], checkpointer=MemorySaver())
 ```
 
-### Approval UI Component
+### 审批 UI 组件
 
 ```tsx
 const toolkit = defineToolkit({
@@ -127,6 +127,6 @@ const toolkit = defineToolkit({
 });
 ```
 
-## Source
+## 源代码
 
 <SourceLink href="https://github.com/assistant-ui/assistant-ui-stockbroker" />

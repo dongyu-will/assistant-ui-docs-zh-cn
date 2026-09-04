@@ -1,11 +1,11 @@
 ---
-title: "Part 2: Generative UI"
-description: Display stock ticker information with generative UI components.
+title: "第 2 部分：生成式 UI"
+description: 使用生成式 UI 组件显示股票行情信息。
 ---
 
-In the previous step, we set up the frontend to connect to a LangGraph Cloud endpoint.
+在上一步中，我们设置了前端以连接到 LangGraph Cloud 端点。
 
-In this step, we will set up a component to display stock ticker information.
+在这一步中，我们将设置一个用于显示股票行情信息的组件。
 
 import Image from "next/image";
 import price from "./images/acme-price.png";
@@ -17,7 +17,7 @@ import price from "./images/acme-price.png";
   className="mx-auto rounded-lg border shadow"
 />
 
-For reference, this is the corresponding code in the backend:
+作为参考，以下是后端中对应的代码：
 
 https://github.com/assistant-ui/assistant-ui-stockbroker/blob/main/backend/src/tools.ts#L193C1-L216C3
 
@@ -45,9 +45,9 @@ export const priceSnapshotTool = tool(
 
 ## PriceSnapshotTool
 
-We create a new file under `/components/tools/price-snapshot/PriceSnapshotTool.tsx` to define the tool.
+我们在 `/components/tools/price-snapshot/PriceSnapshotTool.tsx` 下创建一个新文件来定义该工具。
 
-First, we define the tool arguments and result types:
+首先，我们定义工具参数和结果类型：
 
 ```ts title="@/components/tools/price-snapshot/PriceSnapshotTool.tsx"
 type PriceSnapshotToolArgs = {
@@ -64,7 +64,7 @@ type PriceSnapshotToolResult = {
 };
 ```
 
-Then, we define a tool UI renderer:
+然后，我们定义一个工具 UI 渲染器：
 
 ```tsx title="@/components/tools/price-snapshot/PriceSnapshotTool.tsx"
 "use client";
@@ -85,9 +85,9 @@ export const PriceSnapshotToolUI: ToolCallMessagePartComponent<
 };
 ```
 
-This simply displays the tool name and arguments passed to it, but not the result.
+该渲染器只会显示工具名称及传递给它的参数，不会显示结果。
 
-### Bind tool UI
+### 绑定工具 UI
 
 ```tsx title="@/app/page.tsx" {1-3,10}
 "use client";
@@ -114,31 +114,31 @@ export default function Home() {
 }
 ```
 
-### Try it out!
+### 试试看！
 
-Ask the assistant for the current stock price of Tesla. You should see the following text appear:
+向助手询问 Tesla 的当前股价。你应该会看到以下文本：
 
 ```
 price_snapshot({ticker: "TSLA"})
 ```
 
-Next, we will visualize the function's result.
+接下来，我们将可视化函数结果。
 
-## Visualizing tool results
+## 可视化工具结果
 
-### Install dependencies
+### 安装依赖
 
-The tool result component relies on shadcn/ui's `Card` component. We will install it as a dependency.
+工具结果组件依赖 shadcn/ui 的 `Card` 组件。我们将把它作为依赖项进行安装。
 
 ```sh
 npx shadcn@latest add card
 ```
 
-You will be prompted to setup a `components.json` file, after this step, a `card` UI component will be installed in your project.
+系统会提示你设置 `components.json` 文件。完成此步骤后，项目中将安装一个 `card` UI 组件。
 
-### Add `PriceSnapshot`
+### 添加 `PriceSnapshot`
 
-We create a new file under `/components/tools/price-snapshot/price-snapshot.tsx` to define the new tool result UI.
+我们在 `/components/tools/price-snapshot/price-snapshot.tsx` 下创建一个新文件，用于定义新的工具结果 UI。
 
 ```tsx title="@/components/tools/price-snapshot/price-snapshot.tsx"
 "use client";
@@ -202,9 +202,9 @@ export function PriceSnapshot({
 }
 ```
 
-### Update `PriceSnapshotTool`
+### 更新 `PriceSnapshotTool`
 
-We will import the new `<PriceSnapshot />` component and use it in the `render` function whenever a tool result is available.
+我们将导入新的 `<PriceSnapshot />` 组件，并在工具结果可用时，在 `render` 函数中使用它。
 
 ```tsx title="@/components/tools/price-snapshot/PriceSnapshotTool.tsx" {3,25-30,37-42}
 "use client";
@@ -252,9 +252,9 @@ export const PriceSnapshotToolUI: ToolCallMessagePartComponent<
 };
 ```
 
-### Try it out!
+### 试试看！
 
-Ask the assistant for the current stock price of Tesla. You should see the tool result appear:
+向助手询问 Tesla 的当前股价。你应该会看到工具结果：
 
 import price2 from "./images/tsla-price.png";
 
@@ -265,17 +265,17 @@ import price2 from "./images/tsla-price.png";
   className="mx-auto rounded-lg border shadow"
 />
 
-## Fallback tool UI
+## 工具 UI 回退方案
 
-Instead of defining a custom tool UI for every tool, we can also define a fallback UI for all tools that are not explicitly defined.
+除了为每个工具定义自定义工具 UI 外，我们还可以为所有未显式定义的工具定义一个回退 UI。
 
-This requires shadcn/ui's `Button` component. We will install it as a dependency.
+这需要使用 shadcn/ui 的 `Button` 组件。我们将把它作为依赖项进行安装。
 
 ```sh
 npx shadcn@latest add button
 ```
 
-Then create a new file under `/components/tools/ToolFallback.tsx` to define the fallback UI.
+然后在 `/components/tools/ToolFallback.tsx` 下创建一个新文件，用于定义回退 UI。
 
 ```tsx title="@/components/tools/ToolFallback.tsx"
 import { ToolCallMessagePartComponent } from "@assistant-ui/react";
@@ -323,7 +323,7 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
 };
 ```
 
-### Bind fallback UI
+### 绑定回退 UI
 
 ```tsx title="@/app/page.tsx"
 const toolkit = defineToolkit({
@@ -344,4 +344,4 @@ export default function Home() {
 }
 ```
 
-The `Thread` component from `@assistant-ui/ui` already includes a built-in `ToolFallback` and `MarkdownText`, so no additional configuration is needed.
+`@assistant-ui/ui` 中的 `Thread` 组件已经内置了 `ToolFallback` 和 `MarkdownText`，因此无需进行额外配置。

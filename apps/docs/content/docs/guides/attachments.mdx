@@ -1,47 +1,46 @@
 ---
-title: File Attachments
-description: Let users attach images, PDFs, and other files to AI chat messages in React. Drag-drop, paste, and vision-model support, built into assistant-ui.
+title: 文件附件
+description: 在 React 中让用户将图像、PDF 和其他文件附加到 AI 聊天消息中。assistant-ui 内置拖放、粘贴和视觉模型支持。
 platforms: ["react"]
 ---
 
 import { AttachmentSample } from "@/components/pages/docs/samples/attachment";
 
-Enable users to attach files to their messages, enhancing conversations with images, documents, and other content.
+允许用户将文件附加到消息中，通过图像、文档和其他内容丰富对话。
 
 <AttachmentSample />
 
-## Overview
+## 概述
 
-The attachment system in assistant-ui provides a flexible framework for handling file uploads in your AI chat interface. It consists of:
+assistant-ui 中的附件系统为 AI 聊天界面中的文件上传提供了灵活的处理框架，包括：
 
-- **Attachment Adapters**: Backend logic for processing attachment files
-- **UI Components**: Pre-built components for attachment display and interaction
-- **Runtime Integration**: Seamless integration with all assistant-ui runtimes
+- **附件适配器**：处理附件文件的后端逻辑
+- **UI 组件**：用于显示和交互的预构建组件
+- **运行时集成**：与所有 assistant-ui 运行时无缝集成
 
-## Getting Started
+## 入门
 
 <Steps>
   <Step>
 
-### Install UI Components
+### 安装 UI 组件
 
-First, add the attachment UI components to your project:
+首先，将附件 UI 组件添加到项目中：
 
 <InstallCommand shadcn={["attachment"]} />
 
-This adds `/components/assistant-ui/elements/attachment.tsx` to your project.
+这会将 `/components/assistant-ui/elements/attachment.tsx` 添加到项目中。
 
 <Callout type="tip">
-  **Next steps:** Feel free to adjust these auto-generated components (styling,
-  layout, behavior) to match your application's design system.
+  **后续步骤：**你可以根据应用的设计系统，自由调整这些自动生成的组件（样式、布局和行为）。
 </Callout>
 
   </Step>
   <Step>
 
-### Set up Runtime (No Configuration Required)
+### 设置运行时（无需配置）
 
-For `useChatRuntime`, attachments work automatically without additional configuration:
+对于 `useChatRuntime`，附件无需额外配置即可自动运行：
 
 ```tsx title="/app/MyRuntimeProvider.tsx"
 import { useChatRuntime } from "@assistant-ui/ai-sdk";
@@ -50,30 +49,30 @@ const runtime = useChatRuntime();
 ```
 
 <Callout type="info">
-  **Note:** The AI SDK runtime handles attachments automatically. For other runtimes like `useLocalRuntime`, you may still need to configure attachment adapters as shown in the [Creating Custom Attachment Adapters](#creating-custom-attachment-adapters) section below.
+  **注意：**AI SDK 运行时会自动处理附件。对于 `useLocalRuntime` 等其他运行时，你可能仍需按照下面[创建自定义附件适配器](#creating-custom-attachment-adapters)部分中的说明配置附件适配器。
 </Callout>
 
   </Step>
   <Step>
 
-### Add UI Components
+### 添加 UI 组件
 
-Integrate the attachment components into your chat interface. See [Attachment UI components](/elements/attachment) for the full install and usage guide.
+将附件组件集成到聊天界面中。完整的安装和使用指南请参阅[附件 UI 组件](/elements/attachment)。
 
   </Step>
 </Steps>
 
-## Built-in Attachment Adapters
+## 内置附件适配器
 
-### AI SDK Runtime (Default)
+### AI SDK 运行时（默认）
 
-When using `useChatRuntime`, the built-in adapter accepts all file types and converts them to base64 data URLs. This works well for images and small files.
+使用 `useChatRuntime` 时，内置适配器接受所有文件类型，并将其转换为 base64 数据 URL。这对于图像和小型文件效果良好。
 
 <Callout type="warn">
-  Most models only support **image** attachments. Sending unsupported file types (audio, video, PDF, etc.) will result in an API error. Check your model provider's documentation for supported input types.
+  大多数模型仅支持 **图像**附件。发送不受支持的文件类型（音频、视频、PDF 等）会导致 API 错误。请查看模型提供商的文档，了解其支持的输入类型。
 </Callout>
 
-To restrict accepted file types, pass a custom adapter:
+如需限制接受的文件类型，请传入自定义适配器：
 
 ```tsx
 const runtime = useChatRuntime({
@@ -85,7 +84,7 @@ const runtime = useChatRuntime({
 
 ### SimpleImageAttachmentAdapter
 
-Handles image files and converts them to data URLs for display in the chat UI.
+处理图像文件，并将其转换为数据 URL，以便在聊天 UI 中显示。
 
 ```tsx
 const imageAdapter = new SimpleImageAttachmentAdapter();
@@ -94,7 +93,7 @@ const imageAdapter = new SimpleImageAttachmentAdapter();
 
 ### SimpleTextAttachmentAdapter
 
-Processes text files and wraps content in formatted tags:
+处理文本文件，并将内容包装在格式化标签中：
 
 ```tsx
 const textAdapter = new SimpleTextAttachmentAdapter();
@@ -103,7 +102,7 @@ const textAdapter = new SimpleTextAttachmentAdapter();
 
 ### CompositeAttachmentAdapter
 
-Combines multiple adapters to support various file types:
+组合多个适配器，以支持各种文件类型：
 
 ```tsx
 const compositeAdapter = new CompositeAttachmentAdapter([
@@ -112,13 +111,13 @@ const compositeAdapter = new CompositeAttachmentAdapter([
 ]);
 ```
 
-## Creating Custom Attachment Adapters
+## 创建自定义附件适配器
 
-Build your own adapters for specialized file handling. Below are complete examples for common use cases. For `PendingAttachment` and `CompleteAttachment` type definitions, see [Attachment types](/elements/attachment#attachment-types).
+为专用文件处理场景构建自己的适配器。下面提供了常见用例的完整示例。有关 `PendingAttachment` 和 `CompleteAttachment` 类型定义，请参阅[附件类型](/elements/attachment#attachment-types)。
 
-### Vision-Capable Image Adapter
+### 支持视觉模型的图像适配器
 
-Send images to vision-capable LLMs like GPT-5.6, Claude Sonnet 4.6, or Gemini Pro Vision:
+将图像发送给支持视觉能力的 LLM，例如 GPT-5.6、Claude Sonnet 4.6 或 Gemini Pro Vision：
 
 ```tsx
 import {
@@ -184,9 +183,9 @@ class VisionImageAdapter implements AttachmentAdapter {
 }
 ```
 
-### PDF Document Adapter
+### PDF 文档适配器
 
-Handle PDF files by extracting text or converting to base64 for processing:
+通过提取文本或将 PDF 转换为 base64 来处理 PDF 文件：
 
 ```tsx
 import {
@@ -258,11 +257,11 @@ class PDFAttachmentAdapter implements AttachmentAdapter {
 }
 ```
 
-## Using Custom Adapters
+## 使用自定义适配器
 
-### With LocalRuntime
+### 与 LocalRuntime 配合使用
 
-When using `LocalRuntime`, you need to handle images in your `ChatModelAdapter` (the adapter that connects to your AI backend):
+使用 `LocalRuntime` 时，需要在 `ChatModelAdapter` 中处理图像（连接 AI 后端的适配器）：
 
 ```tsx
 import { useLocalRuntime, ChatModelAdapter } from "@assistant-ui/react";
@@ -327,11 +326,11 @@ const runtime = useLocalRuntime(MyModelAdapter, {
 });
 ```
 
-## Advanced Features
+## 高级功能
 
-### Progress Updates
+### 进度更新
 
-Provide real-time upload progress using async generators:
+使用异步生成器提供实时上传进度：
 
 ```tsx
 class UploadAttachmentAdapter implements AttachmentAdapter {
@@ -402,9 +401,9 @@ class UploadAttachmentAdapter implements AttachmentAdapter {
 }
 ```
 
-### Validation and Error Handling
+### 验证与错误处理
 
-Implement robust validation in your adapters:
+在适配器中实现完善的验证：
 
 ```tsx
 class ValidatedImageAdapter implements AttachmentAdapter {
@@ -461,18 +460,18 @@ class ValidatedImageAdapter implements AttachmentAdapter {
 }
 ```
 
-To surface failures in the UI, subscribe to `composer.attachmentAddError`. It fires whenever an add operation produces a failure, in either of two ways:
+如需在 UI 中显示失败信息，请订阅 `composer.attachmentAddError`。每当添加操作失败时，该事件都会触发，具体有以下两种情况：
 
-1. `addAttachment()` rejects: no adapter is configured, the file type does not match `accept`, or the adapter's `add()` throws.
-2. `addAttachment()` resolves but the adapter returned (or, for async-iterator adapters, yielded) an attachment whose `status.reason === "error"`. The promise resolves successfully, yet the event still fires so the UI can react.
+1. `addAttachment()` 被拒绝：未配置适配器、文件类型与 `accept` 不匹配，或适配器的 `add()` 抛出异常。
+2. `addAttachment()` 成功解析，但适配器返回的（或异步迭代器适配器生成的）附件的 `status.reason === "error"`。虽然 promise 成功解析，但事件仍会触发，以便 UI 做出响应。
 
-The event payload carries a `reason` discriminator and a human-readable `message`, so you can branch UI on the failure mode:
+事件负载包含一个 `reason` 判别字段和人类可读的 `message`，因此你可以根据失败模式分支处理 UI：
 
-| `reason`         | When It Fires                                                                                          |
+| `reason`         | 触发时机                                                                                          |
 | ---------------- | ------------------------------------------------------------------------------------------------------ |
-| `no-adapter`     | `addAttachment(File)` was called but no `AttachmentAdapter` is configured.                             |
-| `not-accepted`   | The file's content type (or filename extension) did not match `adapter.accept`. External `CreateAttachment` descriptors also trigger this when their `contentType` does not match `adapter.accept`. |
-| `adapter-error`  | The adapter's `add()` threw, or returned/yielded an attachment with `status.reason === "error"`. If the adapter produced any attachment before failing, the errored attachment is also visible in `composer.attachments`; if it threw before producing one, the event is the only signal. |
+| `no-adapter`     | 已调用 `addAttachment(File)`，但未配置 `AttachmentAdapter`。                             |
+| `not-accepted`   | 文件的内容类型（或文件名扩展名）与 `adapter.accept` 不匹配。当外部 `CreateAttachment` 描述符的 `contentType` 与 `adapter.accept` 不匹配时，也会触发此事件。 |
+| `adapter-error`  | 适配器的 `add()` 抛出异常，或返回/生成了带有 `status.reason === "error"` 的附件。如果适配器在失败前生成了任何附件，出错的附件也会显示在 `composer.attachments` 中；如果它在生成附件前就抛出异常，则该事件是唯一信号。 |
 
 ```tsx
 import { toast } from "sonner"; // or your toast library of choice
@@ -493,11 +492,11 @@ function AttachmentErrorToast() {
 }
 ```
 
-`attachmentId` is included when the failure is associated with an attachment that was registered (typically `adapter-error` cases). It is `undefined` for `no-adapter` and `not-accepted` failures because those reject before any attachment is registered.
+当失败与已注册的附件相关时，会包含 `attachmentId`（通常是 `adapter-error` 情况）。对于 `no-adapter` 和 `not-accepted` 失败，该字段为 `undefined`，因为这些操作会在注册任何附件之前被拒绝。
 
-### External Source Attachments
+### 外部来源附件
 
-Add attachments from external sources (URLs, API data, CMS references) without needing a `File` object or an `AttachmentAdapter`:
+无需 `File` 对象或 `AttachmentAdapter`，即可从外部来源（URL、API 数据、CMS 引用）添加附件：
 
 ```tsx
 const aui = useAui();
@@ -518,11 +517,11 @@ await aui.composer.addAttachment({
 });
 ```
 
-External attachments are added as complete attachments directly. They bypass the `AttachmentAdapter`'s `add()` step (no upload), but `adapter.accept` is still enforced when an `AttachmentAdapter` is configured: a `CreateAttachment` whose `contentType` does not match `adapter.accept` is rejected and emits `composer.attachmentAddError`. If `contentType` is omitted, the descriptor's filename extension is matched against `adapter.accept` only when `accept` itself contains explicit extension entries (e.g. `.png,.pdf`); MIME-wildcard `accept` strings such as `image/*` always require a matching `contentType`. When no `AttachmentAdapter` is configured, external attachments are added without any content-type check, and they can be removed without an adapter.
+外部附件会直接作为完整附件添加。它们会跳过 `AttachmentAdapter` 的 `add()` 步骤（无需上传），但在配置了 `AttachmentAdapter` 时仍会执行 `adapter.accept`：`contentType` 与 `adapter.accept` 不匹配的 `CreateAttachment` 会被拒绝，并触发 `composer.attachmentAddError`。如果省略 `contentType`，只有当 `accept` 本身包含明确的扩展名条目（例如 `.png,.pdf`）时，才会将描述符的文件名扩展名与 `adapter.accept` 进行匹配；对于 `image/*` 等 MIME 通配符 `accept` 字符串，则始终需要匹配的 `contentType`。未配置 `AttachmentAdapter` 时，外部附件会在不检查内容类型的情况下添加，并且无需适配器即可移除。
 
-### Multiple File Selection
+### 多文件选择
 
-Enable multi-file selection with custom limits:
+使用自定义限制启用多文件选择：
 
 ```tsx
 const aui = useAui();
@@ -537,30 +536,29 @@ const handleMultipleFiles = async (files: FileList) => {
 };
 ```
 
-## Backend Integration
+## 后端集成
 
-### With Vercel AI SDK
+### 与 Vercel AI SDK 配合使用
 
-Attachments are sent to the backend as file content parts.
+附件会以文件内容部分的形式发送到后端。
 
-## Runtime Support
+## 运行时支持
 
-Attachments work with all assistant-ui runtimes:
+附件适用于所有 assistant-ui 运行时：
 
-- **AI SDK Runtime**: `useChatRuntime`
-- **External Store**: `useExternalStoreRuntime`
-- **LangGraph**: `useLangGraphRuntime`
-- **Custom Runtimes**: Any runtime implementing the attachment interface
+- **AI SDK Runtime**：`useChatRuntime`
+- **External Store**：`useExternalStoreRuntime`
+- **LangGraph**：`useLangGraphRuntime`
+- **自定义运行时**：任何实现附件接口的运行时
 
 <Callout type="tip">
-  The attachment system is designed to be extensible. You can create adapters
-  for any file type, integrate with cloud storage services, or implement custom
-  processing logic to fit your specific needs.
+  附件系统旨在实现可扩展性。你可以为任何文件类型创建适配器、
+  集成云存储服务，或实现自定义处理逻辑，以满足具体需求。
 </Callout>
 
-## Large File Uploads
+## 大文件上传
 
-The built-in adapters convert files to base64 data URLs in memory. For large files (long audio, video, etc.), this can cause performance issues. Instead, upload to a server and pass the URL:
+内置适配器会在内存中将文件转换为 base64 数据 URL。对于大文件（长音频、视频等），这可能导致性能问题。此时应改为将文件上传到服务器，并传递 URL：
 
 ```tsx
 class ServerUploadAdapter implements AttachmentAdapter {
@@ -601,19 +599,19 @@ class ServerUploadAdapter implements AttachmentAdapter {
 ```
 
 <Callout type="tip">
-  [assistant-ui Cloud](/docs/cloud/ai-sdk-assistant-ui) includes `CloudFileAttachmentAdapter` which handles large file uploads via presigned URLs out of the box.
+  [assistant-ui Cloud](/docs/cloud/ai-sdk-assistant-ui) 包含 `CloudFileAttachmentAdapter`，可通过预签名 URL 开箱即用地处理大文件上传。
 </Callout>
 
-## Best Practices
+## 最佳实践
 
-1. **File Size Limits**: Always validate file sizes to prevent memory issues
-2. **Type Validation**: Verify file types match your `accept` pattern
-3. **Error Handling**: Provide clear error messages for failed uploads
-4. **Progress Feedback**: Show upload progress for better UX
-5. **Security**: Validate and sanitize file content before processing
-6. **Accessibility**: Ensure attachment UI is keyboard navigable
+1. **文件大小限制**：始终验证文件大小，以避免内存问题
+2. **类型验证**：确认文件类型符合你的 `accept` 模式
+3. **错误处理**：为失败的上传提供清晰的错误消息
+4. **进度反馈**：显示上传进度，提升用户体验
+5. **安全性**：处理文件内容前进行验证和清理
+6. **无障碍性**：确保附件 UI 支持键盘操作
 
-## Resources
+## 资源
 
-- [Attachment UI Components](/elements/attachment) - UI implementation details
-- [API Reference](/docs/api-reference/overview) - Detailed type definitions
+- [附件 UI 组件](/elements/attachment) - UI 实现详情
+- [API 参考](/docs/api-reference/overview) - 详细的类型定义

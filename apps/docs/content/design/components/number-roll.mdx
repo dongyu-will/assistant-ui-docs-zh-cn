@@ -1,6 +1,6 @@
 ---
-title: Number Roll
-description: Animated number that rolls digits odometer-style when the value changes.
+title: 数字滚动
+description: 数值变化时，以里程表样式滚动数字的动画数字。
 ---
 
 import { PreviewCode } from "@/components/pages/docs/preview-code.server";
@@ -14,13 +14,13 @@ import {
 
 <NumberRollSample />
 
-## Installation
+## 安装
 
 <InstallCommand shadcn={["number-roll"]} />
 
-This adds a `/components/ui/number-roll.tsx` file to your project, which you can adjust as needed. The component has no dependencies beyond React.
+这会在项目中添加一个 `/components/ui/number-roll.tsx` 文件，你可以根据需要进行调整。该组件除 React 外没有其他依赖。
 
-## Usage
+## 用法
 
 ```tsx
 import { NumberRoll } from "@/components/ui/number-roll";
@@ -30,45 +30,45 @@ export function TokenCounter({ count }: { count: number }) {
 }
 ```
 
-When `value` changes, each digit rolls in place to its new value. Formatting is handled by `Intl.NumberFormat`, so structural changes animate too: when `700` becomes `1.1K` with compact notation, the surviving ones digit rolls from 0 to 1 while the leading `70` slides out and the decimal point, fraction digit, and `K` suffix slide in.
+当 `value` 发生变化时，每个数字都会在原位滚动到新值。格式化由 `Intl.NumberFormat` 处理，因此结构变化也会产生动画：当使用紧凑表示法时，`700` 变为 `1.1K`，保留的个位数字会从 0 滚动到 1，同时开头的 `70` 滑出，小数点、小数位数字和 `K` 后缀滑入。
 
-## Examples
+## 示例
 
-### Compact Notation
+### 紧凑表示法
 
-Pass any `Intl.NumberFormatOptions` via the `format` prop. Crossing a compact-notation threshold animates the formatting change instead of remounting the whole string.
+通过 `format` prop 传入任意 `Intl.NumberFormatOptions`。跨过紧凑表示法的阈值时，格式变化会产生动画，而不是重新挂载整个字符串。
 
 <PreviewCode file="components/pages/docs/samples/number-roll" name="NumberRollCompactSample">
   <NumberRollCompactSample />
 </PreviewCode>
 
-### Formats and Locales
+### 格式和区域设置
 
-Currencies, percentages, suffixes, and non-English locales all work through the same `Intl.NumberFormat` pipeline. Compact thresholds and suffixes are locale-dependent (`1.2万` in `zh-CN`), so never hardcode them.
+货币、百分比、后缀以及非英语区域设置都通过同一个 `Intl.NumberFormat` 流程处理。紧凑表示法的阈值和后缀取决于区域设置（在 `zh-CN` 中为 `1.2万`），因此不要对它们进行硬编码。
 
 <PreviewCode file="components/pages/docs/samples/number-roll" name="NumberRollFormatSample">
   <NumberRollFormatSample />
 </PreviewCode>
 
-### Live Counter
+### 实时计数器
 
-Rapid successive updates retarget the in-flight roll smoothly, which makes the component suitable for streaming token counts and other live metrics.
+快速连续的更新会平滑地重新定位正在进行的滚动动画，因此该组件适用于流式传输的 token 计数以及其他实时指标。
 
 <PreviewCode file="components/pages/docs/samples/number-roll" name="NumberRollLiveSample">
   <NumberRollLiveSample />
 </PreviewCode>
 
-## How It Works
+## 工作原理
 
-The value is formatted with `Intl.NumberFormat.formatToParts` and split into keyed parts. Integer digits are keyed by place value counted from the right, so when `999` becomes `1,000` the existing columns keep their identity and roll in place while only the new leading digit and separator enter. Symbols (decimal point, group separators, currency signs, compact suffixes) cross-fade and collapse via animated `grid-template-columns`.
+数值会使用 `Intl.NumberFormat.formatToParts` 格式化，并拆分为带键的部分。整数数字按从右侧开始计算的位值设置键，因此当 `999` 变为 `1,000` 时，已有的列会保留其身份并在原位滚动，只有新的前导数字和分隔符会进入。符号（小数点、分组分隔符、货币符号、紧凑表示法后缀）会通过动画 `grid-template-columns` 淡入淡出并收缩。
 
-Each digit renders a strip of 0 to 9 and animates a registered CSS custom property; CSS `mod()` math wraps the strip into an endless ribbon, so rolling from 9 to 0 continues in the trend direction instead of spinning backwards. There is no JavaScript animation loop and no animation library dependency.
+每个数字都会渲染一个包含 0 到 9 的条带，并为注册的 CSS 自定义属性设置动画；CSS `mod()` 数学会将条带环绕成无尽的带状轨道，因此从 9 滚动到 0 时会沿趋势方向继续滚动，而不是反向旋转。这里没有 JavaScript 动画循环，也不依赖动画库。
 
-In browsers without CSS `mod()` support, and during server rendering, the component renders the plain formatted string. With `prefers-reduced-motion`, values swap instantly without rolling. When server rendering, pass an explicit `locales`: the server's default locale can differ from the visitor's browser locale, and a mismatched formatted string causes a React hydration error. Locales whose default numbering system is non-Latin (such as `ar-EG`) cross-fade their digits as symbols instead of rolling.
+在不支持 CSS `mod()` 的浏览器中，以及服务器渲染期间，组件会渲染普通的格式化字符串。使用 `prefers-reduced-motion` 时，数值会立即切换而不会滚动。在服务器渲染时，请传入明确的 `locales`：服务器的默认区域设置可能与访问者浏览器的区域设置不同，而格式化字符串不匹配会导致 React 水合错误。默认编号系统为非拉丁数字的区域设置（例如 `ar-EG`）会将数字作为符号进行淡入淡出，而不是滚动。
 
-The formatted value is exposed to screen readers as plain text while the animated digits are `aria-hidden`. Value changes are not announced automatically; wrap the component in an `aria-live` region if you need announcements.
+格式化后的值会以纯文本形式提供给屏幕阅读器，而动画数字则为 `aria-hidden`。值的变化不会自动播报；如果需要播报，请将组件包裹在 `aria-live` 区域中。
 
-## API Reference
+## API 参考
 
 ### NumberRoll
 
@@ -79,72 +79,72 @@ The formatted value is exposed to screen readers as plain text while the animate
       name: "value",
       type: "number",
       required: true,
-      description: "The number to display.",
+      description: "要显示的数字。",
     },
     {
       name: "format",
       type: "Intl.NumberFormatOptions",
       description:
-        "Number formatting options, e.g. `{ notation: \"compact\" }` or `{ style: \"currency\", currency: \"USD\" }`.",
+        "数字格式化选项，例如 `{ notation: \"compact\" }` 或 `{ style: \"currency\", currency: \"USD\" }`。",
     },
     {
       name: "locales",
       type: "Intl.LocalesArgument",
       description:
-        "Locale(s) passed to `Intl.NumberFormat`. Pass an explicit value in server-rendered apps so the server and client format identically.",
+        "传递给 `Intl.NumberFormat` 的区域设置。对于服务器渲染的应用，请传入明确的值，以确保服务器和客户端使用相同的格式。",
     },
     {
       name: "prefix",
       type: "string",
-      description: "Static text rendered before the number.",
+      description: "在数字前渲染的静态文本。",
     },
     {
       name: "suffix",
       type: "string",
-      description: "Static text rendered after the number.",
+      description: "在数字后渲染的静态文本。",
     },
     {
       name: "trend",
       type: '"auto" | "up" | "down"',
       default: '"auto"',
       description:
-        "Roll direction. `auto` follows the sign of the value change; `up` and `down` force a direction, wrapping digits through 9/0 as needed.",
+        "滚动方向。`auto` 遵循数值变化的符号；`up` 和 `down` 强制指定方向，并在需要时让数字循环经过 9/0。",
     },
     {
       name: "duration",
       type: "number",
       default: "500",
       description:
-        "Digit roll duration in milliseconds. Enter/exit fades run at 60% of this value.",
+        "数字滚动时长，单位为毫秒。进入/退出淡入淡出的时长为该值的 60%。",
     },
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes.",
+      description: "额外的 CSS 类。",
     },
   ]}
 />
 
-### Styling
+### 样式
 
-The root applies `tabular-nums` so digits keep a constant width while rolling; the font you use must provide tabular figures for the layout to stay stable. Size and color are inherited from the surrounding text, so style it like any span:
+根元素应用 `tabular-nums`，使数字在滚动时保持固定宽度；你使用的字体必须提供等宽数字，以确保布局保持稳定。大小和颜色会继承周围文本，因此可以像设置任意 span 一样设置它的样式：
 
 ```tsx
 <NumberRoll value={value} className="text-4xl font-semibold" />
 ```
 
-Change the animation speed via the `duration` prop; it drives both the CSS timing and the cleanup that unmounts exited characters, so overriding the duration variable in CSS alone would remove them mid-fade. The fade and easing variables are safe to override via the `style` prop (the defaults are set as inline styles, so plain `className` overrides do not apply):
+通过 `duration` prop 更改动画速度；它同时控制 CSS 时序以及卸载已退出字符的清理过程，因此仅在 CSS 中覆盖时长变量会导致字符在淡出过程中途被移除。可以通过 `style` prop 安全地覆盖淡入淡出和缓动变量（默认值通过内联样式设置，因此普通的 `className` 覆盖不会生效）：
 
-| Variable | Default | Description |
+| 变量 | 默认值 | 描述 |
 |----------|---------|-------------|
-| `--aui-number-roll-duration` | `500ms` (from the `duration` prop) | Digit roll duration. |
-| `--aui-number-roll-fade` | 60% of the duration | Enter/exit fade and width-collapse duration. |
-| `--aui-number-roll-ease` | `cubic-bezier(0.23, 1, 0.32, 1)` | Digit roll easing. |
+| `--aui-number-roll-duration` | `500ms`（来自 `duration` prop） | 数字滚动时长。 |
+| `--aui-number-roll-fade` | 时长的 60% | 进入/退出淡入淡出和宽度收缩时长。 |
+| `--aui-number-roll-ease` | `cubic-bezier(0.23, 1, 0.32, 1)` | 数字滚动缓动。 |
 
-Parts are targetable via data attributes: `[data-slot="number-roll"]`, `[data-slot="number-roll-part"]`, `[data-slot="number-roll-digit"]`, and `[data-slot="number-roll-symbol"]`.
+可以通过 data 属性定位各个部分：`[data-slot="number-roll"]`、`[data-slot="number-roll-part"]`、`[data-slot="number-roll-digit"]` 和 `[data-slot="number-roll-symbol"]`。
 
-## Related Components
+## 相关组件
 
-- [Context Display](/elements/context-display) - Live token usage ring and bar
-- [Message Timing](/elements/message-timing) - Streaming stats badge
-- [Badge](/design/components/badge) - Small status and metadata labels
+- [上下文显示](/elements/context-display) - 实时 token 使用量环形图和条形图
+- [消息计时](/elements/message-timing) - 流式传输统计徽章
+- [徽章](/design/components/badge) - 小型状态和元数据标签

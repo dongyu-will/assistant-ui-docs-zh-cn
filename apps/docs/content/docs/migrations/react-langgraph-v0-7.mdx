@@ -1,39 +1,39 @@
 ---
-title: Migrating to react-langgraph v0.7
-description: Guide to upgrading to the simplified LangGraph integration API.
+title: 迁移到 react-langgraph v0.7
+description: 升级到简化版 LangGraph 集成 API 的指南。
 ---
 
 
-## Overview
+## 概述
 
-This guide helps you migrate from the previous LangGraph integration pattern to the new simplified API introduced in `@assistant-ui/react-langgraph` v0.7. The new API consolidates thread management directly into `useLangGraphRuntime`, eliminating the need for separate runtime hooks and manual thread state management.
+本指南将帮助你从之前的 LangGraph 集成模式迁移到 `@assistant-ui/react-langgraph` v0.7 中引入的新简化 API。新 API 将线程管理直接整合到 `useLangGraphRuntime` 中，无需单独的运行时钩子和手动线程状态管理。
 
-## Key Changes
+## 主要变更
 
-### 1. Simplified Thread Management
+### 1. 简化线程管理
 
-The `useLangGraphRuntime` hook now directly handles thread lifecycle:
-- No more `useRemoteThreadListRuntime` wrapper
-- No more separate runtime hook functions
-- Thread management is built into the core runtime
+`useLangGraphRuntime` 钩子现在可以直接处理线程生命周期：
+- 不再需要 `useRemoteThreadListRuntime` 包装器
+- 不再需要单独的运行时钩子函数
+- 线程管理已内置于核心运行时中
 
-### 2. New `initialize` Parameter
+### 2. 新增 `initialize` 参数
 
-The `stream` function now receives an `initialize` parameter that handles thread creation and loading automatically.
+`stream` 函数现在接收 `initialize` 参数，可自动处理线程的创建和加载。
 
-### 3. Direct Cloud Integration
+### 3. 直接集成 Cloud
 
-Cloud persistence can now be configured directly in `useLangGraphRuntime` with the `cloud` parameter.
+现在可以通过 `cloud` 参数，直接在 `useLangGraphRuntime` 中配置 Cloud 持久化。
 
-## Migration Steps
+## 迁移步骤
 
 <Steps>
 
 <Step>
 
-### Update Your Runtime Implementation
+### 更新运行时实现
 
-#### Before (Old Pattern)
+#### 之前（旧模式）
 
 ```tsx
 import {
@@ -77,7 +77,7 @@ const runtime = useCloudThreadListRuntime({
 });
 ```
 
-#### After (New Pattern)
+#### 之后（新模式）
 
 ```tsx
 import { useLangGraphRuntime } from "@assistant-ui/react-langgraph";
@@ -111,9 +111,9 @@ const runtime = useLangGraphRuntime({
 
 <Step>
 
-### Update Import Statements
+### 更新导入语句
 
-Remove unused imports:
+移除未使用的导入：
 
 ```diff
 - import {
@@ -127,9 +127,9 @@ Remove unused imports:
 
 <Step>
 
-### Simplify Component Structure
+### 简化组件结构
 
-You no longer need a separate runtime hook function. Everything can be defined directly in your component or provider:
+你不再需要单独的运行时钩子函数。所有内容都可以直接定义在组件或 provider 中：
 
 ```tsx
 export function MyRuntimeProvider({ children }) {
@@ -167,21 +167,21 @@ export function MyRuntimeProvider({ children }) {
 
 <Step>
 
-### Update Method Names
+### 更新方法名称
 
-Rename methods to match the new API:
+重命名方法以匹配新 API：
 
 - `onSwitchToThread` → `load`
-- `onSwitchToNewThread` → handled automatically via `create`
-- Thread ID management is now automatic
+- `onSwitchToNewThread` → 通过 `create` 自动处理
+- 线程 ID 管理现在会自动完成
 
 </Step>
 
 </Steps>
 
-## API Reference Changes
+## API 参考变更
 
-### Old API
+### 旧 API
 
 ```typescript
 type OldLangGraphRuntimeOptions = {
@@ -192,7 +192,7 @@ type OldLangGraphRuntimeOptions = {
 };
 ```
 
-### New API
+### 新 API
 
 ```typescript
 type NewLangGraphRuntimeOptions = {
@@ -216,37 +216,37 @@ type NewLangGraphRuntimeOptions = {
 };
 ```
 
-## Benefits of the New API
+## 新 API 的优势
 
-1. **Simpler Setup**: No need for multiple runtime hooks and wrappers
-2. **Cleaner Code**: All configuration in one place
-3. **Better Type Safety**: More explicit types for thread management
-4. **Automatic Thread Handling**: The runtime manages thread lifecycle internally
-5. **Optional Cloud Integration**: Add cloud persistence with a single parameter
+1. **设置更简单**：无需多个运行时钩子和包装器
+2. **代码更简洁**：所有配置集中在一处
+3. **类型安全性更高**：线程管理使用了更明确的类型
+4. **自动处理线程**：运行时在内部管理线程生命周期
+5. **可选的 Cloud 集成**：只需一个参数即可添加 Cloud 持久化
 
-## Common Migration Issues
+## 常见迁移问题
 
 <Callout type="warning">
-  **Breaking Change**: The `threadId` and `onSwitchToNewThread` parameters are no longer supported. Use the new `create` and `load` methods instead.
+  **破坏性变更**：不再支持 `threadId` 和 `onSwitchToNewThread` 参数。请改用新的 `create` 和 `load` 方法。
 </Callout>
 
-### Issue: `threadListItemRuntime` is not defined
+### 问题：未定义 `threadListItemRuntime`
 
-**Solution**: Remove references to `useThreadListItemRuntime()`. Use the `initialize` parameter in the stream function instead.
+**解决方案**：移除对 `useThreadListItemRuntime()` 的引用。改为在 stream 函数中使用 `initialize` 参数。
 
-### Issue: Thread switching doesn't work
+### 问题：线程切换不起作用
 
-**Solution**: Ensure you've implemented both `create` and `load` functions. The runtime needs both to manage thread lifecycle.
+**解决方案**：确保已实现 `create` 和 `load` 函数。运行时需要同时使用这两个函数来管理线程生命周期。
 
-### Issue: Cloud persistence not working
+### 问题：Cloud 持久化不起作用
 
-**Solution**: Pass the `AssistantCloud` instance directly to `useLangGraphRuntime` via the `cloud` parameter.
+**解决方案**：通过 `cloud` 参数，将 `AssistantCloud` 实例直接传递给 `useLangGraphRuntime`。
 
-## Example: Complete Migration
+## 示例：完整迁移
 
-Here's a complete before and after example for a typical LangGraph integration:
+下面是一个典型 LangGraph 集成的完整迁移前后示例：
 
-### Before
+### 之前
 
 ```tsx title="runtime-provider.tsx"
 import {
@@ -288,7 +288,7 @@ export function Provider({ children }) {
 }
 ```
 
-### After
+### 之后
 
 ```tsx title="runtime-provider.tsx"
 import {
@@ -320,9 +320,9 @@ export function Provider({ children }) {
 }
 ```
 
-## Need Help?
+## 需要帮助？
 
-If you encounter issues during migration:
-1. Check the updated [LangGraph documentation](/docs/runtimes/langgraph/overview)
-2. Review the [example implementation](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-langgraph)
-3. Report issues on [GitHub](https://github.com/assistant-ui/assistant-ui/issues)
+如果你在迁移过程中遇到问题：
+1. 查看更新后的 [LangGraph 文档](/docs/runtimes/langgraph/overview)
+2. 查看[示例实现](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-langgraph)
+3. 在 [GitHub](https://github.com/assistant-ui/assistant-ui/issues) 上报告问题

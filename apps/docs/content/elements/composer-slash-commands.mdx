@@ -1,22 +1,22 @@
 ---
-title: "Slash commands"
-description: "Type a slash and the command menu floats above the input, filtering as you continue."
+title: "斜杠命令"
+description: "输入斜杠后，命令菜单会浮动在输入框上方，并随着继续输入进行筛选。"
 ---
 
-Typing `/` at the start of the draft opens a floating menu of commands above the composer; each keystroke narrows the list, and picking one runs it. With a runtime the menu is driven by a trigger primitive wired to a command adapter; standalone you filter a plain list yourself with `useSlashMatches`.
+在草稿开头输入 `/`，会在输入框上方打开一个浮动的命令菜单；每次按键都会缩小列表范围，选中命令后即可执行。使用运行时时，菜单由连接到命令适配器的触发器原语驱动；单独使用时，则可以通过 `useSlashMatches` 自行筛选普通列表。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-assistant-ui's composer has a trigger system for character-activated popovers: a character like `/` opens a scoped popover with its own search, keyboard navigation, and selection, without touching the rest of the input. These primitives are marked `Unstable_`: the shape may still change in a future release.
+assistant-ui 的输入框提供了一个由字符激活的弹出框触发器系统：输入类似 `/` 的字符后，会打开一个作用域内的弹出框，该弹出框拥有独立的搜索、键盘导航和选择功能，不会影响输入框的其他内容。这些原语标记为 `Unstable_`：其结构未来版本仍可能发生变化。
 
 <Steps>
   <Step>
 
-### Define the commands
+### 定义命令
 
-`unstable_useSlashCommandAdapter` bundles a command list into the `{ adapter, action }` pair the trigger needs. Each command's `execute` stays in the hook's closure, so it never has to be serializable:
+`unstable_useSlashCommandAdapter` 会将命令列表封装为触发器所需的 `{ adapter, action }` 对。每个命令的 `execute` 都保留在 hook 的闭包中，因此不需要进行序列化：
 
 ```tsx title="components/assistant-ui/elements/composer-commands.tsx"
 "use client";
@@ -36,7 +36,7 @@ export function useComposerCommands() {
   </Step>
   <Step>
 
-### Open the popover on `/`
+### 在 `/` 上打开弹出框
 
 ```tsx title="components/assistant-ui/elements/composer-bar.tsx"
 "use client";
@@ -82,7 +82,7 @@ export function ComposerBar() {
 }
 ```
 
-`Unstable_TriggerPopoverRoot` wraps the whole bar, not just the input; `Unstable_TriggerPopover` and `ComposerPrimitive.Root` sit side by side inside it. The `.Action` behavior fires `onExecute` at the moment a command is picked; pass `removeOnExecute` from the adapter so the `/summarize` text clears when `false` would otherwise leave it behind as an audit trail. `Unstable_TriggerPopoverItem` sets `data-highlighted` on whichever row keyboard navigation has reached, so the active tint is a plain `data-[highlighted]:` class rather than state you track. assistant-ui ships this whole composition pre-built: installing [Composer trigger popover](/elements/composer-trigger-popover) gives you the categories, search-empty, and loading states without assembling them by hand.
+`Unstable_TriggerPopoverRoot` 包裹的是整个输入栏，而不仅仅是输入框；`Unstable_TriggerPopover` 和 `ComposerPrimitive.Root` 会并排放在其中。`.Action` 行为会在选中命令的瞬间触发 `onExecute`；从适配器传入 `removeOnExecute`，这样当 `false` 执行时，`/summarize` 文本就会被清除，否则它会作为审计记录残留。`Unstable_TriggerPopoverItem` 会在键盘导航到达的行上设置 `data-highlighted`，因此活动行的着色只需使用普通的 `data-[highlighted]:` 类，而不必自行跟踪状态。assistant-ui 已经预先提供了完整的组合：安装 [Composer 触发器弹出框](/elements/composer-trigger-popover) 后，无需手动组装即可获得分类、无搜索结果和加载状态。
 
   </Step>
 </Steps>
@@ -91,12 +91,12 @@ export function ComposerBar() {
 
 <StandaloneMode>
 
-Standalone, nothing detects the `/` for you. `useSlashMatches` filters a command list against the current draft text and returns the matches to render into a menu; you hold which one is highlighted.
+单独使用时，不会有任何机制替你检测 `/`。`useSlashMatches` 会根据当前草稿文本筛选命令列表，并返回匹配项供你渲染到菜单中；高亮哪一项需要由你自行保存。
 
 <Steps>
   <Step>
 
-### Filter as the draft changes
+### 随草稿变化进行筛选
 
 ```tsx title="app/chat-box.tsx"
 "use client";
@@ -130,16 +130,16 @@ export function ChatBox() {
   </Step>
   <Step>
 
-### Track the highlighted row
+### 跟踪高亮行
 
-`useSlashMatches` only returns the filtered list; arrow-key highlighting and Enter-to-run are yours to add, typically as a `highlightedIndex` state that clamps to `matches.length` on every keystroke and marks that row `active`.
+`useSlashMatches` 只返回筛选后的列表；箭头键高亮和按 Enter 执行需要由你自行添加，通常可以使用 `highlightedIndex` 状态，在每次按键时将其限制在 `matches.length` 范围内，并将该行标记为 `active`。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="composer-menu" data-open={/* true while a "/query" is being typed */}>
@@ -149,15 +149,15 @@ export function ChatBox() {
 </div>
 ```
 
-The menu only opens while the draft starts with `/`; anything typed after the slash is the filter query, matched against the start of each command's id. `ComposerCommandItem`'s `active` prop is purely visual (background tint plus the trailing `↵` hint); which row counts as active is state the caller tracks, in both lanes.
+只有当草稿以 `/` 开头时，菜单才会打开；斜杠后的所有输入都是筛选查询，会与每个命令的 id 开头进行匹配。`ComposerCommandItem` 的 `active` 属性仅用于视觉呈现（背景着色以及末尾的 `↵` 提示）；在两种方式中，哪一行算作活动行都由调用方跟踪状态。
 
-## Examples
+## 示例
 
-### Filtering as you type
+### 随输入进行筛选
 
 <RuntimeMode>
 
-The adapter's `search` is called with the text after the slash on every keystroke; `unstable_useSlashCommandAdapter` matches against each command's `id`, `label`, and `description`, case-insensitively.
+适配器的 `search` 会在每次按键时接收斜杠后的文本；`unstable_useSlashCommandAdapter` 会以不区分大小写的方式，将其与每个命令的 `id`、`label` 和 `description` 进行匹配。
 
 ```tsx
 slash.adapter.search("sum"); // → [{ id: "summarize", ... }]
@@ -167,7 +167,7 @@ slash.adapter.search("sum"); // → [{ id: "summarize", ... }]
 
 <StandaloneMode>
 
-`useSlashMatches` runs the same prefix match against the command's `name`:
+`useSlashMatches` 会针对命令的 `name` 执行相同的前缀匹配：
 
 ```tsx
 const matches = useSlashMatches("/sum", commands); // → [commands[0]]
@@ -175,9 +175,9 @@ const matches = useSlashMatches("/sum", commands); // → [commands[0]]
 
 </StandaloneMode>
 
-### Restyle the menu
+### 重新设置菜单样式
 
-Both lanes render into `ComposerMenu`, which takes `className` and reads `open` to animate in from `scale-[0.97] opacity-0`. `ComposerMenuItem`'s active state is the `field` surface token; the description text and the `↵` hint each take their own utility classes if you want to hide or re-theme them independently.
+两种方式都会将内容渲染到 `ComposerMenu` 中。它接收 `className`，并读取 `open`，以便从 `scale-[0.97] opacity-0` 动画进入。`ComposerMenuItem` 的活动状态使用 `field` 表面令牌；如果希望分别隐藏或重新设置主题，可以为描述文本和 `↵` 提示使用各自的工具类。
 
 ```tsx
 <ComposerMenu className="w-96" open={open}>
@@ -185,29 +185,29 @@ Both lanes render into `ComposerMenu`, which takes `className` and reads `open` 
 </ComposerMenu>
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### ComposerPrimitive (trigger)
+### ComposerPrimitive（触发器）
 
-| Part | Renders | Notes |
-|------|---------|-------|
-| `Unstable_TriggerPopoverRoot` | provider | Wraps the composer once per bar; groups every trigger char registered inside it. |
-| `Unstable_TriggerPopover` | `div` (when open) | `char="/"`, `adapter`; renders nothing until a behavior child registers and the trigger is active. |
-| `Unstable_TriggerPopover.Action` | behavior | `onExecute(item)`, `formatter?`, `removeOnExecute?` (default `false`, keeps the `/id` text). |
-| `Unstable_TriggerPopoverItems` | render prop | `{(items) => ReactNode}`; renders only while a category is active or search mode is on. |
-| `Unstable_TriggerPopoverItem` | `button` | `item`, `index?`; gets `data-highlighted` under keyboard navigation. |
-| `Unstable_TriggerPopoverCategories` / `CategoryItem` / `Back` | render prop / `button` / `button` | Only needed when the adapter groups commands into categories. |
+| 部件 | 渲染内容 | 说明 |
+|------|---------|------|
+| `Unstable_TriggerPopoverRoot` | provider | 每个输入栏包裹一次；收集其中注册的所有触发字符。 |
+| `Unstable_TriggerPopover` | `div`（打开时） | `char="/"`、`adapter`；在行为子项注册且触发器处于活动状态前不渲染任何内容。 |
+| `Unstable_TriggerPopover.Action` | behavior | `onExecute(item)`、`formatter?`、`removeOnExecute?`（默认值为 `false`，保留 `/id` 文本）。 |
+| `Unstable_TriggerPopoverItems` | render prop | `{(items) => ReactNode}`；仅在某个分类处于活动状态或搜索模式开启时渲染。 |
+| `Unstable_TriggerPopoverItem` | `button` | `item`、`index?`；在键盘导航期间获取 `data-highlighted`。 |
+| `Unstable_TriggerPopoverCategories` / `CategoryItem` / `Back` | render prop / `button` / `button` | 仅当适配器将命令分组为分类时才需要。 |
 
 ### unstable_useSlashCommandAdapter
 
-| Option | Type | Description |
+| 选项 | 类型 | 说明 |
 |--------|------|-------------|
-| `commands` | `Unstable_SlashCommand[]` | `{ id, label?, description?, icon?, execute }`. |
-| `removeOnExecute` | `boolean` | Strips the `/id` text after running. @default `false` |
+| `commands` | `Unstable_SlashCommand[]` | `{ id, label?, description?, icon?, execute }`。 |
+| `removeOnExecute` | `boolean` | 执行后移除 `/id` 文本。@default `false` |
 
-Returns `{ adapter, action, iconMap?, fallbackIcon? }`; spread `action` onto `Unstable_TriggerPopover.Action`.
+返回 `{ adapter, action, iconMap?, fallbackIcon? }`；将 `action` 展开到 `Unstable_TriggerPopover.Action` 上。
 
 </RuntimeMode>
 
@@ -215,26 +215,26 @@ Returns `{ adapter, action, iconMap?, fallbackIcon? }`; spread `action` onto `Un
 
 ### useSlashMatches
 
-| Parameter | Type | Description |
+| 参数 | 类型 | 说明 |
 |-----------|------|-------------|
-| `value` | `string` | The current draft text. |
-| `commands` | `readonly ComposerCommand[] \| undefined` | The full command list. |
+| `value` | `string` | 当前草稿文本。 |
+| `commands` | `readonly ComposerCommand[] \| undefined` | 完整的命令列表。 |
 
-Returns the commands whose `name` starts with the text after `/`, or `[]` when `value` does not start with `/`.
+返回 `name` 以 `/` 后的文本开头的命令；如果 `value` 不以 `/` 开头，则返回 `[]`。
 
 ### ComposerCommand
 
-| Field | Type | Description |
+| 字段 | 类型 | 说明 |
 |-------|------|-------------|
-| `name` | `string` | Matched against the query; shown as `/name`. |
-| `description` | `string` | Shown beside the name. |
-| `icon` | `LucideIcon` | Rendered at the start of the row. |
+| `name` | `string` | 用于与查询匹配；显示为 `/name`。 |
+| `description` | `string` | 显示在名称旁边。 |
+| `icon` | `LucideIcon` | 渲染在行的开头。 |
 
 ### ComposerCommandItem
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 说明 |
 |------|------|---------|-------------|
-| `command` | `ComposerCommand` | required | The command to render. |
-| `active` | `boolean` | required | Tints the row and shows the `↵` hint. |
+| `command` | `ComposerCommand` | 必填 | 要渲染的命令。 |
+| `active` | `boolean` | 必填 | 为行着色并显示 `↵` 提示。 |
 
 </StandaloneMode>

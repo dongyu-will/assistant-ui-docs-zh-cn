@@ -1,20 +1,20 @@
 ---
 title: "Loader"
-description: "A pixel matrix that keeps time while the model has nothing to show yet."
+description: "模型尚无内容可显示时，用于持续计时的像素矩阵。"
 ---
 
-Nine cells cycle through a moving band while a label underneath names what is happening, filling the gap before any real content exists. With a runtime you mount it only for that gap and drive its clock yourself; standalone you own the tick and the label outright.
+九个单元格组成的移动光带循环运行，下方的标签说明当前发生的事情，用于填补真实内容出现前的空档。在运行时中，你只需在这个空档期间挂载它，并自行驱动时钟；单独使用时，tick 和标签则完全由你管理。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-Nothing in the runtime ticks a clock for you, and no selector hands you a status string. What the runtime does give you is the one fact that decides whether this belongs on screen at all: a run is active and the newest message has not produced a single part yet.
+运行时不会替你驱动时钟，也没有任何 selector 会提供状态字符串。运行时能提供的，是决定它是否应该显示在屏幕上的唯一事实：一次运行处于活动状态，且最新消息尚未生成任何 part。
 
 <Steps>
   <Step>
 
-### Gate it on an empty run
+### 根据空消息运行进行控制
 
 ```tsx title="components/assistant-ui/elements/loading-state.tsx"
 "use client";
@@ -30,12 +30,12 @@ function useIsAwaitingFirstToken() {
 }
 ```
 
-`s.thread.messages` is the branch currently on screen, so checking its last entry is enough; you do not need a message scope to ask "is anyone waiting on the model right now".
+`s.thread.messages` 是当前显示在屏幕上的分支，因此检查它的最后一项就足够了；你不需要 message scope 来询问“当前是否有人在等待模型”。
 
   </Step>
   <Step>
 
-### Drive the tick locally
+### 在本地驱动 tick
 
 ```tsx
 import { useEffect, useState } from "react";
@@ -59,7 +59,7 @@ function AwaitingFirstToken() {
 }
 ```
 
-Place `AwaitingFirstToken` wherever the assistant's next message will render. Once a part arrives, `waiting` flips to `false`, the interval clears, and your real content takes over.
+将 `AwaitingFirstToken` 放置在助手下一条消息将要渲染的位置。part 到达后，`waiting` 会切换为 `false`，interval 会被清除，真实内容随即接管显示。
 
   </Step>
 </Steps>
@@ -68,12 +68,12 @@ Place `AwaitingFirstToken` wherever the assistant's next message will render. On
 
 <StandaloneMode>
 
-Standalone, both `label` and `tick` are yours: the component only turns a tick number into a moving band of lit cells and prints the label underneath.
+单独使用时，`label` 和 `tick` 都由你管理：该组件只会将 tick 数字转换为由点亮单元格组成的移动光带，并在下方显示标签。
 
 <Steps>
   <Step>
 
-### Hold tick and label in state
+### 在状态中保存 tick 和标签
 
 ```tsx title="app/loader.tsx"
 "use client";
@@ -96,28 +96,28 @@ export function Loader({ label }: { label: string }) {
   </Step>
   <Step>
 
-### Stop the timer when it settles
+### 稳定后停止计时器
 
-Unmount `Loader` once your own async work resolves; there is no `active` or `done` prop, the interval keeps advancing `tick` for as long as the component stays mounted.
+在你自己的异步工作完成后卸载 `Loader`；它没有 `active` 或 `done` prop，只要组件保持挂载，interval 就会持续推进 `tick`。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Examples
+## 示例
 
-### Cell shapes
+### 单元格形状
 
-`variant` only changes the corner radius of the nine cells: `"dots"` rounds them into circles, `"squares"` keeps sharp corners, `"rounded"` sits between the two.
+`variant` 只会改变九个单元格的圆角半径：`"dots"` 将它们变为圆形，`"squares"` 保持直角，`"rounded"` 则介于两者之间。
 
 ```tsx
 <GenerationLoader label="Generating" tick={tick} variant="squares" />
 ```
 
-### Restyle the grid
+### 重新设置网格样式
 
-The cells paint with a flat `bg-foreground` at two opacity levels (lit and dim); there is no color prop, so retinting the grid means overriding that utility through `className` or wrapping the element in a `text-*`/color scope your own CSS reads. The label alone uses the shared `ShimmerLabel` treatment from `surfaces.tsx`.
+单元格使用纯色 `bg-foreground` 绘制，并具有两种不透明度级别（点亮和变暗）；由于没有 color prop，要重新着色网格，可以通过 `className` 覆盖该 utility，也可以将元素包裹在由自定义 CSS 读取的 `text-*`/color scope 中。标签本身使用来自 `surfaces.tsx` 的共享 `ShimmerLabel` 样式。
 
 ```tsx
 <GenerationLoader
@@ -127,16 +127,16 @@ The cells paint with a flat `bg-foreground` at two opacity levels (lit and dim);
 />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Thread state
+### 线程状态
 
 | Selector | Type | Description |
 |----------|------|-------------|
-| `s.thread.isRunning` | `boolean` | Whether a run is active. |
-| `s.thread.messages` | `readonly MessageState[]` | The branch on screen; `.at(-1)` is the newest message, whose `role` and `parts.length` decide whether the assistant has produced anything visible yet. |
+| `s.thread.isRunning` | `boolean` | 一次运行是否处于活动状态。 |
+| `s.thread.messages` | `readonly MessageState[]` | 当前显示在屏幕上的分支；`.at(-1)` 是最新消息，其 `role` 和 `parts.length` 决定助手是否已经生成任何可见内容。 |
 
 </RuntimeMode>
 
@@ -146,11 +146,11 @@ The cells paint with a flat `bg-foreground` at two opacity levels (lit and dim);
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `label` | `string` | required | Text shown under the grid, rendered with a shimmer. |
-| `tick` | `number` | required | Advances the moving band of lit cells; the component does not advance it for you. |
-| `variant` | `"dots" \| "squares" \| "rounded"` | `"dots"` | Corner radius of the nine cells. |
-| `className` | `string` | | Merged onto the root. |
+| `label` | `string` | 必填 | 显示在网格下方的文本，以 shimmer 效果渲染。 |
+| `tick` | `number` | 必填 | 推进由点亮单元格组成的移动光带；组件不会替你推进它。 |
+| `variant` | `"dots" \| "squares" \| "rounded"` | `"dots"` | 九个单元格的圆角半径。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props except `children` are forwarded to the root.
+除 `children` 外，所有其他 `div` props 都会转发到根元素。
 
 </StandaloneMode>

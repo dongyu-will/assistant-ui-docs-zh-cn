@@ -1,20 +1,20 @@
 ---
-title: "Image"
-description: "Image message parts with preview, loading states, actions, and a fullscreen view."
+title: "图像"
+description: "带有预览、加载状态、操作和全屏视图的图像消息部分。"
 ---
 
-Image renders one image message part: a preview that click-zooms into a fullscreen view, a loading placeholder while the pixels arrive, and an error state when generation is blocked. With a runtime it renders straight from a message's image part; standalone you hand it the part yourself.
+Image 用于渲染一个图像消息部分：点击预览可缩放进入全屏视图，像素数据到达前显示加载占位符，生成被阻止时显示错误状态。在运行时中，它会直接从消息的图像部分进行渲染；单独使用时，则需要手动传入该部分。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
 <Steps>
   <Step>
 
-### Render images from a message
+### 从消息渲染图像
 
-Register `Image` as the `Image` renderer on `MessagePrimitive.Parts`.
+在 `MessagePrimitive.Parts` 上，将 `Image` 注册为 `Image` 渲染器。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { Image } from "@/components/assistant-ui/elements/image";
@@ -29,7 +29,7 @@ function AssistantMessage() {
 }
 ```
 
-The `Thread` element already renders both assistant and user image parts through `Image`, so installing `@assistant-ui/thread` gives you this without any of the above.
+`Thread` 元素已经通过 `Image` 渲染助手和用户的图像部分，因此安装 `@assistant-ui/thread` 后，无需进行上述任何操作即可获得此功能。
 
   </Step>
 </Steps>
@@ -38,12 +38,12 @@ The `Thread` element already renders both assistant and user image parts through
 
 <StandaloneMode>
 
-Standalone, `Image` is a plain function of one part object: no context, no runtime.
+单独使用时，`Image` 是一个只接收单个部分对象的普通函数：不需要上下文，也不需要运行时。
 
 <Steps>
   <Step>
 
-### Render an image directly
+### 直接渲染图像
 
 ```tsx title="app/answer.tsx"
 import { Image } from "@/components/assistant-ui/elements/image";
@@ -65,7 +65,7 @@ export function Picture() {
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="image-root" data-variant={variant} data-size={size}>
@@ -87,13 +87,13 @@ export function Picture() {
 </div>
 ```
 
-The three top-level states are exclusive and resolve from `status`: `running` shows only the generating placeholder, `incomplete` with reason `content-filter` shows only the blocked-image message, and everything else (including no `status`) shows the real preview. Clicking the preview, or pressing Enter while it has focus, opens the image in a fullscreen dialog: a portal overlay with a focus trap, Escape-to-close, click-outside-to-close, and the page scroll locked while it is open. `ImageActions` (download, copy, regenerate) is not part of the default render tree; add it yourself, as shown below.
+三个顶层状态互斥，并根据 `status` 确定：`running` 只显示生成占位符；带有原因 `content-filter` 的 `incomplete` 只显示图像被阻止的消息；其他所有情况（包括没有 `status`）都会显示实际预览。点击预览，或在预览获得焦点时按 Enter，会在全屏对话框中打开图像：这是一个带有焦点陷阱的 portal 覆盖层，支持按 Escape 关闭、点击外部关闭，并在打开期间锁定页面滚动。`ImageActions`（下载、复制、重新生成）不属于默认渲染树；请按照下面的示例自行添加。
 
-## Examples
+## 示例
 
-### Add download, copy, and regenerate actions
+### 添加下载、复制和重新生成操作
 
-`ImageActions` renders a download button and a copy-to-clipboard button; passing `onRegenerate` adds a third button that shows a spinner while it runs. Download picks a file extension from the image's MIME type (defaulting to `.png`) and uses `part.filename` when set; copy requires a browser with the Clipboard API and silently no-ops if it is unavailable or the write fails.
+`ImageActions` 会渲染一个下载按钮和一个复制到剪贴板按钮；传入 `onRegenerate` 会添加第三个按钮，并在运行期间显示 spinner。下载会根据图像的 MIME 类型选择文件扩展名（默认为 `.png`），如果设置了 `part.filename`，则使用它；复制操作要求浏览器支持 Clipboard API，如果该 API 不可用或写入失败，则会静默地不执行任何操作。
 
 ```tsx
 import { Image } from "@/components/assistant-ui/elements/image";
@@ -110,65 +110,65 @@ function ImageWithActions(part: React.ComponentProps<typeof Image>) {
 }
 ```
 
-### Variants and sizes
+### 变体和尺寸
 
 ```tsx
 <Image variant="ghost" size="lg" {...part} />
 ```
 
-| Variant | Description |
+| 变体 | 描述 |
 |---------|-------------|
-| `outline` | Border around the frame (default) |
-| `ghost` | No border |
-| `muted` | Muted background while loading |
+| `outline` | 帧周围带边框（默认） |
+| `ghost` | 无边框 |
+| `muted` | 加载期间使用弱化背景 |
 
-| Size | Max width |
+| 尺寸 | 最大宽度 |
 |------|-----------|
 | `sm` | `16rem` |
-| `default` | `24rem` (default) |
+| `default` | `24rem`（默认） |
 | `lg` | `32rem` |
-| `full` | `100%` of the container |
+| `full` | 容器的 `100%` |
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### Image
 
-| Export | Renders | Notes |
+| 导出项 | 渲染内容 | 备注 |
 |--------|---------|-------|
-| `Image` | `div` | The `Image` message-part renderer. Pass to `MessagePrimitive.Parts` as `components.Image`. |
-| `Image.Root` | `div` | Frame with `variant` and `size`. |
-| `Image.Preview` | `div` + `img` | Loads `src`, shows a placeholder until it does, an error icon if it fails. |
-| `Image.Zoom` | trigger + portal dialog | Wraps children in a click-to-zoom trigger for `src`. |
-| `Image.Filename` | `span` | Renders nothing when there is no filename. |
-| `Image.Generating` | `div` | Shown while `status.type === "running"`. |
-| `Image.ContentFilterError` | `div` | Shown when `status` is `incomplete` with reason `content-filter`. |
-| `Image.Actions` | `div` | Download, copy, and (if `onRegenerate` is passed) regenerate buttons. Not rendered by default. |
+| `Image` | `div` | `Image` 消息部分渲染器。将其作为 `components.Image` 传递给 `MessagePrimitive.Parts`。 |
+| `Image.Root` | `div` | 带有 `variant` 和 `size` 的帧。 |
+| `Image.Preview` | `div` + `img` | 加载 `src`，在加载完成前显示占位符，加载失败时显示错误图标。 |
+| `Image.Zoom` | trigger + portal dialog | 为 `src` 的子元素包装一个点击缩放触发器。 |
+| `Image.Filename` | `span` | 没有文件名时不渲染任何内容。 |
+| `Image.Generating` | `div` | 在 `status.type === "running"` 期间显示。 |
+| `Image.ContentFilterError` | `div` | 当 `status` 因原因 `content-filter` 而处于 `incomplete` 状态时显示。 |
+| `Image.Actions` | `div` | 下载、复制以及（传入 `onRegenerate` 时）重新生成按钮。默认不渲染。 |
 
-### Image part
+### 图像部分
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `image` | `string` | A URL or data URI for the image. |
-| `filename` | `string` | Optional; shown under the preview and used as the download name. |
-| `status` | `MessagePartStatus` | Drives the generating / blocked / normal states. |
+| `image` | `string` | 图像的 URL 或数据 URI。 |
+| `filename` | `string` | 可选；显示在预览下方，并用作下载名称。 |
+| `status` | `MessagePartStatus` | 驱动生成、阻止和正常状态。 |
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-### Image props
+### Image 属性
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `type` | `"image"` | required | Required by the part type. |
-| `image` | `string` | required | A URL or data URI for the image. |
-| `filename` | `string` | | Shown under the preview and used as the download name. |
-| `status` | `MessagePartStatus` | | Drives the generating / blocked / normal states; omit for the normal state. |
-| `variant` | `"outline" \| "ghost" \| "muted"` | `"outline"` | Frame style, set on `Image.Root`. |
-| `size` | `"sm" \| "default" \| "lg" \| "full"` | `"default"` | Max width, set on `Image.Root`. |
+| `type` | `"image"` | 必填 | 由部分类型要求。 |
+| `image` | `string` | 必填 | 图像的 URL 或数据 URI。 |
+| `filename` | `string` | | 显示在预览下方，并用作下载名称。 |
+| `status` | `MessagePartStatus` | | 驱动生成、阻止和正常状态；正常状态下可省略。 |
+| `variant` | `"outline" \| "ghost" \| "muted"` | `"outline"` | 帧样式，设置在 `Image.Root` 上。 |
+| `size` | `"sm" \| "default" \| "lg" \| "full"` | `"default"` | 最大宽度，设置在 `Image.Root` 上。 |
 
-`Image.Root`, `Image.Preview`, `Image.Zoom`, `Image.Filename`, `Image.Generating`, `Image.ContentFilterError`, and `Image.Actions` are exported individually for a custom layout, as shown in [Add download, copy, and regenerate actions](#add-download-copy-and-regenerate-actions).
+`Image.Root`、`Image.Preview`、`Image.Zoom`、`Image.Filename`、`Image.Generating`、`Image.ContentFilterError` 和 `Image.Actions` 都会单独导出，用于自定义布局，具体示例请参见[添加下载、复制和重新生成操作](#add-download-copy-and-regenerate-actions)。
 
 </StandaloneMode>

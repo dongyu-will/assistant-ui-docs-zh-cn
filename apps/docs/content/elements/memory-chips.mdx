@@ -1,20 +1,20 @@
 ---
-title: "Memory"
-description: "What it now remembers about you, written during the turn and removable."
+title: "记忆"
+description: "助手在本轮对话中记录的关于你的信息，以及如何移除这些信息。"
 ---
 
-MemoryChips lists what the assistant now remembers about you: one pill per fact, freshly written ones tinted, each with its own forget button. With a runtime the pills come from `remember` tool calls made in the current turn; standalone you hold the whole list.
+MemoryChips 会列出助手目前记住的关于你的信息：每条事实对应一个胶囊，新写入的内容会带有色 tint，并且每条都有独立的忘记按钮。在运行时中，这些胶囊来自当前回合中发起的 `remember` 工具调用；在独立使用时，则由你持有整个列表。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-assistant-ui has no built-in memory concept: nothing on a message tracks facts learned about the user. The closest real building block is a tool call, the same way a graded claim or a comparison table would be. Give the model a `remember` tool and collect every call it makes in the current message into the chip list.
+assistant-ui 没有内置的记忆概念：消息中没有任何内容会跟踪助手了解到的用户事实。最接近的实际构建模块是工具调用，就像评分后的声明或比较表一样。为模型提供一个 `remember` 工具，并将它在当前消息中发起的每次调用收集到胶囊列表中。
 
 <Steps>
   <Step>
 
-### Read remember calls off the message
+### 从消息中读取 remember 调用
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 "use client";
@@ -52,14 +52,14 @@ function MemoryFromMessage() {
 }
 ```
 
-`remember` and its `{ text, change }` args are your own tool contract; `part.args` is the real, typed plumbing that carries whatever the model wrote back to the client as the call streams.
+`remember` 及其 `{ text, change }` 参数是你自己的工具契约；`part.args` 则是实际的类型化底层管道，会在调用流式传输时将模型写回客户端的内容传递过去。
 
   </Step>
   <Step>
 
-### Register the tool
+### 注册工具
 
-The chip list already renders in the step above, aggregated across every call, so the tool's own `render` has nothing left to show and returns `null`.
+上一步已经跨所有调用聚合并渲染了胶囊列表，因此工具自身的 `render` 已经没有需要显示的内容，会返回 `null`。
 
 ```tsx title="app/toolkit.ts"
 import { defineToolkit } from "@assistant-ui/react";
@@ -81,7 +81,7 @@ export const toolkit = defineToolkit({
 });
 ```
 
-Wire the toolkit in with `Tools({ toolkit })` on your runtime config, the same as any other toolkit. See [Tool UI](/docs/tools/tool-ui).
+在运行时配置中使用 `Tools({ toolkit })` 接入工具包，方式与其他工具包相同。请参阅 [工具 UI](/docs/tools/tool-ui)。
 
   </Step>
 </Steps>
@@ -90,12 +90,12 @@ Wire the toolkit in with `Tools({ toolkit })` on your runtime config, the same a
 
 <StandaloneMode>
 
-Standalone, you hold the whole chip list, including whatever it remembered before this turn.
+在独立使用时，由你持有整个胶囊列表，包括本轮对话开始前已经记住的内容。
 
 <Steps>
   <Step>
 
-### Hold the chip list
+### 持有胶囊列表
 
 ```tsx title="app/memory.tsx"
 "use client";
@@ -125,9 +125,9 @@ export function Memory() {
   </Step>
   <Step>
 
-### Mark a memory fresh
+### 标记新的记忆
 
-Appending a chip with `change: "added"` or `"updated"` is what turns the header from `memory` into `remembered N`; see Anatomy.
+使用 `change: "added"` 或 `"updated"` 添加胶囊后，标题会从 `memory` 变为 `remembered N`；请参阅“组成”。
 
 ```tsx
 setChips((c) => [
@@ -141,7 +141,7 @@ setChips((c) => [
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="memory-chips">
@@ -158,49 +158,49 @@ setChips((c) => [
 </div>
 ```
 
-The header reads `memory` until at least one chip's `change` is `"added"` or `"updated"`, then switches to `remembered N`, where N counts only the non `existing` chips. Color marks two states, not three: `existing` chips use the neutral `field` surface, while `added` and `updated` chips share the identical blue tint, so a caller cannot tell the two apart by color alone. Each pill keys on `chip.id` and mounts with a 300ms fade and scale, so appending a new chip animates only that pill in; chips already on screen keep their DOM node and never replay. An empty `chips` array renders the header alone, reading `memory`, with no placeholder pill.
+在至少一个胶囊的 `change` 为 `"added"` 或 `"updated"` 之前，标题显示为 `memory`；之后会切换为 `remembered N`，其中 N 只统计非 `existing` 胶囊。颜色表示两种状态，而不是三种：`existing` 胶囊使用中性的 `field` 表面，而 `added` 和 `updated` 胶囊共享完全相同的蓝色色调，因此调用方无法仅通过颜色区分这两者。每个胶囊以 `chip.id` 作为 key，并以 300ms 的淡入和缩放效果挂载，因此添加新胶囊时只有该胶囊会播放动画；屏幕上已有的胶囊会保留其 DOM 节点，且不会重新播放动画。空的 `chips` 数组只会渲染标题，显示为 `memory`，不会显示占位胶囊。
 
-## Examples
+## 示例
 
-### Merge in memories from before this turn
+### 合并本轮对话之前的记忆
 
 <RuntimeMode>
 
-`s.message.content` only holds what happened in this message; a fact remembered three turns ago has no tool-call part here to read. Merge your own persisted list ahead of the fresh ones from the selector above:
+`s.message.content` 只包含本条消息中发生的内容；三轮对话前记住的事实不会在此处有可读取的工具调用部分。将你自己持久化的列表放在上方选择器返回的新记忆之前进行合并：
 
 ```tsx
 const chips = [...existingMemories, ...freshChipsFromMessage];
 ```
 
-`onForget` on an `existing` chip should call your own removal endpoint directly: there is no tool call in this message to update, so trimming local state is the only way the pill disappears right away.
+对 `existing` 胶囊中的 `onForget` 进行操作时，应直接调用你自己的移除端点：本条消息中没有需要更新的工具调用，因此裁剪本地状态是让胶囊立即消失的唯一方式。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-The same merge is simpler here: concatenate your persisted list with whatever the last turn added before handing the result to `chips`.
+这里的合并方式更简单：将你的持久化列表与上一轮对话新增的内容连接起来，然后将结果传递给 `chips`。
 
 </StandaloneMode>
 
-### Restyle the chips
+### 重新设置胶囊样式
 
-Both lanes take `className` on the root. The header label reads from the shared `mono` token, the `existing` pill from `field`, and the forget button from `ghostButton`, all in `surfaces.tsx`.
+两条通道的根元素都接受 `className`。标题标签使用共享的 `mono` token，`existing` 胶囊使用 `field`，忘记按钮使用 `ghostButton`，全部位于 `surfaces.tsx` 中。
 
 ```tsx
 <MemoryChips className="gap-3" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Message state
+### 消息状态
 
-| Selector / field | Type | Description |
+| 选择器 / 字段 | 类型 | 描述 |
 |--------------------|------|-------------|
-| `s.message.content` | `readonly ThreadAssistantMessagePart[]` | Search this for `tool-call` parts whose `toolName` matches your remember tool; assistant-ui has no built-in memory field. |
-| `ToolCallMessagePart.args` | `TArgs` | The model's arguments for that call, typed by the generic you give `ToolCallMessagePart<TArgs, TResult>`. Partial while the call is still streaming. |
-| `ToolCallMessagePart.toolCallId` | `string` | Stable id for the call; a natural `MemoryChip.id`. |
+| `s.message.content` | `readonly ThreadAssistantMessagePart[]` | 在此搜索 `tool-call` 部分，其 `toolName` 与你的 remember 工具匹配；assistant-ui 没有内置的 memory 字段。 |
+| `ToolCallMessagePart.args` | `TArgs` | 模型对该调用提供的参数，其类型由你传递给 `ToolCallMessagePart<TArgs, TResult>` 的泛型指定。调用仍在流式传输时，该值可能是不完整的。 |
+| `ToolCallMessagePart.toolCallId` | `string` | 该调用的稳定 ID；可自然作为 `MemoryChip.id`。 |
 
 </RuntimeMode>
 
@@ -208,20 +208,20 @@ Both lanes take `className` on the root. The header label reads from the shared 
 
 ### MemoryChips
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `chips` | `readonly MemoryChip[]` | required | The pills to render, in order. |
-| `onForget` | `(id: string) => void` | | Called with a chip's `id` when its forget button is pressed. |
-| `className` | `string` | | Merged onto the root. |
+| `chips` | `readonly MemoryChip[]` | 必填 | 要渲染的胶囊，按顺序排列。 |
+| `onForget` | `(id: string) => void` | | 按下胶囊的忘记按钮时，会传入该胶囊的 `id` 进行调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### MemoryChip
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
 | `id` | `string` | |
 | `text` | `string` | |
-| `change` | `"added" \| "updated" \| "existing"` | `existing` renders neutral; `added` and `updated` share the same highlighted look. |
+| `change` | `"added" \| "updated" \| "existing"` | `existing` 会渲染为中性样式；`added` 和 `updated` 共享相同的高亮外观。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` props 都会转发到根元素。
 
 </StandaloneMode>

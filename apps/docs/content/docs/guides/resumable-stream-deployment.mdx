@@ -1,16 +1,16 @@
 ---
-title: Resumable Stream Deployment
-description: Production hardening for resumable streams. Authorization, serverless lifetimes, TTLs, key isolation, observability, resource limits, and incident response.
+title: 可恢复流部署
+description: 可恢复流的生产环境加固：授权、无服务器生命周期、TTL、键隔离、可观测性、资源限制和事件响应。
 platforms: ["react"]
 ---
 
-This guide assumes you have the basic wiring from [Resumable Streams](/docs/guides/resumable-streams) in place and focuses on what to add before serving production traffic.
+本指南假设你已经完成了[可恢复流](/docs/guides/resumable-streams)中的基本接入，重点介绍在承载生产流量之前需要补充的内容。
 
-## Authentication and authorization
+## 身份验证与授权
 
-The default resume endpoint serves any caller that knows the `streamId`. Treat the id as opaque, not as a credential. Bind every newly created `streamId` to the requesting user at acquire time and verify the binding on every resume.
+默认的恢复端点会为任何知道 `streamId` 的调用方提供服务。应将该 id 视为不透明标识符，而不是凭据。在获取时将每个新创建的 `streamId` 绑定到请求用户，并在每次恢复时验证该绑定。
 
-Store the binding next to the rest of your session state, or in Redis under a separate key. The example below uses a parallel `<keyPrefix>:owner:<streamId>` entry that mirrors the TTL of the underlying stream.
+将绑定与其他会话状态存储在一起，或在 Redis 中使用单独的键存储。下面的示例使用并行的 `<keyPrefix>:owner:<streamId>` 条目，其 TTL 与底层流保持一致。
 
 ```ts title="/lib/resumable-context.ts"
 import { createResumableStreamContext } from "assistant-stream/resumable";
@@ -34,7 +34,7 @@ export async function assertStreamOwner(streamId: string, userId: string) {
 }
 ```
 
-Wrap `resume` with the ownership check. Returning 404 (not 403) avoids confirming the existence of a stream the caller does not own.
+使用所有权检查包装 `resume`。返回 404（而不是 403）可以避免确认调用方无权拥有的流是否存在。
 
 ```ts title="/app/api/chat/resume/[streamId]/route.ts"
 import { assertStreamOwner, resumableContext } from "@/lib/resumable-context";
@@ -59,11 +59,11 @@ export async function GET(
 }
 ```
 
-## `waitUntil` on serverless
+## 无服务器环境中的 `waitUntil`
 
-On Vercel and Cloudflare the request handler is torn down once the response is returned, taking the producer task with it. Without a `waitUntil` hook the persisted stream stops growing the moment the originating request unwinds, so reconnects only see the bytes that happened to land before the response flushed.
+在 Vercel 和 Cloudflare 上，请求处理程序会在返回响应后被销毁，生产者任务也会随之终止。如果没有 `waitUntil` 钩子，持久化流会在发起请求结束的瞬间停止增长，因此重新连接时只能看到响应刷新前恰好写入的字节。
 
-On Vercel, pass `after` from `next/server`:
+在 Vercel 上，从 `next/server` 传递 `after`：
 
 ```ts title="/lib/resumable-context.ts"
 import { after } from "next/server";
@@ -76,7 +76,7 @@ export const resumableContext = createResumableStreamContext({
 });
 ```
 
-On Cloudflare Workers, take the `ExecutionContext` from your handler and forward `ctx.waitUntil`:
+在 Cloudflare Workers 上，从处理程序中获取 `ExecutionContext`，并转发 `ctx.waitUntil`：
 
 ```ts title="/src/worker.ts"
 import { createResumableStreamContext } from "assistant-stream/resumable";
@@ -93,17 +93,17 @@ export default {
 };
 ```
 
-In long-lived Node servers (a custom Express app, a container) `waitUntil` can be omitted; the producer task runs on the same event loop as the handler and is not preempted.
+在长期运行的 Node 服务器（自定义 Express 应用或容器）中，可以省略 `waitUntil`；生产者任务与处理程序运行在同一个事件循环上，不会被抢占。
 
-## TTL strategy
+## TTL 策略
 
-Streams expire 24 hours after the last write. The default suits typical chat workloads where a user might reload after lunch, but every deployment should pick a number deliberately.
+流会在最后一次写入 24 小时后过期。此默认值适合典型的聊天工作负载：用户可能在午餐后重新加载页面。但每次部署都应有意选择合适的数值。
 
-- Shorten when chunks contain sensitive payloads (PII, drafts, internal documents). A 5 to 30 minute window usually covers reload survival without leaving recoverable bytes around.
-- Extend for long-running agent tasks that may legitimately stretch past a day. Set the TTL above the worst-case task duration so the producer can still finalize.
-- Match TTLs across layers. The store TTL, the owner-binding TTL, and any signed cookie that references `streamId` should expire together; otherwise one outlives the other and either leaks or 404s unexpectedly.
+- 当数据块包含敏感载荷（PII、草稿、内部文档）时，应缩短 TTL。5 到 30 分钟通常足以覆盖重新加载场景，同时不会长时间保留可恢复的字节。
+- 对于可能合理地持续超过一天的长期运行代理任务，应延长 TTL。将 TTL 设置为高于最坏情况下的任务持续时间，以便生产者仍能完成最终处理。
+- 确保各层的 TTL 一致。存储 TTL、所有者绑定 TTL，以及引用 `streamId` 的任何签名 Cookie 都应同时过期；否则其中一个会比另一个存活更久，导致数据意外泄露或返回 404。
 
-Configure on the store for the global default and on the context for a per-deployment override:
+在存储上配置全局默认值，并在上下文中配置每次部署的覆盖值：
 
 ```ts
 import {
@@ -121,11 +121,11 @@ export const resumableContext = createResumableStreamContext({
 });
 ```
 
-The Redis adapters accept the same `defaultTtlMs` option.
+Redis 适配器接受相同的 `defaultTtlMs` 选项。
 
-## Multi-tenant key isolation
+## 多租户键隔离
 
-When multiple apps or tenants share a Redis instance, set `keyPrefix` per environment so a misconfigured stream in one tenant cannot collide with, or be deleted alongside, another's. The prefix becomes the leading segment of every meta and data key.
+当多个应用或租户共享一个 Redis 实例时，应按环境设置 `keyPrefix`，这样一个租户中的配置错误流就不会与另一个租户发生冲突，也不会被一并删除。该前缀会成为每个元数据键和数据键的首段。
 
 ```ts title="/lib/resumable-store.ts"
 import { createClient } from "redis";
@@ -139,11 +139,11 @@ export const store = createRedisResumableStreamStore(client, {
 });
 ```
 
-Per-tenant prefixes also make incident response cheaper. A `SCAN MATCH aui:app:tenant-42:*` lets you audit or purge a single tenant without touching the rest.
+按租户设置前缀也能降低事件响应成本。借助 `SCAN MATCH aui:app:tenant-42:*`，你可以审计或清理单个租户，而不会影响其他租户。
 
-## Observability hooks
+## 可观测性钩子
 
-`ResumableStreamContextOptions` exposes lifecycle hooks for structured logging, metrics, and tracing. Hook exceptions and rejected promises are reported through `console.error` without affecting stream output or stored lifecycle status.
+`ResumableStreamContextOptions` 提供用于结构化日志记录、指标和追踪的生命周期钩子。钩子异常和被拒绝的 Promise 会通过 `console.error` 报告，但不会影响流输出或存储的生命周期状态。
 
 ```ts title="/lib/resumable-context.ts"
 import { createResumableStreamContext } from "assistant-stream/resumable";
@@ -170,11 +170,11 @@ export const resumableContext = createResumableStreamContext({
 });
 ```
 
-Keep synchronous hook work cheap. `onAcquire` runs on the `run()` request path for producers and consumers alike, while the remaining hooks run on the producer's streaming hot path. Returned promises are observed for failures but are not awaited.
+保持同步钩子中的工作轻量。`onAcquire` 会在生产者和消费者的 `run()` 请求路径上运行，而其余钩子会在生产者的流式传输热路径上运行。返回的 Promise 会被监测其失败情况，但不会等待其完成。
 
-## Resource limits
+## 资源限制
 
-The in-memory store enforces three caps that the Redis adapters intentionally leave to the underlying database. Set them whenever your process can be reached by untrusted callers.
+内存存储会强制执行三个上限，而 Redis 适配器则有意将这些限制交给底层数据库处理。当你的进程可能被不受信任的调用方访问时，应始终设置这些限制。
 
 ```ts
 import { createInMemoryResumableStreamStore } from "assistant-stream/resumable";
@@ -186,27 +186,27 @@ const store = createInMemoryResumableStreamStore({
 });
 ```
 
-- `maxChunkBytes` rejects oversized writes from a misbehaving producer (a runaway tool result, a base64 blob accidentally piped through). The producer task fails fast instead of pinning memory.
-- `maxEntriesPerStream` caps the per-stream entry count. This bounds how much any single stream can grow before it starts erroring; pair it with TTLs so finalized streams clear quickly.
-- `maxStreams` caps total live streams. Useful as a backstop in shared development environments and in single-tenant containers; in serverless deployments the platform already constrains concurrency.
+- `maxChunkBytes` 会拒绝行为异常的生产者发起的超大写入（例如失控的工具结果，或意外通过管道传输的 base64 数据块）。生产者任务会快速失败，而不是持续占用内存。
+- `maxEntriesPerStream` 会限制每个流的条目数量。这限制了单个流在开始报错前能够增长到的大小；应结合 TTL 使用，以便已完成的流快速清理。
+- `maxStreams` 会限制存活流的总数。在共享开发环境和单租户容器中，这可作为保护措施；在无服务器部署中，平台已经会限制并发量。
 
-These limits exist on the in-memory store. For Redis, configure `maxmemory` and an eviction policy on the server, and rely on application-level rate limiting upstream.
+这些限制存在于内存存储中。对于 Redis，请在服务器上配置 `maxmemory` 和驱逐策略，并依赖上游的应用层速率限制。
 
-## Incident response
+## 事件响应
 
-The streamId leaks through response headers, browser session storage, server access logs, and (in some setups) error reports. If you suspect any of those channels were compromised, treat all in-flight stream ids as exposed.
+streamId 可能通过响应标头、浏览器会话存储、服务器访问日志，以及（在某些配置中）错误报告泄露。如果怀疑其中任何渠道已遭到入侵，应将所有正在进行的 stream id 视为已暴露。
 
-What to log up front, so you have it when you need it:
+应预先记录以下信息，以便在需要时使用：
 
-- The acquiring user id, request id, and IP for every `acquire` call (via `onAcquire`).
-- The finalize status (and any error) for every stream (via `onFinalize`).
-- The owner-binding writes and reads, with the user id and the streamId.
+- 每次 `acquire` 调用的获取用户 id、请求 id 和 IP（通过 `onAcquire`）。
+- 每个流的完成状态（以及任何错误）（通过 `onFinalize`）。
+- 所有者绑定的写入和读取，以及用户 id 和 streamId。
 
-What to rotate or invalidate during an incident:
+事件期间需要轮换或使其失效的内容：
 
-- Bump `keyPrefix` on the store. Existing streams become unreachable and new ones land under the rotated namespace.
-- Invalidate signed session cookies that reference any cached streamId.
-- Drop the owner-binding keys for affected users (`DEL aui:resumable:owner:*` scoped by user) so resumes are forced through a fresh acquire.
-- Shorten `defaultTtlMs` temporarily so any orphaned stream rolls off quickly.
+- 在存储上递增 `keyPrefix`。现有流将变得不可访问，新流则会进入轮换后的命名空间。
+- 使引用任何缓存 streamId 的签名会话 Cookie 失效。
+- 删除受影响用户的所有者绑定键（按用户限定作用域的 `DEL aui:resumable:owner:*`），强制恢复操作通过新的获取流程进行。
+- 临时缩短 `defaultTtlMs`，以便任何孤立流快速过期。
 
-After rotation, reissue stream ids server-side and redirect clients through a fresh acquire; do not trust any streamId the client already holds.
+轮换后，应在服务器端重新生成 stream id，并将客户端重定向到新的获取流程；不要信任客户端已经持有的任何 streamId。

@@ -1,8 +1,8 @@
 ---
 title: "Combobox"
-description: "Type to filter, then pick: a select with a search field."
+description: "输入进行筛选，然后选择：带搜索字段的选择控件。"
 links:
-  - label: Source
+  - label: 来源
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/combobox.tsx
   - label: Base UI Combobox
     url: https://base-ui.com/react/components/combobox
@@ -24,13 +24,13 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.ComboboxSpecimen />
 </PreviewCode>
 
-Both flavors wrap Base UI's Combobox; Radix ships no combobox primitive. Typing narrows the list against the `items` you pass to the root, and when nothing matches the popup shows its empty state.
+两种风格都封装了 Base UI 的 Combobox；Radix 不提供 combobox 原语。输入内容会根据传递给根组件的 `items` 缩小列表范围；如果没有匹配项，弹出层会显示其空状态。
 
-## Installation
+## 安装
 
 <KitInstall name="combobox" />
 
-## Usage
+## 用法
 
 ```tsx
 import {
@@ -63,29 +63,29 @@ export function RuntimePicker() {
 }
 ```
 
-## Examples
+## 示例
 
-### Groups
+### 分组
 
-Pass an array of `{ value, items }` groups to the root, then render each group with its own collection. Group labels use the mono eyebrow voice.
+向根组件传入一个 `{ value, items }` 分组数组，然后使用各自的集合渲染每个分组。分组标签使用 mono eyebrow 风格。
 
 <PreviewCode file="components/pages/design/specimens" name="ComboboxGroupsSpecimen" base={<ComboboxGroupsSpecimen />}>
   <RadixSpecimens.ComboboxGroupsSpecimen />
 </PreviewCode>
 
-### Clear and disabled
+### 清除和禁用
 
-`showClear` shows a clear button instead of the chevron while a value is selected. A disabled combobox keeps its value visible at half opacity.
+`showClear` 在选中值时显示清除按钮，而不是箭头按钮。禁用的 combobox 会以半透明度保持其值可见。
 
 <PreviewCode file="components/pages/design/specimens" name="ComboboxStatesSpecimen" base={<ComboboxStatesSpecimen />}>
   <RadixSpecimens.ComboboxStatesSpecimen />
 </PreviewCode>
 
-## API Reference
+## API 参考
 
 ### Combobox
 
-Wraps Base UI's Combobox root and accepts its props.
+封装 Base UI 的 Combobox 根组件，并接受其 props。
 
 <ParametersTable
   type="ComboboxProps"
@@ -94,35 +94,35 @@ Wraps Base UI's Combobox root and accepts its props.
       name: "items",
       type: "readonly T[] | readonly Group<T>[]",
       description:
-        "The options to filter and list. Either a flat array or an array of { value, items } groups.",
+        "用于筛选和列出的选项。可以是扁平数组，也可以是 { value, items } 分组数组。",
     },
     {
       name: "value",
       type: "T",
-      description: "Controlled selected value.",
+      description: "受控的选中值。",
     },
     {
       name: "onValueChange",
       type: "(value: T, details) => void",
-      description: "Called when the selection changes.",
+      description: "选中项发生变化时调用。",
     },
     {
       name: "defaultValue",
       type: "T",
-      description: "Uncontrolled initial selection.",
+      description: "非受控的初始选中项。",
     },
     {
       name: "disabled",
       type: "boolean",
       default: "false",
-      description: "Prevents interaction.",
+      description: "阻止交互。",
     },
   ]}
 />
 
 ### ComboboxInput
 
-The field that anchors the popup and receives the filter text.
+固定弹出层并接收筛选文本的字段。
 
 <ParametersTable
   type="ComboboxInputProps"
@@ -131,25 +131,25 @@ The field that anchors the popup and receives the filter text.
       name: "showTrigger",
       type: "boolean",
       default: "true",
-      description: "Renders the chevron button at the end of the field.",
+      description: "在字段末尾渲染箭头按钮。",
     },
     {
       name: "showClear",
       type: "boolean",
       default: "false",
-      description: "Adds a clear button that replaces the chevron while a value is selected.",
+      description: "添加清除按钮；选中值时，该按钮会替代箭头按钮。",
     },
     {
       name: "placeholder",
       type: "string",
-      description: "Hint shown while the field is empty.",
+      description: "字段为空时显示的提示。",
     },
   ]}
 />
 
 ### ComboboxContent
 
-The positioned popup that holds the list.
+用于容纳列表的定位弹出层。
 
 <ParametersTable
   type="ComboboxContentProps"
@@ -158,19 +158,19 @@ The positioned popup that holds the list.
       name: "side",
       type: '"top" | "right" | "bottom" | "left"',
       default: '"bottom"',
-      description: "Which side of the field the popup opens on.",
+      description: "弹出层相对于字段打开的方向。",
     },
     {
       name: "align",
       type: '"start" | "center" | "end"',
       default: '"start"',
-      description: "Alignment against the field.",
+      description: "相对于字段的对齐方式。",
     },
     {
       name: "sideOffset",
       type: "number",
       default: "6",
-      description: "Distance from the field in pixels.",
+      description: "与字段之间的像素距离。",
     },
   ]}
 />
@@ -184,13 +184,13 @@ The positioned popup that holds the list.
       name: "value",
       type: "T",
       required: true,
-      description: "The value this option represents.",
+      description: "此选项代表的值。",
     },
     {
       name: "disabled",
       type: "boolean",
       default: "false",
-      description: "Prevents selecting this option.",
+      description: "阻止选择此选项。",
     },
   ]}
 />

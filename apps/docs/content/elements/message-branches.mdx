@@ -1,22 +1,22 @@
 ---
-title: "Message branches"
-description: "Navigate between regenerated versions of the same answer without losing your place."
+title: "消息分支"
+description: "在同一答案的重新生成版本之间导航，同时保持当前位置不变。"
 ---
 
-A regenerated answer does not replace the previous one; it becomes a sibling branch. This element shows the active branch and a `n / m` stepper to move between siblings. With a runtime the branches come from the thread; standalone you pass them in.
+重新生成的答案不会替换之前的答案，而是会成为一个同级分支。此元素会显示当前分支，并提供 `n / m` 步进器，用于在同级分支之间切换。在运行时中，分支来自线程；在独立模式下，则由你传入。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-Every assistant-ui runtime tracks branches per message. The stepper reads `branchNumber` and `branchCount` from the message and switches branches through the runtime, so nothing is stored in component state.
+每个 assistant-ui 运行时都会跟踪每条消息的分支。步进器从消息中读取 `branchNumber` 和 `branchCount`，并通过运行时切换分支，因此无需将任何状态存储在组件状态中。
 
 <Steps>
   <Step>
 
-### Compose the branch picker
+### 组合分支选择器
 
-Build the stepper from `BranchPickerPrimitive`. The primitives own the behavior (which branch is active, disabling at the ends, hiding when there is only one); the element's classes give it this look.
+使用 `BranchPickerPrimitive` 构建步进器。原语负责行为（包括当前活动分支、在两端禁用，以及只有一个分支时隐藏）；元素的 class 则负责呈现这种外观。
 
 ```tsx title="components/assistant-ui/elements/branch-picker.tsx"
 "use client";
@@ -55,9 +55,9 @@ export function BranchPicker() {
   </Step>
   <Step>
 
-### Place it in the message
+### 将其放置在消息中
 
-The picker must render inside a message scope, so it knows which message's branches to show. Put it in the assistant message's action row, next to copy and regenerate.
+选择器必须在消息作用域内渲染，这样它才能知道要显示哪个消息的分支。将其放在助手消息的操作行中，与复制和重新生成控件相邻。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { MessagePrimitive } from "@assistant-ui/react";
@@ -76,7 +76,7 @@ function AssistantMessage() {
 }
 ```
 
-The `Thread` element already ships this composition for both user and assistant messages, so installing `@assistant-ui/thread` gives you branch navigation without any of the above.
+`Thread` 元素已经为用户消息和助手消息提供了这种组合，因此安装 `@assistant-ui/thread` 后，无需进行上述操作即可获得分支导航。
 
   </Step>
 </Steps>
@@ -85,12 +85,12 @@ The `Thread` element already ships this composition for both user and assistant 
 
 <StandaloneMode>
 
-Standalone, the element is a controlled component: you own the list of variants and the active index. It renders the active variant and the stepper, and reports index changes back to you.
+在独立模式下，该元素是一个受控组件：由你管理变体列表和当前索引。它会渲染当前活动变体和步进器，并将索引变化回传给你。
 
 <Steps>
   <Step>
 
-### Hold the branch state
+### 保存分支状态
 
 ```tsx title="app/answer.tsx"
 "use client";
@@ -115,9 +115,9 @@ export function Answer() {
   </Step>
   <Step>
 
-### Regenerate into a new branch
+### 重新生成到新分支
 
-Append the new answer and move the index to it. The stepper's count follows the array length.
+追加新的答案，并将索引移动到该答案。步进器的计数会根据数组长度变化。
 
 ```tsx
 async function regenerate() {
@@ -132,7 +132,7 @@ async function regenerate() {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="message-branches">
@@ -145,15 +145,15 @@ async function regenerate() {
 </div>
 ```
 
-Standalone, the stepper wraps around: previous on the first variant goes to the last, next on the last goes to the first. With a single variant both buttons render disabled and the counter reads `1 / 1`; with no variants it reads `0 / 0`. The runtime primitives instead disable at the ends.
+在独立模式下，步进器会循环切换：在第一个变体上点击上一个会跳转到最后一个，在最后一个变体上点击下一个会跳转到第一个。只有一个变体时，两个按钮都会渲染为禁用状态，计数器显示 `1 / 1`；没有变体时显示 `0 / 0`。而运行时原语会在两端禁用按钮。
 
-## Examples
+## 示例
 
-### Stepper only
+### 仅显示步进器
 
 <RuntimeMode>
 
-When the message body is already rendered by `MessagePrimitive.Parts`, render only the stepper. `hideWhenSingleBranch` removes it from the layout until a second branch exists, which keeps the action row stable.
+当消息正文已经由 `MessagePrimitive.Parts` 渲染时，只需渲染步进器。`hideWhenSingleBranch` 会在第二个分支存在之前将其从布局中移除，从而保持操作行稳定。
 
 ```tsx
 <BranchPickerPrimitive.Root hideWhenSingleBranch className="flex items-center gap-1">
@@ -173,7 +173,7 @@ When the message body is already rendered by `MessagePrimitive.Parts`, render on
 
 <StandaloneMode>
 
-The element always renders the active variant above the stepper. To show the stepper on its own, pass the variants and render your own body from `variants[index]`:
+该元素始终会在步进器上方渲染当前活动变体。若要单独显示步进器，请传入变体，并根据 `variants[index]` 自行渲染正文：
 
 ```tsx
 <div>
@@ -189,11 +189,11 @@ The element always renders the active variant above the stepper. To show the ste
 
 </StandaloneMode>
 
-### Where branches come from
+### 分支的来源
 
 <RuntimeMode>
 
-Reloading an assistant message creates a sibling branch and switches to it; editing a user message branches the conversation at that point. A regenerate button next to the picker is all it takes for the stepper to appear:
+重新加载助手消息会创建一个同级分支并切换到该分支；编辑用户消息则会从该位置开始创建对话分支。在选择器旁边放置一个重新生成按钮，步进器就会显示出来：
 
 ```tsx
 import { useAui } from "@assistant-ui/react";
@@ -214,13 +214,13 @@ function RegenerateButton() {
 }
 ```
 
-For controls that address a branch directly, `switchToBranch` steps with `{ position: "previous" | "next" }` or jumps with `{ branchId }` when you hold the message id of a specific branch.
+对于需要直接操作分支的控件，如果你持有某个特定分支的消息 ID，`switchToBranch` 会通过 `{ position: "previous" | "next" }` 逐步切换，或通过 `{ branchId }` 直接跳转。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-Branches are whatever you append to `variants`; regenerating means fetching a new answer into the array. `onIndexChange` is the only write path, so any control that calls it with a valid index jumps directly:
+分支就是你追加到 `variants` 中的内容；重新生成意味着将新答案获取到该数组中。`onIndexChange` 是唯一的写入路径，因此任何使用有效索引调用它的控件都可以直接跳转：
 
 ```tsx
 <select value={index} onChange={(e) => setIndex(Number(e.target.value))}>
@@ -234,35 +234,35 @@ Branches are whatever you append to `variants`; regenerating means fetching a ne
 
 </StandaloneMode>
 
-### Restyle the stepper
+### 重新设置步进器样式
 
-Both lanes take `className` on the root. The buttons use the shared `ghostButton` surface and the counter the `mono` surface from `surfaces.tsx`, so restyling those two tokens restyles every element that uses them.
+两种通道都在根元素上接收 `className`。按钮使用共享的 `ghostButton` surface，计数器使用来自 `surfaces.tsx` 的 `mono` surface，因此重新设置这两个 token 的样式，就能重新设置所有使用它们的元素。
 
 ```tsx
 <MessageBranches className="max-w-none gap-3" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### BranchPickerPrimitive
 
-| Part | Renders | Notes |
+| 部件 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `Root` | `div` | `hideWhenSingleBranch` returns `null` while `branchCount <= 1`. Must be inside a message scope. |
-| `Previous` | `button` | Disabled on the first branch. Accepts `asChild`. |
-| `Next` | `button` | Disabled on the last branch. Accepts `asChild`. |
-| `Number` | text | The 1-based `branchNumber`. |
-| `Count` | text | The `branchCount`. |
+| `Root` | `div` | `hideWhenSingleBranch` 在 `branchCount <= 1` 时返回 `null`。必须位于消息作用域内。 |
+| `Previous` | `button` | 在第一个分支上禁用。接受 `asChild`。 |
+| `Next` | `button` | 在最后一个分支上禁用。接受 `asChild`。 |
+| `Number` | text | 以 1 为起始的 `branchNumber`。 |
+| `Count` | text | `branchCount`。 |
 
-### Message state
+### 消息状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.message.branchNumber` | `number` | 1-based index of the branch being shown. |
-| `s.message.branchCount` | `number` | Number of sibling branches for this message. |
-| `aui.message.switchToBranch(options)` | `{ position?: "previous" \| "next"; branchId?: string }` | Switches the shown branch; `position` steps, `branchId` jumps to a branch whose message id you hold. |
+| `s.message.branchNumber` | `number` | 当前显示分支的从 1 开始计数的索引。 |
+| `s.message.branchCount` | `number` | 此消息的同级分支数量。 |
+| `aui.message.switchToBranch(options)` | `{ position?: "previous" \| "next"; branchId?: string }` | 切换当前显示的分支；`position` 用于逐步切换，`branchId` 用于跳转到你持有其消息 ID 的分支。 |
 
 </RuntimeMode>
 
@@ -270,13 +270,13 @@ Both lanes take `className` on the root. The buttons use the shared `ghostButton
 
 ### MessageBranches
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `variants` | `readonly string[]` | required | The sibling answers, in order. |
-| `index` | `number` | required | Index of the variant to show. An out-of-range index falls back to the first variant. |
-| `onIndexChange` | `(index: number) => void` | required | Called with the next index when a stepper button is pressed. Wraps around at both ends. |
-| `className` | `string` | | Merged onto the root. |
+| `variants` | `readonly string[]` | 必填 | 按顺序排列的同级答案。 |
+| `index` | `number` | 必填 | 要显示的变体索引。超出范围的索引会回退到第一个变体。 |
+| `onIndexChange` | `(index: number) => void` | 必填 | 按下步进器按钮时，使用下一个索引调用。会在两端循环。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` props 都会转发到根元素。
 
 </StandaloneMode>

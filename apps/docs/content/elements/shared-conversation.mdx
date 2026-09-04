@@ -1,20 +1,20 @@
 ---
-title: "Shared conversation"
-description: "A read-only transcript someone sent you, with a way to pick it up yourself."
+title: "共享会话"
+description: "他人发送给你的只读会话记录，并提供继续使用你自己的副本的方式。"
 ---
 
-A shared conversation is somebody else's finished thread, handed to you to read: every turn exactly as they left it, nothing to change, only a door back into your own copy. With a runtime it's a real thread rendered through a read-only runtime; standalone you render the transcript array directly.
+共享会话是他人已经完成并交给你阅读的会话线程：每一轮内容都保持对方留下时的原样，无法进行任何修改，但可以返回到你自己的副本中继续使用。配合运行时使用时，它是通过只读运行时渲染的真实会话线程；单独使用时，则直接渲染 transcript 数组。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-`ReadonlyThreadProvider` wraps children in a thread whose mutations all throw: sending, canceling, editing, branching. The normal thread primitives render it exactly like any other thread, just inert.
+`ReadonlyThreadProvider` 会将子内容包裹在一个所有变更操作都会抛出异常的会话线程中：发送、取消、编辑和分支操作都不可用。普通的会话线程原语会像渲染其他会话线程一样渲染它，只是处于不可交互状态。
 
 <Steps>
   <Step>
 
-### Wrap the transcript in a readonly thread
+### 将会话记录包裹在只读会话线程中
 
 ```tsx title="app/shared/[id]/page.tsx"
 "use client";
@@ -35,14 +35,14 @@ export function SharedThread({ messages }: { messages: readonly ThreadMessage[] 
 }
 ```
 
-Every capability on this thread, `edit`, `delete`, `reload`, `cancel`, and the rest, reports `false`, so composer input, regenerate, and branch controls that check `s.thread.capabilities` disable themselves without any extra work on your part.
+此会话线程上的每项能力，包括 `edit`、`delete`、`reload`、`cancel` 等，都会报告 `false`，因此会检查 `s.thread.capabilities` 的输入框、重新生成和分支控件无需额外处理就会自动禁用。
 
   </Step>
   <Step>
 
-### Offer a way into a real thread
+### 提供进入真实会话线程的方式
 
-`ReadonlyThreadProvider` has no send path at all; put the continue action outside it, against your app's real runtime:
+`ReadonlyThreadProvider` 完全没有发送路径；请将继续操作放在它的外部，并连接到应用的真实运行时：
 
 ```tsx
 import { useAui } from "@assistant-ui/react";
@@ -64,7 +64,7 @@ function ContinueButton({ messages }: { messages: readonly ThreadMessage[] }) {
 }
 ```
 
-Placed above the `ReadonlyThreadProvider`, `useAui()` there still resolves to your app's real client, not the readonly one.
+将其放置在 `ReadonlyThreadProvider` 上方后，`useAui()` 仍会解析到应用的真实客户端，而不是只读客户端。
 
   </Step>
 </Steps>
@@ -73,12 +73,12 @@ Placed above the `ReadonlyThreadProvider`, `useAui()` there still resolves to yo
 
 <StandaloneMode>
 
-Standalone, `SharedConversation` is a self-contained card: title, who shared it, the turns, and the continue button, all from props.
+单独使用时，`SharedConversation` 是一张自包含卡片：标题、分享者、各轮消息以及继续按钮都来自 props。
 
 <Steps>
   <Step>
 
-### Render the shared card
+### 渲染共享卡片
 
 ```tsx title="app/shared-card.tsx"
 "use client";
@@ -104,16 +104,16 @@ export function SharedCard({ onContinue }: { onContinue: () => void }) {
   </Step>
   <Step>
 
-### Keep it read only
+### 保持只读
 
-There is no prop for editing a turn or removing one: `turns` renders exactly as given, and the only interactive element is the continue button, matching the runtime lane's inert composer.
+没有用于编辑或删除某一轮消息的 prop：`turns` 会完全按照给定内容进行渲染，唯一可交互的元素是继续按钮，这与运行时通道中不可用的输入框保持一致。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="shared-conversation">
@@ -126,50 +126,50 @@ There is no prop for editing a turn or removing one: `turns` renders exactly as 
 </div>
 ```
 
-Behaviorally this reads closer to a receipt than a chat panel: nothing inside it is clickable except the continue button, and there's no loading or empty state, `turns` is expected to already be the full, finished transcript.
+从行为上看，它更像一张收据，而不是聊天面板：其中除了继续按钮之外没有任何可点击内容，也没有加载状态或空状态；`turns` 应当已经是完整且已结束的会话记录。
 
-## Examples
+## 示例
 
-### Restyle the header
+### 重新设置标题样式
 
-`title`, `sharedBy`, and `sharedAt` all truncate on overflow rather than wrap, keeping the header to one line regardless of how long the title or the sharer's name is:
+`title`、`sharedBy` 和 `sharedAt` 在内容溢出时都会截断而不是换行，从而无论标题或分享者姓名多长，标题栏都会保持为单行：
 
 ```tsx
 <SharedConversation title="A very long conversation title that will truncate" sharedBy="Jordan Alvarez" sharedAt="Aug 12" turns={turns} />
 ```
 
-### Empty transcript
+### 空会话记录
 
 <StandaloneMode>
 
-Passing an empty `turns` array renders the header and footer with nothing between them; there's no dedicated empty-state message, so an app that can receive an empty share should filter it out before rendering the card.
+传入空的 `turns` 数组会渲染标题栏和页脚，中间不显示任何内容；它没有专门的空状态消息，因此能够接收空共享内容的应用应在渲染卡片前将其过滤掉。
 
 </StandaloneMode>
 
 <RuntimeMode>
 
-`ReadonlyThreadProvider` accepts an empty `messages` array the same way: the thread reports `isEmpty: true`, and any `<AuiIf condition={(s) => s.thread.isEmpty}>` blocks in the surrounding UI show, the same as a real empty thread.
+`ReadonlyThreadProvider` 对空的 `messages` 数组也采用相同处理方式：会话线程会报告 `isEmpty: true`，周围 UI 中的任何 `<AuiIf condition={(s) => s.thread.isEmpty}>` 块也会显示出来，就像真实的空会话线程一样。
 
 </RuntimeMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Primitive parts
+### 原语部分
 
-| Part | Renders | Notes |
+| 部分 | 渲染内容 | 备注 |
 |------|---------|-------|
-| `ReadonlyThreadProvider` | children | Wraps `children` in a thread scope built from `messages`. Every mutation on it throws. |
-| `ThreadPrimitive.Viewport` / `.Messages` | `div` / children | Render the same as on any other thread. |
+| `ReadonlyThreadProvider` | 子内容 | 将 `children` 包裹在由 `messages` 构建的会话线程作用域中。对其执行的任何变更操作都会抛出异常。 |
+| `ThreadPrimitive.Viewport` / `.Messages` | `div` / 子内容 | 与其他会话线程中的渲染方式相同。 |
 
-### Thread state and capabilities
+### 会话线程状态和能力
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.thread.messages` | `readonly MessageState[]` | The `messages` prop, as rendered messages. |
-| `s.thread.isEmpty` | `boolean` | `true` when `messages` is empty. |
-| `s.thread.capabilities` | `RuntimeCapabilities` | Every flag (`edit`, `delete`, `reload`, `cancel`, `attachments`, and the rest) is `false`. |
+| `s.thread.messages` | `readonly MessageState[]` | `messages` prop，形式为已渲染的消息。 |
+| `s.thread.isEmpty` | `boolean` | 当 `messages` 为空时为 `true`。 |
+| `s.thread.capabilities` | `RuntimeCapabilities` | 每个标志（`edit`、`delete`、`reload`、`cancel`、`attachments` 等）都是 `false`。 |
 
 </RuntimeMode>
 
@@ -177,15 +177,15 @@ Passing an empty `turns` array renders the header and footer with nothing betwee
 
 ### SharedConversation
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `title` | `string` | required | Shown truncated in the header. |
-| `sharedBy` | `string` | required | Shown after "shared by" in the header. |
-| `sharedAt` | `string` | required | Shown after the sharer's name, already formatted. |
-| `turns` | `readonly SharedTurn[]` (`{ id, role: "user" \| "assistant", text }`) | required | Rendered in order. |
-| `onContinue` | `() => void` | | Called by the footer button. |
-| `className` | `string` | | Merged onto the root. |
+| `title` | `string` | 必需 | 在标题栏中以截断形式显示。 |
+| `sharedBy` | `string` | 必需 | 在标题栏的“分享者”文字后显示。 |
+| `sharedAt` | `string` | 必需 | 在分享者姓名后显示，已经过格式化。 |
+| `turns` | `readonly SharedTurn[]`（`{ id, role: "user" \| "assistant", text }`） | 必需 | 按顺序渲染。 |
+| `onContinue` | `() => void` | | 由页脚按钮调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` props 都会转发到根元素。
 
 </StandaloneMode>

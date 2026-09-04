@@ -1,20 +1,20 @@
 ---
-title: "Reviewable diff"
-description: "The same diff, but each hunk is a decision: keep it, discard it, apply what survived."
+title: "可审阅差异"
+description: "相同的差异，但每个 hunk 都需要做出决定：保留、丢弃，或应用最终保留下来的内容。"
 ---
 
-A reviewable diff breaks a patch into hunks and asks a decision of each one: keep it or discard it, with a running count and an apply button that stays disabled until every hunk has an answer. With a runtime this is a human tool: the model proposes the hunks and pauses for a decision. Standalone you supply the hunks and own the decisions yourself.
+可审阅差异会将补丁拆分为多个 hunk，并要求对每个 hunk 做出决定：保留还是丢弃。同时显示实时计数，并提供一个应用按钮；只有每个 hunk 都得到答复后，该按钮才会启用。在运行时中，这是一个人在回路工具：模型提出各个 hunk，然后暂停等待决定。在独立使用时，则由你提供 hunk 并自行管理这些决定。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-A patch review has no automatic outcome, so it registers as a human tool: there is no `execute`, and the call only resolves once the renderer calls `addResult`.
+补丁审阅没有自动结果，因此会注册为人工工具：不存在 `execute`，只有渲染器调用 `addResult` 后，工具调用才会解析。
 
 <Steps>
   <Step>
 
-### Render the tool call
+### 渲染工具调用
 
 ```tsx title="components/assistant-ui/elements/review-patch-tool-ui.tsx"
 "use client";
@@ -71,7 +71,7 @@ export const ReviewPatchToolUI: ToolCallMessagePartComponent<
   </Step>
   <Step>
 
-### Register the tool
+### 注册工具
 
 ```tsx title="app/toolkit.ts"
 import { defineToolkit } from "@assistant-ui/react";
@@ -118,7 +118,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-See [User Input Collection](/docs/tools/tool-ui) for more on human tools and `addResult`.
+如需详细了解人工工具和 `addResult`，请参阅[用户输入收集](/docs/tools/tool-ui)。
 
   </Step>
 </Steps>
@@ -127,12 +127,12 @@ See [User Input Collection](/docs/tools/tool-ui) for more on human tools and `ad
 
 <StandaloneMode>
 
-Standalone, the review is entirely local: you hold the hunks and their decisions, and `onApply` is whatever you want to do once every hunk has one.
+独立使用时，审阅完全在本地进行：由你持有这些 hunk 及其决定，而 `onApply` 则是在每个 hunk 都得到决定后，你希望执行的任意操作。
 
 <Steps>
   <Step>
 
-### Hold the decisions
+### 保存决定
 
 ```tsx title="app/patch-review.tsx"
 "use client";
@@ -178,9 +178,9 @@ export function PatchReview() {
   </Step>
   <Step>
 
-### Apply the kept hunks
+### 应用保留的 hunk
 
-`onApply` is called once, with every hunk still available to read its current `decision`. Nothing in the element itself submits or clears state, so the handler owns both:
+`onApply` 只会调用一次，此时每个 hunk 仍可读取其当前的 `decision`。元素本身不会提交或清除状态，因此处理函数需要同时负责：
 
 ```tsx
 async function applyPatch(kept: readonly DiffHunk[]) {
@@ -197,7 +197,7 @@ async function applyPatch(kept: readonly DiffHunk[]) {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="reviewable-diff">
@@ -209,29 +209,29 @@ async function applyPatch(kept: readonly DiffHunk[]) {
 </div>
 ```
 
-`kept` and `pending` are always derived by counting `hunks`, never stored separately, so the header and footer stay in sync with whatever `decision` values you pass in. `onKeep`, `onDiscard`, and `onApply` are all optional: pass only the ones you need, and the matching control still renders but calls nothing when pressed.
+`kept` 和 `pending` 始终通过统计 `hunks` 得出，而不会单独存储，因此无论你传入哪些 `decision` 值，页眉和页脚都会保持同步。`onKeep`、`onDiscard` 和 `onApply` 都是可选的：只传入你需要的属性，相应控件仍会渲染，但按下时不会调用任何内容。
 
-## Examples
+## 示例
 
-### Restyle the review
+### 重新设置审阅样式
 
-Both lanes take `className` on the root. The card surface comes from `paper`, the Apply button from `inkButton`, both in `surfaces.tsx`.
+两条通道都会在根元素上接收 `className`。卡片表面样式来自 `paper`，Apply 按钮样式来自 `inkButton`，二者都位于 `surfaces.tsx` 中。
 
 ```tsx
 <ReviewableDiff className="max-w-none" /* ... */ />
 ```
 
-### Nothing to review
+### 无需审阅的内容
 
-An empty `hunks` array is valid: the header reads "0 of 0 kept", the footer reads "All reviewed" since there is nothing pending, and Apply reads "Apply 0" and stays enabled.
+空的 `hunks` 数组也是有效的：页眉显示“已保留 0/0”，由于没有待处理项，页脚显示“全部已审阅”，Apply 显示“应用 0”且保持启用状态。
 
 ```tsx
 <ReviewableDiff filename="composer.tsx" hunks={[]} />
 ```
 
-### Discard everything at once
+### 一次性全部丢弃
 
-Both lanes hold `decisions` as local state, so a reject-all control is the same one line wherever that state lives:
+两条通道都将 `decisions` 作为本地状态保存，因此无论该状态位于何处，全部拒绝控件都只需同样的一行代码：
 
 ```tsx
 function discardAll() {
@@ -239,19 +239,19 @@ function discardAll() {
 }
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool-call render props
+### 工具调用渲染属性
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `args` | `{ filename: string; hunks: readonly Omit<DiffHunk, "decision">[] }` | The filename and the unreviewed hunks the model is proposing. |
-| `result` | `{ kept: readonly string[] } \| undefined` | Set once `addResult` is called; the ids of the hunks the user kept. |
-| `addResult` | `(result: ReviewPatchResult) => void` | Call once, after the user has decided every hunk, to resolve the call. |
+| `args` | `{ filename: string; hunks: readonly Omit<DiffHunk, "decision">[] }` | 模型正在提出的文件名和未审阅 hunk。 |
+| `result` | `{ kept: readonly string[] } \| undefined` | `addResult` 调用后设置；用户保留的 hunk ID。 |
+| `addResult` | `(result: ReviewPatchResult) => void` | 用户决定每个 hunk 后调用一次，以解析工具调用。 |
 
-See [Tool UI](/docs/tools/tool-ui) for the full render-prop surface and human-tool registration.
+如需了解完整的渲染属性接口和人工工具注册方式，请参阅[工具 UI](/docs/tools/tool-ui)。
 
 </RuntimeMode>
 
@@ -259,15 +259,15 @@ See [Tool UI](/docs/tools/tool-ui) for the full render-prop surface and human-to
 
 ### ReviewableDiff
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `filename` | `string` | required | Shown in the header. |
-| `hunks` | `readonly DiffHunk[]` | required | The hunks, in order, each carrying its own `decision`. |
-| `onKeep` | `(id: string) => void` | | Called when a pending hunk's Keep button is pressed. |
-| `onDiscard` | `(id: string) => void` | | Called when a pending hunk's Discard button is pressed. |
-| `onApply` | `() => void` | | Called when Apply is pressed. Disabled while any hunk is `"pending"`. |
-| `className` | `string` | | Merged onto the root. |
+| `filename` | `string` | 必需 | 显示在页眉中。 |
+| `hunks` | `readonly DiffHunk[]` | 必需 | 按顺序排列的 hunk，每个 hunk 都包含自己的 `decision`。 |
+| `onKeep` | `(id: string) => void` | | 待处理 hunk 的 Keep 按钮按下时调用。 |
+| `onDiscard` | `(id: string) => void` | | 待处理 hunk 的 Discard 按钮按下时调用。 |
+| `onApply` | `() => void` | | Apply 按钮按下时调用。任何 hunk 仍为 `"pending"` 时禁用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-`DiffHunk` is `{ id: string; range: string; decision: HunkDecision; lines: readonly DiffLine[] }`, and `HunkDecision` is `"pending" | "kept" | "discarded"`. All other `div` props are forwarded to the root.
+`DiffHunk` 是 `{ id: string; range: string; decision: HunkDecision; lines: readonly DiffLine[] }`，而 `HunkDecision` 是 `"pending" | "kept" | "discarded"`。所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

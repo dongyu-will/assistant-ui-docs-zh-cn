@@ -1,11 +1,11 @@
 ---
-title: Adapters
-description: Reusable extension points for attachments, speech, feedback, history, and suggestions.
+title: 适配器
+description: 用于附件、语音、反馈、历史记录和建议的可复用扩展点。
 ---
 
-Adapters are how assistant-ui adds capabilities like file uploads or message persistence to a runtime without coupling the runtime to a specific backend. You implement a small interface, plug it into the runtime's `adapters` option, and the matching UI surfaces (paperclip button, audio button, history reload) light up.
+适配器是 assistant-ui 为运行时添加文件上传或消息持久化等能力的方式，同时不会将运行时耦合到特定后端。你只需实现一个小型接口，将其插入运行时的 `adapters` 选项中，相应的 UI 界面（回形针按钮、音频按钮、历史记录重新加载）就会自动启用。
 
-Every adapter on this page works the same way regardless of which runtime you use. When an adapter is supported by a runtime, you provide it via that runtime's `adapters` option:
+无论使用哪种运行时，本页中的每个适配器都以相同方式工作。当某个运行时支持适配器时，通过该运行时的 `adapters` 选项提供它：
 
 ```ts
 const runtime = useLocalRuntime(modelAdapter, {
@@ -13,29 +13,29 @@ const runtime = useLocalRuntime(modelAdapter, {
 });
 ```
 
-Framework adapters take the same shape:
+框架适配器的形式相同：
 
 ```ts
 const runtime = useChatRuntime({ adapters: { attachments, history } });
 ```
 
-## Support matrix
+## 支持矩阵
 
-| Adapter | LocalRuntime | ExternalStoreRuntime | DataStream | AssistantTransport | ai-sdk | react-langgraph | react-langchain | react-google-adk | react-a2a | react-ag-ui | react-opencode |
+| 适配器 | LocalRuntime | ExternalStoreRuntime | DataStream | AssistantTransport | ai-sdk | react-langgraph | react-langchain | react-google-adk | react-a2a | react-ag-ui | react-opencode |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Attachments | Yes | Yes | Yes | Yes | Yes | (via thread state) | (via thread state) | Yes | Yes | Yes | (no) |
-| Speech | Yes | Yes | Yes | (no) | Yes | Yes | Yes | Yes | Yes | Yes | (no) |
-| Dictation | Yes | Yes | Yes | (no) | Yes | Yes | (no) | Yes | (no) | Yes | (no) |
-| Feedback | Yes | Yes | Yes | (no) | Yes | Yes | Yes | Yes | Yes | Yes | (no) |
-| History | Yes | (use your store) | Yes | (use thread converter) | Yes | (via load) | (via load) | Yes | Yes | Yes | (server-managed) |
-| Suggestion | Yes | (no) | Yes | (no) | (no) | (no) | (no) | (no) | (no) | (no) | (no) |
-| threadList | Yes (`RemoteThreadListAdapter`) | Yes (`ExternalStoreThreadListAdapter`) | Yes (`RemoteThreadListAdapter`) | Yes | Yes | Yes | Yes | Yes | Yes | Yes (experimental) | Built-in (sessions) |
+| 附件 | 是 | 是 | 是 | 是 | 是 | （通过线程状态） | （通过线程状态） | 是 | 是 | 是 | （否） |
+| 语音 | 是 | 是 | 是 | （否） | 是 | 是 | 是 | 是 | 是 | 是 | （否） |
+| 听写 | 是 | 是 | 是 | （否） | 是 | 是 | （否） | 是 | （否） | 是 | （否） |
+| 反馈 | 是 | 是 | 是 | （否） | 是 | 是 | 是 | 是 | 是 | 是 | （否） |
+| 历史记录 | 是 | （使用你的存储） | 是 | （使用线程转换器） | 是 | （通过加载） | （通过加载） | 是 | 是 | 是 | （由服务器管理） |
+| 建议 | 是 | （否） | 是 | （否） | （否） | （否） | （否） | （否） | （否） | （否） | （否） |
+| threadList | 是（`RemoteThreadListAdapter`） | 是（`ExternalStoreThreadListAdapter`） | 是（`RemoteThreadListAdapter`） | 是 | 是 | 是 | 是 | 是 | 是 | 是（实验性） | 内置（会话） |
 
-`(no)` means the adapter slot is not exposed by that runtime today. You would need to drop down a layer to use it.
+`(no)` 表示该运行时目前未暴露适配器插槽。你需要下沉到更底层才能使用它。
 
-## Attachment adapter
+## 附件适配器
 
-Handles file and image uploads. When present, the composer renders a paperclip button.
+用于处理文件和图片上传。启用后，输入框会渲染一个回形针按钮。
 
 ```ts
 type AttachmentAdapter = {
@@ -46,13 +46,13 @@ type AttachmentAdapter = {
 };
 ```
 
-Three lifecycle methods:
+三个生命周期方法：
 
-- `add` runs when the user picks a file. Upload it, return a record with status `requires-action` so the composer holds the file before sending.
-- `send` runs when the user submits the message. Finalize the upload, attach a `content` payload, and mark status `complete`.
-- `remove` is optional and runs when the user removes the attachment before sending.
+- `add` 在用户选择文件时运行。上传文件，并返回状态为 `requires-action` 的记录，使输入框在发送前保存该文件。
+- `send` 在用户提交消息时运行。完成上传，附加 `content` 负载，并将状态标记为 `complete`。
+- `remove` 为可选方法，在用户发送前移除附件时运行。
 
-Minimal upload-and-send example:
+最小上传并发送示例：
 
 ```ts
 const attachmentAdapter: AttachmentAdapter = {
@@ -88,7 +88,7 @@ const attachmentAdapter: AttachmentAdapter = {
 };
 ```
 
-For multiple file types use `CompositeAttachmentAdapter`:
+如需支持多种文件类型，请使用 `CompositeAttachmentAdapter`：
 
 ```ts
 import {
@@ -103,9 +103,9 @@ const attachmentAdapter = new CompositeAttachmentAdapter([
 ]);
 ```
 
-## Speech adapter
+## 语音适配器
 
-Text-to-speech for assistant messages. When present, message bubbles render an audio button.
+用于助手消息的文本转语音。启用后，消息气泡会渲染一个音频按钮。
 
 ```ts
 type SpeechSynthesisAdapter = {
@@ -113,7 +113,7 @@ type SpeechSynthesisAdapter = {
 };
 ```
 
-`speak` returns an `Utterance` with `cancel()`, a `status` field, and `subscribe(callback)`. Browser-native example:
+`speak` 返回一个包含 `cancel()`、`status` 字段和 `subscribe(callback)` 的 `Utterance`。浏览器原生示例：
 
 ```ts
 const speechAdapter: SpeechSynthesisAdapter = {
@@ -142,13 +142,13 @@ const speechAdapter: SpeechSynthesisAdapter = {
 };
 ```
 
-## Dictation adapter
+## 听写适配器
 
-Speech-to-text input for the composer. When present, the composer renders a microphone button. The contract is parallel to the speech adapter.
+用于输入框的语音转文本。启用后，输入框会渲染一个麦克风按钮。其契约与语音适配器相似。
 
-## Feedback adapter
+## 反馈适配器
 
-Thumbs up / thumbs down on assistant messages. When present, message bubbles render feedback buttons.
+用于对助手消息进行点赞或点踩。启用后，消息气泡会渲染反馈按钮。
 
 ```ts
 type FeedbackAdapter = {
@@ -171,11 +171,11 @@ const feedbackAdapter: FeedbackAdapter = {
 };
 ```
 
-## History adapter
+## 历史记录适配器
 
-Per-thread message persistence. Used by `LocalRuntime` and adapters built on it (`ai-sdk`, `react-google-adk`, `react-a2a`, `useDataStreamRuntime`).
+用于按线程持久化消息。由 `LocalRuntime` 以及基于它构建的适配器使用（`ai-sdk`、`react-google-adk`、`react-a2a`、`useDataStreamRuntime`）。
 
-`ExternalStoreRuntime` does not use a history adapter directly, since you already own the message array. Persist via your store instead. `react-langgraph` and `react-langchain` source persistence from server-side thread state, exposed through their `load` callbacks.
+`ExternalStoreRuntime` 不会直接使用历史记录适配器，因为消息数组已经由你管理。请改为通过你的存储进行持久化。`react-langgraph` 和 `react-langchain` 从服务器端线程状态中获取持久化数据，并通过各自的 `load` 回调公开。
 
 ```ts
 type ThreadHistoryAdapter = {
@@ -193,15 +193,15 @@ type ThreadHistoryAdapter = {
 };
 ```
 
-`load` runs when a thread opens. `append` runs after each message completes.
+`load` 在线程打开时运行。`append` 在每条消息完成后运行。
 
 <Callout type="info">
-`ai-sdk` requires `withFormat` so messages round-trip as AI SDK `UIMessage` objects. An adapter without `withFormat` throws at runtime in the AI SDK path. See the [AI SDK history docs](/docs/runtimes/ai-sdk/v7) for the full pattern.
+`ai-sdk` 要求 `withFormat`，以便消息能够以 AI SDK `UIMessage` 对象的形式往返传递。在 AI SDK 路径中，不包含 `withFormat` 的适配器会在运行时抛出错误。完整模式请参阅 [AI SDK 历史记录文档](/docs/runtimes/ai-sdk/v7)。
 </Callout>
 
-## Suggestion adapter
+## 建议适配器
 
-Proposes follow-up prompts after each assistant message. When present, suggestion chips render under the latest assistant message.
+在每条助手消息之后提出后续提示。启用后，建议选项卡会渲染在最新的助手消息下方。
 
 ```ts
 type SuggestionAdapter = {
@@ -225,13 +225,13 @@ const suggestionAdapter: SuggestionAdapter = {
 };
 ```
 
-## Thread list adapter
+## 线程列表适配器
 
-Multi-thread support is documented separately, since the contract differs by runtime. See [threads](/docs/runtimes/concepts/threads).
+由于不同运行时的契约有所不同，多线程支持在单独的文档中介绍。请参阅[线程](/docs/runtimes/concepts/threads)。
 
-## Composing adapters
+## 组合适配器
 
-Adapters compose freely. Provide as many or as few as you need; UI surfaces enable based on which slots are filled.
+适配器可以自由组合。根据需要提供任意数量的适配器；UI 界面会根据已填充的插槽启用相应功能。
 
 ```ts
 const runtime = useLocalRuntime(modelAdapter, {
@@ -244,22 +244,22 @@ const runtime = useLocalRuntime(modelAdapter, {
 });
 ```
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
-    title="Threads"
-    description="Multi-thread support: cloud, custom database, ExternalStore."
+    title="线程"
+    description="多线程支持：云端、自定义数据库、ExternalStore。"
     href="/docs/runtimes/concepts/threads"
   />
   <Card
-    title="Architecture"
-    description="The three-layer runtime model and how adapters fit in."
+    title="架构"
+    description="三层运行时模型，以及适配器如何融入其中。"
     href="/docs/runtimes/concepts/architecture"
   />
   <Card
-    title="Pick a runtime"
-    description="Choose the right runtime for your backend."
+    title="选择运行时"
+    description="为你的后端选择合适的运行时。"
     href="/docs/runtimes/pick-a-runtime"
   />
 </Cards>

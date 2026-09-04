@@ -1,8 +1,8 @@
 ---
 title: "Sheet"
-description: "A panel that slides in from an edge for secondary flows."
+description: "一个从边缘滑入、用于次级流程的面板。"
 links:
-  - label: Source
+  - label: 源代码
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/sheet.tsx
   - label: Base UI Dialog
     url: https://base-ui.com/react/components/dialog
@@ -23,11 +23,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.SheetSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="sheet" />
 
-## Usage
+## 用法
 
 ```tsx
 import {
@@ -55,19 +55,19 @@ export function Example() {
 }
 ```
 
-## Examples
+## 示例
 
-### Sides
+### 侧边
 
-The mobile thread list in the assistant-ui examples is a `left` sheet.
+assistant-ui 示例中的移动端线程列表使用的是 `left` Sheet。
 
 <PreviewCode file="components/pages/design/specimens" name="SheetSidesSpecimen" base={<SheetSidesSpecimen />}>
   <RadixSpecimens.SheetSidesSpecimen />
 </PreviewCode>
 
-## API Reference
+## API 参考
 
-The parts wrap Base UI's Dialog primitives and accept their props.
+这些部件封装了 Base UI 的 Dialog 原语，并接受其 props。
 
 ### SheetContent
 
@@ -78,13 +78,13 @@ The parts wrap Base UI's Dialog primitives and accept their props.
       name: "side",
       type: '"top" | "right" | "bottom" | "left"',
       default: '"right"',
-      description: "The edge the panel enters from.",
+      description: "面板从哪个边缘进入。",
     },
     {
       name: "showCloseButton",
       type: "boolean",
       default: "true",
-      description: "Renders the corner close control.",
+      description: "渲染角落关闭控件。",
     },
   ]}
 />

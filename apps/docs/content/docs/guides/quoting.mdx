@@ -1,6 +1,6 @@
 ---
-title: Quote Selected Text
-description: Let users select text from AI messages and quote it back into the composer. Full quoting flow with backend handling and programmatic API in assistant-ui.
+title: 引用选中的文本
+description: 让用户从助手消息中选择文本，并将其引用回输入框。在 assistant-ui 中实现包含后端处理和编程式 API 的完整引用流程。
 platforms: ["react"]
 ---
 
@@ -8,25 +8,25 @@ import { QuoteComposerSample } from "@/components/pages/docs/samples/quote-compo
 
 <QuoteComposerSample />
 
-## Get Started
+## 开始使用
 
-Install and wire up the `quote` registry component by following the [Quote component page](/elements/quote). It covers the install command, component placement, and the `injectQuoteContext` helper for forwarding quote data to the LLM.
+按照[引用组件页面](/elements/quote)中的说明，安装并配置 `quote` registry 组件。其中涵盖安装命令、组件放置位置，以及用于将引用数据转发给 LLM 的 `injectQuoteContext` 辅助函数。
 
 <Callout type="warn">
-  **Limitations:** only one quote can be active at a time. `setQuote` replaces the previous quote instead of appending. The floating toolbar only appears when the selection is entirely within a single message part; cross-message and cross-part selections are ignored.
+  **限制：** 同时只能有一个处于活动状态的引用。`setQuote` 会替换之前的引用，而不是追加内容。只有当选区完全位于同一消息部分内时，浮动工具栏才会显示；跨消息和跨部分的选区会被忽略。
 </Callout>
 
 ---
 
-## How It Works
+## 工作原理
 
-When a user selects text in an assistant message, a floating toolbar appears with a Quote button. Clicking it calls `composer.setQuote()` to store the selection on the composer. The [Quote component](/elements/quote) does this out of the box.
+当用户在助手消息中选择文本时，会出现包含“引用”按钮的浮动工具栏。点击该按钮会调用 `composer.setQuote()`，将选中的内容存储到输入框中。[引用组件](/elements/quote)默认已实现此功能。
 
-When the message is sent, the composer runtime automatically writes the quote to `message.metadata.custom.quote` and clears it from the composer.
+发送消息时，输入框运行时会自动将引用写入 `message.metadata.custom.quote`，并从输入框中清除该引用。
 
-On the backend, the route handler extracts the quote from metadata and surfaces it to the LLM. We export a helper called `injectQuoteContext` that handles this automatically for AI-SDK. Without this step, the quote appears in the UI but is not sent to the model as context. See [Backend Handling](#backend-handling) for more info and alternatives.
+在后端，路由处理程序会从元数据中提取引用，并将其提供给 LLM。我们导出了名为 `injectQuoteContext` 的辅助函数，可自动为 AI-SDK 处理此流程。如果缺少这一步，引用虽然会显示在 UI 中，但不会作为上下文发送给模型。有关更多信息和替代方案，请参阅[后端处理](#backend-handling)。
 
-### Data Shape
+### 数据结构
 
 ```typescript
 type QuoteInfo = {
@@ -37,15 +37,15 @@ type QuoteInfo = {
 // Stored at: message.metadata.custom.quote
 ```
 
-## Backend Handling
+## 后端处理
 
-Quote data travels in message metadata, not content, so the LLM will not see it unless your backend extracts and surfaces it. The simplest path is [`injectQuoteContext`](/elements/quote#forward-quote-context-to-the-llm), which prepends quoted text as a markdown blockquote before the message parts.
+引用数据位于消息元数据中，而不是消息内容中，因此除非后端提取并提供这些数据，否则 LLM 无法看到引用。最简单的方式是使用[`injectQuoteContext`](/elements/quote#forward-quote-context-to-the-llm)，它会在消息部分之前，将引用文本作为 Markdown 引用块添加。
 
-For provider-specific handling, work with the quote metadata directly.
+如需针对特定提供商进行处理，请直接使用引用元数据。
 
-### Claude SDK Citations
+### Claude SDK 引用
 
-Pass the quoted text as a citation source so Claude produces citations that reference it:
+将引用文本作为引用来源传入，使 Claude 生成引用该文本的引用标注：
 
 ```typescript title="app/api/chat/route.ts"
 import Anthropic from "@anthropic-ai/sdk";
@@ -88,9 +88,9 @@ export async function POST(req: Request) {
 }
 ```
 
-### OpenAI Message Context
+### OpenAI 消息上下文
 
-Inject the quote as additional context in the user message:
+将引用作为额外上下文注入用户消息：
 
 ```typescript title="app/api/chat/route.ts"
 function injectQuoteForOpenAI(messages) {
@@ -106,9 +106,9 @@ function injectQuoteForOpenAI(messages) {
 }
 ```
 
-## Reading Quote Data
+## 读取引用数据
 
-Use `useMessageQuote` to access quote data in custom components:
+在自定义组件中，使用 `useMessageQuote` 访问引用数据：
 
 ```tsx
 import { useMessageQuote } from "@assistant-ui/react";
@@ -125,9 +125,9 @@ function CustomQuoteDisplay() {
 }
 ```
 
-## Programmatic API
+## 编程式 API
 
-Set or clear quotes via `useAui` from `@assistant-ui/react`. Call `aui.thread.composer().setQuote()` when your component is rendered outside of a specific thread context, or `aui.composer.setQuote()` when it is rendered inside a thread:
+通过 `@assistant-ui/react` 中的 `useAui` 设置或清除引用。当组件在特定线程上下文之外渲染时，调用 `aui.thread.composer().setQuote()`；当组件在线程内部渲染时，调用 `aui.composer.setQuote()`：
 
 ```tsx
 import { useAui } from "@assistant-ui/react";
@@ -155,15 +155,15 @@ function MyComponent() {
 }
 ```
 
-## Design Notes
+## 设计说明
 
-- **snapshot text:** the selected text is captured when the quote is created and is not linked to the source message afterward.
-- **streaming messages:** the toolbar still works while a message is streaming because it relies on the captured selection rather than message status.
-- **`isEmpty` unchanged:** a quote by itself does not make the composer non-empty; the user still needs to type a reply.
-- **scroll hides toolbar:** the toolbar hides on scroll because its position would otherwise become stale.
+- **文本快照：** 选中的文本会在创建引用时被捕获，之后不会再与源消息关联。
+- **流式传输消息：** 消息处于流式传输状态时，工具栏仍然有效，因为它依赖捕获的选区，而不是消息状态。
+- **`isEmpty` 保持不变：** 单独的引用不会使输入框变为非空；用户仍需要输入回复。
+- **滚动时隐藏工具栏：** 工具栏会在滚动时隐藏，否则其位置可能会过时。
 
-## Related
+## 相关内容
 
-- [Quote component](/elements/quote): Installation, component setup, and API reference
-- [Message Editing](/docs/guides/editing): Edit user messages
-- [Thread](/elements/thread): Main chat container
+- [引用组件](/elements/quote)：安装、组件配置和 API 参考
+- [编辑消息](/docs/guides/editing)：编辑用户消息
+- [线程](/elements/thread)：主要聊天容器

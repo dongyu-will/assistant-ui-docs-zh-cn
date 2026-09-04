@@ -1,22 +1,21 @@
 ---
-title: Headless Composer Input
-description: Build a custom composer input while keeping assistant-ui composer state and send gating.
+title: 无头输入框
+description: 构建自定义输入框，同时保留 assistant-ui 的输入框状态和发送门控。
 platforms: ["react"]
 ---
 
-`ComposerPrimitive.Input` is still the recommended composer input for most apps. It owns autosize, keyboard shortcuts, IME handling, paste-to-attachment, focus behavior, and trigger-popover keyboard integration.
+`ComposerPrimitive.Input` 仍然是大多数应用推荐使用的输入框。它负责自动调整大小、键盘快捷键、IME 处理、粘贴为附件、焦点行为以及触发器弹出框的键盘集成。
 
-Use `unstable_useComposerInput` when you already own the input surface, such as a custom editor, a `contentEditable` surface, or a textarea wrapper whose behavior cannot be expressed through `ComposerPrimitive.Input`'s props, `asChild`, or `render` APIs.
+当你已经拥有输入界面时，请使用 `unstable_useComposerInput`，例如自定义编辑器、`contentEditable` 界面，或某个文本区域包装器，且其行为无法通过 `ComposerPrimitive.Input` 的 props、`asChild` 或 `render` API 表达。
 
 <Callout type="warn">
-  This API is marked unstable and may change without notice. It is a thin bridge
-  to composer text and send state, not a replacement implementation of
-  `ComposerPrimitive.Input`.
+  此 API 标记为不稳定，可能在不另行通知的情况下发生变化。它只是连接
+  输入框文本和发送状态的轻量桥接，而不是 `ComposerPrimitive.Input` 的替代实现。
 </Callout>
 
-## Usage
+## 用法
 
-Render the custom input inside a composer and mirror text changes into the assistant-ui composer state:
+在输入框中渲染自定义输入，并将文本变化同步到 assistant-ui 输入框状态：
 
 ```tsx
 "use client";
@@ -59,19 +58,19 @@ function HeadlessComposer() {
 }
 ```
 
-`composer.send()` exposes the same send action used by `ComposerPrimitive.Send`, including send options such as `composer.send({ steer: true })`. It is a no-op unless `composer.canSend` is `true`; check `canSend` in custom keyboard handlers to keep your event handling explicit.
+`composer.send()` 暴露了与 `ComposerPrimitive.Send` 使用的相同发送操作，包括 `composer.send({ steer: true })` 等发送选项。除非 `composer.canSend` 为 `true`，否则它不会执行任何操作；在自定义键盘处理器中检查 `canSend`，以明确处理事件。
 
-## Hook Result
+## Hook 返回值
 
-| Field | Description |
+| 字段 | 描述 |
 | --- | --- |
-| `value` | Current composer text. Returns `""` when the composer is not editing. |
-| `setText(text)` | Writes text into the composer while it is editing. |
-| `send(options?)` | Sends the current composer message when `canSend` is `true`; otherwise a no-op. |
-| `isDisabled` | Combines the hook's `disabled` option with assistant-ui disabled sources, such as thread disabled state and active dictation input lock. |
-| `canSend` | Matches `ComposerPrimitive.Send` gating, then also respects `isDisabled`. |
+| `value` | 当前输入框文本。当输入框未处于编辑状态时，返回 `""`。 |
+| `setText(text)` | 在输入框处于编辑状态时，将文本写入输入框。 |
+| `send(options?)` | 当 `canSend` 为 `true` 时发送当前输入框消息；否则不会执行任何操作。 |
+| `isDisabled` | 将 hook 的 `disabled` 选项与 assistant-ui 的禁用来源结合起来，例如线程禁用状态和活动听写输入锁定。 |
+| `canSend` | 匹配 `ComposerPrimitive.Send` 的门控逻辑，并额外遵循 `isDisabled`。 |
 
-Pass `disabled` when your editor has an additional read-only state:
+当编辑器还有额外的只读状态时，传入 `disabled`：
 
 ```tsx
 const composer = unstable_useComposerInput({
@@ -79,22 +78,22 @@ const composer = unstable_useComposerInput({
 });
 ```
 
-## What You Still Own
+## 仍需由你负责的部分
 
-The hook does not recreate the behavior of `ComposerPrimitive.Input`. Your input or editor remains responsible for:
+此 hook 不会重新实现 `ComposerPrimitive.Input` 的行为。你的输入框或编辑器仍需负责：
 
-- Enter/newline shortcuts, steer shortcuts, escape/cancel behavior, and any other keyboard behavior.
-- IME and composition handling.
-- Cursor and selection tracking.
-- Autosize and focus management.
-- Paste/drop attachment behavior.
-- Rich text state, serialization, and DOM synchronization for `contentEditable` or editor-library integrations.
+- Enter/换行快捷键、steer 快捷键、Escape/取消行为以及其他键盘行为。
+- IME 和组合输入处理。
+- 光标和选择范围跟踪。
+- 自动调整大小和焦点管理。
+- 粘贴/拖放附件行为。
+- `contentEditable` 的富文本状态、序列化和 DOM 同步，或编辑器库集成。
 
-For styled textareas, prefer `ComposerPrimitive.Input`. Reach for the headless hook when the editor has its own model or DOM lifecycle and assistant-ui should only supply composer state and send gating.
+对于带样式的文本区域，优先使用 `ComposerPrimitive.Input`。当编辑器拥有自己的模型或 DOM 生命周期，而 assistant-ui 只需提供输入框状态和发送门控时，再使用无头 hook。
 
-## Trigger Popovers
+## 触发器弹出框
 
-`unstable_useTriggerPopoverAriaProps` returns the combobox ARIA attributes for the currently open trigger popover:
+`unstable_useTriggerPopoverAriaProps` 返回当前打开的触发器弹出框的 combobox ARIA 属性：
 
 ```tsx
 const popoverAria = unstable_useTriggerPopoverAriaProps();
@@ -102,12 +101,12 @@ const popoverAria = unstable_useTriggerPopoverAriaProps();
 <textarea {...popoverAria} />;
 ```
 
-Spread these props last so they can mirror `ComposerPrimitive.Input` when a popover is open.
+最后展开这些 props，使其在弹出框打开时能够同步 `ComposerPrimitive.Input`。
 
-This helper only describes the open popover to assistive technology. It does not wire a custom editor into mention or slash-command keyboard handling, cursor tracking, or item insertion. For the full built-in trigger-popover experience, use `ComposerPrimitive.Input`; for richer editors, integrate the trigger UI with the editor's own selection and keyboard model.
+此辅助方法只会向辅助技术描述已打开的弹出框。它不会将自定义编辑器接入 mention 或斜杠命令的键盘处理、光标跟踪或条目插入。若要使用完整的内置触发器弹出框体验，请使用 `ComposerPrimitive.Input`；对于功能更丰富的编辑器，请将触发器 UI 与编辑器自身的选择范围和键盘模型集成。
 
-## Related
+## 相关内容
 
-- [Composer primitives](/docs/primitives/composer)
-- [Composer Trigger Popover](/elements/composer-trigger-popover)
-- [Input History](/docs/guides/input-history)
+- [输入框原语](/docs/primitives/composer)
+- [输入框触发器弹出框](/elements/composer-trigger-popover)
+- [输入历史记录](/docs/guides/input-history)

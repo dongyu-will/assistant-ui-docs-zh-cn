@@ -1,37 +1,34 @@
 ---
-title: Data Stream Protocol
-description: Standard message-streaming protocol on top of LocalRuntime.
+title: 数据流协议
+description: 构建于 LocalRuntime 之上的标准消息流式传输协议。
 ---
 
-`@assistant-ui/react-data-stream` consumes the data stream protocol, a standardized format for streaming AI responses. It is layered on `LocalRuntime` (see [architecture](/docs/runtimes/concepts/architecture)), so all `LocalRuntime` features apply.
+`@assistant-ui/react-data-stream` 使用数据流协议，这是一种用于流式传输 AI 响应的标准化格式。它构建于 `LocalRuntime` 之上（参见[架构](/docs/runtimes/concepts/architecture)），因此所有 `LocalRuntime` 功能均适用。
 
-The protocol supports streaming text, tool calls, conversation context, error handling, cancellation, and attachments.
+该协议支持文本流式传输、工具调用、会话上下文、错误处理、取消操作和附件。
 
-## When to use it
+## 适用场景
 
-Pick this runtime when:
+在以下情况下选择此运行时：
 
-- Your backend already speaks the data stream protocol (or you can make it do so).
-- You want a thin message-stream contract without writing a `ChatModelAdapter`.
-- You are migrating from AI SDK v4 and want the v4 pattern preserved (see [v4 docs](/docs/runtimes/ai-sdk/v4-legacy)).
+- 你的后端已经支持数据流协议（或者你可以让它支持）。
+- 你希望使用精简的消息流契约，而无需编写 `ChatModelAdapter`。
+- 你正在从 AI SDK v4 迁移，并希望保留 v4 模式（参见 [v4 文档](/docs/runtimes/ai-sdk/v4-legacy)）。
 
-If your backend exposes a richer state surface, consider [`AssistantTransport`](/docs/runtimes/custom/assistant-transport) instead.
+如果你的后端提供更丰富的状态接口，可以改用 [`AssistantTransport`](/docs/runtimes/custom/assistant-transport)。
 
-## Wire protocols
+## 线路协议
 
-`useDataStreamRuntime` accepts two wire formats. When `protocol` is omitted, it
-detects known Vercel AI response markers before falling back to UI message
-stream for compatibility.
+`useDataStreamRuntime` 接受两种线路格式。当省略 `protocol` 时，它会先检测已知的 Vercel AI 响应标记，然后回退到 UI 消息流以保持兼容性。
 
-| Protocol | Detection | Matching backend |
+| 协议 | 检测方式 | 匹配的后端 |
 | --- | --- | --- |
-| `"ui-message-stream"` | `x-vercel-ai-ui-message-stream: v1`, otherwise fallback | AI SDK v5+'s `result.toUIMessageStreamResponse()` (SSE) |
-| `"data-stream"` | `x-vercel-ai-data-stream: v1` | `createAssistantStreamResponse` from `assistant-stream`, or AI SDK v4's `toDataStreamResponse()` (Vercel data stream v1) |
+| `"ui-message-stream"` | `x-vercel-ai-ui-message-stream: v1`，否则回退 | AI SDK v5+ 的 `result.toUIMessageStreamResponse()`（SSE） |
+| `"data-stream"` | `x-vercel-ai-data-stream: v1` | 来自 `assistant-stream` 的 `createAssistantStreamResponse`，或 AI SDK v4 的 `toDataStreamResponse()`（Vercel data stream v1） |
 
-Set `protocol` explicitly only for custom endpoints that do not preserve or
-expose the response marker.
+仅当自定义端点不会保留或公开响应标记时，才需要显式设置 `protocol`。
 
-## Install
+## 安装
 
 <PlatformTabs>
 <Tab value="React">
@@ -51,12 +48,12 @@ expose the response marker.
 </Tab>
 </PlatformTabs>
 
-## Quickstart
+## 快速开始
 
 <Steps>
 <Step>
 
-### Set up the runtime
+### 设置运行时
 
 <PlatformTabs>
 <Tab value="React">
@@ -130,11 +127,10 @@ export function App() {
 </Step>
 <Step>
 
-### Create the backend endpoint
+### 创建后端端点
 
-Your backend should accept POST requests and return data stream responses:
-For React Native and Ink, host this endpoint in a separate backend project and
-point the client runtime at its absolute URL.
+你的后端应接受 POST 请求并返回数据流响应：
+对于 React Native 和 Ink，请在单独的后端项目中托管此端点，并让客户端运行时指向其绝对 URL。
 
 ```ts title="app/api/chat/route.ts"
 import { createAssistantStreamResponse } from "assistant-stream";
@@ -151,14 +147,14 @@ export async function POST(request: Request) {
 }
 ```
 
-The request body includes `messages`, `tools`, `system` (if configured), and `threadId`.
+请求正文包含 `messages`、`tools`、`system`（如果已配置）以及 `threadId`。
 
-`createAssistantStreamResponse` returns a standard Web `Response`. It drops into any Fetch-style route (Next.js App Router, Hono, Bun.serve, Deno, Cloudflare Workers) without ceremony. On frameworks that use their own response object (Express, Fastify), copy `status` and `headers` over, then pipe `response.body` into the framework's writable stream. Avoid sending the `Response` body into a `res` object whose lifecycle is already controlled by the framework (that is the `ERR_INVALID_STATE: Controller is already closed` failure mode).
+`createAssistantStreamResponse` 返回标准的 Web `Response`。它可以直接用于任何 Fetch 风格的路由（Next.js App Router、Hono、Bun.serve、Deno、Cloudflare Workers），无需额外处理。对于使用自有响应对象的框架（Express、Fastify），请复制 `status` 和 `headers`，然后将 `response.body` 管道传输到框架的可写流中。避免将 `Response` 正文发送到生命周期已由框架控制的 `res` 对象中（这会导致 `ERR_INVALID_STATE: Controller is already closed` 失败模式）。
 
 </Step>
 </Steps>
 
-## Headers and authentication
+## 请求头和身份验证
 
 ```tsx
 const runtime = useDataStreamRuntime({
@@ -168,7 +164,7 @@ const runtime = useDataStreamRuntime({
 });
 ```
 
-Evaluate per-request:
+针对每个请求进行评估：
 
 ```tsx
 const runtime = useDataStreamRuntime({
@@ -184,7 +180,7 @@ const runtime = useDataStreamRuntime({
 });
 ```
 
-## Event callbacks
+## 事件回调
 
 ```tsx
 const runtime = useDataStreamRuntime({
@@ -196,15 +192,15 @@ const runtime = useDataStreamRuntime({
 });
 ```
 
-## Tool integration
+## 工具集成
 
 <Callout type="warn">
-Human-in-the-loop tools (`unstable_humanToolNames`, `human()` interrupts) are not supported in the data stream runtime. Use [`LocalRuntime`](/docs/runtimes/custom/local-runtime#human-in-the-loop-tools) directly if you need them.
+数据流运行时不支持人在回路工具（`unstable_humanToolNames`、`human()` 中断）。如果需要这些功能，请直接使用 [`LocalRuntime`](/docs/runtimes/custom/local-runtime#human-in-the-loop-tools)。
 </Callout>
 
-### Frontend tools
+### 前端工具
 
-Serialize client-side tools with `toToolsJSONSchema`:
+使用 `toToolsJSONSchema` 序列化客户端工具：
 
 ```tsx
 import { tool } from "@assistant-ui/react";
@@ -227,18 +223,18 @@ const runtime = useDataStreamRuntime({
 });
 ```
 
-### Backend tool processing
+### 后端工具处理
 
 ```ts title="Backend tool handling"
 const { tools } = await request.json();
 const response = await ai.generateText({ messages, tools });
 ```
 
-Tool results stream back automatically.
+工具结果会自动流式传回。
 
-## Message conversion
+## 消息转换
 
-### Generic (recommended)
+### 通用方式（推荐）
 
 ```tsx
 import { toGenericMessages, toToolsJSONSchema } from "assistant-stream";
@@ -247,9 +243,9 @@ const genericMessages = toGenericMessages(messages);
 const toolSchemas = toToolsJSONSchema(tools);
 ```
 
-`GenericMessage` is a union of `system`, `user` (with text and file parts), `assistant` (with text and tool-call parts), and `tool` (with tool-result parts). It is easy to convert to any LLM provider format.
+`GenericMessage` 是 `system`、`user`（包含文本和文件部分）、`assistant`（包含文本和工具调用部分）以及 `tool`（包含工具结果部分）的联合类型。它可以轻松转换为任何 LLM 提供商所需的格式。
 
-### AI SDK specific
+### AI SDK 专用方式
 
 ```tsx
 import { toLanguageModelMessages } from "@assistant-ui/react-data-stream";
@@ -259,9 +255,9 @@ const languageModelMessages = toLanguageModelMessages(messages, {
 });
 ```
 
-`toLanguageModelMessages` internally uses `toGenericMessages` with AI-SDK-specific transformations. For new integrations prefer `toGenericMessages` directly.
+`toLanguageModelMessages` 内部使用 `toGenericMessages`，并进行 AI SDK 专用转换。对于新的集成，建议直接使用 `toGenericMessages`。
 
-## Assistant Cloud integration
+## Assistant Cloud 集成
 
 ```tsx
 import { useCloudRuntime } from "@assistant-ui/react-data-stream";
@@ -273,12 +269,12 @@ const runtime = useCloudRuntime({
 ```
 
 <Callout type="info">
-`useCloudRuntime` is currently under active development and not yet ready for production.
+`useCloudRuntime` 目前仍在积极开发中，尚未准备好用于生产环境。
 </Callout>
 
 ## LocalRuntimeOptions
 
-`useDataStreamRuntime` accepts every `LocalRuntimeOptions` option in addition to its own. The `chatModel` adapter slot is handled internally and cannot be overridden.
+`useDataStreamRuntime` 除自身选项外，还接受所有 `LocalRuntimeOptions` 选项。`chatModel` 适配器插槽由内部处理，无法覆盖。
 
 ```tsx
 const runtime = useDataStreamRuntime({
@@ -299,41 +295,41 @@ const runtime = useDataStreamRuntime({
 });
 ```
 
-See [adapters](/docs/runtimes/concepts/adapters) for adapter contracts and [LocalRuntime](/docs/runtimes/custom/local-runtime) for inherited options.
+有关适配器契约，请参见[适配器](/docs/runtimes/concepts/adapters)；有关继承的选项，请参见 [LocalRuntime](/docs/runtimes/custom/local-runtime)。
 
-## Error handling
+## 错误处理
 
-The runtime handles common error scenarios automatically:
+运行时会自动处理常见的错误场景：
 
-- Network errors: retried with exponential backoff.
-- Stream interruptions: gracefully handled with partial content preserved.
-- Tool execution errors: displayed in the UI with error states.
-- Cancellation: clean abort signal handling.
+- 网络错误：使用指数退避策略重试。
+- 流中断：平稳处理并保留部分内容。
+- 工具执行错误：在 UI 中以错误状态显示。
+- 取消操作：正确处理 abort signal。
 
-## Examples
+## 示例
 
-[`examples/`](https://github.com/assistant-ui/assistant-ui/tree/main/examples) contains reference implementations.
+[`examples/`](https://github.com/assistant-ui/assistant-ui/tree/main/examples) 包含参考实现。
 
-## API reference
+## API 参考
 
-For the full hook reference, see [`@assistant-ui/react-data-stream` API](/docs/api-reference/integrations/react-data-stream).
+完整的 hook 参考请参见 [`@assistant-ui/react-data-stream` API](/docs/api-reference/integrations/react-data-stream)。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="LocalRuntime"
-    description="The core runtime data-stream is built on."
+    description="数据流核心运行时构建于此之上。"
     href="/docs/runtimes/custom/local-runtime"
   />
   <Card
     title="Assistant Transport"
-    description="State-streaming protocol alternative."
+    description="状态流式传输协议的替代方案。"
     href="/docs/runtimes/custom/assistant-transport"
   />
   <Card
-    title="Adapters"
-    description="Attachments, speech, feedback, history, suggestions."
+    title="适配器"
+    description="附件、语音、反馈、历史记录和建议。"
     href="/docs/runtimes/concepts/adapters"
   />
 </Cards>

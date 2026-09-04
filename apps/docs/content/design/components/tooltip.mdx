@@ -1,8 +1,8 @@
 ---
 title: "Tooltip"
-description: "A short label that appears on hover and stays out of the way."
+description: "悬停时出现且不会妨碍操作的简短标签。"
 links:
-  - label: Source
+  - label: 源代码
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/tooltip.tsx
   - label: Base UI Tooltip
     url: https://base-ui.com/react/components/tooltip
@@ -23,11 +23,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.TooltipSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="tooltip" />
 
-## Usage
+## 用法
 
 ```tsx
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -43,19 +43,19 @@ export function Example() {
 }
 ```
 
-## Examples
+## 示例
 
-### Icon buttons
+### 图标按钮
 
-A tooltip earns its place when the control is an icon alone; written labels do not need one.
+当控件只有图标时，工具提示才有存在的必要；带有文字标签的控件不需要工具提示。
 
 <PreviewCode file="components/pages/design/specimens" name="TooltipIconSpecimen" base={<TooltipIconSpecimen />}>
   <RadixSpecimens.TooltipIconSpecimen />
 </PreviewCode>
 
-## API Reference
+## API 参考
 
-The parts wrap Base UI's Tooltip primitives and accept their props.
+这些组件部分封装了 Base UI 的 Tooltip 原语，并接受其 props。
 
 ### TooltipContent
 
@@ -66,20 +66,20 @@ The parts wrap Base UI's Tooltip primitives and accept their props.
       name: "side",
       type: '"top" | "right" | "bottom" | "left"',
       default: '"top"',
-      description: "Preferred side of the trigger.",
+      description: "触发器的首选位置。",
     },
     {
       name: "sideOffset",
       type: "number",
       default: "4",
-      description: "Distance from the trigger in pixels.",
+      description: "与触发器之间的像素距离。",
     },
   ]}
 />
 
 ### TooltipProvider
 
-Wrap a region to share hover delay across its tooltips.
+包裹一个区域，以便该区域中的工具提示共享悬停延迟。
 
 <ParametersTable
   type="TooltipProviderProps"
@@ -87,7 +87,7 @@ Wrap a region to share hover delay across its tooltips.
     {
       name: "delay",
       type: "number",
-      description: "Milliseconds before the tooltip opens.",
+      description: "工具提示打开前的毫秒数。",
     },
   ]}
 />

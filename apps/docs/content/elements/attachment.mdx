@@ -1,22 +1,22 @@
 ---
-title: "Attachment"
-description: "Runtime attachments for the composer and messages, with previews, progress, and removal."
+title: "附件"
+description: "用于输入框和消息的运行时附件，支持预览、进度显示和移除。"
 ---
 
-Attachment renders one file as a small tile: a thumbnail, a hover tooltip with its name, and (while it's still staged in the composer) an upload spinner, an error state, and a remove button. With a runtime it reads the attachment straight off the composer or a sent message; there is no standalone form of this exact tile, since upload progress and removal only make sense against a live attachment. It comes in two designs: the runtime variant renders that live tile, and the static variant, `MessageAttachments`, renders a sent message's files as plain rows instead (see [The received-files design](#the-received-files-design)).
+Attachment 将单个文件渲染为一个小卡片：包含缩略图、悬停时显示文件名的工具提示，以及（在附件仍暂存于输入框中时）上传加载指示器、错误状态和移除按钮。在运行时环境中，它会直接从输入框或已发送的消息中读取附件；不存在此卡片的独立形式，因为上传进度和移除操作只有针对实时附件时才有意义。它有两种设计：运行时变体渲染实时附件卡片，而静态变体 `MessageAttachments` 则将已发送消息中的文件渲染为普通行（请参阅[已接收文件设计](#the-received-files-design)）。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-`Thread` already renders every piece below by default; use these directly if you're composing your own layout instead of `Thread`.
+`Thread` 默认已经渲染了下面的所有部分；如果你要自行组合布局，而不是使用 `Thread`，可以直接使用这些部分。
 
 <Steps>
   <Step>
 
-### Render attachments in the composer
+### 在输入框中渲染附件
 
-Wrap the input in `ComposerPrimitive.AttachmentDropzone` so dropped files are accepted, list staged attachments with `ComposerPrimitive.Attachments`, and add `ComposerAddAttachment` for the file picker button.
+将输入区域包裹在 `ComposerPrimitive.AttachmentDropzone` 中，以便接受拖放的文件；使用 `ComposerPrimitive.Attachments` 列出暂存的附件，并添加 `ComposerAddAttachment` 作为文件选择器按钮。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { ComposerPrimitive } from "@assistant-ui/react";
@@ -41,9 +41,9 @@ function Composer() {
   </Step>
   <Step>
 
-### Render attachments on a sent message
+### 在已发送的消息上渲染附件
 
-`UserMessageAttachments` lists the files a user message actually carries, using `MessagePrimitive.Attachments`. It only ever renders inside a user message, since assistant messages don't carry attachments.
+`UserMessageAttachments` 使用 `MessagePrimitive.Attachments` 列出用户消息实际携带的文件。它只会在用户消息中渲染，因为助手消息不携带附件。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { MessagePrimitive } from "@assistant-ui/react";
@@ -66,11 +66,11 @@ function UserMessage() {
 
 <StandaloneMode>
 
-Standalone, there is nothing to stage or upload: this element exists to reflect a runtime's own attachment state, including progress and removal, back into the UI. Render a sent message's files with the received-files design instead (see [The received-files design](#the-received-files-design)), which takes plain attachment records as props.
+单独使用时，没有任何需要暂存或上传的内容：此元素的作用是将运行时自身的附件状态（包括进度和移除状态）反映回 UI。请改用已接收文件设计来渲染已发送消息中的文件（请参阅[已接收文件设计](#the-received-files-design)）；该设计通过 props 接收普通的附件记录。
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 <RuntimeMode>
 
@@ -85,26 +85,26 @@ Standalone, there is nothing to stage or upload: this element exists to reflect 
 </div>
 ```
 
-The remove button and the upload/error overlays only render on a composer attachment; a message attachment shows the tile alone. A lone image attachment on a message renders larger than the rest. Clicking an image tile whose source resolves opens a fullscreen preview dialog; any other kind of tile, or an image with no resolvable source yet, renders the click target with no dialog behavior at all.
+移除按钮以及上传/错误覆盖层只会在输入框附件上渲染；消息附件仅显示卡片本身。消息中单独存在的图片附件会比其他附件渲染得更大。点击源地址已解析的图片附件卡片，会打开全屏预览对话框；其他类型的卡片，或尚未解析出源地址的图片，则只渲染可点击目标，不会有任何对话框行为。
 
 </RuntimeMode>
 
-## Examples
+## 示例
 
 <RuntimeMode>
 
-### Composer vs. message attachments
+### 输入框附件与消息附件
 
-Both exports render the same tile; only the source differs. `aui.attachment.source` is `"composer"` for a staged attachment and `"message"` for one already sent, and that's exactly what decides whether the remove button and drag-in animation appear.
+两个导出项渲染相同的卡片，区别仅在于来源不同。对于暂存附件，`aui.attachment.source` 是 `"composer"`；对于已经发送的附件，则是 `"message"`。这正是决定是否显示移除按钮和拖入动画的依据。
 
 ```tsx
 <ComposerAttachments />       {/* ComposerPrimitive.Attachments, source: "composer" */}
 <UserMessageAttachments />    {/* MessagePrimitive.Attachments, source: "message" */}
 ```
 
-### Reading the resolved preview source
+### 读取已解析的预览源
 
-`useAttachmentSrc()` resolves an image attachment's displayable URL: an object URL for a file still in memory, or the first `image` content part once the attachment has uploaded. Anything that isn't an image resolves to `undefined`, which is exactly the signal a custom preview uses to fall back to an icon.
+`useAttachmentSrc()` 会解析图片附件可用于显示的 URL：对于仍在内存中的文件，它返回对象 URL；附件上传完成后，则返回第一个 `image` 内容部分。非图片附件会解析为 `undefined`，这正是自定义预览回退到图标时所使用的信号。
 
 ```tsx
 import { useAttachmentSrc } from "@/hooks/use-attachment-src";
@@ -116,9 +116,9 @@ function CustomThumb() {
 }
 ```
 
-### Add-attachment picker
+### 添加附件选择器
 
-`ComposerAddAttachment` opens a native file picker scoped to the composer's own `attachmentAccept`, and supports selecting more than one file at once. It renders nothing while the composer isn't editable (for example, while a run is streaming).
+`ComposerAddAttachment` 会打开原生文件选择器，并将范围限定为输入框自身的 `attachmentAccept`，同时支持一次选择多个文件。当输入框不可编辑时（例如运行正在进行流式传输时），它不会渲染任何内容。
 
 ```tsx
 <ComposerAddAttachment />
@@ -126,41 +126,41 @@ function CustomThumb() {
 
 </RuntimeMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Kit parts
+### Kit 部分
 
-| Part | Renders | Notes |
+| 部分 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `ComposerAttachments` | list | Wraps `ComposerPrimitive.Attachments`; one tile per staged attachment. |
-| `ComposerAddAttachment` | `button` | Wraps `ComposerPrimitive.AddAttachment`; opens the native file picker. Renders `null` while the composer isn't editable. |
-| `UserMessageAttachments` | list | Wraps `MessagePrimitive.Attachments`; one tile per attachment on the current user message. |
+| `ComposerAttachments` | 列表 | 包裹 `ComposerPrimitive.Attachments`；每个暂存附件对应一个卡片。 |
+| `ComposerAddAttachment` | `button` | 包裹 `ComposerPrimitive.AddAttachment`；打开原生文件选择器。当输入框不可编辑时，渲染 `null`。 |
+| `UserMessageAttachments` | 列表 | 包裹 `MessagePrimitive.Attachments`；为当前用户消息中的每个附件渲染一个卡片。 |
 
-### Primitives composed
+### 组合的原语
 
-| Part | Notes |
+| 部分 | 说明 |
 |------|-------|
-| `AttachmentPrimitive.Root` | Wraps one tile; provides the attachment scope. |
-| `AttachmentPrimitive.Name` | The attachment's file name, as text. |
-| `AttachmentPrimitive.Remove` | Calls `aui.attachment.remove()`. |
-| `ComposerPrimitive.AttachmentDropzone` | Sets `data-dragging="true"` while a file is dragged over it; no-ops when the thread's `attachments` capability is off. |
+| `AttachmentPrimitive.Root` | 包裹一个卡片，并提供附件作用域。 |
+| `AttachmentPrimitive.Name` | 以文本形式显示附件的文件名。 |
+| `AttachmentPrimitive.Remove` | 调用 `aui.attachment.remove()`。 |
+| `ComposerPrimitive.AttachmentDropzone` | 当文件被拖到其上方时设置 `data-dragging="true"`；当线程的 `attachments` 能力关闭时不执行任何操作。 |
 
-### Attachment state
+### 附件状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.attachment.type` | `"image" \| "document" \| "file" \| string` | Kind of the current attachment. |
-| `s.attachment.name` | `string` | File name. |
-| `s.attachment.status.type` | `"running" \| "requires-action" \| "incomplete" \| "complete"` | `"running"` while uploading (carries a `progress`); `"incomplete"` with `reason: "error"` carries an optional `message`. |
-| `aui.attachment.source` | `"message" \| "composer"` | Which surface the current attachment belongs to. |
+| `s.attachment.type` | `"image" \| "document" \| "file" \| string` | 当前附件的类型。 |
+| `s.attachment.name` | `string` | 文件名。 |
+| `s.attachment.status.type` | `"running" \| "requires-action" \| "incomplete" \| "complete"` | 上传时为 `"running"`（携带一个 `progress`）；带有 `reason: "error"` 的 `"incomplete"` 会携带可选的 `message`。 |
+| `aui.attachment.source` | `"message" \| "composer"` | 当前附件所属的界面。 |
 
 </RuntimeMode>
 
-## The received-files design
+## 已接收文件设计
 
-The Static variant in the rail is a second design for a message's files: `MessageAttachments` renders an image as a filled thumbnail button and a document or file as an icon row, instead of the composer-style tile above. It is a single props-driven component with no runtime dependency:
+侧栏中的 Static 变体是消息文件的第二种设计：`MessageAttachments` 将图片渲染为填充式缩略图按钮，将文档或其他文件渲染为图标行，而不是上文所示的输入框样式卡片。它是一个由 props 驱动、无运行时依赖的单一组件：
 
 ```sh
 npx shadcn@latest add "@assistant-ui/elements-message-attachment"
@@ -168,7 +168,7 @@ npx shadcn@latest add "@assistant-ui/elements-message-attachment"
 
 <RuntimeMode>
 
-Wire it by mapping a user message's attachments into items; like `UserMessageAttachments` above, this only makes sense inside a user message. `s.message.attachments` is the store's own array and every entry is already complete (an upload still in progress lives in the composer's own attachments instead), so selecting it directly is cheap; deriving items still needs `useMemo`, since mapping to a fresh array on every call would re-render the list on every store update.
+可以将用户消息的附件映射为项目来连接它；与上面的 `UserMessageAttachments` 一样，这只适用于用户消息内部。`s.message.attachments` 是存储自身的数组，其中每个条目都已经完整（仍在上传的附件会存在于输入框自身的附件中），因此直接选择它的开销很小；派生项目仍需要 `useMemo`，因为每次调用都映射出新数组会导致列表在每次存储更新时重新渲染。
 
 ```tsx title="components/assistant-ui/elements/message-attachment.tsx"
 "use client";
@@ -200,13 +200,13 @@ function UserReceivedFiles() {
 }
 ```
 
-The runtime carries `id`, `type`, `name`, and `contentType`, but no formatted size string or page count, so `formatFileSize` above is yours to write; a provider-defined custom `type` collapses to `"file"`, since `kind` only accepts the three shown.
+运行时会携带 `id`、`type`、`name` 和 `contentType`，但不会携带格式化后的大小字符串或页数，因此上面的 `formatFileSize` 需要由你自行编写；提供商定义的自定义 `type` 会折叠为 `"file"`，因为 `kind` 只接受所展示的三个值。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-Standalone you hold the item list yourself, sizes and all, and decide what opening one does:
+单独使用时，项目列表（包括大小信息）由你自行维护，并决定打开某个项目时执行的操作：
 
 ```tsx title="app/received-files.tsx"
 "use client";
@@ -230,14 +230,14 @@ export function ReceivedFiles() {
 
 </StandaloneMode>
 
-An `image` item renders as a filled thumbnail button with its name and size over the `swatch`, and a `document` or plain `file` renders as an icon row instead, with the page count appended only when `pages` is set. Both call `onOpen(id)` and neither opens anything on its own; wire `onOpen` to your own lightbox or download flow.
+`image` 项目会渲染为填充式缩略图按钮，并在 `swatch` 上方显示其名称和大小；而 `document` 或普通的 `file` 则会渲染为图标行，并且仅当设置了 `pages` 时才会追加页数。两者都会调用 `onOpen(id)`，自身都不会打开任何内容；请将 `onOpen` 连接到你自己的灯箱或下载流程。
 
 ### MessageAttachments
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `attachments` | `readonly MessageAttachmentItem[]` | required | The received files, in order. |
-| `onOpen` | `(id: string) => void` | | Called when an attachment is clicked. |
-| `className` | `string` | | Merged onto the root. |
+| `attachments` | `readonly MessageAttachmentItem[]` | 必填 | 按顺序排列的已接收文件。 |
+| `onOpen` | `(id: string) => void` | | 点击附件时调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-`MessageAttachmentItem` is `{ id: string; name: string; size: string; kind: "image" | "document" | "file"; pages?: number; swatch?: string }`. All other `div` props are forwarded to the root.
+`MessageAttachmentItem` 是 `{ id: string; name: string; size: string; kind: "image" | "document" | "file"; pages?: number; swatch?: string }`。其他所有 `div` props 都会转发到根元素。

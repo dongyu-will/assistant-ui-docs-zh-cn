@@ -4,6 +4,7 @@ import { useMemo, type ReactNode } from "react";
 import {
   AssistantRuntimeProvider,
   CloudFileAttachmentAdapter,
+  SimpleImageAttachmentAdapter,
   Suggestions,
   Tools,
   unstable_Interactables,
@@ -51,13 +52,15 @@ export function DocsRuntimeProvider({
     () => ({
       ...speech,
       feedback: feedbackAdapter,
-      attachments: new CloudFileAttachmentAdapter(cloud),
+      attachments: cloud
+        ? new CloudFileAttachmentAdapter(cloud)
+        : new SimpleImageAttachmentAdapter(),
     }),
     [cloud, speech],
   );
 
   const runtime = useDocsChatRuntime({
-    cloud,
+    ...(cloud ? { cloud } : {}),
     adapters,
     sendAutomatically: true,
   });

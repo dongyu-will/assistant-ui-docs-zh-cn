@@ -1,13 +1,13 @@
 ---
-title: Streaming
-description: Event handlers, message accumulator, conversion, metadata, and generative UI.
+title: 流式传输
+description: 事件处理器、消息累加器、转换、元数据和生成式 UI。
 ---
 
-LangGraph emits a rich stream of events: top-level message chunks, subgraph events, custom UI messages, errors, and metadata. This page documents how to observe and react to each.
+LangGraph 会发出丰富的事件流：顶层消息块、子图事件、自定义 UI 消息、错误和元数据。本页面介绍如何观察并响应这些事件。
 
-## Message accumulator
+## 消息累加器
 
-`LangGraphMessageAccumulator` lets you append messages incoming from the server to replicate the messages state client-side.
+`LangGraphMessageAccumulator` 允许你将从服务器接收的消息追加到客户端，以复现客户端的消息状态。
 
 ```ts
 import {
@@ -24,9 +24,9 @@ if (event.event === "messages/partial") {
 }
 ```
 
-## Message conversion
+## 消息转换
 
-`convertLangChainMessages` transforms LangChain messages to assistant-ui's format. Use it when bridging into a custom adapter or rendering messages outside the runtime.
+`convertLangChainMessages` 可将 LangChain 消息转换为 assistant-ui 的格式。在接入自定义适配器，或在运行时之外渲染消息时使用它。
 
 ```ts
 import { convertLangChainMessages } from "@assistant-ui/react-langgraph";
@@ -34,9 +34,9 @@ import { convertLangChainMessages } from "@assistant-ui/react-langgraph";
 const threadMessage = convertLangChainMessages(langChainMessage);
 ```
 
-## Event handlers
+## 事件处理器
 
-Listen to streaming events by passing `eventHandlers` to `useLangGraphRuntime`:
+将 `eventHandlers` 传递给 `useLangGraphRuntime`，即可监听流式传输事件：
 
 ```ts
 const runtime = useLangGraphRuntime({
@@ -87,9 +87,9 @@ const runtime = useLangGraphRuntime({
 });
 ```
 
-## Message metadata
+## 消息元数据
 
-When using `streamMode: "messages-tuple"`, each chunk includes metadata from the LangGraph server. Access accumulated metadata per message with `useLangGraphMessageMetadata`:
+使用 `streamMode: "messages-tuple"` 时，每个消息块都包含来自 LangGraph 服务器的元数据。使用 `useLangGraphMessageMetadata` 访问每条消息累积的元数据：
 
 ```ts
 import { useLangGraphMessageMetadata } from "@assistant-ui/react-langgraph";
@@ -100,15 +100,15 @@ function MyComponent() {
 }
 ```
 
-## Generative UI
+## 生成式 UI
 
-LangGraph can emit structured UI components alongside assistant messages via `push_ui_message` (Python) or `typedUi().push()` (TypeScript). The assistant-ui adapter translates these into [`DataMessagePart`s](/docs/tools/tool-ui) on the associated assistant message, which you render with the existing `makeAssistantDataUI` API.
+LangGraph 可以通过 `push_ui_message`（Python）或 `typedUi().push()`（TypeScript），在助手消息旁发出结构化 UI 组件。assistant-ui 适配器会将这些组件转换为关联助手消息上的 [`DataMessagePart`s](/docs/tools/tool-ui)，然后使用现有的 `makeAssistantDataUI` API 进行渲染。
 
-See [Generative UI](/docs/runtimes/langgraph/generative-ui) for full setup: enabling the `custom` stream channel, emitting UI messages, registering renderers, dynamic loading, and persisting UI state across thread switches.
+请参阅[生成式 UI](/docs/runtimes/langgraph/generative-ui)了解完整设置：启用 `custom` 流通道、发出 UI 消息、注册渲染器、动态加载，以及在线程切换时持久化 UI 状态。
 
-## Queueing messages during a run
+## 运行期间将消息加入队列
 
-Set `unstable_enableMessageQueue` to keep the composer usable while a run is streaming. A message sent during a queued run steers by default — it lands in the steer lane, ahead of previously queued items; `send({ steer: false })` queues a follow-up behind them instead. Pending items are held in `composer.queue` and drain once the run settles.
+设置 `unstable_enableMessageQueue`，即可在运行进行流式传输时继续使用输入框。排队运行期间发送的消息默认会执行 steer——它会进入 steer 通道，位于之前已排队的项目之前；而 `send({ steer: false })` 会将后续消息排在这些项目之后。待处理项目会保存在 `composer.queue` 中，并在运行结束后依次处理。
 
 ```tsx
 const runtime = useLangGraphRuntime({
@@ -117,28 +117,28 @@ const runtime = useLangGraphRuntime({
 });
 ```
 
-Render the pending messages with [`ComposerPrimitive.Queue`](/docs/api-reference/primitives/composer) and [`QueueItemPrimitive`](/docs/api-reference/primitives/queue-item).
+使用 [`ComposerPrimitive.Queue`](/docs/api-reference/primitives/composer) 和 [`QueueItemPrimitive`](/docs/api-reference/primitives/queue-item) 渲染待处理消息。
 
-## Per-run config
+## 每次运行的配置
 
-When a message is sent, its `runConfig` is forwarded to `stream` and, if you use `unstable_createLangGraphStream`, posted as the LangGraph SDK run `config`. Automatic frontend tool-result resumes and `useLangGraphSendCommand` reuse the `runConfig` of the run that produced the pending tool call or interrupt. An explicit `runConfig` on `useLangGraphSend` still wins. A thread refetch that still carries the interrupt keeps that owner. History loaded without local ownership stays unconfigured on resume; the recording is session-scoped and does not survive a reload.
+发送消息时，其 `runConfig` 会转发给 `stream`；如果使用 `unstable_createLangGraphStream`，还会作为 LangGraph SDK 运行的 `config` 发布。前端自动恢复工具结果以及 `useLangGraphSendCommand` 会复用生成待处理工具调用或中断的运行的 `runConfig`。在 `useLangGraphSend` 上显式设置的 `runConfig` 仍具有优先级。重新获取线程时，如果仍携带该中断，则会保留其所有者。未在本地记录所有权的历史记录在恢复时保持未配置状态；该记录仅限当前会话，在重新加载后不会保留。
 
-## Next
+## 下一步
 
 <Cards>
   <Card
-    title="Generative UI"
-    description="Structured UI components emitted by your graph."
+    title="生成式 UI"
+    description="由你的图发出的结构化 UI 组件。"
     href="/docs/runtimes/langgraph/generative-ui"
   />
   <Card
-    title="Interrupts"
-    description="Interrupt persistence and checkpoint-based message editing."
+    title="中断"
+    description="中断持久化和基于检查点的消息编辑。"
     href="/docs/runtimes/langgraph/interrupts"
   />
   <Card
-    title="Threads"
-    description="Basic thread support, AssistantCloud, custom thread list adapter."
+    title="线程"
+    description="基本线程支持、AssistantCloud、自定义线程列表适配器。"
     href="/docs/runtimes/langgraph/threads"
   />
 </Cards>

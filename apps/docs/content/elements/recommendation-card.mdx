@@ -1,20 +1,20 @@
 ---
-title: "Recommendation card"
-description: "The agent proposes a change with its confidence, and waits for a yes."
+title: "推荐卡片"
+description: "助手提出一项更改并给出置信度，等待用户确认。"
 ---
 
-A card that states a question, argues for it in a line of body text, and shows a confidence reading next to Alternatives and Accept buttons, then collapses to a single confirmation line once accepted. With a runtime the proposal is a tool call the user answers; standalone you hold the state and answer the callbacks yourself.
+一张用于提出问题的卡片：通过一行正文说明提出该问题的理由，并在“替代方案”和“接受”按钮旁显示置信度；用户接受后，卡片会折叠为一行确认信息。在运行时中，该提议是一个由用户回答的工具调用；单独使用时，则由你保存状态并自行响应回调。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-A proposal like this is a human-in-the-loop tool call: the model calls it to ask a question, and the card itself supplies the result once the user picks an answer.
+这样的提议属于人在回路（human in the loop）工具调用：模型调用它来提出问题，用户选择答案后，卡片本身会提供结果。
 
 <Steps>
   <Step>
 
-### Render the tool call
+### 渲染工具调用
 
 ```tsx title="app/toolkit.tsx"
 "use client";
@@ -41,12 +41,12 @@ export const toolkit = defineToolkit({
 });
 ```
 
-Call `addResult` exactly once to resolve the call and let the model continue. The result shape is entirely yours; `{ accepted: false }` here is a convention for "show me something else", not a fixed protocol value. An app that wants the model to keep proposing without resolving the call yet could instead leave it pending and send a follow-up user message.
+调用 `addResult` 恰好一次来解析调用并让模型继续执行。结果的形状完全由你决定；这里的 `{ accepted: false }` 只是“显示其他内容”的约定，并不是固定的协议值。如果应用希望模型在尚未解析调用时继续提出建议，也可以让调用保持待处理状态，然后发送一条后续用户消息。
 
   </Step>
   <Step>
 
-### Register the toolkit
+### 注册工具包
 
 ```tsx title="app/MyRuntimeProvider.tsx"
 import { AssistantRuntimeProvider, AuiConfig, Tools } from "@assistant-ui/react";
@@ -70,12 +70,12 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 
 <StandaloneMode>
 
-Standalone, the element is a controlled display: you own `state` and decide what Accept and Alternatives do.
+单独使用时，该元素是一个受控显示组件：由你管理 `state`，并决定“接受”和“替代方案”的行为。
 
 <Steps>
   <Step>
 
-### Hold the recommendation state
+### 保存推荐状态
 
 ```tsx title="app/recommendation.tsx"
 "use client";
@@ -108,9 +108,9 @@ export function Recommendation() {
   </Step>
   <Step>
 
-### Decide what Alternatives does
+### 决定“替代方案”的行为
 
-`onAlternatives` has no built-in meaning; wire it to whatever "something else" means in your app, such as opening a list of other options.
+`onAlternatives` 没有内置含义；请将它连接到应用中“其他内容”的具体行为，例如打开其他选项的列表。
 
 ```tsx
 function showAlternatives() {
@@ -123,7 +123,7 @@ function showAlternatives() {
 
 </StandaloneMode>
 
-## Anatomy
+## 组成结构
 
 ```tsx
 <div data-slot="recommendation-card">
@@ -136,38 +136,38 @@ function showAlternatives() {
 </div>
 ```
 
-The three confidence bars are a fixed shape (three heights, always the same) rather than a reading of a numeric confidence value; only `confidenceLabel`'s text is data-driven. The card holds no state of its own: `state` decides which footer renders, and it stays on `"accepted"` until you change it back.
+三个置信度条具有固定形状（始终保持相同的三种高度），并不代表数值置信度的读数；只有 `confidenceLabel` 的文本是由数据驱动的。卡片本身不保存状态：`state` 决定渲染哪个页脚，并且会一直保持在 `"accepted"`，直到你将其改回其他值。
 
-## Examples
+## 示例
 
-### Restyle the card
+### 重新设置卡片样式
 
-Both lanes take `className` on the root. The Accept button uses `inkButton` and the confidence label uses `mono`, both from `surfaces.tsx`.
+两种布局都在根元素上接收 `className`。“接受”按钮使用 `inkButton`，置信度标签使用 `mono`；二者都来自 `surfaces.tsx`。
 
 ```tsx
 <RecommendationCard className="max-w-md" /* ... */ />
 ```
 
-### A recommendation with no alternatives
+### 没有替代方案的推荐
 
-Omit `onAlternatives` for a proposal that only makes sense as accept-or-ignore; the button still renders but has nothing to call.
+对于只能接受或忽略的提议，可以省略 `onAlternatives`；按钮仍会渲染，但没有可调用的处理逻辑。
 
 ```tsx
 <RecommendationCard onAccept={() => setState("accepted")} /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Render props
+### 渲染属性
 
-| Source | Type | Description |
+| 来源 | 类型 | 描述 |
 |--------|------|-------------|
-| `args.question` / `args.confidenceLabel` / `args.acceptedLabel` | `string` | Copy for the header, the confidence row, and the accepted row. |
-| `args.detail` | `string` | Rendered as the card's body (its `children`). |
-| `result` | `unknown` | Presence maps to `state="accepted"`. Shape is app-defined. |
-| `addResult(result)` | `(result: TResult) => void` | Resolves the call. Call it exactly once. |
+| `args.question` / `args.confidenceLabel` / `args.acceptedLabel` | `string` | 用于标题、置信度行和已接受行的文本。 |
+| `args.detail` | `string` | 渲染为卡片正文（即其 `children`）。 |
+| `result` | `unknown` | 是否存在会映射到 `state="accepted"`。具体形状由应用定义。 |
+| `addResult(result)` | `(result: TResult) => void` | 解析调用。请恰好调用一次。 |
 
 </RuntimeMode>
 
@@ -175,17 +175,17 @@ Omit `onAlternatives` for a proposal that only makes sense as accept-or-ignore; 
 
 ### RecommendationCard
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `state` | `"idle" \| "accepted"` | required | Which footer renders. |
-| `question` | `string` | required | Header line. |
-| `children` | `ReactNode` | required | Body text under the question. |
-| `confidenceLabel` | `string` | required | Text next to the fixed confidence bars. |
-| `acceptedLabel` | `string` | required | Shown once `state` is `"accepted"`. |
-| `onAccept` | `() => void` | | Fires from the Accept button. |
-| `onAlternatives` | `() => void` | | Fires from the Alternatives button. |
-| `className` | `string` | | Merged onto the root. |
+| `state` | `"idle" \| "accepted"` | required | 要渲染的页脚。 |
+| `question` | `string` | required | 标题行。 |
+| `children` | `ReactNode` | required | 问题下方的正文。 |
+| `confidenceLabel` | `string` | required | 固定置信度条旁的文本。 |
+| `acceptedLabel` | `string` | required | 当 `state` 为 `"accepted"` 后显示。 |
+| `onAccept` | `() => void` | | 由“接受”按钮触发。 |
+| `onAlternatives` | `() => void` | | 由“替代方案”按钮触发。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

@@ -1,13 +1,13 @@
 ---
-title: Migration to v0.15
-description: Drops the v0.12-era legacy runtime hooks, the deprecated tools map, and the "mcp-app" group key. Scope accessors become properties.
+title: 迁移到 v0.15
+description: 移除 v0.12 时代的旧版运行时钩子、已弃用的工具映射以及 "mcp-app" 组键。作用域访问器改为属性。
 ---
 
-Version 0.15 finishes the deprecation cycle started in v0.12: the legacy context hooks are removed in favor of `useAui` / `useAuiState`, and `aui` scope accessors become properties.
+v0.15 完成了 v0.12 开始的弃用周期：旧版上下文钩子已移除，改用 `useAui` / `useAuiState`，并且 `aui` 作用域访问器改为属性。
 
-## Migrate with an AI Agent
+## 使用 AI Agent 迁移
 
-Paste this into an AI coding agent to run the migration for you:
+将以下内容粘贴到 AI 编码代理中，即可为你执行迁移：
 
 ```text
 Migrate this codebase from assistant-ui v0.14 to v0.15.
@@ -23,17 +23,17 @@ Migrate this codebase from assistant-ui v0.14 to v0.15.
 4. Typecheck, build, and run tests; fix any remaining fallout.
 ```
 
-## Automatic Migration
+## 自动迁移
 
 ```bash
 npx assistant-ui@latest upgrade
 ```
 
-This runs the `v0-15/aui-accessor-calls-to-properties` codemod, which rewrites nullary accessor calls (`aui.thread()`) to property access (`aui.thread`).
+此操作会运行 `v0-15/aui-accessor-calls-to-properties` codemod，将无参数访问器调用（`aui.thread()`）重写为属性访问（`aui.thread`）。
 
-## Scope Accessors Are Properties
+## 作用域访问器现在是属性
 
-Nullary scope accessors are now properties. Calling them still works but is deprecated:
+无参数作用域访问器现在是属性。调用它们仍然有效，但已弃用：
 
 ```ts
 // Before
@@ -45,7 +45,7 @@ aui.thread.getState();
 aui.threads.switchToNewThread();
 ```
 
-Selecting an unavailable scope no longer throws: `aui.thread` always succeeds and is always truthy. Its `source` is `null` when the scope is unavailable, and any other property read (or a call) throws. Check availability via:
+选择不可用的作用域不再抛出异常：`aui.thread` 始终会成功，并且始终为真值。作用域不可用时，其 `source` 为 `null`，读取任何其他属性（或进行调用）都会抛出异常。请通过以下方式检查可用性：
 
 ```ts
 if (aui.thread.source != null) {
@@ -53,13 +53,13 @@ if (aui.thread.source != null) {
 }
 ```
 
-Accessors expose `source`, `query`, and `name` selection metadata as properties — previously found on the accessor function, now on the same names on the proxy. These three names are reserved and never resolve to scope methods.
+访问器会将 `source`、`query` 和 `name` 选择元数据作为属性暴露出来——这些元数据此前位于访问器函数上，现在位于代理对象中名称相同的属性上。这三个名称是保留名称，永远不会解析为作用域方法。
 
-## Legacy Context Hooks Removed
+## 移除旧版上下文钩子
 
-The v0.12-era runtime hooks are removed. Replace state reads with `useAuiState` and actions with `useAui`:
+v0.12 时代的运行时钩子已移除。请使用 `useAuiState` 替代状态读取，使用 `useAui` 替代操作：
 
-| Removed                                                       | Replacement                                     |
+| 已移除                                                       | 替代方案                                     |
 | ------------------------------------------------------------- | ----------------------------------------------- |
 | `useAssistantRuntime()`                                        | `useAui()`                                      |
 | `useThreadList(selector)`                                      | `useAuiState((s) => s.threads)`                 |
@@ -79,7 +79,7 @@ The v0.12-era runtime hooks are removed. Replace state reads with `useAuiState` 
 | `useThreadListItemRuntime()`                                   | `useAui().threadListItem`                       |
 | `useThreadListItem(selector)`                                  | `useAuiState((s) => s.threadListItem)`          |
 
-The attachment variants (`useThreadComposerAttachment(Runtime)`, `useEditComposerAttachment(Runtime)`, `useMessageAttachment(Runtime)`) are removed with them; use `useAui().attachment` / `useAuiState((s) => s.attachment)`.
+附件变体（`useThreadComposerAttachment(Runtime)`、`useEditComposerAttachment(Runtime)`、`useMessageAttachment(Runtime)`）也会随之移除；请使用 `useAui().attachment` / `useAuiState((s) => s.attachment)`。
 
 ```tsx
 // Before
@@ -93,9 +93,9 @@ const isRunning = useAuiState((s) => s.thread.isRunning);
 aui.threads.switchToNewThread();
 ```
 
-## `ToolsState.tools` Removed
+## `ToolsState.tools` 已移除
 
-The component-only tool-UI map is replaced by `toolUIs`, whose entries carry the renderer alongside its presentation options:
+仅限组件的工具 UI 映射已由 `toolUIs` 替代，其条目会将渲染器与展示选项一同携带：
 
 ```tsx
 // Before
@@ -105,9 +105,9 @@ const Render = useAuiState((s) => s.tools.tools[toolName]?.[0]);
 const Render = useAuiState((s) => s.tools.toolUIs[toolName]?.[0]?.render);
 ```
 
-## `"mcp-app"` Group Key Removed
+## `"mcp-app"` 组键已移除
 
-`groupPartByType` no longer accepts the `"mcp-app"` key. Use `"standalone-tool-call"`, a superset that matches MCP-app tool calls plus any tool call whose registered UI opts into standalone display:
+`groupPartByType` 不再接受 `"mcp-app"` 键。请使用 `"standalone-tool-call"`，它是一个超集，既匹配 MCP-app 工具调用，也匹配注册 UI 选择独立显示的任何工具调用：
 
 ```tsx
 // Before
@@ -123,9 +123,9 @@ groupPartByType({
 });
 ```
 
-## `useAui` `{ parent }` Config Removed
+## `useAui` `{ parent }` 配置已移除
 
-The second argument (`useAui(clients, { parent })`) is removed. Provide the parent via context instead: wrap with `AuiProvider` and call the context form beneath it.
+第二个参数（`useAui(clients, { parent })`）已移除。请改为通过上下文提供父级：使用 `AuiProvider` 包裹，并在其下调用上下文形式。
 
 ```tsx
 // Before
@@ -149,11 +149,11 @@ const rootConfig = AuiConfig({});
 </AuiProvider>;
 ```
 
-Where `{ parent: null }` was used to detach from context, `<AuiProvider extends={null} config={config}>` where `const config = AuiConfig({})` now provides an isolated empty root.
+如果之前使用 `{ parent: null }` 脱离上下文，请改用 `<AuiProvider extends={null} config={config}>`；其中 `const config = AuiConfig({})` 现在会提供一个隔离的空根。
 
-## `AuiProvider` Grammar
+## `AuiProvider` 语法
 
-`AuiProvider` takes a `config` built with `AuiConfig(...)` — raw object literals are a type error. At the top level, `config` alone creates the subtree's client. Nested under a parent provider, `extends` is mandatory: `extends={aui}` extends the parent, `extends={null}` isolates (dev-enforced). `ref` receives the resulting client after mount.
+`AuiProvider` 接受使用 `AuiConfig(...)` 构建的 `config` ——直接使用对象字面量会产生类型错误。在顶层，仅使用 `config` 即可创建子树的客户端。在父级 provider 下嵌套时，必须使用 `extends`：`extends={aui}` 会扩展父级，`extends={null}` 会进行隔离（由开发环境强制执行）。挂载后，`ref` 会接收生成的客户端。
 
 ```tsx
 const aui = useAui();
@@ -169,9 +169,9 @@ const config = AuiConfig({ tools: Tools({ toolkit }) });
 <AuiProvider extends={null} config={config}>
 ```
 
-`AuiConfig` is exported from `@assistant-ui/store` and re-exported from `@assistant-ui/react`, `@assistant-ui/react-native`, and `@assistant-ui/react-ink`.
+`AuiConfig` 从 `@assistant-ui/store` 导出，并从 `@assistant-ui/react`、`@assistant-ui/react-native` 和 `@assistant-ui/react-ink` 重新导出。
 
-### `value` Prop Deprecated
+### `value` prop 已弃用
 
 ```tsx
 // Before
@@ -185,9 +185,9 @@ const config = AuiConfig({});
 <AuiProvider extends={null} config={config}>
 ```
 
-The replacement exposes a client extending the given one, not the same instance — `useAui()` beneath it returns the new client, with scope access delegating to `client`. The deprecated `value={client}` form behaves the same way: it also exposes a derived client rather than the exact instance, and the given client must implement `subscribe`.
+替代方案会暴露一个扩展给定客户端的客户端，而不是同一个实例——其下的 `useAui()` 会返回新客户端，并将作用域访问委托给 `client`。已弃用的 `value={client}` 形式行为相同：它同样会暴露派生客户端，而不是完全相同的实例，并且给定客户端必须实现 `subscribe`。
 
-### `useAui({ ... })` Extension Overload Deprecated
+### `useAui({ ... })` 扩展重载已弃用
 
 ```tsx
 // Before
@@ -204,7 +204,7 @@ return (
 );
 ```
 
-Where the extended client was passed to `<AssistantRuntimeProvider aui={aui}>`, use the new `config` prop instead — the scopes are provided alongside the runtime's threads scope:
+如果之前将扩展后的客户端传递给 `<AssistantRuntimeProvider aui={aui}>`，请改用新的 `config` prop——这些作用域会与运行时的线程作用域一同提供：
 
 ```tsx
 // Before
@@ -224,9 +224,9 @@ return (
 );
 ```
 
-## Thread Switch Events: `threads.selectionChanged`
+## 线程切换事件：`threads.selectionChanged`
 
-The per-item thread switch events are deprecated in favor of a single event on the thread list. `threads.selectionChanged` fires once per switch and carries both sides of the transition:
+逐项线程切换事件已弃用，改用线程列表上的单个事件。`threads.selectionChanged` 每次切换触发一次，并携带转换前后的两端：
 
 ```ts
 // Before
@@ -244,9 +244,9 @@ useAuiEvent("threads.selectionChanged", ({ threadId, previousThreadId }) => {
 });
 ```
 
-Like its predecessors, it does not fire for the initially selected thread on mount. The deprecated events still fire and will keep working until the next major.
+与之前的事件一样，它不会在挂载时为初始选中的线程触发。已弃用的事件仍会触发，并将持续有效到下一个 major 版本。
 
-The deprecated pair was scope-filtered: inside a per-item `threadListItem` scope (such as `ThreadListPrimitive.Items`), `threadListItem.switchedTo` only fired for that item. `threads.selectionChanged` resolves against the shared `threads` scope, so every listener fires on every switch. Filter by id to reproduce the per-item behavior:
+已弃用的事件对会按作用域过滤：在逐项的 `threadListItem` 作用域内（例如 `ThreadListPrimitive.Items`），`threadListItem.switchedTo` 只会针对该项触发。`threads.selectionChanged` 会根据共享的 `threads` 作用域进行解析，因此每个监听器都会在每次切换时触发。按 id 进行过滤，即可复现逐项行为：
 
 ```ts
 const id = useAuiState((s) => s.threadListItem.id);
@@ -256,15 +256,15 @@ useAuiEvent("threads.selectionChanged", ({ threadId }) => {
 });
 ```
 
-The new event also fires in situations where the deprecated pair did not: `InMemoryThreadList` emits on selection changes (it previously emitted no switch events), and `switchToNewThread()` emits for the newly created thread. Selection-driven defaults such as `scrollToBottomOnThreadSwitch` and `unstable_focusOnThreadSwitched` now engage in both situations. Runtimes that resolve a deep-linked `threadId`/`initialThreadId` after mount (such as `useRemoteThreadListRuntime`) start on a placeholder new thread, so the deep link's resolution also fires the event — `previousThreadId` is the placeholder in that case.
+新事件还会在已弃用事件对不会触发的情况下触发：`InMemoryThreadList` 会在选择发生变化时触发（此前不会发出切换事件），`switchToNewThread()` 会为新创建的线程触发。由选择驱动的默认值（例如 `scrollToBottomOnThreadSwitch` 和 `unstable_focusOnThreadSwitched`）现在会在这两种情况下生效。挂载后解析深层链接 `threadId`/`initialThreadId` 的运行时（例如 `useRemoteThreadListRuntime`）会从占位的新线程开始，因此深层链接的解析也会触发该事件——在这种情况下，`previousThreadId` 就是占位线程。
 
-## Still Deprecated (not removed)
+## 仍处于弃用状态（未移除）
 
-- Primitive `If` components (`ThreadPrimitive.If`, `MessagePrimitive.If`, `ThreadPrimitive.Empty`) — replaced by `AuiIf`. The codemod migrates these.
-- `useMessagePartText` / `useMessagePartReasoning` / `useMessagePartSource` / `useMessagePartImage` / `useMessagePartFile` / `useMessagePartData` — use `useAuiState` to select and narrow `s.part`.
-- The `components` prop on primitives — replaced by the children render function pattern (see the [v0.14 guide](/docs/migrations/v0-14)).
+- 原语 `If` 组件（`ThreadPrimitive.If`、`MessagePrimitive.If`、`ThreadPrimitive.Empty`）——由 `AuiIf` 替代。codemod 会迁移这些组件。
+- `useMessagePartText` / `useMessagePartReasoning` / `useMessagePartSource` / `useMessagePartImage` / `useMessagePartFile` / `useMessagePartData`——使用 `useAuiState` 选择并缩小 `s.part`。
+- 原语上的 `components` prop——由 children 渲染函数模式替代（请参阅 [v0.14 指南](/docs/migrations/v0-14)）。
 
-## Getting Help
+## 获取帮助
 
-- File issues at https://github.com/assistant-ui/assistant-ui/issues
-- See the [deprecation policy](/docs/migrations/deprecation-policy) for the support window
+- 在 https://github.com/assistant-ui/assistant-ui/issues 提交问题
+- 查看[弃用政策](/docs/migrations/deprecation-policy)了解支持期限

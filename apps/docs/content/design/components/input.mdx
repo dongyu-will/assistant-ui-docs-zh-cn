@@ -1,8 +1,8 @@
 ---
-title: "Input"
-description: "A single-line field with a label, drawn with a hairline."
+title: "输入框"
+description: "带有标签的单行字段，以细线绘制。"
 links:
-  - label: Source
+  - label: 原文
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/input.tsx
 ---
 
@@ -21,11 +21,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.InputSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="input" />
 
-## Usage
+## 用法
 
 ```tsx
 import { Input } from "@/components/ui/input";
@@ -41,21 +41,21 @@ export function Example() {
 }
 ```
 
-## Examples
+## 示例
 
-### With a button
+### 与按钮搭配
 
-Inputs sit on the same 32px rhythm as buttons, so rows compose without alignment fixes.
+输入框与按钮采用相同的 32px 节奏，因此无需调整对齐方式即可组合成行。
 
 <PreviewCode file="components/pages/design/specimens" name="InputWithButtonSpecimen" base={<InputWithButtonSpecimen />}>
   <RadixSpecimens.InputWithButtonSpecimen />
 </PreviewCode>
 
-## API Reference
+## API 参考
 
 ### Input
 
-Accepts every native `input` prop.
+接受所有原生 `input` 属性。
 
 <ParametersTable
   type="InputProps"
@@ -64,18 +64,18 @@ Accepts every native `input` prop.
       name: "type",
       type: "string",
       default: '"text"',
-      description: "The native input type.",
+      description: "原生输入框类型。",
     },
     {
       name: "disabled",
       type: "boolean",
       default: "false",
-      description: "Prevents editing and mutes the field.",
+      description: "阻止编辑并弱化字段显示。",
     },
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes.",
+      description: "其他 CSS 类。",
     },
   ]}
 />

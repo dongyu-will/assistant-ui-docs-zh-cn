@@ -1,20 +1,20 @@
 ---
-title: "Web preview"
-description: "Chrome for a sandboxed preview: a URL bar, reload, and open-in-new around a frame you isolate."
+title: "Web 预览"
+description: "用于沙箱化预览的 Chrome：围绕隔离的 frame 提供 URL 栏、重新加载和在新标签页中打开按钮。"
 ---
 
-Web preview is chrome around a preview: a reload button, a URL bar, and an open-in-new-tab button around a frame you supply, rendered exactly as given with no isolation of its own. With a runtime the frame comes from rendering a tool's result through a sandboxing library; standalone you hand it an already-sandboxed frame directly.
+Web 预览是围绕预览内容提供的 Chrome：在你提供的 frame 周围显示重新加载按钮、URL 栏和在新标签页中打开按钮，并完全按照给定内容渲染，不自行进行隔离。在运行时中，frame 来自通过沙箱库渲染工具结果；在独立使用时，你可以直接传入已完成沙箱隔离的 frame。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-`WebPreview` never sandboxes its `children` itself, so pairing it with a tool that returns model-written markup means isolating that markup yourself. [`safe-content-frame`](/safe-content-frame) is built for exactly this: it mounts an iframe on a separate, per-render origin so model-generated script cannot reach your page's cookies, storage, or DOM.
+`WebPreview` 本身不会对其 `children` 进行沙箱隔离，因此，将它与返回模型编写标记的工具配合使用时，需要自行隔离这些标记。[`safe-content-frame`](/safe-content-frame) 正是为此而设计：它会将 iframe 挂载到每次渲染独立的 origin 上，使模型生成的脚本无法访问页面的 cookie、存储或 DOM。
 
 <Steps>
   <Step>
 
-### Render the tool call
+### 渲染工具调用
 
 ```tsx title="components/assistant-ui/elements/render-preview-tool-ui.tsx"
 "use client";
@@ -67,7 +67,7 @@ export const RenderPreviewToolUI: ToolCallMessagePartComponent<
   </Step>
   <Step>
 
-### Register the tool
+### 注册工具
 
 ```tsx title="app/toolkit.ts"
 import { defineToolkit } from "@assistant-ui/react";
@@ -101,7 +101,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-Install `safe-content-frame` separately; it is framework-agnostic and has no React dependency of its own. See [Tool UI](/docs/tools/tool-ui) for backend-defined tools and approval gates.
+请单独安装 `safe-content-frame`；它与框架无关，且自身不依赖 React。有关后端定义的工具和审批门，请参阅 [Tool UI](/docs/tools/tool-ui)。
 
   </Step>
 </Steps>
@@ -110,12 +110,12 @@ Install `safe-content-frame` separately; it is framework-agnostic and has no Rea
 
 <StandaloneMode>
 
-Standalone, `WebPreview` is chrome only: build or reuse your own sandboxed frame and pass it as `children`.
+在独立使用时，`WebPreview` 仅提供 Chrome：构建或复用你自己的沙箱化 frame，并将其作为 `children` 传入。
 
 <Steps>
   <Step>
 
-### Render an already-sandboxed frame
+### 渲染已完成沙箱隔离的 frame
 
 ```tsx title="app/preview.tsx"
 "use client";
@@ -152,9 +152,9 @@ export function Preview({ url }: { url: string }) {
   </Step>
   <Step>
 
-### Swap the frame when the url changes
+### URL 变化时替换 frame
 
-Remount the iframe on a fresh `key` whenever `url` changes, the same way `onReload` does, so a stale frame is never left showing the previous address.
+每当 `url` 发生变化时，都使用新的 `key` 重新挂载 iframe，就像 `onReload` 所做的那样，从而不会留下仍显示先前地址的过时 frame。
 
 ```tsx
 useEffect(() => {
@@ -168,7 +168,7 @@ useEffect(() => {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="web-preview">
@@ -178,23 +178,23 @@ useEffect(() => {
 </div>
 ```
 
-`loading` hides `children` with `invisible` and `opacity-0` rather than unmounting it, so a frame already in flight keeps loading in the background while the shimmer label covers it. The reload button's icon spins for as long as `loading` is true. `onReload` and `onOpenExternal` are both optional: the buttons render regardless and are simply no-ops without a handler.
+`loading` 使用 `invisible` 和 `opacity-0` 隐藏 `children`，而不是将其卸载，因此已经开始加载的 frame 会在后台继续加载，同时由闪烁标签覆盖。只要 `loading` 为 true，重新加载按钮的图标就会持续旋转。`onReload` 和 `onOpenExternal` 都是可选的：无论是否提供处理器，按钮都会渲染；未提供处理器时，点击按钮不会执行任何操作。
 
-## Examples
+## 示例
 
-### Restyle the chrome
+### 重新设置 Chrome 样式
 
-Both lanes take `className` on the root. The reload and open-in-new buttons read the shared `ghostButton` token, the origin field reads `field`, and the loading label reads `ShimmerLabel`, all from `surfaces.tsx`.
+两个区域都在根元素上接收 `className`。重新加载按钮和在新标签页中打开按钮读取共享的 `ghostButton` token，origin 字段读取 `field`，加载标签读取 `ShimmerLabel`，这些值都来自 `surfaces.tsx`。
 
 ```tsx
 <WebPreview className="max-w-none" /* ... */ />
 ```
 
-### Rendering something other than HTML
+### 渲染 HTML 以外的内容
 
 <RuntimeMode>
 
-`SafeContentFrame` also renders raw bytes at any MIME type or a PDF; swap the render call and everything else in the tool UI stays the same.
+`SafeContentFrame` 还可以渲染任意 MIME 类型的原始字节或 PDF；替换渲染调用后，工具 UI 的其他部分无需改变。
 
 ```tsx
 await frame.renderRaw(result.svg, "image/svg+xml", containerRef.current);
@@ -204,11 +204,11 @@ await frame.renderPdf(result.pdfBytes, containerRef.current);
 
 </RuntimeMode>
 
-### Previewing your own trusted content
+### 预览你自己的受信任内容
 
 <StandaloneMode>
 
-`WebPreview` does not require an iframe at all. When the content is already trusted, same-origin, and static, pass it as plain markup instead:
+`WebPreview` 完全不要求使用 iframe。当内容已经受信任、属于同源且是静态内容时，可以直接将其作为普通标记传入：
 
 ```tsx
 <WebPreview origin="your-app.vercel.app/reports/42" loading={false}>
@@ -218,33 +218,33 @@ await frame.renderPdf(result.pdfBytes, containerRef.current);
 
 </StandaloneMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool-call render props
+### 工具调用渲染 props
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `args` | `TArgs` | Parsed arguments. Partial while the model is still streaming them. |
-| `argsText` | `string` | Raw JSON argument text streamed by the model. |
-| `result` | `TResult \| undefined` | The tool's return value once it completes. `undefined` while running. |
-| `status` | `ToolCallMessagePartStatus` | `status.type` is `"running"`, `"requires-action"`, `"complete"`, or `"incomplete"`. |
-| `toolName` | `string` | Name of the tool the model called. |
-| `toolCallId` | `string` | Stable id for this invocation. |
-| `isError` | `boolean \| undefined` | Whether `result` represents a tool execution error. |
+| `args` | `TArgs` | 已解析的参数。模型仍在流式传输参数时，该值可能不完整。 |
+| `argsText` | `string` | 模型流式传输的原始 JSON 参数文本。 |
+| `result` | `TResult \| undefined` | 工具完成后的返回值。运行期间为 `undefined`。 |
+| `status` | `ToolCallMessagePartStatus` | `status.type` 为 `"running"`、`"requires-action"`、`"complete"` 或 `"incomplete"`。 |
+| `toolName` | `string` | 模型调用的工具名称。 |
+| `toolCallId` | `string` | 此次调用的稳定 ID。 |
+| `isError` | `boolean \| undefined` | `result` 是否表示工具执行错误。 |
 
-Register the renderer on a toolkit entry's `render` field and attach the toolkit with `Tools({ toolkit })`. See [Tool UI](/docs/tools/tool-ui) for the full render-prop surface, including `addResult`, human tools, and approval gates.
+在工具包条目的 `render` 字段上注册渲染器，并使用 `Tools({ toolkit })` 附加工具包。有关完整的渲染 props 接口（包括 `addResult`、人工工具和审批门），请参阅 [Tool UI](/docs/tools/tool-ui)。
 
 ### SafeContentFrame
 
 | Member | Signature | Description |
 |--------|-----------|-------------|
-| `renderHtml` | `(html: string, container: HTMLElement) => Promise<RenderedFrame>` | Renders an HTML string into a sandboxed iframe appended to `container`. |
-| `renderRaw` | `(content: Uint8Array \| string, mimeType: string, container: HTMLElement) => Promise<RenderedFrame>` | Renders any MIME type from a string or bytes. |
-| `renderPdf` | `(content: Uint8Array, container: HTMLElement) => Promise<RenderedFrame>` | Renders a PDF document. |
+| `renderHtml` | `(html: string, container: HTMLElement) => Promise<RenderedFrame>` | 将 HTML 字符串渲染到沙箱化 iframe 中，并将其附加到 `container`。 |
+| `renderRaw` | `(content: Uint8Array \| string, mimeType: string, container: HTMLElement) => Promise<RenderedFrame>` | 从字符串或字节渲染任意 MIME 类型。 |
+| `renderPdf` | `(content: Uint8Array, container: HTMLElement) => Promise<RenderedFrame>` | 渲染 PDF 文档。 |
 
-`RenderedFrame.origin` is the hashed, per-render origin the iframe loaded from; pass its host to `WebPreview`'s `origin` prop. `RenderedFrame.dispose()` removes the iframe, and `fullyLoadedPromiseWithTimeout(ms)` resolves once the frame signals it has finished loading.
+`RenderedFrame.origin` 是 iframe 加载来源的、经过哈希处理且每次渲染独立的 origin；将其主机传递给 `WebPreview` 的 `origin` prop。`RenderedFrame.dispose()` 会移除 iframe，而 `fullyLoadedPromiseWithTimeout(ms)` 会在 frame 发出加载完成信号后解析。
 
 </RuntimeMode>
 
@@ -254,13 +254,13 @@ Register the renderer on a toolkit entry's `render` field and attach the toolkit
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `origin` | `string` | required | Shown in the URL bar. |
-| `loading` | `boolean` | required | Spins the reload icon and dims `children` behind a shimmering label. |
-| `children` | `React.ReactNode` | required | The preview content. Rendered exactly as given; not sandboxed by this element. |
-| `onReload` | `() => void` | | Called when the reload button is pressed. |
-| `onOpenExternal` | `() => void` | | Called when the open-in-new-tab button is pressed. |
-| `className` | `string` | | Merged onto the root. |
+| `origin` | `string` | 必填 | 显示在 URL 栏中。 |
+| `loading` | `boolean` | 必填 | 旋转重新加载图标，并在闪烁标签后方调暗 `children`。 |
+| `children` | `React.ReactNode` | 必填 | 预览内容。完全按照给定内容渲染；此元素不会对其进行沙箱隔离。 |
+| `onReload` | `() => void` | | 点击重新加载按钮时调用。 |
+| `onOpenExternal` | `() => void` | | 点击在新标签页中打开按钮时调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` props 都会转发到根元素。
 
 </StandaloneMode>

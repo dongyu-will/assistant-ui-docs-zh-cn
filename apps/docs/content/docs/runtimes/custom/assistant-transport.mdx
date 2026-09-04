@@ -1,29 +1,29 @@
 ---
 title: Assistant Transport
-description: Stream agent state to the frontend and handle user commands for custom agents.
+description: 将代理状态流式传输到前端，并处理自定义代理的用户命令。
 platforms: ["react"]
 ---
 
-`AssistantTransport` is a state-streaming protocol layered on `ExternalStoreRuntime` (see [architecture](/docs/runtimes/concepts/architecture)). Instead of streaming message parts, your backend streams snapshots of its full agent state and the runtime converts them into UI messages.
+`AssistantTransport` 是一种构建在 `ExternalStoreRuntime` 之上的状态流式传输协议（参见[架构](/docs/runtimes/concepts/architecture)）。后端不会流式传输消息片段，而是传输完整代理状态的快照，由运行时将其转换为 UI 消息。
 
-Three things make this useful:
+它的实用性体现在以下三点：
 
-- **State streaming** — efficient updates to your agent state (any JSON object).
-- **UI integration** — your agent's native state becomes assistant-ui messages.
-- **Command handling** — user actions (messages, tool results, custom commands) flow back to the agent.
+- **状态流式传输** — 高效更新代理状态（任意 JSON 对象）。
+- **UI 集成** — 代理的原生状态会转换为 assistant-ui 消息。
+- **命令处理** — 用户操作（消息、工具结果、自定义命令）会传回代理。
 
-## When to use it
+## 适用场景
 
-Pick `AssistantTransport` when:
+在以下情况下选择 `AssistantTransport`：
 
-- Your backend does not have a streaming protocol yet and you want one.
-- Your agent has internal state worth surfacing in the UI directly.
-- You are building a custom agent framework or one without a streaming protocol (e.g. open-source LangGraph).
-- You need bidirectional commands beyond simple message turns.
+- 后端尚未具备流式传输协议，而你希望添加一个。
+- 代理具有值得直接呈现在 UI 中的内部状态。
+- 你正在构建自定义代理框架，或使用尚未提供流式传输协议的框架（例如开源 LangGraph）。
+- 你需要超越简单消息轮次的双向命令。
 
-If you only need message streaming, [DataStream](/docs/runtimes/custom/data-stream) is simpler.
+如果只需要消息流式传输，[DataStream](/docs/runtimes/custom/data-stream) 更简单。
 
-## Mental model
+## 心智模型
 
 <Flow.Root
   llm={`graph LR
@@ -31,17 +31,17 @@ If you only need message streaming, [DataStream](/docs/runtimes/custom/data-stre
     Agent -->|State snapshots| Frontend`}
 >
   <Flow.Row>
-    <Flow.Node>Frontend</Flow.Node>
-    <Flow.Arrow label="Commands" reverseLabel="State snapshots" length={150} />
-    <Flow.Node>Agent server</Flow.Node>
+    <Flow.Node>前端</Flow.Node>
+    <Flow.Arrow label="命令" reverseLabel="State snapshots" length={150} />
+    <Flow.Node>代理服务器</Flow.Node>
   </Flow.Row>
 </Flow.Root>
 
-The frontend receives state snapshots and converts them to React components. The UI is a stateless view on top of the agent state.
+前端接收状态快照，并将其转换为 React 组件。UI 是构建在代理状态之上的无状态视图。
 
-The agent server receives commands from the frontend. When a user interacts with the UI (sends a message, clicks a button), the frontend queues a command and sends it. `AssistantTransport` defines `add-message` and `add-tool-result`; you can define more.
+代理服务器接收来自前端的命令。当用户与 UI 交互（发送消息、点击按钮）时，前端会将命令加入队列并发送。`AssistantTransport` 定义了 `add-message` 和 `add-tool-result`；你也可以定义更多命令。
 
-### Command lifecycle
+### 命令生命周期
 
 <Flow.Root
   llm={`graph LR
@@ -49,15 +49,15 @@ The agent server receives commands from the frontend. When a user interacts with
     in_transit -->|backend processes| applied`}
 >
   <Flow.Row>
-    <Flow.Node>queued</Flow.Node>
-    <Flow.Arrow label="sent to backend" length={120} />
-    <Flow.Node>in_transit</Flow.Node>
-    <Flow.Arrow label="backend processes" length={132} />
-    <Flow.Node>applied</Flow.Node>
+    <Flow.Node>已排队</Flow.Node>
+    <Flow.Arrow label="已发送到后端" length={120} />
+    <Flow.Node>传输中</Flow.Node>
+    <Flow.Arrow label="后端处理" length={132} />
+    <Flow.Node>已应用</Flow.Node>
   </Flow.Row>
 </Flow.Root>
 
-The runtime alternates between **idle** (no active backend request) and **sending** (request in flight). When a new command is created while idle, it is sent immediately; otherwise it is queued until the current request completes.
+运行时会在 **空闲**（没有活动中的后端请求）和**发送中**（请求正在传输）两种状态之间交替。当处于空闲状态时创建新命令，该命令会立即发送；否则会排队，直到当前请求完成。
 
 <Flow.Root
   llm={`graph LR
@@ -72,37 +72,37 @@ The runtime alternates between **idle** (no active backend request) and **sendin
         from: "check",
         to: "sending",
         route: "loop-bottom",
-        label: "queue has commands",
+        label: "队列中有命令",
         laneOffset: 28,
       },
       {
         from: "check",
         to: "idle",
         route: "loop-bottom",
-        label: "queue empty",
+        label: "队列为空",
         laneOffset: 60,
       },
     ]}
   >
     <Flow.Row>
-      <Flow.Node flowId="idle">idle</Flow.Node>
-      <Flow.Arrow label="new command" length={108} />
-      <Flow.Node flowId="sending">sending</Flow.Node>
-      <Flow.Arrow label="request completes" length={132} />
-      <Flow.Node flowId="check" variant="decision">check queue</Flow.Node>
+      <Flow.Node flowId="idle">空闲</Flow.Node>
+      <Flow.Arrow label="新命令" length={108} />
+      <Flow.Node flowId="sending">发送中</Flow.Node>
+      <Flow.Arrow label="请求完成" length={132} />
+      <Flow.Node flowId="check" variant="decision">检查队列</Flow.Node>
     </Flow.Row>
     <div className="h-20" aria-hidden />
   </Flow.Canvas>
 </Flow.Root>
 
-To implement this you build two pieces:
+要实现这一功能，需要构建两部分：
 
-1. **Backend endpoint** that accepts commands and returns a stream of state snapshots.
-2. **Frontend state converter** that maps state snapshots to assistant-ui's data format.
+1. **后端端点**，用于接收命令并返回状态快照流。
+2. **前端状态转换器**，用于将状态快照映射为 assistant-ui 的数据格式。
 
-## Building a backend endpoint
+## 构建后端端点
 
-The endpoint receives POST requests with this payload:
+端点接收包含以下负载的 POST 请求：
 
 ```ts
 {
@@ -118,12 +118,12 @@ The endpoint receives POST requests with this payload:
 ```
 
 <Callout type="warn">
-The previous wire shape spread `callSettings` and `config` fields at the top level (e.g. `body.modelName`). Both formats are sent for compatibility, but the top-level fields are deprecated. Read from the nested objects.
+之前的传输格式会将 `callSettings` 和 `config` 字段展开到顶层（例如 `body.modelName`）。为保持兼容性，两种格式都会发送，但顶层字段已弃用。请从嵌套对象中读取这些字段。
 </Callout>
 
-The endpoint returns a stream of state snapshots using the [`assistant-stream`](https://www.npmjs.com/package/assistant-stream) library ([PyPI](https://pypi.org/project/assistant-stream/)).
+端点使用 [`assistant-stream`](https://www.npmjs.com/package/assistant-stream) 库返回状态快照流（[PyPI](https://pypi.org/project/assistant-stream/)).
 
-### Handling commands
+### 处理命令
 
 ```python
 for command in request.commands:
@@ -135,9 +135,9 @@ for command in request.commands:
         # Handle your custom command
 ```
 
-### Streaming updates
+### 流式更新
 
-Mutate `controller.state` inside your run callback:
+在运行回调中修改 `controller.state`：
 
 ```python
 from assistant_stream import RunController, create_run
@@ -153,11 +153,11 @@ async def chat_endpoint(request: ChatRequest):
     return DataStreamResponse(stream)
 ```
 
-State changes are automatically streamed using the operations described in [streaming protocol](#streaming-protocol).
+状态变化会使用[流式传输协议](#streaming-protocol)中描述的操作自动进行流式传输。
 
-### Cancellation
+### 取消
 
-`create_run` exposes `controller.is_cancelled` and `controller.cancelled_event`. If the response stream closes early (user cancel, client disconnect), these are set so your loop can exit cleanly. `create_run` gives callbacks a ~50ms cooperative shutdown window before forced cancellation. Put critical cleanup in `finally` blocks.
+`create_run` 提供 `controller.is_cancelled` 和 `controller.cancelled_event`。如果响应流提前关闭（用户取消、客户端断开连接），它们会被设置，使循环能够正常退出。`create_run` 会在强制取消前为回调提供约 50 毫秒的协作式关闭窗口。请将关键清理逻辑放在 `finally` 块中。
 
 ```python
 async def run_callback(controller: RunController):
@@ -171,7 +171,7 @@ async def run_callback(controller: RunController):
     # cancellation-aware shutdown
 ```
 
-### Backend reference implementation
+### 后端参考实现
 
 <Tabs items={["Custom agent", "LangGraph"]}>
 <Tab value="Custom agent">
@@ -235,15 +235,15 @@ async def chat_endpoint(request: ChatRequest):
 </Tab>
 </Tabs>
 
-Full LangGraph example: [`python/assistant-transport-backend-langgraph`](https://github.com/assistant-ui/assistant-ui/tree/main/python/assistant-transport-backend-langgraph).
+完整的 LangGraph 示例：[`python/assistant-transport-backend-langgraph`](https://github.com/assistant-ui/assistant-ui/tree/main/python/assistant-transport-backend-langgraph).
 
-## Streaming protocol
+## 流式传输协议
 
-assistant-stream replicates an arbitrary JSON object via two operations.
+assistant-stream 通过两个操作复制任意 JSON 对象。
 
-### Operations
+### 操作
 
-These two operations cover all complex state mutations: `set` for value updates and structure, `append-text` for efficient streaming of text content.
+这两个操作涵盖所有复杂的状态变更：`set` 用于值更新和结构变更，`append-text` 用于高效流式传输文本内容。
 
 #### `set`
 
@@ -271,29 +271,29 @@ These two operations cover all complex state mutations: `set` for value updates 
 { "message": "Hello World" }
 ```
 
-### Wire format
+### 传输格式
 
 <Callout type="warn">
-The wire format will migrate to Server-Sent Events (SSE) in a future release.
+未来版本将把传输格式迁移到 Server-Sent Events（SSE）。
 </Callout>
 
-Inspired by [AI SDK's data stream protocol](https://sdk.vercel.ai/docs/ai-sdk-ui/stream-protocol).
+灵感来自 [AI SDK 的数据流协议](https://sdk.vercel.ai/docs/ai-sdk-ui/stream-protocol).
 
-**state update:**
+**状态更新：**
 
 ```
 aui-state:[{"type":"set","path":["status"],"value":"completed"}]
 ```
 
-**error:**
+**错误：**
 
 ```
 3:"error message"
 ```
 
-## Building a frontend
+## 构建前端
 
-`useAssistantTransportRuntime` accepts:
+`useAssistantTransportRuntime` 接受：
 
 ```ts
 {
@@ -315,9 +315,9 @@ aui-state:[{"type":"set","path":["status"],"value":"completed"}]
 }
 ```
 
-### State converter
+### 状态转换器
 
-The state converter transforms your agent state into assistant-ui's message format:
+状态转换器会将代理状态转换为 assistant-ui 的消息格式：
 
 ```ts
 (
@@ -334,9 +334,9 @@ The state converter transforms your agent state into assistant-ui's message form
 };
 ```
 
-### Converting messages
+### 转换消息
 
-`unstable_createMessageConverter` transforms agent messages to assistant-ui's format:
+`unstable_createMessageConverter` 将代理消息转换为 assistant-ui 格式：
 
 <Tabs items={["Example", "LangChain"]}>
 <Tab value="Example">
@@ -380,11 +380,11 @@ const converter = (state: YourAgentState) => ({
 </Tab>
 </Tabs>
 
-Retrieve the original message format anywhere via `messageConverter.toOriginalMessage(threadMessage)` or `toOriginalMessages(threadMessage)`.
+可以通过 `messageConverter.toOriginalMessage(threadMessage)` 或 `toOriginalMessages(threadMessage)` 在任意位置获取原始消息格式。
 
-### Optimistic updates from commands
+### 来自命令的乐观更新
 
-The converter also receives `connectionMetadata.pendingCommands`. Use it to show optimistic UI before the backend responds:
+转换器还会接收 `connectionMetadata.pendingCommands`。使用它可以在后端响应前显示乐观 UI：
 
 ```ts
 const converter = (state: State, connectionMetadata: ConnectionMetadata) => {
@@ -399,9 +399,9 @@ const converter = (state: State, connectionMetadata: ConnectionMetadata) => {
 };
 ```
 
-## Errors and cancellations
+## 错误与取消
 
-`onError` and `onCancel` receive `updateState` so you can mutate state on the client without making a server request:
+`onError` 和 `onCancel` 会接收 `updateState`，因此你可以在客户端修改状态，而无需发起服务器请求：
 
 ```ts
 const runtime = useAssistantTransportRuntime({
@@ -415,9 +415,9 @@ const runtime = useAssistantTransportRuntime({
 });
 ```
 
-`onError` receives commands that were in transit. `onCancel` receives both in-transit and queued commands when the user cancels directly; when called after an error, it only receives queued commands (in-transit commands are passed to `onError`).
+`onError` 接收正在传输中的命令。用户直接取消时，`onCancel` 会接收正在传输中和已排队的命令；错误后调用时，它只接收已排队的命令（正在传输中的命令会传递给 `onError`）。
 
-## Custom headers and body
+## 自定义请求头和请求体
 
 ```ts
 const runtime = useAssistantTransportRuntime({
@@ -427,7 +427,7 @@ const runtime = useAssistantTransportRuntime({
 });
 ```
 
-Evaluate per-request:
+按请求计算：
 
 ```ts
 const runtime = useAssistantTransportRuntime({
@@ -444,9 +444,9 @@ const runtime = useAssistantTransportRuntime({
 });
 ```
 
-### Transforming the request body
+### 转换请求体
 
-`prepareSendCommandsRequest` lets you transform the entire body before send:
+`prepareSendCommandsRequest` 允许你在发送前转换整个请求体：
 
 ```ts
 const runtime = useAssistantTransportRuntime({
@@ -463,9 +463,9 @@ const runtime = useAssistantTransportRuntime({
 });
 ```
 
-## Editing messages
+## 编辑消息
 
-Editing is disabled by default. Enable it:
+默认情况下禁用编辑功能。启用它：
 
 ```ts
 const runtime = useAssistantTransportRuntime({
@@ -474,7 +474,7 @@ const runtime = useAssistantTransportRuntime({
 });
 ```
 
-`add-message` commands always include `parentId` and `sourceId`:
+`add-message` 命令始终包含 `parentId` 和 `sourceId`：
 
 ```ts
 {
@@ -485,13 +485,13 @@ const runtime = useAssistantTransportRuntime({
 }
 ```
 
-### Backend handling
+### 后端处理
 
-When the backend receives `add-message` with a `parentId`:
+当后端收到带有 `parentId` 的 `add-message` 时：
 
-1. Truncate all messages after the parent.
-2. Append the new message.
-3. Stream the updated state back.
+1. 截断父消息之后的所有消息。
+2. 追加新消息。
+3. 将更新后的状态流式传回。
 
 ```python
 for command in request.commands:
@@ -504,13 +504,13 @@ for command in request.commands:
         messages.append(command.message)
 ```
 
-## Resuming from a sync server
+## 从同步服务器恢复
 
 <Callout type="info">
-The sync server is currently part of the enterprise plan; contact us for details.
+同步服务器目前属于企业版计划；详情请联系我们。
 </Callout>
 
-When a user refreshes the page or reconnects, the backend may still be generating. `resumeRun` reconnects to an active stream.
+当用户刷新页面或重新连接时，后端可能仍在生成内容。`resumeRun` 会重新连接到活动中的流。
 
 ```ts
 const runtime = useAssistantTransportRuntime({
@@ -520,7 +520,7 @@ const runtime = useAssistantTransportRuntime({
 });
 ```
 
-Setting `resumeStateApi` additionally hydrates resumed runs from the server-retained starting state. It requires a sync server that serves the initial-state route; do not configure it against a server without one, since a failing preflight fails the resume closed:
+设置 `resumeStateApi` 后，还会从服务器保留的起始状态中恢复已恢复的运行。它要求同步服务器提供初始状态路由；不要将其配置到没有该路由的服务器上，因为预检失败会导致恢复流程直接失败：
 
 ```tsx
 const runtime = useAssistantTransportRuntime({
@@ -529,13 +529,13 @@ const runtime = useAssistantTransportRuntime({
 });
 ```
 
-Before resuming, the runtime posts `{ threadId }` to `resumeStateApi`. The endpoint must return the state that started the active run together with its identity:
+恢复前，运行时会向 `resumeStateApi` 发送 `{ threadId }`。端点必须返回启动活动运行时的状态及其标识：
 
 ```json
 { "runId": "8b3a...", "state": { "messages": [] } }
 ```
 
-The runtime replaces its local base with this snapshot and includes `runId` in the resume request; the request carries no `state`, since the server replays from the snapshot it retained. A sync server should reject the resume when that ID no longer identifies the same run, preventing replay operations from being applied to a drifted or replaced base state. When no run is active, the endpoint responds `204 No Content` and the runtime skips the resume without raising an error. On a resume, `runId` takes precedence over fields supplied through `body` and survives `prepareSendCommandsRequest`; any `state` either of them supplies is stripped.
+运行时会将本地基础状态替换为此快照，并在恢复请求中包含 `runId`；请求不携带 `state`，因为服务器会从保留的快照中重放。如果该 ID 不再标识同一个运行，同步服务器应拒绝恢复，以防止将重放操作应用到已发生漂移或被替换的基础状态上。没有活动运行时，端点返回 `204 No Content`，运行时会跳过恢复且不会抛出错误。恢复时，`runId` 的优先级高于通过 `body` 提供的字段，并且会在 `prepareSendCommandsRequest` 中保留；它们中任何一个提供的 `state` 都会被移除。
 
 ```tsx
 import { useAui } from "@assistant-ui/react";
@@ -562,11 +562,11 @@ function useResumeOnMount(threadId: string) {
 }
 ```
 
-For `AssistantTransport`, do not pass a `stream` parameter; the runtime uses the configured `resumeApi`.
+对于 `AssistantTransport`，不要传递 `stream` 参数；运行时会使用已配置的 `resumeApi`。
 
-## Accessing runtime state
+## 访问运行时状态
 
-`useAssistantTransportState` reads the current agent state from any component:
+`useAssistantTransportState` 可以从任意组件读取当前代理状态：
 
 ```ts
 import { useAssistantTransportState } from "@assistant-ui/react";
@@ -582,9 +582,9 @@ function MessageCount() {
 }
 ```
 
-### Type safety
+### 类型安全
 
-Augment the module to type your agent state:
+扩展模块，为代理状态添加类型：
 
 ```ts title="assistant.config.ts"
 import "@assistant-ui/react";
@@ -601,11 +601,11 @@ declare module "@assistant-ui/react" {
 }
 ```
 
-Place this file anywhere in your project; TypeScript picks it up via module resolution. `useAssistantTransportState` becomes fully typed.
+将此文件放置在项目中的任意位置；TypeScript 会通过模块解析找到它。`useAssistantTransportState` 将获得完整的类型支持。
 
-### Accessing the original message
+### 访问原始消息
 
-If you used `createMessageConverter`, retrieve the original message from any assistant-ui state:
+如果使用了 `createMessageConverter`，可以从任意 assistant-ui 状态中获取原始消息：
 
 ```ts
 import { useAuiState } from "@assistant-ui/react";
@@ -617,9 +617,9 @@ function MyMessageComponent() {
 }
 ```
 
-`toOriginalMessages` returns all source messages when a `ThreadMessage` was created from multiple sources.
+当 `ThreadMessage` 由多个来源创建时，`toOriginalMessages` 会返回所有源消息。
 
-## Frontend reference implementation
+## 前端参考实现
 
 ```tsx
 "use client";
@@ -669,11 +669,11 @@ export function MyRuntimeProvider({ children }) {
 }
 ```
 
-Full example: [`examples/with-assistant-transport`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-assistant-transport). A LangChain variant lives in the same examples directory.
+完整示例：[`examples/with-assistant-transport`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-assistant-transport). LangChain 变体位于同一示例目录中。
 
-## Custom commands
+## 自定义命令
 
-### Define
+### 定义
 
 ```ts title="assistant.config.ts"
 import "@assistant-ui/react";
@@ -690,7 +690,7 @@ declare module "@assistant-ui/react" {
 }
 ```
 
-### Issue
+### 发出
 
 ```ts
 import { useAssistantTransportSendCommand } from "@assistant-ui/react";
@@ -707,7 +707,7 @@ function MyComponent() {
 }
 ```
 
-### Handle on the backend
+### 在后端处理
 
 ```python
 for command in request.commands:
@@ -715,7 +715,7 @@ for command in request.commands:
         data = command.data
 ```
 
-### Optimistic updates
+### 乐观更新
 
 ```ts
 const converter = (state: State, connectionMetadata: ConnectionMetadata) => {
@@ -730,34 +730,34 @@ const converter = (state: State, connectionMetadata: ConnectionMetadata) => {
 };
 ```
 
-Custom commands follow the same lifecycle as built-in ones; check for them in `onError` and `onCancel` if needed.
+自定义命令遵循与内置命令相同的生命周期；如有需要，可以在 `onError` 和 `onCancel` 中检查它们。
 
-## Adapter support
+## 适配器支持
 
-| Adapter | Supported via |
+| 适配器 | 支持方式 |
 | --- | --- |
-| Attachments | `adapters.attachments` |
-| History | `adapters.history` |
-| threadList | Via [thread list adapter](/docs/runtimes/concepts/threads) |
+| 附件 | `adapters.attachments` |
+| 历史记录 | `adapters.history` |
+| threadList | 通过[线程列表适配器](/docs/runtimes/concepts/threads) |
 
-Speech, dictation, feedback, and suggestions are not currently exposed by `AssistantTransport`. Drop down to `ExternalStoreRuntime` if you need them.
+`AssistantTransport` 目前未提供语音、听写、反馈和建议功能。如果需要这些功能，请使用 `ExternalStoreRuntime`。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="ExternalStoreRuntime"
-    description="The core runtime AssistantTransport is built on."
+    description="AssistantTransport 构建于其上的核心运行时。"
     href="/docs/runtimes/custom/external-store"
   />
   <Card
     title="Data Stream"
-    description="Message-streaming protocol on top of LocalRuntime."
+    description="构建在 LocalRuntime 之上的消息流式传输协议。"
     href="/docs/runtimes/custom/data-stream"
   />
   <Card
     title="Adapters"
-    description="Attachments, history, and the rest of the shared adapter contracts."
+    description="附件、历史记录以及其他共享适配器契约。"
     href="/docs/runtimes/concepts/adapters"
   />
 </Cards>

@@ -1,30 +1,30 @@
 ---
-title: Realtime Voice Chat
-description: Build bidirectional voice conversations with AI in React. Realtime audio streaming, interruption handling, and visual state, integrated via assistant-ui.
+title: 实时语音聊天
+description: 在 React 中构建与 AI 的双向语音对话。通过 assistant-ui 集成实时音频流、打断处理和可视化状态。
 platforms: ["react"]
 ---
 
 import { VoiceSample } from "@/components/pages/docs/samples/voice";
 
-assistant-ui supports realtime bidirectional voice through the `RealtimeVoiceAdapter` interface. Users speak into their microphone, the agent answers with audio, and transcripts appear in the thread while the session runs.
+assistant-ui 通过 `RealtimeVoiceAdapter` 接口支持实时双向语音。用户对着麦克风说话，助手通过音频回答，会话运行期间，转录文本会显示在线程中。
 
 <VoiceSample />
 
-## Three voice modes
+## 三种语音模式
 
-assistant-ui ships three related but distinct voice capabilities. Choose the mode that matches the product surface:
+assistant-ui 提供三种相关但各不相同的语音能力。请选择与产品界面相匹配的模式：
 
-| Mode | Guide | Adapter | Direction |
+| 模式 | 指南 | 适配器 | 方向 |
 |------|-------|---------|-----------|
-| **Realtime duplex** | this page | `RealtimeVoiceAdapter` | Audio ↔ audio, live session |
-| **Push-to-talk dictation** | [Dictation](/docs/guides/dictation) | `DictationAdapter` | Audio → text into the composer |
-| **Read-aloud** | [Speech](/docs/guides/speech) | `SpeechSynthesisAdapter` | Text → audio for one message |
+| **实时双工** | 本页 | `RealtimeVoiceAdapter` | 音频 ↔ 音频，实时会话 |
+| **按住说话听写** | [听写](/docs/guides/dictation) | `DictationAdapter` | 音频 → 输入框中的文本 |
+| **朗读** | [语音](/docs/guides/speech) | `SpeechSynthesisAdapter` | 文本 → 单条消息的音频 |
 
-Realtime voice is the only mode that owns both directions at once. Dictation fills the composer; speech reads a finished message aloud.
+实时语音是唯一同时负责两个方向的模式。听写会填充输入框；语音会朗读已完成的消息。
 
 ## RealtimeVoiceAdapter
 
-Implement `RealtimeVoiceAdapter` to connect any voice provider. The contract lives in `@assistant-ui/core` and is re-exported from `@assistant-ui/react`:
+实现 `RealtimeVoiceAdapter` 即可连接任意语音提供商。契约定义在 `@assistant-ui/core` 中，并从 `@assistant-ui/react` 重新导出：
 
 ```tsx
 import type { RealtimeVoiceAdapter } from "@assistant-ui/react";
@@ -36,7 +36,7 @@ type RealtimeVoiceAdapter = {
 };
 ```
 
-A session exposes connection state, mute controls, and event subscriptions:
+会话提供连接状态、静音控制和事件订阅：
 
 ```tsx
 namespace RealtimeVoiceAdapter {
@@ -74,18 +74,18 @@ namespace RealtimeVoiceAdapter {
 }
 ```
 
-Session status moves `starting` → `running` → `ended`. The `ended` status includes a reason: `"finished"`, `"cancelled"`, or `"error"` (with an optional `error` field).
+会话状态依次从 `starting` → `running` → `ended` 变化。`ended` 状态包含原因：`"finished"`、`"cancelled"` 或 `"error"`（以及可选的 `error` 字段）。
 
-Transcripts from `onTranscript` are appended to the message thread automatically:
+来自 `onTranscript` 的转录文本会自动追加到消息线程中：
 
-- User transcripts (`role: "user"`, `isFinal: true`) become user messages.
-- Assistant transcripts (`role: "assistant"`) stream into an assistant message. The message stays in a running status until `isFinal: true`.
+- 用户转录文本（`role: "user"`、`isFinal: true`）会成为用户消息。
+- 助手转录文本（`role: "assistant"`）会流式传输到助手消息中。该消息会一直保持运行状态，直到 `isFinal: true`。
 
-`onModeChange` reports `"listening"` (user's turn) or `"speaking"` (agent's turn). `onVolumeChange` reports a real-time level from `0` to `1` for visual feedback such as the voice orb.
+`onModeChange` 报告 `"listening"`（用户回合）或 `"speaking"`（助手回合）。`onVolumeChange` 报告从 `0` 到 `1` 的实时音量级别，用于语音球等视觉反馈。
 
 ## createVoiceSession
 
-`createVoiceSession` removes the manual callback-set boilerplate when you implement an adapter. Pass it the connect options and an async `setup` function that receives `VoiceSessionHelpers` and returns `VoiceSessionControls`:
+实现适配器时，`createVoiceSession` 可以省去手动编写回调集合的样板代码。向它传入连接选项和异步 `setup` 函数；该函数接收 `VoiceSessionHelpers` 并返回 `VoiceSessionControls`：
 
 ```tsx
 import {
@@ -120,22 +120,22 @@ export class MyVoiceAdapter implements RealtimeVoiceAdapter {
 }
 ```
 
-`VoiceSessionHelpers` provides:
+`VoiceSessionHelpers` 提供以下功能：
 
-| Helper | Role |
+| 辅助函数 | 作用 |
 |--------|------|
-| `setStatus(status)` | Update session status (for example to `{ type: "running" }`) |
-| `end(reason, error?)` | End the session and clean up subscribers |
-| `emitTranscript(item)` | Push a transcript into the thread |
-| `emitMode(mode)` | Report `"listening"` or `"speaking"` |
-| `emitVolume(volume)` | Report a level from `0` to `1` |
-| `isDisposed()` | Skip events after teardown |
+| `setStatus(status)` | 更新会话状态（例如更新为 `{ type: "running" }`） |
+| `end(reason, error?)` | 结束会话并清理订阅者 |
+| `emitTranscript(item)` | 将转录文本推送到线程中 |
+| `emitMode(mode)` | 报告 `"listening"` 或 `"speaking"` |
+| `emitVolume(volume)` | 报告从 `0` 到 `1` 的音量级别 |
+| `isDisposed()` | 拆除后跳过事件 |
 
-`createVoiceSession` wires status tracking, mute state, abort-signal disconnect, and all `on*` subscriptions for you.
+`createVoiceSession` 会为你处理状态跟踪、静音状态、AbortSignal 断开连接，以及所有 `on*` 订阅。
 
-## Configuration
+## 配置
 
-Pass a `RealtimeVoiceAdapter` implementation on the runtime:
+在运行时中传入 `RealtimeVoiceAdapter` 实现：
 
 ```tsx
 const runtime = useChatRuntime({
@@ -145,15 +145,15 @@ const runtime = useChatRuntime({
 });
 ```
 
-When a voice adapter is provided, `capabilities.voice` is set to `true` automatically.
+提供语音适配器后，`capabilities.voice` 会自动设置为 `true`。
 
-## React hooks
+## React Hooks
 
-These hooks are exported from `@assistant-ui/react` and read the active voice session on the current thread.
+这些 Hook 从 `@assistant-ui/react` 导出，并读取当前线程中的活动语音会话。
 
 ### useVoiceState
 
-Returns the current `VoiceSessionState`, or `undefined` when no session is active:
+返回当前 `VoiceSessionState`；没有活动会话时返回 `undefined`：
 
 ```tsx
 import { useVoiceState } from "@assistant-ui/react";
@@ -164,7 +164,7 @@ const voiceState = useVoiceState();
 // voiceState?.mode: "listening" | "speaking"
 ```
 
-`VoiceSessionState` is:
+`VoiceSessionState` 的值为：
 
 ```tsx
 type VoiceSessionState = {
@@ -176,7 +176,7 @@ type VoiceSessionState = {
 
 ### useVoiceVolume
 
-Subscribes to real-time audio level independently of session state:
+独立于会话状态订阅实时音频级别：
 
 ```tsx
 import { useVoiceVolume } from "@assistant-ui/react";
@@ -186,7 +186,7 @@ const volume = useVoiceVolume(); // number from 0 to 1
 
 ### useVoiceControls
 
-Returns methods that drive the session:
+返回用于驱动会话的方法：
 
 ```tsx
 import { useVoiceControls } from "@assistant-ui/react";
@@ -194,9 +194,9 @@ import { useVoiceControls } from "@assistant-ui/react";
 const { connect, disconnect, mute, unmute } = useVoiceControls();
 ```
 
-### Headless control bar
+### 无头控制栏
 
-Build your own controls from the hooks when you need a custom layout:
+需要自定义布局时，可以使用这些 Hook 构建自己的控制项：
 
 ```tsx
 import { useVoiceState, useVoiceControls } from "@assistant-ui/react";
@@ -232,17 +232,17 @@ function VoiceControls() {
 }
 ```
 
-## Voice UI component
+## 语音 UI 组件
 
-The fastest path is the styled `voice` registry component. It ships a `VoiceControl` bar, mute and disconnect buttons, status indicator, and animated `VoiceOrb` built on the hooks above.
+最快的方式是使用样式化的 `voice` 注册表组件。它提供 `VoiceControl` 栏、静音和断开连接按钮、状态指示器，以及基于上述 Hook 构建的动画 `VoiceOrb`。
 
-### Install
+### 安装
 
 <InstallCommand shadcn={["voice"]} />
 
-This adds `/components/assistant-ui/elements/voice.tsx` to your project. Adjust styling as needed.
+这会将 `/components/assistant-ui/elements/voice.tsx` 添加到项目中。请根据需要调整样式。
 
-### Use with a runtime
+### 与运行时搭配使用
 
 ```tsx title="app/page.tsx"
 import { Thread } from "@/components/assistant-ui/elements/thread.aui";
@@ -263,19 +263,19 @@ export default function Chat() {
 }
 ```
 
-See the [Orb page](/elements/orb) for anatomy, variants, and state samples.
+有关结构、变体和状态示例，请参阅[语音球页面](/elements/orb)。
 
-## Example: LiveKit
+## 示例：LiveKit
 
-[LiveKit](https://livekit.io/) provides realtime voice over WebRTC rooms with transcription support. The browser adapter joins a room; a separate agent worker (STT, LLM, TTS) joins the same room. Without an agent in the room, the client connects but has nothing to talk to.
+[LiveKit](https://livekit.io/) 通过支持转录的 WebRTC 房间提供实时语音。浏览器适配器加入一个房间；单独的助手工作进程（STT、LLM、TTS）加入同一个房间。如果房间中没有助手，客户端虽然可以连接，但没有可对话的对象。
 
-The [`with-livekit`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-livekit) example shows the full wiring:
+[`with-livekit`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-livekit) 示例展示了完整的连接方式：
 
-1. **Adapter** (`examples/with-livekit/lib/livekit-voice-adapter.ts`): `LiveKitVoiceAdapter` implements `RealtimeVoiceAdapter`. `connect` calls `createVoiceSession`, connects a LiveKit `Room`, enables the local microphone, attaches remote audio tracks, and maps room events to helpers (`setStatus`, `end`, `emitMode`, `emitVolume`, `emitTranscript`).
-2. **Token route** (`examples/with-livekit/app/api/livekit-token/route.ts`): mints a ten-minute token for an isolated room so secrets stay off the client.
-3. **Agent worker** (`examples/with-livekit/agent/`): a Python LiveKit Agents process that joins the room and runs the voice pipeline.
+1. **适配器**（`examples/with-livekit/lib/livekit-voice-adapter.ts`）：`LiveKitVoiceAdapter` 实现 `RealtimeVoiceAdapter`。`connect` 调用 `createVoiceSession`，连接 LiveKit `Room`，启用本地麦克风，附加远程音频轨道，并将房间事件映射到辅助函数（`setStatus`、`end`、`emitMode`、`emitVolume`、`emitTranscript`）。
+2. **令牌路由**（`examples/with-livekit/app/api/livekit-token/route.ts`）：为隔离房间生成有效期十分钟的令牌，使密钥不会暴露在客户端。
+3. **助手工作进程**（`examples/with-livekit/agent/`）：加入房间并运行语音流水线的 Python LiveKit Agents 进程。
 
-Minimal runtime wiring:
+最小运行时连接代码：
 
 ```tsx
 import { LiveKitVoiceAdapter } from "@/lib/livekit-voice-adapter";
@@ -295,23 +295,23 @@ const runtime = useChatRuntime({
 });
 ```
 
-Clone the example for the adapter source, token endpoint, and agent worker rather than re-implementing the full LiveKit event map from scratch.
+请直接克隆示例以获取适配器源代码、令牌端点和助手工作进程，而不要从头重新实现完整的 LiveKit 事件映射。
 
-The token route accepts a request only when `Sec-Fetch-Site` is `same-origin` or `none`, and falls back to comparing the `Origin` header against the request URL for clients that omit Fetch Metadata. Behind a reverse proxy, that fallback needs the public scheme and host preserved in the request URL.
+令牌路由仅在 `Sec-Fetch-Site` 为 `same-origin` 或 `none` 时接受请求；对于省略 Fetch Metadata 的客户端，则会回退为将 `Origin` 标头与请求 URL 进行比较。在反向代理后运行时，该回退逻辑要求请求 URL 保留公开的协议和主机。
 
 <Callout type="warn">
-  A request-context check is not authentication. Before deploying, require your application session in the token route and apply a durable rate limit, so anonymous callers cannot consume voice capacity.
+  请求上下文检查并不等同于身份验证。部署前，请在令牌路由中要求应用会话，并应用持久的速率限制，避免匿名调用方消耗语音容量。
 </Callout>
 
-You can also scaffold it with the CLI:
+你也可以使用 CLI 搭建该示例：
 
 ```bash
 npx assistant-ui create my-app -e with-livekit
 ```
 
-## Related guides
+## 相关指南
 
-- [Dictation](/docs/guides/dictation): push-to-talk speech-to-text into the composer (`DictationAdapter`, `ComposerPrimitive.Dictate`).
-- [Speech](/docs/guides/speech): read-aloud for assistant messages (`SpeechSynthesisAdapter`, `ActionBarPrimitive.Speak`).
-- [Orb](/elements/orb): registry component reference for `VoiceControl` and `VoiceOrb`.
-- [Voice API reference](/docs/api-reference/voice): generated types for sessions, speech, and dictation.
+- [听写](/docs/guides/dictation)：将按住说话的语音转文本结果填入输入框（`DictationAdapter`、`ComposerPrimitive.Dictate`）。
+- [语音](/docs/guides/speech)：朗读助手消息（`SpeechSynthesisAdapter`、`ActionBarPrimitive.Speak`）。
+- [语音球](/elements/orb)：`VoiceControl` 和 `VoiceOrb` 的注册表组件参考。
+- [语音 API 参考](/docs/api-reference/voice)：会话、语音和听写的生成类型。

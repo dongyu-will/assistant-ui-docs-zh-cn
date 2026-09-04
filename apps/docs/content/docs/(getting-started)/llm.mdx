@@ -1,33 +1,33 @@
 ---
 title: "Agent Skills"
-description: Use AI tools to build with assistant-ui faster. AI-accessible documentation, Claude Code skills, and MCP integration.
+description: 使用 AI 工具更快地构建 assistant-ui。提供 AI 可访问的文档、Claude Code skills 和 MCP 集成。
 ---
 
 import { FileText } from "lucide-react";
 
-Build faster with AI assistants that understand assistant-ui. This page covers all the ways to give your AI tools access to assistant-ui documentation and context.
+借助理解 assistant-ui 的 AI 助手更快地构建应用。本页面介绍了让 AI 工具访问 assistant-ui 文档和上下文的所有方式。
 
-## AI Accessible Documentation
+## AI 可访问的文档
 
-Our docs are designed to be easily accessible to AI assistants:
+我们的文档经过设计，可让 AI 助手轻松访问：
 
 <Cards>
   <Card icon={<FileText className="text-blue-300" />} title="/llms.txt" href="/llms.txt" external>
-    Structured index of all documentation pages. Point your AI here for a quick overview.
+    所有文档页面的结构化索引。可将 AI 指向此处，以快速了解文档概览。
   </Card>
 
   <Card icon={<FileText className="text-green-300" />} title="/llms-full.txt" href="/llms-full.txt" external>
-    Complete documentation in a single file. Use this for full context.
+    包含完整文档的单个文件。需要完整上下文时使用此文件。
   </Card>
 
-  <Card icon={<FileText className="text-purple-300" />} title=".mdx suffix">
-    Add `.mdx` to any page's URL to get raw markdown content (e.g., `/docs/installation.mdx`).
+  <Card icon={<FileText className="text-purple-300" />} title=".mdx 后缀">
+    在任意页面的 URL 后添加 `.mdx`，即可获取原始 Markdown 内容（例如：`/docs/installation.mdx`）。
   </Card>
 </Cards>
 
-### Context Files
+### 上下文文件
 
-Add assistant-ui context to your project's `CLAUDE.md` or `.cursorrules`:
+将 assistant-ui 上下文添加到项目的 `CLAUDE.md` 或 `.cursorrules`：
 
 ```md
 ## assistant-ui
@@ -45,51 +45,51 @@ Key patterns:
 
 ## Skills
 
-Install assistant-ui skills for AI Tools:
+为 AI 工具安装 assistant-ui skills：
 
 ```sh
 npx skills add assistant-ui/skills
 ```
 
-| Skill | Purpose |
+| Skill | 用途 |
 |-------|---------|
-| `/assistant-ui` | General architecture and overview guide |
-| `/setup` | Project setup and configuration (AI SDK, LangGraph, custom backends) |
-| `/primitives` | UI component primitives (Thread, Composer, Message, etc.) |
-| `/runtime` | Runtime system and state management |
-| `/tools` | Tool registration and tool UI |
-| `/streaming` | Streaming protocol with assistant-stream |
-| `/cloud` | Cloud persistence and authorization |
-| `/thread-list` | Multi-thread management |
-| `/update` | Update assistant-ui and AI SDK to latest versions |
+| `/assistant-ui` | 通用架构和概览指南 |
+| `/setup` | 项目设置和配置（AI SDK、LangGraph、自定义后端） |
+| `/primitives` | UI 组件原语（Thread、Composer、Message 等） |
+| `/runtime` | 运行时系统和状态管理 |
+| `/tools` | 工具注册和工具 UI |
+| `/streaming` | 使用 assistant-stream 的流式传输协议 |
+| `/cloud` | 云端持久化和授权 |
+| `/thread-list` | 多线程管理 |
+| `/update` | 将 assistant-ui 和 AI SDK 更新到最新版本 |
 
-Use by typing the command in Claude Code, e.g., `/assistant-ui` for the main guide or `/setup` when setting up a project.
+在 Claude Code 中输入命令即可使用，例如，主指南使用 `/assistant-ui`，设置项目时使用 `/setup`。
 
 ## MCP
 
-assistant-ui hosts an MCP server at `https://www.assistant-ui.com/mcp` (Streamable HTTP). It serves the live documentation, examples, design components, and Tap docs, and exposes the hosted app templates. There is nothing to install and it is always current.
+assistant-ui 在 `https://www.assistant-ui.com/mcp` 提供 MCP 服务器（Streamable HTTP）。该服务器提供实时文档、示例、设计组件和 Tap 文档，并开放托管的应用模板。无需安装，且始终保持最新。
 
-Once connected, your AI assistant will understand everything about assistant-ui. Just ask naturally:
+连接后，你的 AI 助手将理解 assistant-ui 的全部内容。直接自然地提问即可：
 
-- "Add a chat interface with streaming support to my app"
-- "How do I integrate assistant-ui with the Vercel AI SDK?"
-- "My Thread component isn't updating, what could be wrong?"
+- “为我的应用添加支持流式传输的聊天界面”
+- “如何将 assistant-ui 与 Vercel AI SDK 集成？”
+- “我的 Thread 组件没有更新，可能是什么问题？”
 
-### Quick Install
+### 快速安装
 
-For Claude Code:
+对于 Claude Code：
 
 ```bash
 claude mcp add --transport http assistant-ui https://www.assistant-ui.com/mcp
 ```
 
-For other IDEs, the assistant-ui CLI configures the right client for you:
+对于其他 IDE，assistant-ui CLI 会为你配置正确的客户端：
 
 ```bash
 npx assistant-ui@latest mcp
 ```
 
-### Manual Installation
+### 手动安装
 
 <Tabs items={["Cursor", "Windsurf", "VSCode", "Zed", "Claude Code", "Claude Desktop"]}>
   <Tab>
@@ -97,7 +97,7 @@ npx assistant-ui@latest mcp
   <img src="https://cursor.com/deeplink/mcp-install-dark.svg" alt="Install in Cursor" className="not-prose" />
 </a>
 
-Or add to `.cursor/mcp.json`:
+或者添加到 `.cursor/mcp.json`：
 
 ```json
 {
@@ -109,10 +109,10 @@ Or add to `.cursor/mcp.json`:
 }
 ```
 
-After adding, open Cursor Settings → MCP → find "assistant-ui" and click enable.
+添加后，打开 Cursor Settings → MCP → 找到 “assistant-ui” 并点击启用。
   </Tab>
   <Tab>
-Add to `~/.codeium/windsurf/mcp_config.json`:
+添加到 `~/.codeium/windsurf/mcp_config.json`：
 
 ```json
 {
@@ -124,10 +124,10 @@ Add to `~/.codeium/windsurf/mcp_config.json`:
 }
 ```
 
-After adding, fully quit and re-open Windsurf.
+添加后，完全退出并重新打开 Windsurf。
   </Tab>
   <Tab>
-Add to `.vscode/mcp.json` in your project:
+在项目中添加到 `.vscode/mcp.json`：
 
 ```json
 {
@@ -140,13 +140,13 @@ Add to `.vscode/mcp.json` in your project:
 }
 ```
 
-Enable MCP in Settings → search "MCP" → enable "Chat > MCP". Use GitHub Copilot Chat in Agent mode.
+在 Settings → 搜索 “MCP” → 启用 “Chat > MCP” 中启用 MCP。使用 Agent 模式下的 GitHub Copilot Chat。
   </Tab>
   <Tab>
-Zed launches MCP servers as local commands, so use the stdio package. Add to your Zed settings file:
-- macOS: `~/.zed/settings.json`
-- Linux: `~/.config/zed/settings.json`
-- Windows: `%APPDATA%\Zed\settings.json`
+Zed 将 MCP 服务器作为本地命令启动，因此请使用 stdio 包。将其添加到 Zed 设置文件中：
+- macOS：`~/.zed/settings.json`
+- Linux：`~/.config/zed/settings.json`
+- Windows：`%APPDATA%\Zed\settings.json`
 
 ```json
 {
@@ -161,17 +161,17 @@ Zed launches MCP servers as local commands, so use the stdio package. Add to you
 }
 ```
 
-The server starts automatically with the Assistant Panel.
+服务器会随 Assistant Panel 自动启动。
   </Tab>
   <Tab>
 ```bash
 claude mcp add --transport http assistant-ui https://www.assistant-ui.com/mcp
 ```
 
-The server is available immediately once added.
+添加后，服务器会立即可用。
   </Tab>
   <Tab>
-Claude Desktop's configuration file only supports local commands, so use the stdio package. Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+Claude Desktop 的配置文件仅支持本地命令，因此请使用 stdio 包。将其添加到 `~/Library/Application Support/Claude/claude_desktop_config.json`（macOS）或 `%APPDATA%\Claude\claude_desktop_config.json`（Windows）：
 
 ```json
 {
@@ -184,33 +184,33 @@ Claude Desktop's configuration file only supports local commands, so use the std
 }
 ```
 
-Restart Claude Desktop after updating the configuration.
+更新配置后，重启 Claude Desktop。
   </Tab>
 </Tabs>
 
-### Available Tools
+### 可用工具
 
-| Tool | Description |
+| 工具 | 描述 |
 |------|-------------|
-| `list_pages` | List documentation pages, optionally filtered by a path prefix such as `/docs/tools` or `/examples` |
-| `get_navigation` | Return the docs navigation tree |
-| `search_docs` | Search docs, examples, design components, and Tap docs |
-| `read_page` | Read one page as markdown by slug, path, or URL |
-| `list_templates` | List the hosted app templates and fixed demos |
-| `read_template` | Get a template's full authoring surface: config schemas, rules, and an example config |
-| `preview_template` | Create a configured preview session and return preview and download URLs |
+| `list_pages` | 列出文档页面，可选择按路径前缀过滤，例如 `/docs/tools` 或 `/examples` |
+| `get_navigation` | 返回文档导航树 |
+| `search_docs` | 搜索文档、示例、设计组件和 Tap 文档 |
+| `read_page` | 按 slug、路径或 URL 以 Markdown 格式读取单个页面 |
+| `list_templates` | 列出托管的应用模板和固定演示 |
+| `read_template` | 获取模板完整的创作界面：配置 schema、规则和配置示例 |
+| `preview_template` | 创建配置好的预览会话，并返回预览和下载 URL |
 
-The server also exposes every page as an MCP resource (`assistant-ui://{path}`) and an `assistant-ui-template-workflow` prompt for template-driven app building.
+服务器还会将每个页面作为 MCP 资源（`assistant-ui://{path}`）以及用于模板驱动应用构建的 `assistant-ui-template-workflow` prompt 暴露出来。
 
-### Local stdio Server
+### 本地 stdio 服务器
 
-`@assistant-ui/mcp-docs-server` stays published for clients that only launch local stdio servers. It is a thin proxy to the hosted endpoint, so it serves the same live content:
+`@assistant-ui/mcp-docs-server` 仍会继续发布，供只能启动本地 stdio 服务器的客户端使用。它是托管端点的轻量代理，因此提供相同的实时内容：
 
 ```bash
 npx add-mcp @assistant-ui/mcp-docs-server
 ```
 
-### Troubleshooting
+### 故障排除
 
-- **Connection failing**: The hosted server requires network access. Check that the URL is exactly `https://www.assistant-ui.com/mcp` and that your client supports Streamable HTTP.
-- **Stdio server not starting**: Ensure `npx` is installed and working, then restart the MCP server and your IDE.
+- **连接失败**：托管服务器需要网络访问。请检查 URL 是否准确为 `https://www.assistant-ui.com/mcp`，并确认你的客户端支持 Streamable HTTP。
+- **stdio 服务器无法启动**：请确保已安装并正常运行 `npx`，然后重启 MCP 服务器和 IDE。

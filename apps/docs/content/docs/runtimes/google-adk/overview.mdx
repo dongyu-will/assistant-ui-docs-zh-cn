@@ -1,30 +1,30 @@
 ---
-title: Google ADK Runtime
-description: Connect Google's Agent Development Kit (ADK) to a React chat UI with assistant-ui — streaming, tool calls, and multi-agent orchestration supported.
+title: Google ADK 运行时
+description: 使用 assistant-ui 将 Google 的 Agent Development Kit（ADK）连接到 React 聊天 UI，支持流式传输、工具调用和多智能体编排。
 ---
 
-`@assistant-ui/react-google-adk` integrates with [Google ADK JS](https://github.com/google/adk-js), Google's official agent framework for TypeScript, and works with ADK Python backends as well. It supports streaming text, tool calls, multi-agent orchestration, code execution, session state, tool confirmations, auth flows, and input requests.
+`@assistant-ui/react-google-adk` 集成了 [Google ADK JS](https://github.com/google/adk-js), Google 官方的 TypeScript 智能体框架，同时也支持 ADK Python 后端。它支持文本流式输出、工具调用、多智能体编排、代码执行、会话状态、工具确认、身份验证流程和输入请求。
 
-## When to use it
+## 适用场景
 
-Pick the Google ADK runtime when:
+在以下情况下选择 Google ADK 运行时：
 
-- You are building agents with ADK JS (`LlmAgent`, sequential / parallel / loop agents) or ADK Python.
-- You want first-class support for ADK's HITL (human-in-the-loop) primitives: tool confirmations, auth credential flow, workflow input requests.
-- You need multi-agent author and branch tracking, agent transfer events, and grounding / citation metadata.
+- 使用 ADK JS（`LlmAgent`、顺序 / 并行 / 循环智能体）或 ADK Python 构建智能体。
+- 希望获得对 ADK HITL（人在回路）原语的一流支持：工具确认、身份验证凭据流程、工作流输入请求。
+- 需要多智能体作者和分支跟踪、智能体转移事件，以及 grounding / 引用元数据。
 
-## Architecture
+## 架构
 
-`@assistant-ui/react-google-adk` is layered on `ExternalStoreRuntime` (see [architecture](/docs/runtimes/concepts/architecture)). Features that ship as runtime adapters work the same way they do everywhere else; see [adapters](/docs/runtimes/concepts/adapters).
+`@assistant-ui/react-google-adk` 构建于 `ExternalStoreRuntime` 之上（参见[架构](/docs/runtimes/concepts/architecture)）。作为运行时适配器提供的功能在各处的工作方式相同；请参见[适配器](/docs/runtimes/concepts/adapters)。
 
-The package automatically normalizes snake_case event fields from ADK Python backends to camelCase. No configuration is needed; connect to either ADK JS or ADK Python servers. All nested fields (`function_call` → `functionCall`, `requested_tool_confirmations` → `requestedToolConfirmations`) are handled.
+该包会自动将 ADK Python 后端中的 snake_case 事件字段规范化为 camelCase。无需进行配置；连接到 ADK JS 或 ADK Python 服务器即可。所有嵌套字段（`function_call` → `functionCall`、`requested_tool_confirmations` → `requestedToolConfirmations`）都会得到处理。
 
-## Requirements
+## 要求
 
-- A Google ADK agent running on a server (ADK JS or ADK Python).
-- React 18 or 19.
+- 在服务器上运行的 Google ADK 智能体（ADK JS 或 ADK Python）。
+- React 18 或 19。
 
-## Install
+## 安装
 
 <PlatformTabs>
 <Tab value="React">
@@ -45,25 +45,25 @@ The package automatically normalizes snake_case event fields from ADK Python bac
 </PlatformTabs>
 
 <Callout type="info">
-`@google/adk` is only needed on the server side. The client-side runtime has no dependency on it.
+`@google/adk` 仅在服务器端需要。客户端运行时不依赖它。
 </Callout>
 
-## Next
+## 后续
 
 <Cards>
   <Card
-    title="Quickstart"
-    description="Minimal API route + client setup with createAdkApiRoute."
+    title="快速入门"
+    description="使用 createAdkApiRoute 的最小 API 路由和客户端设置。"
     href="/docs/runtimes/google-adk/quickstart"
   />
   <Card
-    title="API reference"
-    description="createAdkStream, server helpers, session adapter, threads, message editing."
+    title="API 参考"
+    description="createAdkStream、服务器辅助函数、会话适配器、线程、消息编辑。"
     href="/docs/runtimes/google-adk/api"
   />
   <Card
     title="Hooks"
-    description="Tool confirmations, auth, input requests, artifacts, escalation, metadata."
+    description="工具确认、身份验证、输入请求、工件、升级处理、元数据。"
     href="/docs/runtimes/google-adk/hooks"
   />
 </Cards>

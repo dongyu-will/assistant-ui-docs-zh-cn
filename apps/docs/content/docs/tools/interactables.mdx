@@ -1,43 +1,43 @@
 ---
-title: Interactable Tool UIs
-description: Build stateful components and tool UIs that both the user and the model can read and edit. Render them beside the thread, or inside messages as versioned, editable surfaces like notepads and artifacts.
+title: 可交互的工具 UI
+description: 构建有状态的组件和工具 UI，让用户和模型都能读取和编辑。将它们渲染在会话线程旁边，或以记事本和工件等带版本、可编辑的界面呈现在消息中。
 platforms: ["react"]
 ---
 
 import { InteractableSample } from "@/components/pages/docs/samples/interactable";
 
-Interactables allow both agents and users to read and edit tool UIs and components. They can be in-thread tool UIs like an email composer, or app-scoped components, like artifacts, task boards, or settings panels.
+可交互组件允许智能体和用户读取及编辑工具 UI 和组件。它们可以是会话线程内的工具 UI，例如邮件编辑器；也可以是应用范围的组件，例如工件、任务看板或设置面板。
 
 <InteractableSample />
 
-## Overview
+## 概览
 
-### Types of Interactables
+### 可交互组件的类型
 
-- **App-scoped:** a component you mount yourself with `unstable_useInteractable`, anywhere in your app (a sidebar, a panel, wherever). The model automatically gets an `update_{name}` tool to read and edit it, and its state can persist across threads.
-- **Thread-scoped:** an interactable tool UI the model can call in-thread. You define it with `unstable_interactableTool` inside `defineToolkit`, and it renders inline when called.
+- **应用级：** 使用 `unstable_useInteractable` 自行挂载的组件，可放置在应用中的任意位置（侧边栏、面板等）。模型会自动获得一个 `update_{name}` 工具，用于读取和编辑该组件，其状态还可以跨线程持久化。
+- **线程级：** 模型可以在线程中调用的工具 UI。你可以在 `defineToolkit` 中使用 `unstable_interactableTool` 定义它，调用时会以内联方式渲染。
 
-### Features
+### 功能
 
-- **Shared, editable state**: the user (via React) and the model (via the auto-generated `update_{name}` tool) both write to the same state, and each sees the other's edits.
-- **Streaming and partial updates**: updates are streamed to the interactable, and the model only needs to update the fields it wants to change.
-- **Versioning and history**: each user edit and model `update_*` is recorded as a version you can display, list, and `restore()` ([Versions](#versions))
-- **Persistent**: state outlives the tool call and the turn, and can survive a reload (thread-scoped via thread history; app-scoped with a persistence adapter).
-- **Auto-generated update tools:** based on the interactable's state schema, an `update_{name}` tool is generated for the model to update and edit it.
+- **共享且可编辑的状态：** 用户（通过 React）和模型（通过自动生成的 `update_{name}` 工具）都会写入同一状态，并且双方都能看到对方的编辑。
+- **流式传输和部分更新：** 更新会以流式方式传输到可交互组件，模型只需更新想要更改的字段。
+- **版本控制和历史记录：** 每次用户编辑和模型的 `update_*` 都会记录为一个版本，你可以显示、列出和 `restore()` 这些版本（[版本](#versions)）。
+- **持久化：** 状态的生命周期会超出工具调用和当前轮次，并且可以在重新加载后保留（线程级状态通过线程历史记录持久化；应用级状态通过持久化适配器持久化）。
+- **自动生成的更新工具：** 系统会根据可交互组件的状态 schema 生成一个 `update_{name}` 工具，供模型更新和编辑该组件。
 
-### Use Cases
+### 使用场景
 
-- Settings panels or dashboards the agent can edit and interact with
-- Collaborative task lists, sticky notes, document editors
-- Making artifacts editable and versioned
-- Anything else, **any React component can be an interactable!**
+- 助手可以编辑和交互的设置面板或仪表板
+- 协作任务列表、便利贴、文档编辑器
+- 让构件支持编辑和版本控制
+- 其他任何场景，**任何 React 组件都可以成为可交互组件！**
 
-## Quick Start
+## 快速开始
 
 <Steps>
 <Step>
 
-### Register the interactables scope
+### 注册 interactables 作用域
 
 ```tsx
 import {
@@ -66,25 +66,24 @@ function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 ```
 
 <Callout type="idea">
-  The deprecated [`interactables:
-  Interactables()`](/docs/api-reference/tools/interactables-legacy) scope and the
-  new `unstable_interactables: unstable_Interactables()` scope are mutually
-  exclusive. Mount only one interactables API in a single provider config.
+  已弃用的 [`interactables:
+  Interactables()`unstable_interactables: unstable_Interactables()`unstable_interactables: unstable_Interactables()`
+  作用域互斥。在单个 provider 配置中只能挂载一个 interactables API。
 </Callout>
 
-This scope is needed for both kinds of interactable. Thread-scoped interactables also live in a toolkit, which you register with `Tools` (shown below).
+这两类 interactable 都需要此作用域。线程级 interactable 还位于工具包中，你可以使用 `Tools` 注册工具包（如下所示）。
 
 </Step>
 <Step>
 
-### Define an interactable
+### 定义 interactable
 
-Pick the path that matches who creates it.
+根据创建它的主体，选择相应的路径。
 
 <Tabs items={["App-scoped", "Thread-scoped"]}>
 <Tab>
 
-A component you mount yourself. Define it with `unstable_useInteractable` where you render it (a sidebar, a panel, wherever).
+这是由你自行挂载的组件。请在渲染它的位置（侧边栏、面板或其他位置）使用 `unstable_useInteractable` 定义它。
 
 ```tsx
 import { unstable_useInteractable } from "@assistant-ui/react";
@@ -127,17 +126,16 @@ function TaskBoard() {
 }
 ```
 
-That's all you need, `update_taskBoard` is generated automatically from your `stateSchema` once the `TaskBoard` component is mounted in your app.
+你只需完成这些操作，`update_taskBoard` 会在应用中挂载 `stateSchema` 组件后，根据你的 `TaskBoard` 自动生成。
 
 <Callout type="tip">
-  App-scoped state is shared across every thread and can be persisted by
-  defining a [persistence adapter](#persistence).
+  应用级状态会在所有线程之间共享，并且可以通过定义[持久化适配器](#persistence)来持久化。
 </Callout>
 
 </Tab>
 <Tab>
 
-An interactable tool UI the model can call in-thread. Define it with `unstable_interactableTool` inside `defineToolkit`; it renders inline when the model calls it, and its `update_{name}` tool is generated automatically from your `stateSchema` once the tool is called by the model.
+这是模型可以在线程中调用的 interactable 工具 UI。请在 `unstable_interactableTool` 中使用 `defineToolkit` 定义它；模型调用它时会以内联方式渲染，并且在模型调用工具后，会根据你的 `update_{name}` 自动生成它的 `stateSchema` 工具。
 
 ```tsx
 "use generative";
@@ -166,7 +164,7 @@ const toolkit = defineToolkit({
 });
 ```
 
-Register the toolkit alongside the `unstable_Interactables` scope:
+将工具包与 `unstable_Interactables` 作用域一起注册：
 
 ```tsx
 AuiConfig({
@@ -176,9 +174,7 @@ AuiConfig({
 ```
 
 <Callout type="info">
-  Thread-scoped state rides the thread's history, so it survives reloads with
-  nothing extra to persist. `render` is run when the interactable is created,
-  and whenever it's updated (via `update_{name}`).
+  线程级状态会随线程历史记录保存，因此无需额外持久化即可在重新加载后保留。`render` 会在 interactable 创建时运行，并在其更新时运行（通过 `update_{name}`）。
 </Callout>
 
 </Tab>
@@ -187,11 +183,11 @@ AuiConfig({
 </Step>
 <Step>
 
-### Surface state to the model in your route
+### 在路由中向模型提供状态
 
 <Tabs items={["AI-SDK", "Other Backends"]}>
 <Tab>
-Each user message carries its state snapshots in its metadata, but the AI SDK's `convertToModelMessages` ignores metadata. Use `unstable_injectInteractableContext` to pass interactable state to the model:
+每条用户消息都会在其元数据中携带状态快照，但 AI SDK 的 `convertToModelMessages` 会忽略元数据。请使用 `unstable_injectInteractableContext` 将 interactable 状态传递给模型：
 
 ```ts title="app/api/chat/route.ts"
 import { openai } from "@ai-sdk/openai";
@@ -211,14 +207,13 @@ export async function POST(req: Request) {
 ```
 
 <Callout type="info">
-  The format of the snapshot sent to the model can be customized, see [State
-  snapshots](#state-snapshots) for more details.
+  可以自定义发送给模型的快照格式，详情请参阅[状态快照](#state-snapshots)。
 </Callout>
 
 </Tab>
 <Tab>
 
-Each user message carries its state snapshots at `metadata.custom.interactables`. For other backends (LangGraph, Mastra, a custom runtime), build the equivalent injection with the two helpers exported from `@assistant-ui/react`:
+每条用户消息都会在 `metadata.custom.interactables` 携带其状态快照。对于其他后端（LangGraph、Mastra、自定义运行时），请使用从 `@assistant-ui/react` 导出的两个辅助函数构建等效的注入：
 
 ```ts
 import {
@@ -236,8 +231,7 @@ for (const message of messages) {
 ```
 
 <Callout type="info">
-  For more details, and how to customize the snapshot format for other backends,
-  see [State snapshots](#customizing-the-format).
+  有关更多详情，以及如何为其他后端自定义快照格式，请参阅[状态快照](#customizing-the-format)。
 </Callout>
 
 </Tab>
@@ -246,31 +240,31 @@ for (const message of messages) {
 </Step>
 </Steps>
 
-## State snapshots
+## 状态快照
 
-Outgoing user messages can carry the interactable's state to the model as a snapshot, stamped when the state has changed since the model last saw it. When only some fields change, a partial snapshot is created containing a shallow diff of only the changed fields and the id.
+当状态自模型上次看到后发生变化时，发出的用户消息可以将可交互组件的状态作为快照携带给模型。仅部分字段发生变化时，会创建部分快照，其中仅包含发生变化字段的浅层差异和 id。
 
-Default full snapshot formatting:
+默认的完整快照格式：
 
 ```ts
 `[Current state of "note" (id: "n1"): {"title":"Q3 launch","body":"Ship the beta by Friday."}]`;
 ```
 
-Default partial snapshot formatting:
+默认的部分快照格式：
 
 ```ts
 `[State of "note" (id: "n1") changed — updated fields: {"title":"Q4 launch"}; fields not listed are unchanged]`;
 ```
 
-### Customizing the format
+### 自定义格式
 
-A formatter receives one snapshot `entry` and returns the line the model sees:
+格式化器接收一个快照 `entry`，并返回模型看到的行：
 
-- `name` and `id` identify the instance. Keep the `id` visible so the model knows what the state belongs to.
-- `state` is the snapshot payload.
-- `partial` is `true` when `state` carries a shallow diff of only the fields that changed since the model's last known state. Handle it.
+- `name` 和 `id` 用于标识实例。请保留可见的 `id`，以便模型知道该状态所属的对象。
+- `state` 是快照负载。
+- 当 `state` 携带自模型上次已知状态以来仅发生变化字段的浅层差异时，`partial` 为 `true`。请处理这种情况。
 
-Write a custom formatter:
+编写自定义格式化器：
 
 ```ts
 import { type Unstable_InteractableSnapshotEntry } from "@assistant-ui/react";
@@ -282,15 +276,15 @@ const formatSnapshot = (entry: Unstable_InteractableSnapshotEntry) =>
 ```
 
 <Callout type="info">
-  When customizing format, remember to:
-  - Handle `partial: true` entries, whose `state` carries a shallow diff of only the fields that changed.
-  - Keep each instance's `id` visible so the model knows what the state belongs to.
+  自定义格式时，请记住：
+  - 处理 `partial: true` 条目，其中其 `state` 携带仅发生变化字段的浅层差异。
+  - 保留每个实例的 `id` 可见，以便模型知道该状态所属的对象。
 </Callout>
 
-Then wire it to your backend:
+然后将其连接到后端：
 
-- **AI SDK:** pass it as the second argument, `unstable_injectInteractableContext(messages, formatSnapshot)`.
-- **Other backends:** use it in place of `unstable_formatInteractableSnapshot` in your helper (see [Step 3](#surface-state-to-the-model-in-your-route)'s "Other Backends" tab).
+- **AI SDK：**将其作为第二个参数 `unstable_injectInteractableContext(messages, formatSnapshot)` 传入。
+- **其他后端：**在辅助函数中使用它替代 `unstable_formatInteractableSnapshot`（请参阅[步骤 3](#surface-state-to-the-model-in-your-route)中的“其他后端”标签页）。
 
 ```ts title="app/api/chat/route.ts"
 messages: await convertToModelMessages(
@@ -298,14 +292,14 @@ messages: await convertToModelMessages(
 ),
 ```
 
-## Artifacts
+## 构件
 
-An artifact combines two pieces that point at the same interactable:
+一个构件由两个指向同一个可交互项的部分组成：
 
-- a thread tool (`unstable_interactableTool`) the model calls to create the artifact inline (a button or small preview in the message), and
-- a panel you mount with `unstable_useInteractable` that opens that same instance at full size.
+- 线程工具（`unstable_interactableTool`），模型通过它在消息中内联创建构件（按钮或消息中的小型预览）；以及
+- 通过 `unstable_useInteractable` 挂载的面板，用于以完整尺寸打开同一个实例。
 
-Both use the same `id`, so they are one interactable, not two: the model creates it in the conversation, and the panel is just a larger view of the very same state. Because the thread holds the creating call, the artifact is **thread-scoped**: it persists with the thread's history (no [persistence adapter](#persistence) needed), and each message's trigger can open that message's version (see [Versions](#versions)).
+两者使用相同的 `id`，因此它们是同一个可交互项，而不是两个：模型在对话中创建它，面板只是同一状态的更大视图。由于创建调用保存在会话线程中，构件是**线程范围内的**：它会随线程历史记录持久存在（不需要[持久化适配器](#persistence)），并且每条消息的触发器都可以打开该消息对应的版本（参见[版本](#versions)）。
 
 ```
   in the thread (model-created)            your layout (mounted once)
@@ -356,25 +350,21 @@ function ArtifactPanel({ id }: { id: string }) {
 }
 ```
 
-You don't mount anything per artifact: the model renders the inline part on its own, and `openArtifact(id)` is your own state setter for which artifact the panel currently shows. Outside message parts the hook always returns the live state (`version` is `undefined`), so the panel is plainly editable. The panel and the inline tool UIs register the same `id`, so they share one instance; registration is reference-counted, and the instance stays alive until the last one unmounts.
+你不需要为每个构件单独挂载任何内容：模型会自行渲染内联部分，而 `openArtifact(id)` 是你自己的状态设置器，用于指定面板当前显示的构件。在消息部分之外，该 hook 始终返回实时状态（`version` 为 `undefined`），因此面板可以直接编辑。面板和内联工具 UI 注册相同的 `id`，因此它们共享同一个实例；注册采用引用计数，只有最后一个实例卸载后，该实例才会保持不再活跃。
 
 <Callout type="warn">
-  Keep one mount of the artifact on screen (hidden is fine) whenever its instance
-  should stay available. If the panel is closed and every inline button has
-  scrolled out of a virtualized thread, the instance and its `update_{name}` tool
-  unregister and the tool list churns. The state itself is safe, since it rides
-  thread history.
+  只要该实例应该保持可用，就应在屏幕上保留一个构件挂载（隐藏也可以）。如果面板已关闭，并且所有内联按钮都因虚拟化线程滚动到视口外，该实例及其 `update_{name}` 工具就会注销，工具列表也会发生变化。状态本身是安全的，因为它依托线程历史记录保存。
 </Callout>
 
-## Companion tools
+## 配套工具
 
-The generated `update_{name}` tool covers everything that lives in the state: editing fields, and adding, updating, removing, or clearing items in a list. Reach for a separate frontend tool only for what state can't express: a side effect like sending, exporting, or saving.
+生成的 `update_{name}` 工具涵盖状态中的所有内容：编辑字段，以及在列表中添加、更新、移除或清除项目。只有当状态无法表达某些操作时，才应使用单独的前端工具，例如发送、导出或保存等副作用。
 
-Take an email composer the user and assistant co-edit. `update_email` keeps the draft in sync from both sides, but actually **sending** it is a side effect that no amount of state editing can perform. That is what a companion tool is for: `send_email` acts on the current draft and fires it.
+以用户和助手共同编辑的邮件输入框为例。`update_email` 会让双方保持草稿同步，但实际**发送**邮件是一种无法通过任何状态编辑完成的副作用。这正是配套工具的用途：`send_email` 会作用于当前草稿并将其发送出去。
 
-How you wire one depends on what its executor touches.
+具体接入方式取决于执行器会触及什么内容。
 
-**Closes over React state** (here, the live draft): declare the contract with `stubTool()` in your `"use generative"` toolkit, and supply the executor with `useAuiToolOverrides` in the component that owns the state. See [Dynamic Tools](/docs/tools/dynamic-tools).
+**闭包捕获 React 状态**（此处为实时草稿）：在 `"use generative"` 工具包中使用 `stubTool()` 声明契约，并在拥有该状态的组件中通过 `useAuiToolOverrides` 提供执行器。请参阅[动态工具](/docs/tools/dynamic-tools)。
 
 ```tsx title="app/email-toolkit.tsx"
 "use generative";
@@ -431,23 +421,23 @@ function SendEmailTool({ draft }: { draft: Email }) {
 }
 ```
 
-The split is the whole point: `update_email` edits the draft, `send_email` does the thing the draft can't describe. The executor reads the live `draft`, so it always sends what is currently on screen.
+这种拆分正是关键所在：`update_email` 编辑草稿，`send_email` 执行草稿本身无法描述的操作。执行器会读取实时的 `draft`，因此发送的始终是当前屏幕上显示的内容。
 
-**Self-contained** (needs nothing from React, only its args and browser APIs): put a real `execute` with an inner `"use client"` directly in the toolkit. A `copy_share_link({ id })` that builds a URL and writes it to the clipboard is a good fit. See [Defining Tools](/docs/tools/defining-tools#frontend-tools).
+**自包含**（不需要 React，只依赖自身参数和浏览器 API）：直接在工具包中放置一个真正的 `execute`，其中包含内部的 `"use client"`。构建 URL 并将其写入剪贴板的 `copy_share_link({ id })` 就很适合这种情况。请参阅[定义工具](/docs/tools/defining-tools#frontend-tools)。
 
-## Custom Update Rendering
+## 自定义更新渲染
 
-`render` draws the create call; `updateRender` draws each `update_{name}` call. `unstable_interactableTool` reuses your one `render` for both, so edits look like the creation. Supply your own `updateRender` to render edits differently.
+`render` 渲染创建调用；`updateRender` 渲染每个 `update_{name}` 调用。`unstable_interactableTool` 会为两者复用同一个 `render`，因此编辑效果看起来与创建相同。提供你自己的 `updateRender`，即可用不同方式渲染编辑。
 
 <Callout type="info">
-  To vary by this message's version, or render older messages differently from
-  the newest, you don't need `updateRender`. The render already receives
-  `version`; see [Versions](#versions).
+  如果你想根据此消息的版本进行不同渲染，或让旧消息与最新消息显示不同，
+  则不需要 `updateRender`。渲染时已经会接收
+  `version`；请参阅[版本](#versions)。
 </Callout>
 
-### Render edits differently from the create
+### 让编辑与创建的渲染方式不同
 
-A thread tool locks the create and edit renders together. Drop to `unstable_useInteractable` to split them, here showing the full notepad on the create call and a one-line summary on every edit:
+线程工具会将创建和编辑的渲染绑定在一起。改用 `unstable_useInteractable` 即可将两者拆分；下面的示例在创建调用中显示完整记事本，而在每次编辑时显示一行摘要：
 
 ```tsx
 // Hoisted so its identity is stable; an inline updateRender re-registers the
@@ -489,11 +479,11 @@ const toolkit = defineToolkit({
 });
 ```
 
-Pass the create call's `toolCallId` as the `id`: that one convention ties both renders to a single instance and restores its state from thread history after a reload.
+将创建调用的 `toolCallId` 作为 `id` 传入：这一约定会将两种渲染绑定到同一个实例，并在重新加载后根据线程历史恢复其状态。
 
-### Mark edits on an app-scoped surface
+### 在应用作用域界面上标记编辑
 
-An app-scoped interactable lives in your layout (a sidebar, a panel), so it has no inline presence in the thread. Pass `updateRender` and each `update_{name}` call gains one: an inline marker of what the model just did, while the live component keeps updating in place.
+应用作用域的可交互界面位于你的布局中（例如侧边栏或面板），因此在线程中没有内联显示。传入 `updateRender` 后，每个 `update_{name}` 调用都会获得一个内联标记，用于说明模型刚刚执行的操作，同时实时组件会在原位置持续更新。
 
 ```tsx
 const EditMarkerRender: ToolCallMessagePartComponent = ({ args }) => (
@@ -511,22 +501,22 @@ function DocumentPanel() {
 }
 ```
 
-## Versions
+## 版本
 
-A thread is an append-only log, so an instance accumulates **versions**: each user edit, each `update_*` call, and (thread-scoped only) the creating call. For thread-scoped interactables these are computed from the thread record, so history survives reloads with nothing extra to persist. There are two ways to reach them.
+线程是一个只追加日志，因此一个实例会累积多个**版本**：每次用户编辑、每次 `update_*` 调用，以及（仅限线程级）创建调用。对于线程级可交互对象，这些版本会根据线程记录计算，因此重新加载后历史记录仍然存在，无需额外持久化。有两种方式可以访问这些版本。
 
-**This message's version.** Inside a thread-scoped `render`, `state` / `setState` are the **live** instance (there's exactly one, shared by every message), while `version` is **this message's** snapshot: `{ state, isLatest, restore }`. `version.state` is the interactable as it was at that point in the conversation; `restore()` sets the live state back to it.
+**此消息的版本。** 在一个线程级 `render` 中，`state` / `setState` 是**当前**实例（所有消息共享同一个实例），而 `version` 是**此消息的**快照：`{ state, isLatest, restore }`。`version.state` 是该可交互对象在对话进行到此处时的状态；`restore()` 会将当前状态恢复为该状态。
 
-Those three fields are all you need, and two independent choices decide how history behaves:
+只需使用这三个字段，而历史记录的行为由两个相互独立的选择决定：
 
-- **Editable or read-only?** Render the live `state` / `setState` to let any message edit the shared instance, or `version.state` read-only to freeze it.
-- **Restorable?** Offer `version.restore()` to roll an old version back to live, or leave it out.
+- **可编辑还是只读？** 渲染当前的 `state` / `setState`，让任何消息都可以编辑共享实例；或者使用只读的 `version.state` 将其冻结。
+- **是否可恢复？** 提供 `version.restore()`，将旧版本恢复为当前版本；或者不提供它。
 
-| You want             | Render                                  |
+| 你的需求             | 渲染                                  |
 | -------------------- | --------------------------------------- |
-| Frozen history       | `version.state` read-only on old        |
-| Live-editable        | `state` / `setState` everywhere         |
-| Read-only + rollback | `version.state` read-only plus `restore` |
+| 冻结历史记录         | 在旧版本上使用只读的 `version.state`        |
+| 可实时编辑           | 在所有位置使用 `state` / `setState`         |
+| 只读 + 回滚          | 只读的 `version.state` 加上 `restore` |
 
 ```tsx
 // Read-only history with rollback:
@@ -547,7 +537,7 @@ render: ({ state, setState, version }) => (
 );
 ```
 
-**Every version at once.** `unstable_useInteractableVersions(id, name)` returns them oldest-first, each with the full `state` and a `restore()`. Use it for a history dropdown; it works for both app- and thread-scoped interactables:
+**一次获取所有版本。** `unstable_useInteractableVersions(id, name)` 会按从旧到新的顺序返回所有版本，每个版本都包含完整的 `state` 和一个 `restore()`。可以使用它构建历史记录下拉菜单；它同时适用于应用级和线程级可交互对象：
 
 ```tsx
 function VersionDropdown({ id, name }: { id: string; name: string }) {
@@ -566,7 +556,7 @@ function VersionDropdown({ id, name }: { id: string; name: string }) {
 }
 ```
 
-**Thread-scoped:**
+**线程级：**
 
 ```tsx
 const Notepad = ({
@@ -581,18 +571,18 @@ const Notepad = ({
 );
 ```
 
-**App-scoped:**
+**应用级：**
 
 ```tsx
 const [state, { id }] = unstable_useInteractable("taskBoard", config);
 return <VersionDropdown id={id} name="taskBoard" />;
 ```
 
-An app-scoped item's history covers the current conversation, not its full cross-thread lifetime.
+应用级项目的历史记录涵盖当前对话，而不是其跨线程的完整生命周期。
 
-## Persistence
+## 持久化
 
-By default, app-scoped interactable state is in-memory and lost on page refresh. You can add persistence by passing an adapter to `unstable_Interactables`:
+默认情况下，应用范围内的可交互状态保存在内存中，刷新页面后会丢失。你可以通过向 `unstable_Interactables` 传入适配器来添加持久化：
 
 ```tsx
 import {
@@ -628,13 +618,13 @@ function MyRuntimeProvider({ children }) {
 }
 ```
 
-`load` is called when the adapter is attached and may be async. Loaded state seeds interactables as they register; a local edit made while a slow `load` is still in flight wins over the loaded value. Thread-scoped interactables are not touched by the adapter; they persist via thread history.
+适配器附加后会调用 `load`，且该调用可以是异步的。加载的状态会在可交互项注册时为其提供初始值；如果在缓慢的 `load` 仍在进行时进行了本地编辑，则本地编辑会优先于加载的值。线程范围内的可交互项不会受到适配器影响；它们通过线程历史记录进行持久化。
 
-For dynamic setups (an adapter that depends on auth), call `aui.unstable_interactables.setPersistenceAdapter(adapter)` imperatively instead. Replacing or removing an adapter flushes queued changes through the outgoing adapter before the new persistence context is attached.
+对于动态设置（依赖身份验证的适配器），请改为直接命令式调用 `aui.unstable_interactables.setPersistenceAdapter(adapter)`。替换或移除适配器时，会先通过即将停用的适配器刷新排队中的更改，然后再附加新的持久化上下文。
 
-### Sync Status
+### 同步状态
 
-When a persistence adapter is set, interactable hooks expose sync metadata:
+设置持久化适配器后，可交互项钩子会公开同步元数据：
 
 ```tsx
 const [state, { setState, isPending, error, flush }] =
@@ -645,11 +635,11 @@ const [state, { setState, isPending, error, flush }] =
 // flush(): force an immediate save (useful before navigation)
 ```
 
-State changes are automatically debounced (500ms) before saving. When the owning component unmounts, any pending save is flushed immediately.
+状态更改会在保存前自动进行防抖（500 毫秒）。所属组件卸载时，任何待处理的保存操作都会立即刷新。
 
-### Export / Import
+### 导出 / 导入
 
-For custom persistence strategies, use `exportState` and `importState` directly:
+对于自定义持久化策略，请直接使用 `exportState` 和 `importState`：
 
 ```tsx
 const snapshot = aui.interactables.exportState();
@@ -659,23 +649,17 @@ aui.interactables.importState(snapshot);
 // Imported state is picked up when components next register
 ```
 
-### Schema Evolution
+### Schema 演进
 
 <Callout type="warn">
-  If you change a Zod schema after state has been persisted, the loaded snapshot
-  may silently mis-match the new shape. The adapter does a shallow merge, so
-  extra fields are preserved and missing fields keep their initial values, but
-  type mismatches are not caught at runtime. To avoid silent corruption, version
-  your schema key (e.g. `"taskBoard_v2"`) or namespace it by schema hash
-  whenever you make breaking changes. Alternatively, add a migration step in
-  your `load` or `importState` call.
+  如果在状态持久化后更改 Zod schema，加载的快照可能会与新结构静默不匹配。适配器会执行浅合并，因此额外字段会被保留，缺失字段会继续使用初始值，但运行时不会检测类型不匹配。为避免静默数据损坏，每当进行破坏性更改时，请为 schema key 添加版本号（例如 `"taskBoard_v2"`），或使用 schema hash 进行命名空间隔离。或者，也可以在 `load` 或 `importState` 调用中添加迁移步骤。
 </Callout>
 
-## Streaming Updates
+## 流式更新
 
-The same partial merge runs token by token as the model generates an `update_{name}` call, so the interactable fills in live: a field the model is writing updates character by character, and only the fields and array items the call touches change. Everything it doesn't mention stays exactly as it was.
+模型生成 `update_{name}` 工具调用时，相同的部分合并会逐 token 运行，因此可交互界面会实时填充：模型正在写入的字段会逐字符更新，而只有该调用涉及的字段和数组项会发生变化。它未提及的所有内容都会保持原样。
 
-That stability is concrete, not just visual. While one array item streams in, the items the model isn't editing keep their exact object identity for the whole stream, so a memoized row for them never re-renders:
+这种稳定性是实实在在的，而不只是视觉上的效果。当某个数组项以流式方式传入时，模型未编辑的其他项在整个流式传输期间都会保持完全相同的对象身份，因此其中的记忆化行永远不会重新渲染：
 
 ```tsx
 import { memo } from "react";
@@ -697,9 +681,9 @@ function TaskBoard() {
 }
 ```
 
-As `update_taskBoard` streams an edit to one task, that row re-renders as its fields arrive while every other `TaskRow` stays put, no flicker and no work. You get a live-updating list for free; you only reach for the partial state when you want to show something extra during the stream.
+当 `update_taskBoard` 以流式方式编辑某个任务时，该行会随着字段到达而重新渲染，而其他所有 `TaskRow` 都保持不变，没有闪烁，也不会产生额外工作。你可以直接获得一个实时更新的列表；只有在想要在流式传输期间显示额外内容时，才需要使用部分状态。
 
-One case worth handling: at the very start of a fresh create the model may not have produced any items yet. Use the thread's `isRunning` to tell "still streaming, nothing yet" apart from "the model returned an empty result", and show a skeleton only for that gap:
+有一种情况值得处理：在全新创建操作刚开始时，模型可能还没有生成任何项。使用线程的 `isRunning` 区分“仍在流式传输，但尚未生成任何内容”和“模型返回了空结果”，并且只在这段间隙中显示骨架屏：
 
 ```tsx
 import { useAuiState } from "@assistant-ui/react";
@@ -708,21 +692,21 @@ const isRunning = useAuiState((s) => s.thread.isRunning);
 const isLoading = isRunning && state.tasks.length === 0;
 ```
 
-Inside a thread-scoped `render`, `streaming: true` carries the same live state: at the creating call `state` is the partial draft (fields may be missing); at an `update_{name}` call it's the live state filling in as the edit streams. Render a preview; edits made during a create stream are dropped.
+在限定于线程的 `render` 中，`streaming: true` 携带相同的实时状态：在创建调用 `state` 中，它是部分草稿（字段可能缺失）；在 `update_{name}` 调用中，它是随着编辑以流式方式传入而不断填充的实时状态。渲染一个预览；创建操作流式传输期间所做的编辑会被丢弃。
 
-## Multiple Instances
+## 多个实例
 
-A `name` can have many live instances at once. They all share one `update_{name}` tool: the model addresses an instance with the tool's `id` parameter, which it reads from the state snapshots in the conversation. The tool's name, schema, and description never change as instances mount and unmount, so the model's tool list (and provider prompt caches) stay stable. The schema marks `id` as required, so the model is expected to send it on every call; the runtime still resolves an id-less call while exactly one instance exists. A call with an unknown `id` returns an error listing the valid ids, so the model can recover.
+一个 `name` 可以同时拥有多个活动实例。它们共享同一个 `update_{name}` 工具：模型通过工具的 `id` 参数定位实例，而该参数来自对话中的状态快照。实例挂载和卸载时，工具的名称、架构和描述都不会改变，因此模型的工具列表（以及提供商的提示缓存）可以保持稳定。架构将 `id` 标记为必填，因此模型应在每次调用时发送它；不过，当恰好存在一个实例时，运行时仍会解析不带 id 的调用。使用未知 `id` 的调用会返回一个列出有效 id 的错误，以便模型进行恢复。
 
-How instances come into being differs by scope.
+实例的创建方式取决于作用域。
 
-### Thread-scoped: instances for free
+### 线程级：无需额外操作即可获得实例
 
-A thread-scoped interactable gets a fresh instance every time the model calls its tool. The instance `id` is the creating call's `toolCallId`, so two calls are two instances with no extra code on your side: the same `render` and the same `update_{name}` tool serve all of them. This is how a model spins up several artifacts or notepads in one conversation, each addressed by its own `toolCallId`.
+线程级 interactable 每次模型调用其工具时，都会获得一个全新的实例。实例 `id` 就是创建该实例的调用的 `toolCallId`，因此两次调用会创建两个实例，你无需编写额外代码：同一个 `render` 和同一个 `update_{name}` 工具会为它们提供服务。这就是模型如何在一次对话中创建多个 artifact 或记事本，并通过各自的 `toolCallId` 对它们进行定位。
 
-### App-scoped: one instance per mount
+### 应用级：每次挂载对应一个实例
 
-For app-scoped interactables you decide how many instances exist by mounting `unstable_useInteractable` in more than one place, one instance per mount. Give each mount a distinct `id`:
+对于应用级 interactable，你可以通过在多个位置挂载 `unstable_useInteractable` 来决定实例数量，每次挂载对应一个实例。为每次挂载指定不同的 `id`：
 
 ```tsx
 import { unstable_useInteractable } from "@assistant-ui/react";
@@ -762,19 +746,19 @@ function App() {
 }
 ```
 
-Pass an explicit `id` whenever you need to reach a specific instance: to read or write it from another component with `unstable_useInteractableState(id)`, to share it between an [artifact](#artifacts) panel and its inline trigger, or to keep [persisted](#persistence) state attached across reloads. Omitting `id` also works, and each mount then gets its own auto-generated id, but those ids are positional and shift as a dynamic list adds and removes items, so persisted state keyed by an old id would not reattach. Leave `id` off only when the component is the sole reader and its state is not persisted.
+当需要访问特定实例时，传入显式的 `id`：例如，通过 `unstable_useInteractableState(id)` 从其他组件读取或写入该实例，在 [artifact](#artifacts) 面板与其内联触发器之间共享实例，或在重新加载后仍将[持久化](#persistence)状态附加到该实例。省略 `id` 也可以正常工作，此时每次挂载都会获得一个自动生成的 id；但这些 id 是按位置分配的，当动态列表添加或删除项目时会发生变化，因此以旧 id 为键的持久化状态将无法重新关联。只有当组件是唯一的读取者，且其状态不会持久化时，才可以省略 `id`。
 
 <Callout type="info">
-  A top-level `id` field in your `stateSchema` is reserved: the update tool uses
-  it for instance addressing, so the model cannot write a state field named
-  `id`. Nest it or name it differently (e.g. `noteId`).
+  `id` 中的顶层字段在你的 `stateSchema` 中是保留字段：更新工具会使用
+  它进行实例定位，因此模型无法写入名为
+  `id` 的状态字段。请将其嵌套，或改用其他名称（例如 `noteId`）。
 </Callout>
 
-`update_note` edits a note that is already mounted: its `title`, `content`, `color`, and any other schema fields. It cannot mount a new `NoteCard` or unmount one; which components exist is your app's state. If you want the model to add and remove notes, model them as a single interactable holding an array (one `notes` field), and `update_notes` then adds, updates, removes, and clears entries directly, the way the [Quick Start](#quick-start) task board does. Use separate mounted instances only when each note is genuinely its own component; mounting and unmounting those is app work you can expose as a [companion tool](#companion-tools).
+`update_note` 会编辑已经挂载的记事：包括其 `title`、`content`、`color` 以及架构中的其他字段。它无法挂载新的 `NoteCard` 或卸载现有实例；哪些组件存在，属于应用状态的一部分。如果希望模型添加和删除记事，可以将它们建模为一个包含数组的单一 interactable（包含一个 `notes` 字段），然后由 `update_notes` 直接添加、更新、删除和清空其中的条目，就像 [快速入门](#quick-start) 中的任务板一样。只有当每条记事确实都是独立组件时，才应使用分别挂载的实例；挂载和卸载这些实例属于应用层工作，你可以将其作为[伴随工具](#companion-tools)暴露出来。
 
-## Partial Updates
+## 部分更新
 
-Auto-generated tools use a partial schema in which all fields are optional. The AI only sends the fields it wants to change; omitted fields keep their current values.
+自动生成的工具使用一种部分 schema，其中所有字段都是可选的。助手只会发送它想要更改的字段；省略的字段会保留当前值。
 
 ```tsx
 // If the state is { title: "My Note", content: "Hello", color: "yellow" }
@@ -782,42 +766,42 @@ Auto-generated tools use a partial schema in which all fields are optional. The 
 // Result: { title: "My Note", content: "Hello", color: "blue" }
 ```
 
-This is especially useful for large state objects where regenerating the entire state would be expensive and error-prone.
+这对于大型状态对象尤其有用，因为重新生成整个状态的成本高且容易出错。
 
-For array fields whose items carry an `id`, the AI doesn't send a replacement array, it sends operations (`add`, `update`, `remove`, `clear`) and the framework applies them to the current list. Added items get their `id` from the framework; existing items are addressed by the `id` you gave them.
+对于项目携带 `id` 的数组字段，助手不会发送替换数组，而是发送操作（`add`、`update`、`remove`、`clear`），框架会将这些操作应用于当前列表。新增项目的 `id` 由框架提供；现有项目则通过你为其提供的 `id` 进行定位。
 
 <Callout type="info">
-  Merge is shallow (one level deep). If the AI sends a nested object, it
-  replaces that entire field rather than deep-merging into it.
+  合并是浅层的（只有一层深度）。如果助手发送嵌套对象，
+  它会替换整个字段，而不是将其深度合并到该字段中。
 </Callout>
 
-## How It Works
+## 工作原理
 
-1. **Register**: the interactable joins the `interactables` scope with its name, description, schema, and initial state.
-2. **Generate the tool**: one `update_{name}` tool per name, with a partial schema (every field optional) plus a required `id`. The tool list stays stable as instances mount and unmount, so provider prompt caches stay warm.
-3. **Snapshot**: each sent user message carries the current state in `metadata.custom`, but only when the model doesn't already know it. A user edit stamps a snapshot; the model's own `update_*` calls and an in-message instance's create args don't. When the change fits a shallow merge it stamps only the changed fields (`partial: true`). Your route turns snapshots into model-visible text (see [State snapshots](#state-snapshots)).
-4. **Stream**: state updates field-by-field as the model generates the tool arguments, so the UI fills in live.
-5. **Merge**: only the fields the model sends are applied; the rest stay. Array fields keyed by `id` take operations (add/update/remove/clear) instead of a replacement array, and the framework mints ids for added items.
-6. **Both directions**: a model `update_*` updates state and re-renders; a user `setState` rides the next message as a fresh snapshot.
+1. **注册**：可交互对象会使用其名称、描述、架构和初始状态加入 `interactables` 作用域。
+2. **生成工具**：每个名称对应一个 `update_{name}` 工具，其中包含部分架构（每个字段都是可选的）以及一个必需的 `id`。实例挂载和卸载时，工具列表保持稳定，因此 provider 的提示缓存可以保持预热。
+3. **快照**：每条发送的用户消息都会在 `metadata.custom` 中携带当前状态，但模型已经知道该状态时除外。用户编辑会记录一个快照；模型自己的 `update_*` 调用以及消息内实例的创建参数不会记录快照。当变更适合进行浅合并时，只会记录发生变化的字段（`partial: true`）。你的路由会将快照转换为模型可见的文本（参见[状态快照](#state-snapshots)）。
+4. **流式传输**：模型生成工具参数时，状态会逐字段更新，因此 UI 会实时填充内容。
+5. **合并**：只应用模型发送的字段，其余字段保持不变。由 `id` 作为键的数组字段会执行操作（添加/更新/移除/清空），而不是替换整个数组；框架会为新增项目生成 id。
+6. **双向同步**：模型的 `update_*` 会更新状态并触发重新渲染；用户的 `setState` 会作为新的快照随下一条消息发送。
 
-## Unmount Behavior
+## 卸载行为
 
-When a component that called `unstable_useInteractable` unmounts, the interactable is unregistered, but its state is preserved in the `unstable_Interactables` scope. When the component mounts again with the same name and id, the scope restores the preserved state rather than resetting to `initialState`. This means transient unmounts (such as React Strict Mode double-mounts or tab switches) do not lose state.
+调用过 `unstable_useInteractable` 的组件卸载时，可交互项会被注销，但其状态会保留在 `unstable_Interactables` 作用域中。当组件以相同的名称和 id 再次挂载时，该作用域会恢复保留的状态，而不是将其重置为 `initialState`。这意味着临时卸载（例如 React Strict Mode 的二次挂载或切换标签页）不会丢失状态。
 
-An instance registered from several places (its creating tool call, `update_*` calls, an artifact panel) stays registered until the last one unmounts, so scrolling one out of a virtualized thread doesn't tear the instance down while another is visible.
+从多个位置注册的实例（其创建工具调用、`update_*` 调用、一个 artifact 面板）会一直保持注册状态，直到最后一个位置卸载。因此，在虚拟化线程中将某个实例滚动移出视口时，如果它仍在其他位置可见，就不会导致该实例被销毁。
 
-## API Reference
+## API 参考
 
 ### `unstable_useInteractable`
 
-Registers an interactable with the AI assistant and returns its state. It behaves like `useState`, except the model can also read and update the value. Call it once per instance.
+向 AI 助手注册一个可交互对象并返回其状态。其行为类似于 `useState`，但模型还可以读取和更新该值。每个实例调用一次。
 
 ```tsx
 const [state, { id, setState, isPending, error, flush }] =
   unstable_useInteractable(name, config);
 ```
 
-**Parameters:**
+**参数：**
 
 <PrimitivesTypeTable
   type="unstable_useInteractable-params"
@@ -828,16 +812,16 @@ const [state, { id, setState, isPending, error, flush }] =
       required: true,
       description: (
         <>
-          Name for the interactable (determines the{" "}
-          <code>update_{"{name}"}</code> tool).
+          可交互对象的名称（用于确定{" "}
+          <code>update_{"{name}"}</code>工具）。
         </>
       ),
     },
     {
       name: "config",
-      type: "Unstable_InteractableConfig<TSchema>",
+    type: "Unstable_InteractableConfig<TSchema>",
       required: true,
-      description: "Configuration for the interactable.",
+      description: "可交互对象的配置。",
       children: [
         {
           parameters: [
@@ -845,13 +829,13 @@ const [state, { id, setState, isPending, error, flush }] =
               name: "description",
               type: "string",
               required: true,
-              description: "Description shown to the AI.",
+              description: "向 AI 展示的描述。",
             },
             {
               name: "stateSchema",
               type: "StandardSchemaV1 | JSONSchema7",
               required: true,
-              description: "Schema for the state (e.g., a Zod schema).",
+              description: "状态的模式（例如 Zod 模式）。",
             },
             {
               name: "initialState",
@@ -859,8 +843,8 @@ const [state, { id, setState, isPending, error, flush }] =
               required: true,
               description: (
                 <>
-                  Initial state value. The type is inferred from{" "}
-                  <code>stateSchema</code>.
+                  初始状态值。类型从{" "}
+                  <code>stateSchema</code>推断得出。
                 </>
               ),
             },
@@ -869,7 +853,7 @@ const [state, { id, setState, isPending, error, flush }] =
               type: "string",
               required: false,
               description:
-                "Unique instance ID, used to address this instance when multiple interactables share a name. Auto-generated if omitted.",
+                "唯一实例 ID，当多个可交互对象共享同一名称时，用于定位此实例。如果省略则自动生成。",
             },
             {
               name: "updateRender",
@@ -877,9 +861,8 @@ const [state, { id, setState, isPending, error, flush }] =
               required: false,
               description: (
                 <>
-                  Renders the model's <code>update_{"{name}"}</code> tool calls
-                  yourself; installed once per name. See{" "}
-                  <a href="#custom-update-rendering">Custom Update Rendering</a>.
+                  自行渲染模型的 <code>update_{"{name}"}</code>工具调用；每个名称只安装一次。请参阅{" "}
+                  <a href="#custom-update-rendering">自定义更新渲染</a>。
                 </>
               ),
             },
@@ -890,7 +873,7 @@ const [state, { id, setState, isPending, error, flush }] =
   ]}
 />
 
-**Returns:** `[state, methods]`
+**返回值：** `[state, methods]`
 
 <PrimitivesTypeTable
   type="unstable_useInteractable-returns"
@@ -901,7 +884,7 @@ const [state, { id, setState, isPending, error, flush }] =
       required: true,
       description: (
         <>
-          Current state. Inferred from <code>stateSchema</code>.
+          当前状态。从 <code>stateSchema</code>推断得出。
         </>
       ),
     },
@@ -911,8 +894,8 @@ const [state, { id, setState, isPending, error, flush }] =
       required: true,
       description: (
         <>
-          The instance id; pass it to <code>unstable_useInteractableState</code>{" "}
-          in other components.
+          实例 ID；将其传递给其他组件中的{" "}
+          <code>unstable_useInteractableState</code>。
         </>
       ),
     },
@@ -922,7 +905,7 @@ const [state, { id, setState, isPending, error, flush }] =
       required: true,
       description: (
         <>
-          State setter, like <code>useState</code>.
+          状态设置器，类似于 <code>useState</code>。
         </>
       ),
     },
@@ -932,9 +915,9 @@ const [state, { id, setState, isPending, error, flush }] =
       required: true,
       description: (
         <>
-          This message's version of the instance, when rendered inside a
-          tool-call part; see <a href="#versions">Versions</a>.{" "}
-          <code>undefined</code> outside messages and for app scope.
+          在工具调用部分中渲染时，此消息对应的实例版本；请参阅{" "}
+          <a href="#versions">版本</a>。在消息外部以及应用作用域中为{" "}
+          <code>undefined</code>。
         </>
       ),
     },
@@ -942,39 +925,38 @@ const [state, { id, setState, isPending, error, flush }] =
       name: "isPending",
       type: "boolean",
       required: true,
-      description: "Whether a persistence save is in-flight.",
+      description: "持久化保存是否正在进行中。",
     },
     {
       name: "error",
       type: "unknown",
       required: true,
-      description: "Error from the last failed save.",
+      description: "上次保存失败时的错误。",
     },
     {
       name: "flush",
       type: "() => Promise<void>",
       required: true,
-      description: "Force an immediate persistence save.",
+      description: "强制立即进行持久化保存。",
     },
   ]}
 />
 
 <Callout type="info">
-  Selection is not a built-in field. To tell the AI which interactable is
-  focused, add a selection field such as `selectedId` to your own state; see
-  [Selection](#selection).
+  选择不是内置字段。若要告知 AI 哪个可交互对象处于焦点状态，请在自己的状态中添加类似 `selectedId` 的选择字段；请参阅
+  [选择](#selection)。
 </Callout>
 
 ### `unstable_useInteractableState`
 
-Reads and writes the state of an interactable registered elsewhere, by id. Use this from secondary readers (children, siblings of the owning component).
+通过 ID 读取和写入在其他位置注册的可交互对象的状态。在辅助读取组件（所属组件的子组件或同级组件）中使用此 Hook。
 
 ```tsx
 const [state, { setState, isPending, error, flush }] =
   unstable_useInteractableState<TState>(id);
 ```
 
-**Parameters:**
+**参数：**
 
 <PrimitivesTypeTable
   type="unstable_useInteractableState-params"
@@ -985,15 +967,15 @@ const [state, { setState, isPending, error, flush }] =
       required: true,
       description: (
         <>
-          The interactable instance id (from{" "}
-          <code>unstable_useInteractable</code>).
+          可交互对象实例 ID（来自{" "}
+          <code>unstable_useInteractable</code>）。
         </>
       ),
     },
   ]}
 />
 
-**Returns:** `[state, methods]`, the same shape as `unstable_useInteractable` without `id`. `state` is `TState | undefined` until the owning `unstable_useInteractable` has registered.
+**返回值：** `[state, methods]`，形状与 `unstable_useInteractable` 相同，但不包含 `id`。在所属 `unstable_useInteractable` 完成注册之前，`state` 为 `TState | undefined`。
 
 ### `unstable_interactableTool`
 
@@ -1001,7 +983,7 @@ const [state, { setState, isPending, error, flush }] =
 notepad: unstable_interactableTool({ description, stateSchema, render }),
 ```
 
-Returns a complete toolkit tool entry (a frontend tool with standalone display); the entry key is the interactable name, and the tool's arguments are its initial state. The same `render` then appears at every message that creates or updates the instance. `render` receives:
+返回一个完整的 toolkit 工具条目（带有独立显示界面的前端工具）；条目键为可交互对象名称，工具参数为其初始状态。随后，在每条创建或更新该实例的消息中都会出现相同的 `render`。`render` 接收：
 
 <PrimitivesTypeTable
   type="unstable_interactableTool-render-props"
@@ -1011,32 +993,32 @@ Returns a complete toolkit tool entry (a frontend tool with standalone display);
       type: "TState",
       required: true,
       description:
-        "The live state. While streaming, fields the model has not finished generating may be missing.",
+        "实时状态。在流式传输期间，模型尚未完成生成的字段可能缺失。",
     },
     {
       name: "setState",
       type: "(updater: TState | ((prev: TState) => TState)) => void",
       required: true,
-      description: "Updates the live state.",
+      description: "更新实时状态。",
     },
     {
       name: "version",
       type: "{ state: TState; isLatest: boolean; restore: () => void } | undefined",
       required: true,
       description:
-        "This message's version of the instance; undefined while streaming.",
+        "此消息对应的实例版本；流式传输期间为 undefined。",
     },
     {
       name: "id",
       type: "string",
       required: true,
-      description: "The instance id (the creating call's toolCallId).",
+      description: "实例 ID（创建调用的 toolCallId）。",
     },
     {
       name: "streaming",
       type: "boolean",
       required: true,
-      description: "True while the tool call's arguments are still streaming.",
+      description: "工具调用的参数仍在流式传输时为 true。",
     },
   ]}
 />
@@ -1048,11 +1030,11 @@ const versions = unstable_useInteractableVersions<TState>(id, name);
 // → [{ state, origin: "create" | "update" | "user-edit", toolCallId?, restore }, ...]
 ```
 
-Every version of an interactable recorded in the current thread, oldest first. Each entry carries the full `state` and a `restore()` that sets the live instance back to it. Works for both scopes; see [Versions](#versions) for usage. The non-React equivalent for backends is `unstable_getInteractableVersions(messages, id, name)`, exported from `@assistant-ui/react`.
+当前线程中记录的可交互对象的每个版本，按从旧到新的顺序排列。每个条目都包含完整的 `state` 以及一个 `restore()`，用于将实时实例恢复到该版本。两种作用域均可使用；使用方式请参阅[版本](#versions)。后端的非 React 等效项是 `unstable_getInteractableVersions(messages, id, name)`，从 `@assistant-ui/react` 导出。
 
 ### `unstable_Interactables`
 
-The scope resource that manages all interactables. Register it via your provider's `config`, optionally with a [persistence adapter](#persistence):
+用于管理所有可交互对象的作用域资源。通过 provider 的 `config` 注册，也可以选择配置[持久化适配器](#persistence)：
 
 ```tsx
 AuiConfig({
@@ -1060,25 +1042,25 @@ AuiConfig({
 });
 ```
 
-## Migrating from the Previous API
+## 从旧版 API 迁移
 
-If you used an earlier version of the interactables API:
+如果你使用过早期版本的 interactables API：
 
-- `useAssistantInteractable` and `useInteractableState` have been merged into a single [`unstable_useInteractable`](#unstable_useinteractable) hook that registers and returns state. `unstable_useInteractableState` remains for secondary readers.
-- Per-instance tools (`update_note_note-1`) are gone. Each name has one stable `update_{name}` tool with a required `id` parameter.
-- The top-level `selected` prop and `setSelected` method have been removed. Represent selection as ordinary state; see [Selection](#selection).
+- `useAssistantInteractable` 和 `useInteractableState` 已合并为单个 [`unstable_useInteractable`](#unstable_useinteractable) 钩子，用于注册并返回状态。`unstable_useInteractableState` 仍可用于次要读取者。
+- 每个实例的工具（`update_note_note-1`）已移除。每个名称现在对应一个稳定的 `update_{name}` 工具，并要求提供 `id` 参数。
+- 顶层的 `selected` prop 和 `setSelected` 方法已移除。请将选择表示为普通状态；参见[选择](#selection)。
 
-## Full Example
+## 完整示例
 
-See the complete [with-interactables example](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-interactables) for a working implementation featuring:
+查看完整的 [with-interactables 示例](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-interactables)
 
-- **Task Board**: one interactable whose `tasks` array the AI edits with `update_taskBoard` (add/update/remove/clear)
-- **Sticky Notes**: one `notes` interactable with a `selectedId` field, where the AI adds, edits, removes, and selects notes through `update_notes`
-- **localStorage persistence**: state survives page refresh via a `load`/`save` persistence adapter
-- **Sync indicator**: spinning icon while a save is in-flight (`isPending`)
+- **任务看板**：一个可交互元素，其 `tasks` 数组可由 AI 使用 `update_taskBoard` 进行编辑（添加/更新/移除/清空）
+- **便签**：一个 `notes` 可交互元素，包含一个 `selectedId` 字段，AI 可通过 `update_notes` 添加、编辑、移除和选择便签
+- **localStorage 持久化**：通过 `load`/`save` 持久化适配器，使状态在刷新页面后仍然保留
+- **同步指示器**：保存请求进行中显示旋转图标（`isPending`）
 
-## Related
+## 相关内容
 
-- [Dynamic Tools](/docs/tools/dynamic-tools): Frontend tools whose executors close over React state
-- [Tool UI](/docs/tools/tool-ui): Inline tool call UIs rendered inside messages
-- [LangGraph Generative UI](/docs/runtimes/langgraph/generative-ui): Structured UI components emitted by a LangGraph graph alongside messages
+- [动态工具](/docs/tools/dynamic-tools)：执行器捕获 React 状态的前端工具
+- [工具 UI](/docs/tools/tool-ui)：在消息内渲染的内联工具调用 UI
+- [LangGraph 生成式 UI](/docs/runtimes/langgraph/generative-ui)：LangGraph 图随消息一同发出的结构化 UI 组件

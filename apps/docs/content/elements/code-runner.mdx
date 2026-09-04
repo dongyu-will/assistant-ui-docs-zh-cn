@@ -1,20 +1,20 @@
 ---
-title: "Code runner"
-description: "A snippet with a run button, and the output it produced attached below it."
+title: "代码运行器"
+description: "带有运行按钮的代码片段，以及附加在其下方的运行输出。"
 ---
 
-A code block that stays inert until the user presses run, then attaches its output underneath. With a runtime the code comes from a tool call the user completes by running it; standalone you hold the run state and feed the output in yourself.
+代码块在用户按下运行按钮之前始终保持不变，按下后会将输出附加到下方。在运行时模式下，代码来自用户通过运行完成的工具调用；单独使用时，则由你保存运行状态，并自行将输出传入其中。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-A tool the user completes by pressing a button, rather than one that executes the moment the model calls it, is a `"human"` toolkit entry: it has no `execute`, so the call stays open until the renderer calls `addResult`.
+用户通过按下按钮来完成的工具，而不是在模型调用它的瞬间执行的工具，是一个 `"human"` toolkit 条目：它没有 `execute`，因此调用会保持打开状态，直到渲染器调用 `addResult`。
 
 <Steps>
   <Step>
 
-### Register a human toolkit entry
+### 注册人工工具包条目
 
 ```tsx title="app/run-code-toolkit.tsx"
 "use client";
@@ -62,15 +62,15 @@ const toolkit = defineToolkit({
   </Step>
   <Step>
 
-### Complete the call from the button
+### 从按钮完成调用
 
-`addResult(result)` is the only way this call finishes; there's no `execute` for the runtime to fall back on. Call it exactly once, from inside `onRun`, once the sandboxed run actually returns.
+`addResult(result)` 是完成此调用的唯一方式；运行时没有 `execute` 可以回退使用。只有在沙箱运行实际返回后，才能在 `onRun` 内调用它，并且必须严格调用一次。
 
 ```tsx title="app/providers.tsx"
 const config = AuiConfig({ tools: Tools({ toolkit }) });
 ```
 
-Mount `config` the same way as any other toolkit, with `<AuiProvider extends={aui} config={config}>`.
+与其他 toolkit 一样，使用 `<AuiProvider extends={aui} config={config}>` 挂载 `config`。
 
   </Step>
 </Steps>
@@ -79,12 +79,12 @@ Mount `config` the same way as any other toolkit, with `<AuiProvider extends={au
 
 <StandaloneMode>
 
-Standalone, the element is a controlled component: you own the run state and push output into it as the run produces it.
+单独使用时，该元素是一个受控组件：运行状态由你管理，并在运行产生输出时将输出推送给它。
 
 <Steps>
   <Step>
 
-### Hold the run state
+### 保存运行状态
 
 ```tsx title="app/snippet.tsx"
 "use client";
@@ -104,7 +104,7 @@ export function Snippet() {
   </Step>
   <Step>
 
-### Wire the run button
+### 接入运行按钮
 
 ```tsx
 async function run() {
@@ -126,7 +126,7 @@ async function run() {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="code-runner">
@@ -136,15 +136,15 @@ async function run() {
 </div>
 ```
 
-The code block is always visible; the output block only mounts once `state` leaves `"idle"`. Each output line fades in staggered by `80ms` per line, and reads in red when `state` is `"error"`, neutral otherwise. A blinking caret renders only while `state` is `"running"`, after the lines received so far. The duration badge next to the run button only shows once a duration is known and the run isn't currently in progress.
+代码块始终可见；只有当 `state` 离开 `"idle"` 后，输出块才会挂载。每一行输出都会按每行 `80ms` 的间隔依次淡入；当 `state` 为 `"error"` 时以红色显示，否则使用中性色。只有在 `state` 为 `"running"` 时，闪烁的光标才会渲染在目前已接收的行之后。运行按钮旁的时长徽章只有在已知运行时长且运行当前未进行时才会显示。
 
-## Examples
+## 示例
 
-### Read the code the model sent
+### 读取模型发送的代码
 
 <RuntimeMode>
 
-`args.language` and `args.code` are exactly what `RunCodeUI` reads above; nothing about the code itself is inferred, it's the tool call's own parameters.
+`args.language` 和 `args.code` 正是上方 `RunCodeUI` 读取的内容；代码本身不会被推断，这些内容来自工具调用自身的参数。
 
 ```tsx
 const RunCodeUI: ToolCallMessagePartComponent<RunArgs, RunResult> = ({ args }) => (
@@ -154,11 +154,11 @@ const RunCodeUI: ToolCallMessagePartComponent<RunArgs, RunResult> = ({ args }) =
 
 </RuntimeMode>
 
-### Stream output before completing the call
+### 在完成调用前流式传输输出
 
 <RuntimeMode>
 
-`addResult` only needs to be called once the run is fully done; the output shown while it's still going is ordinary local state, updated as lines arrive:
+`addResult` 只需在运行完全结束后调用一次；运行仍在进行时显示的输出属于普通本地状态，会随着各行到达而更新：
 
 ```tsx
 onRun: async () => {
@@ -174,29 +174,29 @@ onRun: async () => {
 
 </RuntimeMode>
 
-### Restyle the runner
+### 重新设置运行器样式
 
-Both lanes take `className` on the root. The output block scrolls horizontally through the `codeScroll`/`codeSurface` pair from `surfaces.tsx`, which keeps a long line reachable instead of clipped, so retargeting those tokens restyles this and every other element that scrolls preformatted output the same way.
+两个区域都在根元素上接收 `className`。输出块通过 `surfaces.tsx` 提供的 `codeScroll`/`codeSurface` 配对进行水平滚动，使长行保持可访问而不会被裁剪；因此，重新指定这些 token 后，该元素以及其他以相同方式滚动预格式化输出的元素都会应用新的样式。
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### run_code toolkit entry
+### run_code toolkit 条目
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `type` | `"human"` | No `execute`; the call stays open until `render` calls `addResult`. |
-| `parameters` | Zod schema | Declares the args shape, `{ language, code }` above. |
-| `render` | `ToolCallMessagePartComponent<RunArgs, RunResult>` | The only source of the result for this call. |
+| `type` | `"human"` | 没有 `execute`；调用会保持打开状态，直到 `render` 调用 `addResult`。 |
+| `parameters` | Zod schema | 声明参数形状，即上方的 `{ language, code }`。 |
+| `render` | `ToolCallMessagePartComponent<RunArgs, RunResult>` | 此调用结果的唯一来源。 |
 
-### Render props used
+### 使用的渲染 props
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `args` | `RunArgs` | The language and code the model sent. |
-| `result` | `RunResult \| undefined` | Set once `addResult` has been called; `undefined` while still waiting on the button. |
-| `addResult(result)` | `(result: RunResult) => void` | Completes the call. Call it once. |
+| `args` | `RunArgs` | 模型发送的语言和代码。 |
+| `result` | `RunResult \| undefined` | 在调用 `addResult` 后设置；等待按钮期间为 `undefined`。 |
+| `addResult(result)` | `(result: RunResult) => void` | 完成调用。调用一次即可。 |
 
 </RuntimeMode>
 
@@ -204,16 +204,16 @@ Both lanes take `className` on the root. The output block scrolls horizontally t
 
 ### CodeRunner
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `language` | `string` | required | Shown in the header. |
-| `code` | `string` | required | The snippet, rendered verbatim. |
-| `state` | `RunState` | required | `"idle" \| "running" \| "ok" \| "error"`. |
-| `output` | `readonly string[]` | required | Output lines; ignored while `state` is `"idle"`. |
-| `durationMs` | `number` | | Shown next to the run button once known. |
-| `onRun` | `() => void` | | Called when the run button is pressed. |
-| `className` | `string` | | Merged onto the root. |
+| `language` | `string` | 必需 | 显示在标题栏中。 |
+| `code` | `string` | 必需 | 代码片段，按原样渲染。 |
+| `state` | `RunState` | 必需 | `"idle" \| "running" \| "ok" \| "error"`。 |
+| `output` | `readonly string[]` | 必需 | 输出行；当 `state` 为 `"idle"` 时忽略。 |
+| `durationMs` | `number` | | 已知后显示在运行按钮旁。 |
+| `onRun` | `() => void` | | 按下运行按钮时调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` props 都会转发到根元素。
 
 </StandaloneMode>

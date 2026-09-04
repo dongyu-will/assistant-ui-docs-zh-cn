@@ -1,38 +1,38 @@
 ---
-title: Migration to v0.12
-description: Unified state API replaces individual context hooks.
+title: 迁移到 v0.12
+description: 统一状态 API 替代了单独的上下文 Hook。
 ---
 
-## Major Architecture Change: Unified State API
+## 重大架构变更：统一状态 API
 
-Version 0.12 introduces a complete rewrite of the state management system with a more consistent API.
+v0.12 对状态管理系统进行了完整重写，并提供了更加一致的 API。
 
-## Automatic Migration
+## 自动迁移
 
-We provide a codemod to automatically migrate your code:
+我们提供了 codemod，可自动迁移你的代码：
 
 ```bash
 npx assistant-ui@latest upgrade
 ```
 
-This will automatically handle the hook renames and update your imports.
+它会自动处理 Hook 重命名并更新导入。
 
-## Breaking Changes
+## 破坏性变更
 
-### 1. Assistant API Hooks Renamed
+### 1. Assistant API Hook 重命名
 
-The core hooks have been renamed for consistency and clarity:
+为保持一致性和清晰度，核心 Hook 已完成重命名：
 
 - `useAssistantApi` → `useAui`
 - `useAssistantState` → `useAuiState`
 - `useAssistantEvent` → `useAuiEvent`
 - `AssistantIf` → `AuiIf`
 
-The variable naming convention has also changed from `api` to `aui`.
+变量命名约定也从 `api` 更改为 `aui`。
 
-#### Migration
+#### 迁移
 
-**Before:**
+**之前：**
 
 ```tsx
 import {
@@ -57,7 +57,7 @@ function MyComponent() {
 }
 ```
 
-**After:**
+**之后：**
 
 ```tsx
 import { useAui, useAuiState, useAuiEvent } from "@assistant-ui/react";
@@ -78,23 +78,23 @@ function MyComponent() {
 }
 ```
 
-**Automatic Migration:**
+**自动迁移：**
 
-Run the codemod to automatically update your code:
+运行 codemod 以自动更新你的代码：
 
 ```bash
 npx assistant-ui@latest upgrade
 ```
 
-The codemod will:
-- Rename all hook imports (`useAssistantApi` → `useAui`, etc.)
-- Rename `const api = useAui()` declarations to `const aui = useAui()`
-- Update all references to the `api` variable throughout your codebase
-- Correctly handle scoping (won't rename `api` variables from other sources)
+codemod 将会：
+- 重命名所有 Hook 导入（`useAssistantApi` → `useAui` 等）
+- 将 `const api = useAui()` 声明重命名为 `const aui = useAui()`
+- 更新代码库中对 `api` 变量的所有引用
+- 正确处理作用域（不会重命名来自其他来源的 `api` 变量）
 
-**Backwards Compatibility:**
+**向后兼容：**
 
-The old names are still available as deprecated exports until v0.13:
+旧名称仍会作为弃用导出保留至 v0.13：
 
 ```tsx
 // Still works, but deprecated
@@ -107,45 +107,45 @@ import {
 const api = useAssistantApi(); // deprecated but functional
 ```
 
-### 2. Context Hooks Replaced with Unified State API
+### 2. 上下文 Hook 替换为统一状态 API
 
-All individual context hooks have been replaced with a single `useAuiState` hook and `useAui` for actions.
+所有单独的上下文 Hook 都已替换为单个 `useAuiState` Hook，并使用 `useAui` 执行操作。
 
-#### What changed
+#### 变更内容
 
-The following hooks have been removed:
+以下 Hook 已被移除：
 
-**Removed Hooks:**
+**已移除的 Hook：**
 
-- `useMessageUtils` → Use `useAuiState((s) => s.message.isHovering)` / `useAuiState((s) => s.message.isCopied)`
-- `useMessageUtilsStore` → Use `useAui()` with `aui.message().setIsHovering()` / `aui.message().setIsCopied()`
-- `useToolUIs` → Removed with no direct equivalent. Use `useAssistantTool` / `makeAssistantToolUI` to register tool UIs instead.
-- `useToolUIsStore` → Removed with no direct equivalent.
+- `useMessageUtils` → 使用 `useAuiState((s) => s.message.isHovering)` / `useAuiState((s) => s.message.isCopied)`
+- `useMessageUtilsStore` → 使用带有 `aui.message().setIsHovering()` / `aui.message().setIsCopied()` 的 `useAui()`
+- `useToolUIs` → 已移除，没有直接对应项。请改用 `useAssistantTool` / `makeAssistantToolUI` 注册工具 UI。
+- `useToolUIsStore` → 已移除，没有直接对应项。
 
-**Deprecated Hooks:**
+**已弃用的 Hook：**
 
-- `useAssistantRuntime` → Use `useAui()`
-- `useThread` → Use `useAuiState((s) => s.thread)`
-- `useThreadRuntime` → Use `useAui()` with `aui.thread()`
-- `useMessage` → Use `useAuiState((s) => s.message)`
-- `useMessageRuntime` → Use `useAui()` with `aui.message()`
-- `useComposer` → Use `useAuiState((s) => s.composer)`
-- `useComposerRuntime` → Use `useAui()` with `aui.composer()`
-- `useEditComposer` → Use `useAuiState((s) => s.message.composer)`
-- `useThreadListItem` → Use `useAuiState((s) => s.threadListItem)`
-- `useThreadListItemRuntime` → Use `useAui()` with `aui.threadListItem()`
-- `useMessagePart` → Use `useAuiState((s) => s.part)`
-- `useMessagePartRuntime` → Use `useAui()` with `aui.part()`
-- `useAttachment` → Use `useAuiState((s) => s.attachment)`
-- `useAttachmentRuntime` → Use `useAui()` with `aui.attachment()`
-- `useThreadModelContext` → Use `useAuiState((s) => s.thread.modelContext)`
-- `useThreadModelConfig` → Removed. Use `useAui().thread().getModelContext()` instead.
-- `useThreadComposer` → Use `useAuiState((s) => s.thread.composer)`
-- `useThreadList` → Use `useAuiState((s) => s.threads)`
+- `useAssistantRuntime` → 使用 `useAui()`
+- `useThread` → 使用 `useAuiState((s) => s.thread)`
+- `useThreadRuntime` → 使用带有 `aui.thread()` 的 `useAui()`
+- `useMessage` → 使用 `useAuiState((s) => s.message)`
+- `useMessageRuntime` → 使用带有 `aui.message()` 的 `useAui()`
+- `useComposer` → 使用 `useAuiState((s) => s.composer)`
+- `useComposerRuntime` → 使用带有 `aui.composer()` 的 `useAui()`
+- `useEditComposer` → 使用 `useAuiState((s) => s.message.composer)`
+- `useThreadListItem` → 使用 `useAuiState((s) => s.threadListItem)`
+- `useThreadListItemRuntime` → 使用带有 `aui.threadListItem()` 的 `useAui()`
+- `useMessagePart` → 使用 `useAuiState((s) => s.part)`
+- `useMessagePartRuntime` → 使用带有 `aui.part()` 的 `useAui()`
+- `useAttachment` → 使用 `useAuiState((s) => s.attachment)`
+- `useAttachmentRuntime` → 使用带有 `aui.attachment()` 的 `useAui()`
+- `useThreadModelContext` → 使用 `useAuiState((s) => s.thread.modelContext)`
+- `useThreadModelConfig` → 已移除。请改用 `useAui().thread().getModelContext()`。
+- `useThreadComposer` → 使用 `useAuiState((s) => s.thread.composer)`
+- `useThreadList` → 使用 `useAuiState((s) => s.threads)`
 
-#### Migration Examples
+#### 迁移示例
 
-**Before:**
+**之前：**
 
 ```tsx
 import {
@@ -185,7 +185,7 @@ function MyComponent() {
 }
 ```
 
-**After:**
+**之后：**
 
 ```tsx
 import { useAuiState, useAui } from "@assistant-ui/react";
@@ -216,15 +216,15 @@ function MyComponent() {
 }
 ```
 
-### 3. Event Names Changed to camelCase
+### 3. 事件名称改为 camelCase
 
-Event names used with `useAuiEvent` have been standardized to use camelCase instead of kebab-case.
+`useAuiEvent` 使用的事件名称已统一改为 camelCase，不再使用 kebab-case。
 
-#### What changed
+#### 变更内容
 
-The following event names have been updated:
+以下事件名称已更新：
 
-| Old Name (kebab-case)               | New Name (camelCase)               |
+| 旧名称（kebab-case）               | 新名称（camelCase）               |
 | ----------------------------------- | ---------------------------------- |
 | `thread.run-start`                  | `thread.runStart`                  |
 | `thread.run-end`                    | `thread.runEnd`                    |
@@ -233,13 +233,13 @@ The following event names have been updated:
 | `thread-list-item.switched-to`      | `threadListItem.switchedTo`        |
 | `thread-list-item.switched-away`    | `threadListItem.switchedAway`      |
 
-Events that remain unchanged:
+以下事件保持不变：
 - `thread.initialize`
 - `composer.send`
 
-#### Migration
+#### 迁移
 
-**Before:**
+**之前：**
 
 ```tsx
 import { useAuiEvent } from "@assistant-ui/react";
@@ -261,7 +261,7 @@ function MyComponent() {
 }
 ```
 
-**After:**
+**之后：**
 
 ```tsx
 import { useAuiEvent } from "@assistant-ui/react";
@@ -283,20 +283,20 @@ function MyComponent() {
 }
 ```
 
-**Automatic Migration:**
+**自动迁移：**
 
-Run the codemod to automatically update event names:
+运行 codemod 以自动更新事件名称：
 
 ```bash
 npx assistant-ui@latest upgrade
 ```
 
-The codemod will automatically replace all occurrences of the old kebab-case event names with their new camelCase equivalents.
+codemod 会自动将所有旧 kebab-case 事件名称替换为对应的新 camelCase 名称。
 
-## Getting Help
+## 获取帮助
 
-If you encounter issues during migration:
+如果你在迁移过程中遇到问题：
 
-1. Check the updated API documentation for detailed examples
-2. Review the example applications in the repository
-3. Report issues at https://github.com/assistant-ui/assistant-ui/issues
+1. 查看更新后的 API 文档，了解详细示例
+2. 查看代码库中的示例应用
+3. 在 https://github.com/assistant-ui/assistant-ui/issues 报告问题

@@ -1,68 +1,68 @@
 ---
-title: Stability
-description: What unstable_ means, when APIs become stable, and how to track changes.
+title: 稳定性
+description: unstable_ 的含义、API 何时变得稳定，以及如何跟踪变更。
 ---
 
-assistant-ui ships some APIs with an `unstable_` prefix. This is a deliberate signal, not a bug.
+assistant-ui 为部分 API 添加了 `@assistant-ui/react-langgraph` 前缀。这是有意为之的信号，并非错误。
 
-## What `unstable_` means
+## `@assistant-ui/react-langgraph` 是什么意思
 
-An `unstable_` prefix tells you that the API is exposed publicly so you can build against it, but the surface (signature, naming, semantics, return shape) may change in any release including patch releases.
+`@assistant-ui/react` 前缀表示该 API 已公开暴露，因此你可以基于它进行构建；但其接口（签名、命名、语义、返回结构）可能在任何版本中发生变化，包括补丁版本。
 
-If you depend on an unstable API:
+如果你依赖不稳定 API：
 
-- **Pin your dependency range** so an automatic minor or patch update cannot rewrite the contract under you.
-- **Isolate the call site** behind a small wrapper in your code so you can adapt to upstream changes in one place.
-- **Expect renames or removals** when the API stabilizes; the prefix gets dropped on the stable form.
+- **固定依赖范围**，避免自动的次版本或补丁版本更新在你不知情的情况下改写契约。
+- **隔离调用位置**，在代码中通过一个小型包装器封装调用，以便在上游发生变更时集中适配。
+- **预期名称变更或移除**，API 稳定后可能会发生这些变化；稳定版本会移除该前缀。
 
-## Why we ship them
+## 为什么会提供这些 API
 
-Three reasons something stays `unstable_`:
+某项功能保持 `@assistant-ui/react` 状态通常有三个原因：
 
-1. **The design is still in flux** and we want feedback on the current shape before committing.
-2. **The API depends on internals** we are still rearranging, so the surface tracks that motion.
-3. **The use case is real today** but stable-api expectations (semver discipline, comprehensive coverage, docs) have not been met yet.
+1. **设计仍在变化**，我们希望在最终确定之前收集对当前形态的反馈。
+2. **API 依赖仍在重新调整的内部实现**，因此其接口会随之变化。
+3. **使用场景当前确实存在**，但尚未满足稳定 API 的要求（语义化版本规范、全面覆盖和文档）。
 
-## Currently unstable APIs
+## 当前不稳定的 API
 
-A non-exhaustive list of `unstable_` exports surfaced in the runtime docs.
+以下是在运行时文档中列出的 `ChatModelAdapter.run` 导出项，列表并不完整。
 
-| API | Package | Notes |
+| API | 包 | 说明 |
 | --- | --- | --- |
-| `unstable_createMessageConverter` | `@assistant-ui/react` | Message-format converter used by AssistantTransport and DataStream. |
-| `unstable_humanToolNames` | `@assistant-ui/react` | Tool names that pause the run until a result is added via `addResult`. Only available on LocalRuntime; not supported in DataStream. |
-| `unstable_threadListAdapter` | `@assistant-ui/react-langgraph` | LangGraph thread-list adapter slot on `useLangGraphRuntime`. |
-| `unstable_createLangGraphStream` | `@assistant-ui/react-langgraph` | End-to-end cancellation primitive. |
-| `unstable_Provider` | Various adapters | React-component face on `RemoteThreadListAdapter`. Must render children synchronously. `useRemoteThreadListRuntime` renders it when present; the `RemoteThreadList` store entry ignores it. |
-| `unstable_useAdapters` | Various adapters | Hook face on `RemoteThreadListAdapter`. The `RemoteThreadList` store entry calls it. `useRemoteThreadListRuntime` synthesizes a `RuntimeAdapterProvider` from it when `unstable_Provider` is omitted. |
-| `unstable_capabilities` | `ExternalStoreRuntime` | Toggle copy and other thread capabilities. |
-| `unstable_state`, `unstable_annotations`, `unstable_data` | Message metadata | Runtime-internal fields exposed for advanced use cases. |
-| `unstable_assistantMessageId`, `unstable_threadId`, `unstable_parentId`, `unstable_getMessage` | `ChatModelRunOptions` | Identifiers and accessors passed to your `ChatModelAdapter.run`. |
+| `ChatModelRunOptions` | `ExternalStoreRuntime` | AssistantTransport 和 DataStream 使用的消息格式转换器。 |
+| `RemoteThreadListAdapter` | `RemoteThreadListAdapter` | 会暂停运行、直到通过 `RemoteThreadList` 添加结果的工具名称。仅适用于 LocalRuntime；DataStream 不支持。 |
+| `RemoteThreadList` | `RuntimeAdapterProvider` | `addResult` 上的 LangGraph 线程列表适配器插槽。 |
+| `foo` | `unstable_Provider` | 端到端取消原语。 |
+| `unstable_Provider` | 各种适配器 | `unstable_` 的 React 组件形式。必须同步渲染子元素。存在时，`unstable_` 会渲染它；`unstable_` 存储条目会忽略它。 |
+| `unstable_` | 各种适配器 | `unstable_` 的 Hook 形式。`unstable_annotations` 存储条目会调用它。当省略 `unstable_assistantMessageId` 时，`unstable_capabilities` 会根据它合成一个 `unstable_createLangGraphStream`。 |
+| `unstable_createMessageConverter` | `unstable_data` | 切换复制功能及其他线程能力。 |
+| `unstable_foo`、`unstable_getMessage`、`unstable_humanToolNames` | 消息元数据 | 为高级使用场景暴露的运行时内部字段。 |
+| `unstable_parentId`、`unstable_state`、`unstable_threadId`、`unstable_threadListAdapter` | `unstable_useAdapters` | 传递给你的 `useLangGraphRuntime` 的标识符和访问器。 |
 
-Framework adapters list their own unstable surface in the corresponding adapter pages.
+框架适配器会在相应的适配器页面中列出各自不稳定的接口。
 
-## When something stabilizes
+## API 何时变得稳定
 
-Stabilization usually drops the prefix. If `unstable_foo` becomes stable, the new export is `foo`, the old name is kept as a deprecated alias for at least one minor cycle, and the changelog calls out the change.
+稳定化通常会移除前缀。如果 `useRemoteThreadListRuntime` 变得稳定，新的导出项将是 `useRemoteThreadListRuntime`；旧名称会作为已弃用的别名至少保留一个次版本周期，并且变更日志会明确说明此次变化。
 
-Watch the [release notes](https://github.com/assistant-ui/assistant-ui/releases) and the [migration guides](/docs/migrations) for transitions.
+请关注[发布说明](https://github.com/assistant-ui/assistant-ui/releases)
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
-    title="Architecture"
-    description="The three-layer runtime model."
+    title="架构"
+    description="三层运行时模型。"
     href="/docs/runtimes/concepts/architecture"
   />
   <Card
-    title="Adapters"
-    description="The shared adapter contracts."
+    title="适配器"
+    description="共享的适配器契约。"
     href="/docs/runtimes/concepts/adapters"
   />
   <Card
-    title="Threads"
-    description="Multi-thread support patterns."
+    title="线程"
+    description="多线程支持模式。"
     href="/docs/runtimes/concepts/threads"
   />
 </Cards>

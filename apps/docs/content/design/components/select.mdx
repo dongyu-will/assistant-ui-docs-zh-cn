@@ -1,10 +1,10 @@
 ---
 title: Select
-description: A dropdown select component with composable sub-components.
+description: 一个包含可组合子组件的下拉选择组件。
 links:
-  - label: Radix UI Select (Radix styles)
+  - label: Radix UI Select（Radix 样式）
     url: https://www.radix-ui.com/primitives/docs/components/select
-  - label: Base UI Select (base styles)
+  - label: Base UI Select（基础样式）
     url: https://base-ui.com/react/components/select
 ---
 
@@ -25,11 +25,11 @@ import { Flavored, FlavorSwitcher } from "@/components/pages/docs/contexts/flavo
 
 <Flavored radix={<SelectRadixSamples.SelectSample />} base={<SelectSample />} />
 
-## Installation
+## 安装
 
 <InstallCommand shadcn={["select"]} />
 
-## Usage
+## 使用
 
 ```tsx
 import {
@@ -64,13 +64,13 @@ export function FruitPicker() {
 }
 ```
 
-The Base UI flavor uses the `items` prop to resolve the selected label. Radix reads the label from the selected item, so the prop can be omitted there.
+Base UI 版本使用 `items` 属性来解析选中的标签。Radix 会从选中的项目中读取标签，因此在 Radix 中可以省略该属性。
 
-## Examples
+## 示例
 
-### Sizes
+### 尺寸
 
-Use the `size` prop on `SelectTrigger` to change the trigger height.
+在 `SelectTrigger` 上使用 `size` 属性，可以更改触发器高度。
 
 <Flavored radix={<SelectRadixSamples.SelectSizesSample />} base={<SelectSizesSample />} />
 
@@ -79,56 +79,56 @@ Use the `size` prop on `SelectTrigger` to change the trigger height.
 <SelectTrigger size="sm" />      // 32px
 ```
 
-### Scrollable
+### 可滚动
 
-Long lists automatically become scrollable.
+较长的列表会自动变为可滚动。
 
 <PreviewCode file="components/pages/docs/samples/select" name="SelectScrollableSample" base={<SelectScrollableSample />}>
   <SelectRadixSamples.SelectScrollableSample />
 </PreviewCode>
 
-### Groups
+### 分组
 
-Group related items with `SelectGroup` and `SelectLabel`.
+使用 `SelectGroup` 和 `SelectLabel` 将相关项目分组。
 
 <PreviewCode file="components/pages/docs/samples/select" name="SelectGroupsSample" base={<SelectGroupsSample />}>
   <SelectRadixSamples.SelectGroupsSample />
 </PreviewCode>
 
-### Disabled items
+### 禁用项目
 
 <PreviewCode file="components/pages/docs/samples/select" name="SelectDisabledItemsSample" base={<SelectDisabledItemsSample />}>
   <SelectRadixSamples.SelectDisabledItemsSample />
 </PreviewCode>
 
-### With placeholder
+### 使用占位符
 
 <PreviewCode file="components/pages/docs/samples/select" name="SelectPlaceholderSample" base={<SelectPlaceholderSample />}>
   <SelectRadixSamples.SelectPlaceholderSample />
 </PreviewCode>
 
-### Disabled select
+### 禁用选择器
 
 <PreviewCode file="components/pages/docs/samples/select" name="SelectDisabledSample" base={<SelectDisabledSample />}>
   <SelectRadixSamples.SelectDisabledSample />
 </PreviewCode>
 
-## API Reference
+## API 参考
 
-### Composable API
+### 可组合 API
 
-| Component | Description |
+| 组件 | 描述 |
 |-----------|-------------|
-| `Select` | The root component that manages selection state. |
-| `SelectTrigger` | The button that opens the dropdown. |
-| `SelectValue` | The selected value or placeholder. |
-| `SelectContent` | The dropdown content container. |
-| `SelectItem` | An individual selectable item. |
-| `SelectGroup` | A group of related items. |
-| `SelectLabel` | A label for a group. |
-| `SelectSeparator` | A visual separator between items or groups. |
-| `SelectScrollUpButton` | The upward scroll control for long lists. |
-| `SelectScrollDownButton` | The downward scroll control for long lists. |
+| `Select` | 管理选择状态的根组件。 |
+| `SelectTrigger` | 用于打开下拉菜单的按钮。 |
+| `SelectValue` | 选中的值或占位符。 |
+| `SelectContent` | 下拉菜单内容容器。 |
+| `SelectItem` | 单个可选项目。 |
+| `SelectGroup` | 相关项目的分组。 |
+| `SelectLabel` | 分组标签。 |
+| `SelectSeparator` | 项目或分组之间的视觉分隔线。 |
+| `SelectScrollUpButton` | 长列表的向上滚动控件。 |
+| `SelectScrollDownButton` | 长列表的向下滚动控件。 |
 
 ### Select
 
@@ -138,27 +138,27 @@ Group related items with `SelectGroup` and `SelectLabel`.
     {
       name: "defaultValue",
       type: "string",
-      description: "The initial selected value for an uncontrolled select.",
+      description: "非受控选择器的初始选中值。",
     },
     {
       name: "value",
       type: "string | null",
-      description: "The controlled selected value.",
+      description: "受控的选中值。",
     },
     {
       name: "onValueChange",
       type: "(value: string | null) => void",
-      description: "Called when the selected value changes.",
+      description: "选中值发生变化时调用。",
     },
     {
       name: "items",
       type: "Array<{ value: string; label: ReactNode; disabled?: boolean }>",
-      description: "Base UI item metadata used to resolve labels and disabled state.",
+      description: "用于解析标签和禁用状态的 Base UI 项目元数据。",
     },
     {
       name: "disabled",
       type: "boolean",
-      description: "Whether the select is disabled.",
+      description: "选择器是否处于禁用状态。",
     },
   ]}
 />
@@ -172,12 +172,12 @@ Group related items with `SelectGroup` and `SelectLabel`.
       name: "size",
       type: '"sm" | "default"',
       default: '"default"',
-      description: "The trigger height.",
+      description: "触发器高度。",
     },
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes.",
+      description: "附加 CSS 类。",
     },
   ]}
 />

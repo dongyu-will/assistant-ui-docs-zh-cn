@@ -1,31 +1,31 @@
 ---
-title: ChatGPT Clone Example
-description: Open-source ChatGPT clone built in React with assistant-ui — centered welcome composer, high-contrast user bubbles, tooltipped controls, and full assistant action bar.
+title: ChatGPT Clone 示例
+description: 使用 React 和 assistant-ui 构建的开源 ChatGPT 克隆版——居中的欢迎输入框、高对比度用户气泡、带工具提示的控件，以及完整的助手操作栏。
 ---
 
-## Overview
+## 概述
 
-The ChatGPT Clone demonstrates how to customize assistant-ui to match OpenAI's ChatGPT interface. This version mirrors the current chatgpt.com layout: a centered welcome composer, tooltipped attachment/dictation/voice controls, high-contrast user bubbles with Copy + Edit actions, and an always-visible assistant action bar with thumbs, share, speak, reload, and more.
+ChatGPT Clone 演示了如何自定义 assistant-ui，使其匹配 OpenAI 的 ChatGPT 界面。此版本复刻了当前 chatgpt.com 的布局：居中的欢迎输入框、带工具提示的附件/听写/语音控件、带有 Copy + Edit 操作的高对比度用户气泡，以及始终可见的助手操作栏，其中包含点赞、分享、朗读、重新加载等更多操作。
 
-## Features
+## 功能
 
-- **Theme-Aware**: White light mode (`#ffffff`) and black dark mode (`#000000`) with ChatGPT-style `#212121` composer surfaces
-- **Centered Empty State**: "Where should we begin?" heading + composer rendered together above the viewport center
-- **Tooltipped Composer Controls**: Add attachment, Dictate, and voice-mode buttons use ChatGPT's circular controls and hover tooltips
-- **Four-State Primary Action**: Cancel (running), StopDictation (recording), Send (typing), Dictate + voice mode (idle)
-- **Assistant Action Bar**: Always visible — Copy, Good response, Bad response, Read aloud, Share, Regenerate, More
-- **User Bubble**: Right-aligned high-contrast bubble with Copy + Edit actions below on hover
-- **Sticky Footer**: Composer + "ChatGPT can make mistakes" disclaimer at the bottom of the chat
+- **主题感知**：白色浅色模式（`#ffffff`）和黑色深色模式（`#000000`），搭配 ChatGPT 风格的 `#212121` 输入框表面
+- **居中的空状态**："我们从哪里开始？"标题与输入框一起渲染在视口中心上方
+- **带工具提示的输入框控件**：添加附件、听写和语音模式按钮采用 ChatGPT 的圆形控件，并在悬停时显示工具提示
+- **四状态主操作**：Cancel（运行中）、StopDictation（录音中）、Send（输入中）、Dictate + 语音模式（空闲）
+- **助手操作栏**：始终可见——Copy、Good response、Bad response、Read aloud、Share、Regenerate、More
+- **用户气泡**：右对齐的高对比度气泡，悬停时在下方显示 Copy + Edit 操作
+- **粘性页脚**：在聊天底部显示输入框和“ChatGPT 可能会犯错”免责声明
 
-## Quick Start
+## 快速开始
 
 ```bash
 npx assistant-ui add thread
 ```
 
-## Code
+## 代码
 
-The ChatGPT clone splits into an `EmptyState` and a sticky chat layout. The same composer shell is shared by both:
+ChatGPT 克隆版由 `EmptyState` 和粘性聊天布局组成。两者共享同一个输入框外壳：
 
 ```tsx
 import {
@@ -69,7 +69,7 @@ const Composer = ({ placeholder }: { placeholder: string }) => (
 );
 ```
 
-### Four-State Primary Action
+### 四状态主操作
 
 ```tsx
 <AuiIf condition={(s) => s.thread.isRunning}>
@@ -106,9 +106,9 @@ const Composer = ({ placeholder }: { placeholder: string }) => (
 </AuiIf>
 ```
 
-The conditions are mutually exclusive in priority order (`Cancel > StopDictation > Send > Dictate/voice mode`) so dictation can be paused even when transcribed text is in the composer.
+这些条件按照优先级顺序互斥（`Cancel > StopDictation > Send > Dictate/voice mode`），因此即使输入框中已有转录文本，也可以暂停听写。
 
-### User Bubble and Actions
+### 用户气泡和操作
 
 ```tsx
 <MessagePrimitive.Root className="flex flex-col items-end gap-1">
@@ -127,28 +127,28 @@ The conditions are mutually exclusive in priority order (`Cancel > StopDictation
 </MessagePrimitive.Root>
 ```
 
-### Color Palette
+### 颜色调色板
 
-| Element | Light | Dark |
+| 元素 | 浅色 | 深色 |
 |---------|-------|------|
-| Background | `#ffffff` | `#000000` |
-| Composer surface | `#ffffff` | `#212121` |
-| Composer border / edge | `#e5e5e5` | `transparent` + inset white edge |
-| Primary text | `#0d0d0d` | `#ececec` |
-| Muted text | `#5d5d5d` | `#afafaf` |
-| User bubble | `#0d0d0d` (white text) | `#ececec` (`#0d0d0d` text) |
-| Action icon | `#5d5d5d` | `#cdcdcd` |
-| Icon hover background | black at 7% | white at 15% |
-| Send / voice button | `#0d0d0d` (white icon) | `#ffffff` (black icon) |
+| 背景 | `#ffffff` | `#000000` |
+| 输入框表面 | `#ffffff` | `#212121` |
+| 输入框边框 / 边缘 | `#e5e5e5` | `transparent` + 内嵌白色边缘 |
+| 主要文本 | `#0d0d0d` | `#ececec` |
+| 弱化文本 | `#5d5d5d` | `#afafaf` |
+| 用户气泡 | `#0d0d0d`（白色文本） | `#ececec`（`#0d0d0d` 文本） |
+| 操作图标 | `#5d5d5d` | `#cdcdcd` |
+| 图标悬停背景 | 黑色，7% | 白色，15% |
+| 发送 / 语音按钮 | `#0d0d0d`（白色图标） | `#ffffff`（黑色图标） |
 
-### Styling Details
+### 样式详情
 
-- **Composer**: `rounded-[28px]` with a thin light-mode border, dark `#212121` surface, and an inset dark-mode edge
-- **Empty Layout**: 24px/400 heading + composer raised above center; no avatar
-- **Composer Buttons**: 36px circular controls with hover tooltips and background-only hover states
-- **Assistant Action Bar**: 32px controls, 8px radius, zero gap, background-only hover, and tooltips on every action
-- **User Bubble**: `rounded-[22px]`, 70% max width, high-contrast theme colors, Copy + Edit actions below on hover
+- **输入框**：`rounded-[28px]`，带有浅色模式细边框、深色 `#212121` 表面，以及内嵌的深色模式边缘
+- **空布局**：24px/400 标题，输入框上移至中心上方；不显示头像
+- **输入框按钮**：36px 圆形控件，带悬停工具提示，并且仅在悬停时改变背景
+- **助手操作栏**：32px 控件、8px 圆角、零间距，仅在悬停时改变背景，并为每个操作提供工具提示
+- **用户气泡**：`rounded-[22px]`，最大宽度为 70%，使用高对比度主题颜色，悬停时在下方显示 Copy + Edit 操作
 
-## Source
+## 源码
 
 <SourceLink href="https://github.com/assistant-ui/assistant-ui/blob/main/apps/docs/components/pages/examples/chatgpt.tsx" />

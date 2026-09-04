@@ -1,51 +1,51 @@
 ---
-title: Generative UI
-description: Let the model compose an interface at runtime from a component vocabulary you ship, using the present tool from @assistant-ui/react-generative-ui.
+title: 生成式 UI
+description: 使用 @assistant-ui/react-generative-ui 中的 present 工具，让模型在运行时根据你提供的组件词汇表组合界面。
 platforms: ["react"]
 ---
 
-Generative UI inverts the usual tool-rendering relationship. Instead of writing one component per tool, you ship a **vocabulary** of components and let the model assemble them. The model calls a single `present` tool whose arguments are a JSON tree of component names and props, and assistant-ui renders that tree.
+生成式 UI 颠倒了通常的工具渲染关系。你无需为每个工具编写一个组件，而是提供一套**组件词汇表**，让模型负责组合这些组件。模型调用一个 `present` 工具，其参数是由组件名称和 props 构成的 JSON 树，assistant-ui 则渲染这棵树。
 
-The package ships a default vocabulary of 27 components (cards, facts, tables, charts, forms, controls), so the shortest useful setup registers one tool and writes no components at all.
+该软件包提供包含 27 个组件的默认词汇表（卡片、事实、表格、图表、表单和控件），因此最简实用配置只需注册一个工具，无需编写任何组件。
 
-## Which generative UI pattern?
+## 哪种生成式 UI 模式？
 
-assistant-ui uses "generative UI" for more than one thing. Two questions separate them: does the **model** compose the layout or do you bind it ahead of time, and does the UI originate from a **tool call** or from a part your backend emits. Pick the row that matches what you are building:
+assistant-ui 对“生成式 UI”的定义不止一种。可以通过两个问题来区分：布局是由**模型**组合的，还是预先绑定的；UI 是源自**工具调用**，还是源自后端发出的某个部分。选择与构建内容相符的行：
 
-| Pattern | API | Best for |
+| 模式 | API | 适用场景 |
 |---------|-----|----------|
-| **The `present` tool** (this page) | `JSONGenerativeUI` + `present` | The model composes dashboards, cards, and layouts from a vocabulary you ship |
-| **[Tool UI](/docs/tools/tool-ui)** | toolkit `render` | A widget tied to a tool you already know about (forms, pickers, charts) |
-| **[Generative UI primitive](/docs/tools/generative-ui-primitive)** | `MessagePrimitive.GenerativeUI` + allowlist | A backend that already emits `generative-ui` message parts |
-| **[LangGraph data UI](/docs/runtimes/langgraph/generative-ui)** | `makeAssistantDataUI` + `ui_message` | LangGraph agents emitting UI on the LangGraph stream |
+| **`present` 工具**（本页） | `JSONGenerativeUI` + `present` | 模型根据你提供的词汇表组合仪表盘、卡片和布局 |
+| **[工具 UI](/docs/tools/tool-ui)** | 工具包 `render` | 与你已知的工具关联的小组件（表单、选择器、图表） |
+| **[生成式 UI 原语](/docs/tools/generative-ui-primitive)** | `MessagePrimitive.GenerativeUI` + 允许列表 | 已经发出 `generative-ui` 消息部分的后端 |
+| **[LangGraph 数据 UI](/docs/runtimes/langgraph/generative-ui)** | `makeAssistantDataUI` + `ui_message` | 在 LangGraph 流中发出 UI 的 LangGraph 代理 |
 
-The first two are tool-driven, so the model decides when UI appears; the last two are backend-driven, so your agent does. The backend-driven pair splits on transport rather than on either axis: the primitive reads a `generative-ui` message part, while LangGraph data UI reads `push_ui_message` off the LangGraph stream. `present` and the primitive both take a JSON component tree, but in [non-interchangeable shapes](/docs/tools/generative-ui-primitive#spec-shape). A third-party option also exists in the tool-driven space: [OpenUI](/docs/tools/openui) publishes an integration that streams OpenUI Lang through the same shape.
+前两种由工具驱动，因此由模型决定何时显示 UI；后两种由后端驱动，因此由你的代理决定。后端驱动的两种模式按照传输方式而不是上述两个维度进行区分：原语读取 `generative-ui` 消息部分，而 LangGraph 数据 UI 则从 LangGraph 流中读取 `push_ui_message`。`present` 和原语都接收 JSON 组件树，但两者的结构[不可互换](/docs/tools/generative-ui-primitive#spec-shape)。工具驱动领域中还存在一个第三方选项：[OpenUI](/docs/tools/openui) 发布了一种集成，可通过相同的结构流式传输 OpenUI Lang。
 
-Browse every component the default vocabulary offers in the [component vocabulary reference](/elements/vocabulary), and see finished compositions in the [Generative section of Elements](/elements).
+你可以在[组件词汇表参考](/elements/vocabulary)中浏览默认词汇表提供的所有组件，并在 [Elements 的生成式部分](/elements)中查看完整的组合示例。
 
-## Quick start
+## 快速开始
 
 <Steps>
 
 <Step>
 
-### Install the package
+### 安装软件包
 
 <InstallCommand npm={["@assistant-ui/react-generative-ui"]} />
 
-The vocabulary renders as unstyled semantic HTML with `data-aui` attributes. Add the styled library to get the shipped look:
+词汇会渲染为不带样式的语义 HTML，并包含 `data-aui` 属性。添加样式库即可获得随包提供的外观：
 
 <InstallCommand shadcn={["generative-ui"]} />
 
-This merges the vocabulary stylesheet and theme variables into your CSS, which is what the rest of this page assumes, and lands `components/assistant-ui/elements/generative-ui.tsx`. That file exports `styledGenerativeUILibrary`, whose only difference from the default vocabulary is a real markdown renderer; [Styling](#styling) wires it in.
+这会将词汇样式表和主题变量合并到你的 CSS 中，这是本页面其余部分所假设的配置，并提供 `components/assistant-ui/elements/generative-ui.tsx`。该文件导出 `styledGenerativeUILibrary`，它与默认词汇的唯一区别在于使用了真正的 Markdown 渲染器；[设置样式](#styling)会将其接入。
 
 </Step>
 
 <Step>
 
-### Enable the compiler
+### 启用编译器
 
-The `"use generative"` directive lets one file declare tools that both the browser and your server route can import: the compiler strips the browser-only halves out of the server build and the schemas out of the client build.
+`"use generative"` 指令允许单个文件声明浏览器和服务器路由都可以导入的工具：编译器会从服务器构建中移除仅限浏览器的部分，并从客户端构建中移除 schema。
 
 ```ts title="next.config.ts"
 import { withAui } from "@assistant-ui/next";
@@ -55,15 +55,15 @@ export default withAui({
 });
 ```
 
-Vite and TanStack Start use `aui()` from `@assistant-ui/vite`; Expo and bare React Native use `withAui` from `@assistant-ui/metro`.
+Vite 和 TanStack Start 使用来自 `@assistant-ui/vite` 的 `aui()`；Expo 和裸 React Native 使用来自 `@assistant-ui/metro` 的 `withAui`。
 
 </Step>
 
 <Step>
 
-### Expose the vocabulary as a tool
+### 将词汇公开为工具
 
-`JSONGenerativeUI` turns a component library into the model-facing schema for `present`. Register the result on a toolkit like any other tool.
+`JSONGenerativeUI` 会将组件库转换为面向模型的 `present` schema。像注册其他工具一样，将结果注册到工具包中。
 
 ```tsx title="app/toolkit.tsx"
 "use generative";
@@ -83,13 +83,13 @@ export default defineToolkit({
 });
 ```
 
-`display: "standalone"` renders the result on its own surface, outside the chain-of-thought trace. Omit it to render inline.
+`display: "standalone"` 会在其自身的界面中渲染结果，使其位于思维链轨迹之外。省略它即可将结果内联渲染。
 
 </Step>
 
 <Step>
 
-### Register the toolkit on the client
+### 在客户端注册工具包
 
 ```tsx title="app/MyRuntimeProvider.tsx"
 "use client";
@@ -122,16 +122,16 @@ export function MyRuntimeProvider({
 ```
 
 <Callout type="warn">
-`present` is a frontend tool: it resolves in the browser, and the run only continues once its result is sent back. Without `sendAutomaticallyWhen`, the UI renders and the conversation then stops.
+`present` 是一个前端工具：它会在浏览器中解析，并且只有在其结果发回后，运行才会继续。如果没有 `sendAutomaticallyWhen`，UI 会完成渲染，随后对话就会停止。
 </Callout>
 
 </Step>
 
 <Step>
 
-### Serve the schema
+### 提供 schema
 
-The route imports the same toolkit module. The compiler resolves that import to the server build, so only the schemas cross over and no browser code enters your server bundle.
+该路由会导入同一个工具包模块。编译器会将该导入解析为服务器构建，因此只有 schema 会传递过去，不会有浏览器代码进入你的服务器 bundle。
 
 ```ts title="app/api/chat/route.ts"
 import { openai } from "@ai-sdk/openai";
@@ -155,17 +155,17 @@ export async function POST(req: Request) {
 }
 ```
 
-`stopWhen` matters here for the same reason `sendAutomaticallyWhen` does: rendering the UI is one step, and the model needs another to say anything after it.
+`stopWhen` 在这里之所以重要，原因与 `sendAutomaticallyWhen` 相同：渲染 UI 只是一个步骤，而模型还需要另一个步骤才能在此之后继续输出内容。
 
 </Step>
 
 </Steps>
 
-Ask for something the vocabulary can express, for example "show me a sales dashboard for the last six months", and the model will answer with a rendered composition. The complete setup runs in [`examples/with-generative-ui`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-generative-ui).
+请求词汇可以表达的内容，例如“为我展示过去六个月的销售仪表盘”，模型就会以渲染后的组合形式作答。完整设置请参阅[`examples/with-generative-ui`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-generative-ui).
 
-## What the model emits
+## 模型输出的内容
 
-Every node is a flat object: `$type` names the component, `children` nests, and every other key is a prop.
+每个节点都是一个扁平对象：`$type` 用于指定组件，`children` 用于嵌套，其他所有键都是 prop。
 
 ```json
 {
@@ -193,11 +193,11 @@ Every node is a flat object: `$type` names the component, `children` nests, and 
 }
 ```
 
-Keys beginning with `$` are reserved by the framework (`$type`, `$key`, `$action`, and the injected `$status`), and `children` follows the JSX convention. Every other key is yours, so a component is free to declare props named `type`, `status`, or `variant` without colliding.
+以 `$` 开头的键由框架保留（`$type`、`$key`、`$action` 以及注入的 `$status`），而 `children` 遵循 JSX 约定。其他所有键都由你定义，因此组件可以自由声明名为 `type`、`status` 或 `variant` 的 prop，而不会发生冲突。
 
-## Extending the vocabulary
+## 扩展词汇
 
-`defineGenerativeComponents` adds your own components. Each one declares a zod schema for its props, a description the model reads, and a render function.
+`defineGenerativeComponents` 用于添加自定义组件。每个组件都会为其 props 声明一个 zod schema、提供模型可读取的描述，以及一个渲染函数。
 
 ```tsx title="app/toolkit.tsx"
 "use generative";
@@ -226,15 +226,15 @@ const generative = new JSONGenerativeUI({
 });
 ```
 
-Set `streamProperties: true` alongside `properties` to receive partially-filled props while the model is still writing them. `render` then sees `Partial<P>` and an injected `$status` of `"streaming"`, and the full props once it turns `"done"`. Components opt out by default and render only once their props are complete.
+将 `streamProperties: true` 与 `properties` 一起设置，即可在模型仍在编写 props 时接收部分填充的 props。此时，`render` 会看到 `Partial<P>` 以及注入的 `$status`（类型为 `"streaming"`）；当其将 `"done"` 设为完成后，便会获得完整的 props。组件默认不启用此行为，只有在 props 完整后才会渲染。
 
 <Callout type="warn">
-Inside a `"use generative"` module, a `"use client"` module may be referenced **only** as the `render` value of an inline `defineGenerativeComponents` literal. The compiler drops `render` and the imports only it uses from the server build; referencing such a module from `properties`, `description`, a spread, or a top-level constant leaks a client reference into the server graph and breaks schema generation. `defaultGenerativeUILibrary` is safe on both builds.
+在 `"use generative"` 模块中，只能将 `"use client"` 模块作为内联 `defineGenerativeComponents` 字面量的 `render` 值引用。编译器会从服务器构建中移除 `render` 及其仅使用的导入；如果从 `properties`、`description`、展开语法或顶层常量中引用此类模块，就会将客户端引用泄漏到服务器依赖图中，并导致 schema 生成失败。`defaultGenerativeUILibrary` 在两种构建中都安全。
 </Callout>
 
-## Actions
+## 操作
 
-Pass an action registry to let rendered nodes call back into your app. The model puts an `$action` object on a node, and its `type` is matched against your handlers.
+传入操作注册表，使渲染的节点能够回调你的应用。模型会在节点上放置一个 `$action` 对象，并将其 `type` 与你的处理程序进行匹配。
 
 ```tsx
 import {
@@ -263,17 +263,17 @@ const generative = new JSONGenerativeUI({
 }
 ```
 
-`Select`, `Input`, `DatePicker`, `Checkbox`, and `RadioGroup` add the user's value as `$input` when they fire the action. `Form`, and a `Card` with `asForm` set, add an object keyed by each control's `name` instead. On a `Card` there is no card-level `$action`: the collected object is dispatched through `confirm.$action`, while `cancel.$action` always fires without `$input`. Unknown action types are ignored and warn in development.
+`Select`、`Input`、`DatePicker`、`Checkbox` 和 `RadioGroup` 触发操作时，会将用户的值添加为 `$input`。`Form` 以及设置了 `asForm` 的 `Card`，则会改为添加一个以每个控件的 `name` 为键的对象。在 `Card` 上没有卡片级 `$action`：收集到的对象会通过 `confirm.$action` 分发，而 `cancel.$action` 始终会触发，且不带 `$input`。未知的操作类型会被忽略，并在开发环境中发出警告。
 
-Without a registry, the tree still renders and model-emitted actions degrade to a no-op.
+如果没有注册表，树仍会渲染，模型发出的操作会降级为空操作。
 
-## Styling
+## 样式
 
-The vocabulary renders semantic HTML tagged with `data-aui` and `data-aui-*` attributes and ships no styles of its own, so it inherits nothing and collides with nothing. The `generative-ui` registry item above installs the shipped stylesheet, which is written entirely against your existing theme variables: change `--radius` or `--primary` in your own CSS and the rendered widgets follow.
+该词汇表会渲染带有 `data-aui` 和 `data-aui-*` 属性的语义化 HTML，并且不自带任何样式，因此既不会继承样式，也不会产生冲突。上面的 `generative-ui` 注册表项会安装随附的样式表；该样式表完全基于你现有的主题变量编写：只需在自己的 CSS 中修改 `--radius` 或 `--primary`，渲染出的组件就会随之变化。
 
-A `Card` renders as a plain section by default, so several in a row read as one answer rather than a stack of boxes. It takes on a framed surface only where one is warranted: when the model sets a `background`, when `confirm` or `cancel` add a footer whose buttons need a delimited target, or when it is a carousel slot.
+默认情况下，`Card` 会渲染为普通 section，因此连续出现的多个组件会被读作一个答案，而不是一组盒子。只有在以下情况时，它才会采用带边框的表面：模型设置了 `background`；`confirm` 或 `cancel` 添加了页脚，且其中的按钮需要一个明确划分的目标区域；或者它充当轮播项。
 
-To restyle a single component, target its attribute:
+要重新设置单个组件的样式，请定位其属性：
 
 ```css
 [data-aui="fact-value"] {
@@ -282,7 +282,7 @@ To restyle a single component, target its attribute:
 }
 ```
 
-Overriding a component's markup rather than its appearance is a library-level change: spread `defaultGenerativeUILibrary` and replace that one entry through `defineGenerativeComponents`. The default `Markdown` renders its source as plain text, which is why the registry item ships a replacement. Wiring it is the same override:
+覆盖组件的标记而不是其外观属于库级别的更改：展开 `defaultGenerativeUILibrary`，并通过 `defineGenerativeComponents` 替换其中的单个条目。默认的 `Markdown` 会将其源代码渲染为纯文本，这正是注册表项提供替代实现的原因。接入方式与其他覆盖相同：
 
 ```tsx title="app/toolkit.tsx"
 import { styledGenerativeUILibrary } from "@/components/assistant-ui/elements/generative-ui";
@@ -304,19 +304,19 @@ const generative = new JSONGenerativeUI({
 });
 ```
 
-`styledGenerativeUILibrary` is a `"use client"` module, so this inline `render` is the only place a `"use generative"` file may name it. Passing it directly as `library` works only in a file without the directive.
+`styledGenerativeUILibrary` 是一个 `"use client"` 模块，因此这段内联 `render` 是 `"use generative"` 文件中唯一可以引用它的地方。只有在不包含该指令的文件中，直接将它作为 `library` 传入才会生效。
 
-## Security
+## 安全性
 
-The library is the boundary on **which** components can render: the model can only name components you put in it, resolved by lookup with no `eval` and no dynamic import. Unknown names are dropped.
+该库规定了哪些组件可以渲染：模型只能命名你放入库中的组件，并通过查找解析，过程中不会使用 `eval`，也不会执行动态导入。未知名称会被丢弃。
 
-Props are a separate question. Each component's zod schema validates what the model sends, so a component that declares only primitive, display-oriented props cannot receive anything else. When you add a component that takes a URL, a raw HTML string, or anything that becomes executable, validate it inside that component; the schema constrains shape, not intent.
+Props 是另一个需要考虑的问题。每个组件的 zod schema 都会验证模型发送的内容，因此，只声明基本类型、面向展示的 props 的组件无法接收其他内容。当你添加一个接收 URL、原始 HTML 字符串或任何会变成可执行内容的组件时，请在该组件内部进行验证；schema 约束的是数据形状，而不是意图。
 
-## Beyond the browser
+## 浏览器之外
 
-The tree is plain JSON, so it is not tied to the browser. Four React-free subpaths let a server action, queue worker, or webhook handler consume it without pulling React:
+该树是纯 JSON，因此不受浏览器限制。四个不依赖 React 的子路径让服务端操作、队列 worker 或 Webhook 处理器可以直接使用它，而无需引入 React：
 
-- `@assistant-ui/react-generative-ui/ir` holds the tree types, normalization, and token enums.
-- `@assistant-ui/react-generative-ui/slack` converts the tree into Block Kit and decodes `block_actions` back into `$action`. See [Generative UI on Slack](/docs/tools/generative-ui-slack).
-- `@assistant-ui/react-generative-ui/teams` converts it into an Adaptive Card and decodes the submit payload. See [Generative UI on Microsoft Teams](/docs/tools/generative-ui-teams).
-- `@assistant-ui/react-generative-ui/a2ui` consumes [A2UI surfaces over AG-UI](/docs/tools/a2ui).
+- `@assistant-ui/react-generative-ui/ir` 包含树类型、规范化逻辑和令牌枚举。
+- `@assistant-ui/react-generative-ui/slack` 将树转换为 Block Kit，并将 `block_actions` 解码回 `$action`。请参阅 [Slack 上的生成式 UI](/docs/tools/generative-ui-slack)。
+- `@assistant-ui/react-generative-ui/teams` 将其转换为 Adaptive Card，并解码提交负载。请参阅 [Microsoft Teams 上的生成式 UI](/docs/tools/generative-ui-teams)。
+- `@assistant-ui/react-generative-ui/a2ui` 消费 [通过 AG-UI 传输的 A2UI 界面](/docs/tools/a2ui)。

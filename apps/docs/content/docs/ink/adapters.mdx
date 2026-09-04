@@ -1,13 +1,13 @@
 ---
-title: Adapters
-description: Attachment, title generation, and storage adapters for React Ink.
+title: 适配器
+description: 用于 React Ink 的附件、标题生成和存储适配器。
 ---
 
-Adapters customize runtime behavior. They can be passed as options to `useLocalRuntime` or `useRemoteThreadListRuntime`.
+适配器用于自定义运行时行为。它们可以作为选项传递给 `useLocalRuntime` 或 `useRemoteThreadListRuntime`。
 
 ## createFileStorageAdapter
 
-A `RemoteThreadListAdapter` that persists threads and messages to a local directory. See [Custom Backend → Option 2](/docs/ink/custom-backend#option-2-local-file-persistence) for usage.
+一种 `RemoteThreadListAdapter`，用于将线程和消息持久化到本地目录。有关用法，请参阅[自定义后端 → 选项 2](/docs/ink/custom-backend#option-2-local-file-persistence)。
 
 ```ts
 import { createFileStorageAdapter } from "@assistant-ui/react-ink";
@@ -17,9 +17,9 @@ const adapter = createFileStorageAdapter({
 });
 ```
 
-## Attachment adapters
+## 附件适配器
 
-`SimpleTextAttachmentAdapter` and `SimpleImageAttachmentAdapter` work the same in the terminal as on web and React Native. Text contents are sent to the model wrapped in `<attachment name=...>` tags, and images are sent as base64 data URLs.
+`SimpleTextAttachmentAdapter` 和 `SimpleImageAttachmentAdapter` 在终端中的工作方式与在 Web 和 React Native 中相同。文本内容会封装在 `<attachment name=...>` 标签中发送给模型，图像则以 base64 数据 URL 的形式发送。
 
 ```ts
 import {
@@ -41,7 +41,7 @@ const runtime = useLocalRuntime(chatModelAdapter, {
 
 ## TitleGenerationAdapter
 
-Produces a thread title from a thread's messages. Pass one as the `titleGenerator` option to `createFileStorageAdapter`, or call it from a custom `RemoteThreadListAdapter`.
+根据线程消息生成线程标题。将其作为 `titleGenerator` 选项传递给 `createFileStorageAdapter`，或从自定义的 `RemoteThreadListAdapter` 中调用它。
 
 ```ts
 type TitleGenerationAdapter = {
@@ -49,7 +49,7 @@ type TitleGenerationAdapter = {
 };
 ```
 
-`createSimpleTitleAdapter` is the built-in implementation; it derives the title from the first user message, truncated to 50 characters.
+`createSimpleTitleAdapter` 是内置实现；它根据第一条用户消息生成标题，并将标题截断为 50 个字符。
 
 ```ts
 import {
@@ -65,7 +65,7 @@ const adapter = createFileStorageAdapter({
 
 ## RemoteThreadListAdapter
 
-Title generation is configured via the `generateTitle` method on `RemoteThreadListAdapter`. See the [Custom Backend](/docs/ink/custom-backend) page for a full example.
+通过 `RemoteThreadListAdapter` 上的 `generateTitle` 方法配置标题生成。有关完整示例，请参阅[自定义后端](/docs/ink/custom-backend)页面。
 
 ```tsx
 import type { RemoteThreadListAdapter } from "@assistant-ui/react-ink";
@@ -88,12 +88,12 @@ const myAdapter: RemoteThreadListAdapter = {
 };
 ```
 
-## Which option to choose?
+## 应该选择哪个选项？
 
 | | ChatModelAdapter + `useLocalRuntime` | RemoteThreadListAdapter + `useRemoteThreadListRuntime` |
 |---|---|---|
-| **Thread storage** | In-memory | Your backend |
-| **Message storage** | In-memory | In-memory (can add history adapter for server-side) |
-| **Cross-session persistence** | No | Yes |
-| **Setup complexity** | Minimal | Moderate |
-| **Best for** | CLI tools, demos, prototypes | Production apps with persistence |
+| **线程存储** | 内存中 | 您的后端 |
+| **消息存储** | 内存中 | 内存中（可以添加历史记录适配器，以支持服务端存储） |
+| **跨会话持久化** | 否 | 是 |
+| **设置复杂度** | 最低 | 中等 |
+| **适用场景** | CLI 工具、演示、原型 | 需要持久化的生产应用 |

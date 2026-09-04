@@ -1,18 +1,18 @@
 ---
-title: "Checkpoints"
-description: "Points you can fall back to, with what each one would give back."
+title: "检查点"
+description: "可回退到的节点，以及每个节点会还原的内容。"
 ---
 
-A checkpoint list shows the points you could restore to: a label, when it was taken, and how much it touched. It is a plain list with one entry marked current; restoring is a callback you wire up yourself.
+检查点列表会显示可以还原到的节点：标签、创建时间以及涉及的文件数量。这是一个简单列表，其中一项会标记为当前项；还原操作需要由你自行接入回调。
 
-## Getting started
+## 快速开始
 
 <StandaloneMode>
 
 <Steps>
   <Step>
 
-### Render the list with a current checkpoint
+### 使用当前检查点渲染列表
 
 ```tsx title="app/checkpoints.tsx"
 "use client";
@@ -33,9 +33,9 @@ export function History() {
   </Step>
   <Step>
 
-### Restore on click
+### 点击时还原
 
-`onRestore` only reports which checkpoint was picked; moving `currentId` and rolling back whatever state the checkpoint represents both happen in your handler.
+`onRestore`只会报告选中了哪个检查点；移动`currentId`以及回滚检查点所代表的状态，都需要在你的处理函数中完成。
 
 ```tsx
 "use client";
@@ -63,7 +63,7 @@ export function History() {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="checkpoint-history">
@@ -78,56 +78,56 @@ export function History() {
 </div>
 ```
 
-The current row is found by matching `currentId` against `checkpoints`. Rows that come after it in the array are "ahead": they render at reduced opacity with a hollow dot, since they are only reachable by moving forward again. Rows at or before it are "behind": full opacity, solid gray dot. The current row itself gets a highlighted background and shows the word "current" instead of a button; every other row, ahead or behind, shows a Restore button that only appears on hover or focus. If `currentId` matches nothing in `checkpoints`, no row is current: every row reads as behind and every row shows a Restore button. An empty `checkpoints` array renders only the "Checkpoints" label.
+通过将`currentId`与`checkpoints`进行匹配来确定当前行。数组中位于当前行之后的行属于“前方”：它们会以较低的不透明度和空心圆点进行渲染，因为只有再次向前移动才能到达这些行。位于当前行之前或与当前行相同位置的行属于“后方”：使用完整不透明度和实心灰色圆点。当前行本身会显示高亮背景，并显示“当前”文字而不是按钮；其他每一行，无论在前方还是后方，都会显示一个仅在悬停或获得焦点时出现的“还原”按钮。如果`currentId`在`checkpoints`中找不到匹配项，则没有任何行是当前行：所有行都会被视为后方，并且每一行都会显示“还原”按钮。空的`checkpoints`数组只会渲染“检查点”标签。
 
-## Examples
+## 示例
 
-### Checkpoints ahead of the current one
+### 当前检查点前方的检查点
 
-Passing a `currentId` earlier in the array than the list's end leaves the later entries visible but dimmed, showing what moving forward would give back:
+将`currentId`传入数组中早于列表末尾的位置，会让后续条目保持可见但变暗，以展示向前移动后可以还原的内容：
 
 ```tsx
 <CheckpointHistory checkpoints={checkpoints} currentId="2" onRestore={onRestore} />
 ```
 
-### An unrecognized current id
+### 无法识别的当前 id
 
-Useful right after a checkpoint is deleted server-side, before the caller has picked a new current one:
+适用于检查点刚在服务端被删除、调用方尚未选择新的当前检查点的情况：
 
 ```tsx
 <CheckpointHistory checkpoints={checkpoints} currentId="" onRestore={onRestore} />
 ```
 
-### Restyle the list
+### 重新设置列表样式
 
-The root uses the shared `paper` surface; the timestamp and file count use `mono`.
+根元素使用共享的`paper`表面；时间戳和文件数量使用`mono`。
 
 ```tsx
 <CheckpointHistory className="max-w-md rounded-3xl" {...rest} />
 ```
 
-## API reference
+## API 参考
 
 <StandaloneMode>
 
 ### CheckpointHistory
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `checkpoints` | `readonly Checkpoint[]` | required | The rows to render, in order. |
-| `currentId` | `string` | required | Id of the active checkpoint. An id with no match leaves every row unmarked. |
-| `onRestore` | `(id: string) => void` | | Called when a row's Restore button is clicked. |
-| `className` | `string` | | Merged onto the root. |
+| `checkpoints` | `readonly Checkpoint[]` | 必填 | 按顺序渲染的行。 |
+| `currentId` | `string` | 必填 | 活动检查点的 id。没有匹配项的 id 会使所有行都不带标记。 |
+| `onRestore` | `(id: string) => void` | | 点击某行的“还原”按钮时调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### Checkpoint
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `id` | `string` | Matched against `currentId`. |
-| `label` | `string` | Row title. |
-| `at` | `string` | Shown before the file count; any format you choose. |
-| `files` | `number` | Shown as `"{files} files"`. |
+| `id` | `string` | 与`currentId`进行匹配。 |
+| `label` | `string` | 行标题。 |
+| `at` | `string` | 显示在文件数量之前；格式由你自行决定。 |
+| `files` | `number` | 显示为`"{files} files"`。 |
 
-All other `div` props are forwarded to the root.
+所有其他`div`属性都会转发到根元素。
 
 </StandaloneMode>

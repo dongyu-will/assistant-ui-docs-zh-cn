@@ -1,18 +1,18 @@
 ---
-title: Input History
-description: Terminal-style ArrowUp/ArrowDown recall of previously sent messages in the assistant-ui React composer.
+title: 输入历史
+description: 在 assistant-ui React 输入框中，以终端风格通过 ArrowUp/ArrowDown 调取之前发送的消息。
 platforms: ["react"]
 ---
 
-Input history lets users press ArrowUp in an empty composer to recall previously sent messages, newest first, like a shell prompt. ArrowDown steps back toward the newest entry and finally restores the draft that was being typed when browsing started.
+输入历史允许用户在输入框为空时按下 ArrowUp，像 shell 提示符一样调取之前发送的消息，且从最新消息开始。ArrowDown 会向最新条目逐步返回，最后恢复开始浏览历史时正在输入的草稿。
 
 <Callout type="warn">
-  This API is marked unstable and may change without notice.
+  此 API 标记为不稳定，可能会随时变更，恕不另行通知。
 </Callout>
 
-## Usage
+## 用法
 
-Spread the hook's bundle onto `ComposerPrimitive.Input`:
+将该 hook 的 bundle 展开到 `ComposerPrimitive.Input` 上：
 
 ```tsx
 import {
@@ -32,18 +32,18 @@ const Composer = () => {
 };
 ```
 
-The history ring is derived live from the current thread's user messages (trimmed, with adjacent duplicates collapsed), so it needs no persistence or configuration.
+历史记录会根据当前线程中的用户消息实时生成（会进行 trim，并合并相邻的重复消息），因此无需持久化或配置。
 
-## Behavior
+## 行为
 
-- ArrowUp starts recall only when the composer is empty (whitespace-only drafts count as empty and are restored on the way back down).
-- While a recalled multi-line message is shown, arrows move the caret line by line; recall only steps when the caret is on the first line (ArrowUp) or last line (ArrowDown).
-- An open mention or slash-command popover keeps owning the arrow keys; the hook yields whenever a trigger popover is active.
-- IME composition, modifier keys, text selections, and events a preceding handler already `preventDefault`ed are left untouched.
-- Switching threads or sending a message resets the browse position.
-- The hook is inert on edit composers.
+- 只有在输入框为空时，ArrowUp 才会开始调取历史记录（仅包含空白字符的草稿也视为空，并会在返回时恢复）。
+- 显示调取的多行消息时，方向键会逐行移动光标；只有当光标位于第一行（ArrowUp）或最后一行（ArrowDown）时，才会切换历史记录。
+- 打开的 mention 或斜杠命令弹出框会继续处理方向键；当触发器弹出框处于活动状态时，该 hook 会让出控制权。
+- IME 组合输入、修饰键、文本选择，以及前置处理程序已经`preventDefault`的事件均保持不变。
+- 切换线程或发送消息会重置浏览位置。
+- 该 hook 在编辑输入框中不会生效。
 
-To interleave your own ArrowUp handling ahead of history (for example, stepping through queued messages), compose your handler before the hook's and call `preventDefault` when you consume the key:
+如果要在历史记录处理之前插入自定义的 ArrowUp 处理逻辑（例如，逐条浏览排队的消息），请先组合你的处理程序，再组合该 hook，并在消费该按键时调用 `preventDefault`：
 
 ```tsx
 <ComposerPrimitive.Input

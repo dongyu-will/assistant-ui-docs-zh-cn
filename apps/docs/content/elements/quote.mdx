@@ -1,20 +1,20 @@
 ---
-title: "Quote"
-description: "Select message text, quote it from a floating toolbar, and carry it into the composer."
+title: "引用"
+description: "选择消息文本，从浮动工具栏引用，并将其带入输入框。"
 ---
 
-Quote lets someone select text in an assistant message, quote it from a floating toolbar, and see it above the composer input before they send. With a runtime the three pieces read and write the composer's live quote state and the message it was quoted from; standalone you drive the same flow from props you own. It comes in two designs: the runtime variant wires three pieces to a live browser selection, and the static variant, `QuoteReply`, is a single component that renders a pre-split paragraph with a three-action toolbar (see [The quote-reply design](#the-quote-reply-design)).
+引用功能允许用户选择助手消息中的文本，从浮动工具栏引用，并在发送前将其显示在输入框上方。在运行时中，这三个部分会读写输入框的实时引用状态以及被引用的消息；独立使用时，则由你通过自己管理的 props 驱动相同的流程。它有两种设计：运行时变体将三个部分连接到实时的浏览器选区，而静态变体 `QuoteReply` 是一个单独的组件，用三操作工具栏渲染预先拆分的段落（参见[引用回复设计](#the-quote-reply-design)）。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
 <Steps>
   <Step>
 
-### Show the quote inside its message
+### 在消息中显示引用
 
-Render `MessagePrimitive.Quote` above `MessagePrimitive.Parts` in the user message. It renders nothing until that message carries a quote.
+在用户消息中将 `MessagePrimitive.Quote` 渲染在 `MessagePrimitive.Parts` 上方。只有当该消息携带引用时，它才会渲染内容。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { QuoteBlock } from "@/components/assistant-ui/elements/quote.aui";
@@ -35,9 +35,9 @@ function UserMessage() {
   </Step>
   <Step>
 
-### Add the floating selection toolbar
+### 添加浮动选区工具栏
 
-Render `SelectionToolbar` anywhere inside the runtime's scope. It listens for text selection document-wide, and portals itself above the selection only when that selection falls inside one message.
+在运行时作用域内的任意位置渲染 `SelectionToolbar`。它会监听整个文档中的文本选区，并且只有当选区位于某条消息内时，才会将自身通过 portal 渲染到选区上方。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { SelectionToolbar } from "@/components/assistant-ui/elements/quote.aui";
@@ -53,14 +53,14 @@ function Thread() {
 }
 ```
 
-Clicking its Quote button sets the composer's quote from the current selection and clears the browser selection; no extra wiring is needed.
+点击其中的 Quote 按钮，会根据当前选区设置输入框的引用，并清除浏览器选区；无需额外连接逻辑。
 
   </Step>
   <Step>
 
-### Preview the quote in the composer
+### 在输入框中预览引用
 
-Add `ComposerQuotePreview` inside the composer. It renders nothing until a quote is set, and its dismiss button clears the quote.
+在输入框中添加 `ComposerQuotePreview`。在设置引用之前它不会渲染内容，其关闭按钮会清除引用。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { ComposerQuotePreview } from "@/components/assistant-ui/elements/quote.aui";
@@ -80,9 +80,9 @@ function Composer() {
   </Step>
   <Step>
 
-### Forward the quote to the model
+### 将引用传递给模型
 
-The quote lives in message metadata, not in message content, so the model never sees it unless the route handler adds it. `injectQuoteContext` prepends the quoted text as a markdown blockquote before conversion.
+引用存储在消息元数据中，而不是消息内容中，因此除非路由处理程序将其添加进去，否则模型永远不会看到它。`injectQuoteContext` 会在转换之前，将引用文本作为 Markdown 引用块添加到前面。
 
 ```typescript title="app/api/chat/route.ts"
 import { convertToModelMessages, streamText } from "ai";
@@ -107,11 +107,11 @@ export async function POST(req: Request) {
 
 <StandaloneMode>
 
-Standalone, build the same flow yourself: hold the quoted text in state, show it above your composer, and clear it on send or dismiss. [The quote-reply design](#the-quote-reply-design) below is a ready-made version of exactly that, with no runtime underneath it.
+独立使用时，请自行构建相同的流程：将引用文本保存在状态中，将其显示在输入框上方，并在发送或关闭时清除它。下面的[引用回复设计](#the-quote-reply-design)正是这一流程的现成实现，底层不依赖运行时。
 
 </StandaloneMode>
 
-## Anatomy
+## 组成结构
 
 <RuntimeMode>
 
@@ -135,17 +135,17 @@ Standalone, build the same flow yourself: hold the quoted text in state, show it
 </div>
 ```
 
-Each of the three pieces mounts or renders empty on its own condition: the block on whether the current message's metadata carries a quote, the toolbar on whether the current text selection resolves to exactly one message, and the composer preview on whether the composer has a quote set. None of them need to be told about the others.
+这三个部分都会根据各自的条件挂载或渲染为空：引用块取决于当前消息的元数据是否携带引用，工具栏取决于当前文本选区是否恰好解析到一条消息，而输入框预览取决于输入框是否设置了引用。它们彼此之间无需传递信息。
 
 </RuntimeMode>
 
-## Examples
+## 示例
 
 <RuntimeMode>
 
-### Restyle the pieces
+### 重新设置各部分样式
 
-All three components expose their sub-parts for full control over styling; each takes `className`.
+这三个组件都公开了各自的子部分，可完全控制样式；每个组件都接受 `className`。
 
 ```tsx
 <QuoteBlock.Root className="my-custom-class">
@@ -164,9 +164,9 @@ All three components expose their sub-parts for full control over styling; each 
 </ComposerQuotePreview.Root>
 ```
 
-### Read the quote without QuoteBlock
+### 不使用 QuoteBlock 读取引用
 
-`useMessageQuote()` returns the same `QuoteInfo` `MessagePrimitive.Quote` renders with, for a custom display built from scratch:
+`useMessageQuote()` 返回与 `MessagePrimitive.Quote` 渲染时使用的相同 `QuoteInfo`，可据此从头构建自定义显示：
 
 ```tsx
 import { useMessageQuote } from "@assistant-ui/react";
@@ -178,9 +178,9 @@ function CustomQuoteDisplay() {
 }
 ```
 
-### Clear the quote from elsewhere
+### 从其他位置清除引用
 
-Any component inside the runtime can clear the composer's quote, for example from a custom action outside `ComposerQuotePreview`:
+运行时内部的任何组件都可以清除输入框的引用，例如从 `ComposerQuotePreview` 外部的自定义操作中清除：
 
 ```tsx
 import { useAui } from "@assistant-ui/react";
@@ -197,52 +197,52 @@ function ClearQuoteButton() {
 
 </RuntimeMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### QuoteBlock
 
-| Part | Renders | Notes |
+| 部分 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `Root` | `div` | Wraps the icon and text. |
-| `Icon` | `svg` | A quote glyph. |
-| `Text` | `p` | The quoted text, clamped to two lines. |
+| `Root` | `div` | 包裹图标和文本。 |
+| `Icon` | `svg` | 引用符号。 |
+| `Text` | `p` | 引用文本，最多显示两行。 |
 
-Typed as a `QuoteMessagePartComponent`, so it can also be passed directly as `MessagePrimitive.Parts`'s `components.Quote` instead of the render-prop form above.
+类型为 `QuoteMessagePartComponent`，因此也可以直接作为 `MessagePrimitive.Parts` 的 `components.Quote` 传入，而不必使用上面的 render prop 形式。
 
 ### SelectionToolbar
 
-| Part | Renders | Notes |
+| 部分 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `Root` | `div` | Portals to `document.body`; renders `null` until a valid single-message selection exists. |
-| `Quote` | `button` | Disabled when there is no active selection. On click, sets the composer's quote and clears the browser selection. |
+| `Root` | `div` | 通过 portal 渲染到 `document.body`；在有效的单消息选区存在之前渲染 `null`。 |
+| `Quote` | `button` | 没有活动选区时处于禁用状态。点击后设置输入框的引用，并清除浏览器选区。 |
 
 ### ComposerQuotePreview
 
-| Part | Renders | Notes |
+| 部分 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `Root` | `div` | Renders `null` until `composer.quote` is set. |
-| `Icon` | `svg` | A quote glyph. |
-| `Text` | `span` | The quoted text; renders `null` if it is empty. |
-| `Dismiss` | `button` | Clears the composer's quote. |
+| `Root` | `div` | 在设置 `composer.quote` 之前渲染 `null`。 |
+| `Icon` | `svg` | 引用符号。 |
+| `Text` | `span` | 引用文本；为空时渲染 `null`。 |
+| `Dismiss` | `button` | 清除输入框的引用。 |
 
-### Quote state and actions
+### 引用状态和操作
 
-| Selector / call | Type | Description |
+| 选择器 / 调用 | 类型 | 描述 |
 |------------------|------|-------------|
-| `s.composer.quote` | `QuoteInfo \| undefined` | The composer's pending quote. |
-| `useMessageQuote()` | `() => QuoteInfo \| undefined` | The current message's attached quote, read from `message.metadata.custom.quote`. |
-| `aui.composer.setQuote(quote)` | `(quote: QuoteInfo \| undefined) => void` | Sets or clears the composer's quote. Cleared automatically when the message sends. |
-| `injectQuoteContext(messages)` | `(messages: UIMessage[]) => UIMessage[]` | Route-handler helper. Prepends each quoted user message's text as a `>` blockquote part before `convertToModelMessages`. |
+| `s.composer.quote` | `QuoteInfo \| undefined` | 输入框中待发送的引用。 |
+| `useMessageQuote()` | `() => QuoteInfo \| undefined` | 当前消息附带的引用，从 `message.metadata.custom.quote` 中读取。 |
+| `aui.composer.setQuote(quote)` | `(quote: QuoteInfo \| undefined) => void` | 设置或清除输入框的引用。消息发送时会自动清除。 |
+| `injectQuoteContext(messages)` | `(messages: UIMessage[]) => UIMessage[]` | 路由处理程序辅助函数。在 `convertToModelMessages` 之前，将每条被引用用户消息的文本作为 `>` 引用块部分添加到前面。 |
 
-`QuoteInfo` is `{ text: string; messageId: string }`.
+`QuoteInfo` 是 `{ text: string; messageId: string }`。
 
 </RuntimeMode>
 
-## The quote-reply design
+## 引用回复设计
 
-The Static variant in the rail is a second design for the same flow: `QuoteReply` renders a paragraph pre-split into the quoted phrase with a three-action toolbar, instead of reading a live browser selection. It is a single props-driven component with no runtime dependency:
+侧栏中的 Static 变体是相同流程的第二种设计：`QuoteReply` 将预先拆分为引用短语的段落与三操作工具栏一起渲染，而不是读取实时的浏览器选区。这是一个由 props 驱动的单独组件，不依赖运行时：
 
 ```sh
 npx shadcn@latest add "@assistant-ui/elements-quote-reply"
@@ -250,7 +250,7 @@ npx shadcn@latest add "@assistant-ui/elements-quote-reply"
 
 <RuntimeMode>
 
-The design's toolbar shows three actions; the runtime `SelectionToolbar` ships only `Quote`, since explain and rewrite have no defined runtime behavior to call. Add a sibling button inside the same `Root` that reads the live selection itself: only `Root`'s own mousedown handling keeps the browser from clearing the selection before the click lands.
+该设计的工具栏显示三个操作；运行时的 `SelectionToolbar` 仅提供 `Quote`，因为没有定义可调用的运行时行为来执行解释和改写。在同一个 `Root` 内添加一个相邻按钮，并由它自行读取实时选区：只有 `Root` 自身的 mousedown 处理逻辑，才能防止浏览器在点击生效前清除选区。
 
 ```tsx
 <SelectionToolbar.Root>
@@ -263,7 +263,7 @@ The design's toolbar shows three actions; the runtime `SelectionToolbar` ships o
 
 <StandaloneMode>
 
-You hold the split text, the toolbar's actions, and the `quoted` state; drive `toolbarVisible` from your own selection-change handling.
+你需要保存拆分后的文本、工具栏操作以及 `quoted` 状态；通过自己的选区变更处理逻辑驱动 `toolbarVisible`。
 
 ```tsx title="app/answer.tsx"
 "use client";
@@ -298,19 +298,19 @@ export function Answer() {
 
 </StandaloneMode>
 
-The toolbar here is entirely presentational: `selection` and `toolbarVisible` are just props, and nothing in `QuoteReply` reads an actual browser selection. At runtime, `SelectionToolbar` listens for it on `mouseup`, `keyup`, and selection change instead of taking it as a prop.
+这里的工具栏完全是展示性的：`selection` 和 `toolbarVisible` 只是 props，`QuoteReply` 中的任何内容都不会读取实际的浏览器选区。在运行时中，`SelectionToolbar` 会在 `mouseup`、`keyup` 和选区变更事件上监听选区，而不是将其作为 prop 接收。
 
 ### QuoteReply
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `before` | `string` | required | Text before the selected phrase. |
-| `selection` | `string` | required | The highlighted phrase. |
-| `after` | `string` | required | Text after the selected phrase. |
-| `actions` | `readonly QuoteAction[]` | required | The toolbar's buttons. |
-| `toolbarVisible` | `boolean` | required | Shows the toolbar. |
-| `quoted` | `string` | | Shown in the "replying to" block when set. |
-| `onAction` | `(key: string) => void` | | Called with the pressed action's `key`. |
-| `className` | `string` | | Merged onto the root. |
+| `before` | `string` | 必需 | 选中短语之前的文本。 |
+| `selection` | `string` | 必需 | 高亮显示的短语。 |
+| `after` | `string` | 必需 | 选中短语之后的文本。 |
+| `actions` | `readonly QuoteAction[]` | 必需 | 工具栏按钮。 |
+| `toolbarVisible` | `boolean` | 必需 | 显示工具栏。 |
+| `quoted` | `string` | | 设置后显示在“回复对象”块中。 |
+| `onAction` | `(key: string) => void` | | 使用所按下操作的 `key` 调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-`QuoteAction` is `{ key: string; label: string; icon: "quote" | "explain" | "rewrite" }`. All other `div` props are forwarded to the root.
+`QuoteAction` 是 `{ key: string; label: string; icon: "quote" | "explain" | "rewrite" }`。所有其他 `div` props 都会转发到根元素。

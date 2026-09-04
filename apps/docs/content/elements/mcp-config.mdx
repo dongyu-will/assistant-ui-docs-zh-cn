@@ -1,20 +1,20 @@
 ---
-title: "MCP config dialog"
-description: "A dialog for connectors and custom MCP servers, including authentication and connection state."
+title: "MCP 配置对话框"
+description: "用于配置连接器和自定义 MCP 服务器的对话框，包括身份验证和连接状态。"
 ---
 
-MCP config dialog lists every app-defined connector and user-added custom server in one place, with inline connect, authorize, and remove controls, plus a form for adding a new server. With a runtime it reads and drives live connection state through the MCP manager; there is no standalone form, since connecting, authorizing, and listing a server's tools are all inherently live states that only exist once something is actually trying to connect.
+MCP 配置对话框会集中列出应用定义的所有连接器和用户添加的自定义服务器，并提供内联连接、授权和移除控件，以及用于添加新服务器的表单。借助运行时，它会通过 MCP 管理器读取并驱动实时连接状态；这里没有独立表单，因为连接、授权和列出服务器工具本质上都是实时状态，只有在确实有内容尝试连接时才会存在。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
 <Steps>
   <Step>
 
-### Mount the manager
+### 挂载管理器
 
-`McpManagerResource` is the entry point: mount it once at the root of your app, with the connectors you want available to every user.
+`McpManagerResource` 是入口点：在应用根部挂载一次，并传入希望所有用户都能使用的连接器。
 
 ```tsx title="app/assistant.tsx"
 import { useAui } from "@assistant-ui/react";
@@ -32,9 +32,9 @@ useAui({
   </Step>
   <Step>
 
-### Render the dialog
+### 渲染对话框
 
-`McpConfigDialog` renders anywhere inside the provider. With no `children`, it renders its own outlined trigger button; pass an element as `children` to use your own trigger instead.
+`McpConfigDialog` 可以在提供程序内部的任意位置渲染。不传入 `children` 时，它会渲染自己的描边触发按钮；将一个元素作为 `children` 传入，即可使用自定义触发器。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { McpConfigDialog } from "@/components/assistant-ui/elements/mcp-config.aui";
@@ -49,11 +49,11 @@ import { McpConfigDialog } from "@/components/assistant-ui/elements/mcp-config.a
 
 <StandaloneMode>
 
-Standalone, there's no connection to configure. `McpConfigDialog` exists to drive a live `McpManagerResource`: connecting, authorizing, and listing a server's tools are all states that only exist once something is actually trying to connect, not values you'd pass in as static props. For a single server card without the dialog chrome, compose `McpServerPrimitive.Root` directly against a mounted manager instead. See [Server panel](/elements/mcp-server-panel) for a standalone-styled version of the same card.
+独立使用时，没有可供配置的连接。`McpConfigDialog` 用于驱动实时的 `McpManagerResource`：连接、授权和列出服务器工具都只有在确实有内容尝试连接时才会存在，而不是作为静态 props 传入的值。如果需要在不包含对话框外观的情况下显示单个服务器卡片，可以直接将 `McpServerPrimitive.Root` 与已挂载的管理器组合使用。有关同一卡片的独立样式版本，请参阅[服务器面板](/elements/mcp-server-panel)。
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 <RuntimeMode>
 
@@ -72,17 +72,17 @@ Standalone, there's no connection to configure. `McpConfigDialog` exists to driv
 </Dialog>
 ```
 
-Each server card shows an avatar (the server's `icon`, or a fallback icon), its name, a status badge, action buttons, and, once it has one, an error banner. Which action buttons render depends on `connectionState`: Connect shows for `"disconnected"`, `"error"`, or `"authRequired"`; the OAuth link shows whenever the server exposes an `authorizationUrl`; Disconnect shows for `"connected"`, `"connecting"`, or `"authPending"`. A card in `"error"` state additionally gets a destructive-tinted border.
+每个服务器卡片都会显示头像（服务器的 `icon`，或备用图标）、名称、状态徽章、操作按钮，以及在出现错误后显示错误横幅。渲染哪些操作按钮取决于 `connectionState`：`"disconnected"`、`"error"` 或 `"authRequired"` 状态会显示“连接”；只要服务器公开了 `authorizationUrl`，就会显示 OAuth 链接；`"connected"`、`"connecting"` 或 `"authPending"` 状态会显示“断开连接”。处于 `"error"` 状态的卡片还会显示带有 destructive 色调的边框。
 
 </RuntimeMode>
 
-## Examples
+## 示例
 
 <RuntimeMode>
 
-### Custom trigger
+### 自定义触发器
 
-Pass any element as `children` and it becomes the dialog's trigger in place of the default button.
+将任意元素作为 `children` 传入，它就会替代默认按钮，成为对话框的触发器。
 
 ```tsx
 <McpConfigDialog>
@@ -90,9 +90,9 @@ Pass any element as `children` and it becomes the dialog's trigger in place of t
 </McpConfigDialog>
 ```
 
-### A server card outside the dialog
+### 对话框外部的服务器卡片
 
-Compose `McpServerPrimitive.Root` directly for a sidebar or settings page that shows one server without the rest of the dialog's chrome.
+直接组合 `McpServerPrimitive.Root`，即可在侧边栏或设置页面中显示单个服务器，而不包含对话框的其他外观。
 
 ```tsx
 import { McpServerByIdProvider, McpServerPrimitive } from "@assistant-ui/react-mcp";
@@ -105,9 +105,9 @@ import { McpServerByIdProvider, McpServerPrimitive } from "@assistant-ui/react-m
 </McpServerByIdProvider>
 ```
 
-### Custom auth fields
+### 自定义身份验证字段
 
-`AuthFields` renders a bearer-token input or an OAuth scopes input depending on the selected `AuthSelect` value by default; pass `children` to render your own inputs for the current auth type instead.
+默认情况下，`AuthFields` 会根据所选 `AuthSelect` 值渲染 bearer token 输入框或 OAuth scopes 输入框；传入 `children`，即可为当前身份验证类型渲染自定义输入框。
 
 ```tsx
 <McpAddFormPrimitive.AuthFields>
@@ -117,63 +117,63 @@ import { McpServerByIdProvider, McpServerPrimitive } from "@assistant-ui/react-m
 
 </RuntimeMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### McpConfigDialog props
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `children` | `ReactNode` | outlined button with a plug icon | Custom trigger element. |
+| `children` | `ReactNode` | 带插头图标的描边按钮 | 自定义触发器元素。 |
 
 ### McpManagerPrimitive
 
-| Part | Renders | Notes |
-|------|---------|-------|
-| `Root` | `div` | Provides `McpManagerState`; sets `data-mcp-hydrated` once storage has loaded. |
-| `Connectors` | list | Render-prop, called once per app-defined connector with `{ server }`. |
-| `CustomServers` | list | Render-prop, called once per user-added server with `{ server }`. |
-| `AddCustomTrigger` | `button` | Opens the add-server form. |
+| 部件 | 渲染内容 | 备注 |
+|------|------|-------|
+| `Root` | `div` | 提供 `McpManagerState`；存储加载完成后设置 `data-mcp-hydrated`。 |
+| `Connectors` | 列表 | Render-prop，每个应用定义的连接器调用一次，并传入 `{ server }`。 |
+| `CustomServers` | 列表 | Render-prop，每个用户添加的服务器调用一次，并传入 `{ server }`。 |
+| `AddCustomTrigger` | `button` | 打开添加服务器表单。 |
 
 ### McpServerPrimitive
 
-| Part | Renders | Notes |
-|------|---------|-------|
-| `Root` | `div` | Sets `data-server-id`, `data-kind`, `data-connection-state`, `data-has-error`. |
-| `Name` | text | The server's name. |
-| `ConnectButton` | `button` | Renders `null` unless `connectionState` is `"disconnected"`, `"error"`, or `"authRequired"`. Calls `aui.mcpServer.connect()`. |
-| `OAuthLink` | `a` | Renders `null` unless the server has an `authorizationUrl`; opens it in a new tab. |
-| `DisconnectButton` | `button` | Renders `null` unless `connectionState` is `"connected"`, `"connecting"`, or `"authPending"`. Calls `aui.mcpServer.disconnect()`. |
-| `RemoveButton` | `button` | Calls `aui.mcpServer.remove()`. |
+| 部件 | 渲染内容 | 备注 |
+|------|------|-------|
+| `Root` | `div` | 设置 `data-server-id`、`data-kind`、`data-connection-state`、`data-has-error`。 |
+| `Name` | 文本 | 服务器名称。 |
+| `ConnectButton` | `button` | 除非 `connectionState` 为 `"disconnected"`、`"error"` 或 `"authRequired"`，否则渲染 `null`。调用 `aui.mcpServer.connect()`。 |
+| `OAuthLink` | `a` | 除非服务器具有 `authorizationUrl`，否则渲染 `null`；在新标签页中打开它。 |
+| `DisconnectButton` | `button` | 除非 `connectionState` 为 `"connected"`、`"connecting"` 或 `"authPending"`，否则渲染 `null`。调用 `aui.mcpServer.disconnect()`。 |
+| `RemoveButton` | `button` | 调用 `aui.mcpServer.remove()`。 |
 
-`Status`, `Error`, `Icon`, `Tools`, and `ToolName` are also available on `McpServerPrimitive` for building a more detailed server view than the dialog's own card.
+`Status`、`Error`、`Icon`、`Tools` 和 `ToolName` 在 `McpServerPrimitive` 上同样可用，可用于构建比对话框自身卡片更详细的服务器视图。
 
 ### McpAddFormPrimitive
 
-| Part | Renders | Notes |
-|------|---------|-------|
-| `Root` | `form` | Owns the form's state. Takes `onSubmitted(id)` and `onCancel`. |
-| `NameField`, `UrlField` | `input` | Bound text inputs. |
-| `AuthSelect` | `select` | `"oauth" \| "bearer" \| "none"`, defaults to `"oauth"`. |
-| `AuthFields` | inputs | Bearer token or OAuth scopes input, matching the current `AuthSelect` value. |
-| `Submit` | `button` | Disabled while submitting. |
-| `Cancel` | `button` | Resets the form and calls `onCancel`. |
-| `Error` | text | The current validation or submit error, if any. |
+| 部件 | 渲染内容 | 备注 |
+|------|------|-------|
+| `Root` | `form` | 管理表单状态。接收 `onSubmitted(id)` 和 `onCancel`。 |
+| `NameField`、`UrlField` | `input` | 绑定的文本输入框。 |
+| `AuthSelect` | `select` | `"oauth" \| "bearer" \| "none"`，默认为 `"oauth"`。 |
+| `AuthFields` | 输入框 | 与当前 `AuthSelect` 值匹配的 bearer token 或 OAuth scopes 输入框。 |
+| `Submit` | `button` | 提交期间处于禁用状态。 |
+| `Cancel` | `button` | 重置表单并调用 `onCancel`。 |
+| `Error` | 文本 | 当前的验证错误或提交错误（如果有）。 |
 
-Submitting validates that name is non-empty, that the URL parses as `http:`/`https:`, and that a bearer token is present when `authType` is `"bearer"`; a failing check sets the form's error instead of calling `aui.mcp.addCustomServer`.
+提交时会验证名称非空、URL 可解析为 `http:`/`https:`，并且在 `authType` 为 `"bearer"` 时存在 bearer token；验证失败时会设置表单错误，而不会调用 `aui.mcp.addCustomServer`。
 
-### Manager and server state
+### 管理器和服务器状态
 
-| Selector / call | Type | Description |
+| 选择器 / 调用 | 类型 | 描述 |
 |------------------|------|-------------|
-| `s.mcp.isHydrated` | `boolean` | Whether persisted custom servers have finished loading. |
-| `s.mcp.connectors` / `s.mcp.customServers` | `MCPServerState[]` | The two lists the dialog renders as its two sections. |
-| `s.mcpServer.connectionState` | `MCPConnectionState` | `"disconnected" \| "authRequired" \| "authPending" \| "connecting" \| "connected" \| "error"`. |
-| `s.mcpServer.lastError` | `{ message: string } \| null` | The server's most recent connection error. |
-| `s.mcpServer.authorizationUrl` | `string \| null` | Present once an OAuth flow is ready to start. |
-| `aui.mcp.addCustomServer(input)` | `Promise<string>` | Adds a custom server; resolves to its id. |
-| `aui.mcp.removeServer(id)` | `Promise<void>` | Removes a custom server by id. |
-| `aui.mcpServer.connect()` / `.disconnect()` / `.remove()` | `Promise<void>` | Drive the current server's connection lifecycle. |
+| `s.mcp.isHydrated` | `boolean` | 持久化的自定义服务器是否已完成加载。 |
+| `s.mcp.connectors` / `s.mcp.customServers` | `MCPServerState[]` | 对话框渲染的两个列表，分别对应两个部分。 |
+| `s.mcpServer.connectionState` | `MCPConnectionState` | `"disconnected" \| "authRequired" \| "authPending" \| "connecting" \| "connected" \| "error"`。 |
+| `s.mcpServer.lastError` | `{ message: string } \| null` | 服务器最近一次连接错误。 |
+| `s.mcpServer.authorizationUrl` | `string \| null` | OAuth 流程准备启动后存在。 |
+| `aui.mcp.addCustomServer(input)` | `Promise<string>` | 添加自定义服务器；解析为其 id。 |
+| `aui.mcp.removeServer(id)` | `Promise<void>` | 按 id 移除自定义服务器。 |
+| `aui.mcpServer.connect()` / `.disconnect()` / `.remove()` | `Promise<void>` | 驱动当前服务器的连接生命周期。 |
 
 </RuntimeMode>

@@ -1,20 +1,20 @@
 ---
-title: "Mermaid diagram"
-description: "Mermaid diagrams rendered inside messages, including partial streaming input."
+title: "Mermaid 图表"
+description: "在消息中渲染 Mermaid 图表，包括部分流式输入。"
 ---
 
-MermaidDiagram renders a fenced `mermaid` code block as an SVG diagram, with a skeleton while the source is still streaming and a raw-source fallback if it fails to parse. With a runtime it derives the streaming flag from the active message part; standalone you pass `streaming` yourself.
+MermaidDiagram 会将带围栏的 `mermaid` 代码块渲染为 SVG 图表；源代码仍在流式传输时显示骨架屏，解析失败时则回退到原始源代码视图。在运行时中，它会从当前消息部分派生流式标志；单独使用时，需要自行传入 `streaming`。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-The kit wraps the base diagram and reads whether the current message part is still running, so the model can keep emitting `mermaid` syntax without a half-drawn diagram flashing on every token.
+该工具包会包装基础图表，并读取当前消息部分是否仍在运行，使模型可以持续输出 `mermaid` 语法，而不会在每个 token 到达时都闪现尚未绘制完成的图表。
 
 <Steps>
   <Step>
 
-### Add it to markdown-text's language overrides
+### 将其添加到 markdown-text 的语言覆盖项中
 
 ```tsx title="components/assistant-ui/elements/markdown-text.tsx"
 import { MermaidDiagram } from "@/components/assistant-ui/elements/mermaid-diagram.aui";
@@ -33,7 +33,7 @@ const MarkdownTextImpl = () => {
 };
 ```
 
-A fenced `mermaid` code block in an assistant message now renders as a diagram instead of as code.
+助手消息中的带围栏 `mermaid` 代码块现在会渲染为图表，而不是代码。
 
   </Step>
 </Steps>
@@ -42,12 +42,12 @@ A fenced `mermaid` code block in an assistant message now renders as a diagram i
 
 <StandaloneMode>
 
-Standalone, you own the streaming flag yourself.
+单独使用时，需要自行管理流式标志。
 
 <Steps>
   <Step>
 
-### Render a diagram with a controlled streaming flag
+### 使用受控的流式标志渲染图表
 
 ```tsx
 import { MermaidDiagram } from "@/components/assistant-ui/elements/mermaid-diagram";
@@ -55,14 +55,14 @@ import { MermaidDiagram } from "@/components/assistant-ui/elements/mermaid-diagr
 <MermaidDiagram code={code} streaming={isStreaming} />;
 ```
 
-While `streaming` is true it shows a skeleton instead of parsing; set it to `false` once the Mermaid source is complete.
+当 `streaming` 为 true 时，它会显示骨架屏而不是进行解析；Mermaid 源代码完成后，将其设置为 `false`。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 // streaming
@@ -81,13 +81,13 @@ While `streaming` is true it shows a skeleton instead of parsing; set it to `fal
 </div>
 ```
 
-Rendering is synchronous: the diagram is built from `code` with `useMemo`, so a parse error is caught in the same pass rather than surfacing as a thrown render error. The colors passed to the renderer (`bg`, `fg`, `muted`, `border`, `accent`) are CSS variables (`--background`, `--foreground`, and so on), so a diagram matches the active theme automatically. The zoom trigger appears on hover (or on focus) and opens a full-screen overlay: scroll to zoom between 0.5x and 4x centered on the pointer, drag to pan, `+`/`-`/reset/close buttons, Escape to close, and a focus trap while it is open.
+渲染是同步进行的：图表使用 `useMemo` 从 `code` 构建，因此解析错误会在同一轮处理中捕获，而不会表现为抛出的渲染错误。传递给渲染器的颜色（`bg`、`fg`、`muted`、`border`、`accent`）是 CSS 变量（`--background`、`--foreground` 等），因此图表会自动匹配当前主题。缩放触发器会在悬停（或聚焦）时出现，并打开全屏覆盖层：以指针为中心滚动缩放，范围为 0.5 倍到 4 倍；拖动以平移；提供 `+`/`-`/重置/关闭按钮；按 Escape 关闭；打开时启用焦点陷阱。
 
-## Examples
+## 示例
 
-### Wrap a diagram you already rendered
+### 包装已经渲染的图表
 
-`MermaidDiagram.Zoom` (also exported as `MermaidZoom`) is the pan-and-zoom chrome on its own. Wrap any pre-rendered SVG in it to get the same expand button and lightbox, without going through Mermaid parsing:
+`MermaidDiagram.Zoom`（也以 `MermaidZoom` 的形式导出）本身就是平移和缩放交互外壳。将任何预渲染的 SVG 包装在其中，即可获得相同的展开按钮和灯箱效果，而无需经过 Mermaid 解析：
 
 ```tsx
 import { MermaidZoom } from "@/components/assistant-ui/elements/mermaid-diagram";
@@ -97,45 +97,45 @@ import { MermaidZoom } from "@/components/assistant-ui/elements/mermaid-diagram"
 </MermaidZoom>;
 ```
 
-### Restyle the frame
+### 重新设置框架样式
 
-Both lanes take `className` on the root, applied to whichever of the three states (skeleton, diagram, fallback) is currently showing.
+两个通道都会在根元素上接收 `className`，并将其应用于当前显示的三种状态之一（骨架屏、图表或回退视图）。
 
 ```tsx
 <MermaidDiagram className="rounded-none" code={code} />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Message part state
+### 消息部分状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.optional.part?.status.type === "running"` | `boolean` | Read with `useAuiState`. Forwarded as `streaming`. `true` while the current message part exists and is running. |
+| `s.optional.part?.status.type === "running"` | `boolean` | 使用 `useAuiState` 读取。转发为 `streaming`。当当前消息部分存在且正在运行时为 `true`。 |
 
-`node`, `components`, and `language` (react-markdown's code-block wrapper props) are accepted for type compatibility with `MarkdownText`'s `componentsByLanguage` slot and otherwise unused.
+`node`、`components` 和 `language`（react-markdown 的代码块包装器属性）会被接受，以便与 `MarkdownText` 的 `componentsByLanguage` 插槽保持类型兼容，除此之外不会使用。
 
 </RuntimeMode>
 
 ### MermaidDiagram
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `code` | `string` | required | Mermaid source. Supports flowcharts, sequence, class, state, and entity-relationship diagrams, and XY charts (bar, line, or combined); other diagram types fall back to the raw-source view. |
-| `streaming` | `boolean` | `false` | Shows the skeleton instead of parsing while `true`. |
-| `className` | `string` | | Merged onto whichever state is showing. |
+| `code` | `string` | 必填 | Mermaid 源代码。支持流程图、时序图、类图、状态图、实体关系图以及 XY 图表（柱状图、折线图或组合图）；其他图表类型会回退到原始源代码视图。 |
+| `streaming` | `boolean` | `false` | 当 `true` 时显示骨架屏，而不是进行解析。 |
+| `className` | `string` | | 合并到当前显示的状态上。 |
 
 ### MermaidZoom
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `svg` | `string` | required | The SVG markup to show in the zoomed overlay. Its `id` attributes and internal references are rewritten so the overlay copy never collides with the inline one. |
-| `children` | `ReactNode` | required | The inline content, rendered as-is alongside the expand trigger. |
+| `svg` | `string` | 必填 | 在缩放覆盖层中显示的 SVG 标记。其 `id` 属性和内部引用会被重写，因此覆盖层副本不会与内联副本发生冲突。 |
+| `children` | `ReactNode` | 必填 | 内联内容，会在展开触发器旁按原样渲染。 |
 
 <StandaloneMode>
 
-Pass `streaming` yourself, as in the standalone step above; every other prop behaves identically to the runtime lane.
+如上面的单独使用步骤所示，自行传入 `streaming`；其他所有属性的行为都与运行时通道相同。
 
 </StandaloneMode>

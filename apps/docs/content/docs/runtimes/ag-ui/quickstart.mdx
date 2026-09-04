@@ -1,16 +1,16 @@
 ---
-title: Quickstart
-description: Minimal HttpAgent + useAgUiRuntime setup against an AG-UI server.
+title: 快速入门
+description: 针对 AG-UI 服务器的最简 HttpAgent + useAgUiRuntime 设置。
 ---
 
-Three steps to a working chat against an AG-UI agent. Assumes you have already installed the package and have an AG-UI server reachable; if not, start at [overview](/docs/runtimes/ag-ui/overview).
+只需三步，即可使用 AG-UI agent 完成可用的聊天。假设你已经安装了软件包，并且可以访问 AG-UI 服务器；如果还没有，请从[概览](/docs/runtimes/ag-ui/overview)开始。
 
 <Steps>
 <Step>
 
-### Wire up the runtime provider
+### 接入运行时提供者
 
-Create an `HttpAgent` pointing at your AG-UI endpoint and pass it to `useAgUiRuntime`:
+创建一个指向 AG-UI endpoint 的 `HttpAgent`，并将其传递给 `useAgUiRuntime`：
 
 <PlatformTabs>
 <Tab value="React">
@@ -116,7 +116,7 @@ export function MyRuntimeProvider({
 </Step>
 <Step>
 
-### Render the Thread
+### 渲染线程
 
 <PlatformTabs>
 <Tab value="React">
@@ -178,22 +178,22 @@ export function App() {
 </Step>
 <Step>
 
-### Set up UI components
+### 设置 UI 组件
 
 <PlatformTabs>
 <Tab value="React">
 
-Follow the [UI Components guide](/elements/thread) to wire up the Thread, composer, and supporting primitives.
+按照 [UI 组件指南](/elements/thread)接入 Thread、输入框和支持性的原语。
 
 </Tab>
 <Tab value="React Native">
 
-Follow the [React Native setup](/docs/react-native) to add a native Thread, composer, and supporting primitives.
+按照 [React Native 设置指南](/docs/react-native)添加原生 Thread、输入框和支持性的原语。
 
 </Tab>
 <Tab value="React Ink">
 
-Follow the [Ink setup](/docs/ink) to add a terminal Thread, composer, and supporting primitives.
+按照 [Ink 设置指南](/docs/ink)添加终端 Thread、输入框和支持性的原语。
 
 </Tab>
 </PlatformTabs>
@@ -201,11 +201,11 @@ Follow the [Ink setup](/docs/ink) to add a terminal Thread, composer, and suppor
 </Step>
 </Steps>
 
-Once your AG-UI server is reachable, the runtime parses incoming events (`TEXT_MESSAGE_*`, `TOOL_CALL_*`, `STATE_SNAPSHOT`, etc.) into assistant-ui messages.
+AG-UI 服务器可访问后，运行时会将传入的事件（`TEXT_MESSAGE_*`、`TOOL_CALL_*`、`STATE_SNAPSHOT`等）解析为 assistant-ui 消息。
 
-## Showing thinking and reasoning
+## 显示思考和推理
 
-`showThinking` (default `true`) controls whether `THINKING_*` and `REASONING_*` events render as visible reasoning in the UI:
+`showThinking`（默认值为 `true`）控制 `THINKING_*` 和 `REASONING_*` 事件是否作为可见的推理内容渲染到 UI 中：
 
 ```tsx
 const runtime = useAgUiRuntime({
@@ -214,9 +214,9 @@ const runtime = useAgUiRuntime({
 });
 ```
 
-## Adding adapters
+## 添加适配器
 
-Attachments, speech, dictation, feedback, history, and a custom thread list are supported via the standard adapter slots. See [adapters](/docs/runtimes/concepts/adapters):
+附件、语音、听写、反馈、历史记录以及自定义线程列表，都可以通过标准适配器插槽支持。请参阅[适配器](/docs/runtimes/concepts/adapters)：
 
 ```tsx
 const runtime = useAgUiRuntime({
@@ -225,19 +225,19 @@ const runtime = useAgUiRuntime({
 });
 ```
 
-For multi-thread, pass `adapters.threadList` (experimental); see [runtime options](/docs/runtimes/ag-ui/runtime-options#thread-list-experimental).
+要支持多线程，请传入 `adapters.threadList`（实验性功能）；请参阅[运行时选项](/docs/runtimes/ag-ui/runtime-options#thread-list-experimental)。
 
-## Next
+## 下一步
 
 <Cards>
   <Card
-    title="Runtime options"
-    description="useAgUiRuntime options, adapters, events, thread list."
+    title="运行时选项"
+    description="useAgUiRuntime 的选项、适配器、事件和线程列表。"
     href="/docs/runtimes/ag-ui/runtime-options"
   />
   <Card
-    title="Pick a runtime"
-    description="Compare AG-UI to other runtime options."
+    title="选择运行时"
+    description="将 AG-UI 与其他运行时选项进行比较。"
     href="/docs/runtimes/pick-a-runtime"
   />
 </Cards>

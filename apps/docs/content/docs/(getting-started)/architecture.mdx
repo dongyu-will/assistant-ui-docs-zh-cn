@@ -1,61 +1,61 @@
 ---
-title: "Architecture"
-description: How components, runtimes, and cloud services fit together.
+title: "架构"
+description: 组件、运行时和云服务如何协同工作。
 ---
 
 import { Sparkles, PanelsTopLeft, Database, Terminal } from "lucide-react";
 
-## assistant-ui is built on these main pillars:
+## assistant-ui 以以下主要支柱为基础：
 
 <div className="not-prose grid grid-cols-1 gap-4 md:grid-cols-3">
   <Card
-    title="1. Frontend components"
-    description="Shadcn UI chat components with built-in state management"
+    title="1. 前端组件"
+    description="内置状态管理的 Shadcn UI 聊天组件"
   />
   <Card
-    title="2. Runtime"
-    description="State management layer connecting UI to LLMs and backend services"
+    title="2. 运行时"
+    description="连接 UI 与 LLM 及后端服务的状态管理层"
   />
   <Card
     title="3. Assistant Cloud"
-    description="Hosted service for thread persistence, history, and user management"
+    description="用于线程持久化、历史记录和用户管理的托管服务"
   />
 </div>
 
 
 
-### 1. Frontend components
-Stylized and functional chat components built on top of Shadcn components that have context state management provided by the assistantUI runtime provider. These pre-built React components come with intelligent state management. [View our components](/elements/thread)
+### 1. 前端组件
+构建于 Shadcn 组件之上的风格化且功能完善的聊天组件，其上下文状态管理由 assistant-ui 运行时提供程序提供。这些预构建的 React 组件具备智能状态管理。[查看我们的组件](/elements/thread)
 
-### 2. Runtime
-A React state management context for assistant chat. The runtime handles data conversions between the local state and calls to backends and LLMs. We offer different runtime solutions that work with various frameworks like Vercel AI SDK, LangGraph, LangChain, Helicone, local runtime, and an ExternalStore when you need full control of the frontend message state. [You can view the runtimes we support](/docs/runtimes/pick-a-runtime)
+### 2. 运行时
+用于助手聊天的 React 状态管理上下文。运行时负责在本地状态与后端及 LLM 调用之间进行数据转换。我们提供了适用于不同框架的多种运行时解决方案，例如 Vercel AI SDK、LangGraph、LangChain、Helicone、本地运行时，以及在需要完全控制前端消息状态时使用的 ExternalStore。[查看我们支持的运行时](/docs/runtimes/pick-a-runtime)
 
 ### 3. Assistant Cloud
-A hosted service that enhances your assistant experience with comprehensive thread management and message history. Assistant Cloud stores complete message history, automatically persists threads, supports human-in-the-loop workflows, and integrates with common auth providers to seamlessly allow users to resume conversations at any point. [Cloud Docs](/docs/cloud)
+通过完善的线程管理和消息历史记录增强助手体验的托管服务。Assistant Cloud 会存储完整的消息历史记录，自动持久化线程，支持人在回路（human-in-the-loop）工作流，并与常见的身份验证提供商集成，让用户可以在任意时刻无缝恢复对话。[Cloud 文档](/docs/cloud)
 
 
-## What each layer owns
+## 每一层负责什么
 
-Before picking a runtime or wiring components, it helps to see which layer owns which responsibility. assistant-ui draws hard lines between rendering, conversation state, and where the model actually runs.
+在选择运行时或连接组件之前，了解每一层负责哪些职责会很有帮助。assistant-ui 明确划分了渲染、对话状态以及模型实际运行位置之间的边界。
 
-### UI layer
-Primitives and prebuilt components render the assistant experience: thread, messages, composer, message parts, actions, attachments, suggestions. They read and write through the runtime context, not directly against the backend or model.
+### UI 层
+原语和预构建组件负责渲染助手体验：线程、消息、输入框、消息部分、操作、附件和建议。它们通过运行时上下文读写状态，而不是直接操作后端或模型。
 
-### Runtime layer
-The state and behavior boundary between UI and backend. The runtime owns or adapts conversation state: messages, thread state, composer state, run lifecycle, branching, editing, regeneration. Different runtimes exist because different backends own this state differently. `LocalRuntime` keeps state internal; `ExternalStoreRuntime` delegates to your store.
+### 运行时层
+UI 与后端之间的状态和行为边界。运行时负责管理或适配对话状态：消息、线程状态、输入框状态、运行生命周期、分支、编辑和重新生成。不同的运行时之所以存在，是因为不同后端管理这些状态的方式不同。`LocalRuntime`将状态保存在内部；`ExternalStoreRuntime`则将状态管理委托给你的存储。
 
-### Backend / agent layer
-Produces assistant output and app-specific behavior. Depending on the runtime and protocol, the backend may emit text, message parts, tool calls, metadata, agent state, attachments, or other events that the runtime maps into UI state.
+### 后端 / agent 层
+生成助手输出并实现应用特定的行为。根据运行时和协议的不同，后端可能会发出文本、消息部分、工具调用、元数据、agent 状态、附件或其他事件，运行时会将这些内容映射为 UI 状态。
 
-### Integration / protocol layer
-Runtime adapters and protocols bridge assistant-ui to different backend shapes: AI SDK, LangGraph, LangChain, ADK, A2A, AG-UI, OpenCode, or your own. The DataStream and AssistantTransport protocols let a generic backend talk to assistant-ui without a custom adapter per app.
+### 集成 / 协议层
+运行时适配器和协议将 assistant-ui 与不同形态的后端连接起来：AI SDK、LangGraph、LangChain、ADK、A2A、AG-UI、OpenCode 或你自己的后端。DataStream 和 AssistantTransport 协议让通用后端能够与 assistant-ui 通信，而无需为每个应用编写自定义适配器。
 
-### Persistence layer
-Thread and message history can be stored by Assistant Cloud or by your own database via thread and history adapters. Persistence is separate from rendering and backend generation, though the runtime coordinates with it.
+### 持久化层
+线程和消息历史记录可以由 Assistant Cloud 存储，也可以通过线程和历史记录适配器存储在你自己的数据库中。持久化与渲染及后端生成相互独立，但运行时会与持久化层协调工作。
 
-## There are three common ways to architect your assistant-ui application:
+## 构建 assistant-ui 应用通常有以下三种架构方式：
 
-#### **1. Direct Integration with External Providers**
+#### **1. 直接集成外部提供商**
 
 <Flow.Root
   llm={`graph TD
@@ -63,15 +63,15 @@ Thread and message history can be stored by Assistant Cloud or by your own datab
     B --> D[External Providers or LLM APIs]`}
 >
   <Flow.Column>
-    <Flow.Node tone="pink">Frontend Components</Flow.Node>
+    <Flow.Node tone="pink">前端组件</Flow.Node>
     <Flow.Arrow direction="down" length={36} />
-    <Flow.Node tone="blue">Runtime</Flow.Node>
+    <Flow.Node tone="blue">运行时</Flow.Node>
     <Flow.Arrow direction="down" length={36} />
-    <Flow.Node tone="red">External Providers or LLM APIs</Flow.Node>
+    <Flow.Node tone="red">外部提供商或 LLM API</Flow.Node>
   </Flow.Column>
 </Flow.Root>
 
-#### **2. Using your own API endpoint**
+#### **2. 使用你自己的 API 端点**
 
 <Flow.Root
   llm={`graph TD
@@ -80,17 +80,17 @@ Thread and message history can be stored by Assistant Cloud or by your own datab
     E --> D[External Providers or LLM APIs]`}
 >
   <Flow.Column>
-    <Flow.Node tone="pink">Frontend Components</Flow.Node>
+    <Flow.Node tone="pink">前端组件</Flow.Node>
     <Flow.Arrow direction="down" length={36} />
-    <Flow.Node tone="blue">Runtime</Flow.Node>
+    <Flow.Node tone="blue">运行时</Flow.Node>
     <Flow.Arrow direction="down" length={36} />
-    <Flow.Node tone="red">Your API Backend</Flow.Node>
+    <Flow.Node tone="red">你的 API 后端</Flow.Node>
     <Flow.Arrow direction="down" length={36} />
-    <Flow.Node tone="red">External Providers or LLM APIs</Flow.Node>
+    <Flow.Node tone="red">外部提供商或 LLM API</Flow.Node>
   </Flow.Column>
 </Flow.Root>
 
-#### **3. With Assistant Cloud**
+#### **3. 使用 Assistant Cloud**
 
 <Flow.Root
   llm={`graph TD
@@ -108,39 +108,39 @@ Thread and message history can be stored by Assistant Cloud or by your own datab
     ]}
   >
     <Flow.Column>
-      <Flow.Node tone="pink">Frontend Components</Flow.Node>
+      <Flow.Node tone="pink">前端组件</Flow.Node>
       <Flow.Arrow direction="down" length={36} />
-      <Flow.Node flowId="runtime" tone="blue">Runtime</Flow.Node>
+      <Flow.Node flowId="runtime" tone="blue">运行时</Flow.Node>
       <div className="h-10" aria-hidden />
       <Flow.Row>
-        <Flow.Node flowId="backend" tone="red">Your API Backend</Flow.Node>
+        <Flow.Node flowId="backend" tone="red">你的 API 后端</Flow.Node>
         <Flow.Arrow length={48} />
         <Flow.Node flowId="cloud" tone="green">Cloud</Flow.Node>
       </Flow.Row>
       <div className="h-10" aria-hidden />
-      <Flow.Node flowId="providers" tone="red">External Providers or LLM APIs</Flow.Node>
+      <Flow.Node flowId="providers" tone="red">外部提供商或 LLM API</Flow.Node>
     </Flow.Column>
   </Flow.Canvas>
 </Flow.Root>
 
-## Going deeper
+## 深入了解
 
-These pages go one level deeper on runtime internals, adapters, and persistence.
+以下页面将进一步介绍运行时内部机制、适配器和持久化。
 
 <Cards>
   <Card
-    title="Runtime architecture"
-    description="Core runtimes, protocol layers, and framework adapters — what each layer owns."
+    title="运行时架构"
+    description="核心运行时、协议层和框架适配器——了解每一层负责什么。"
     href="/docs/runtimes/concepts/architecture"
   />
   <Card
-    title="Adapters"
-    description="Attachments, speech, feedback, history, suggestions across runtimes."
+    title="适配器"
+    description="跨运行时的附件、语音、反馈、历史记录和建议。"
     href="/docs/runtimes/concepts/adapters"
   />
   <Card
-    title="Threads"
-    description="Multi-thread support: cloud, custom database, ExternalStore."
+    title="线程"
+    description="多线程支持：云、自定义数据库和 ExternalStore。"
     href="/docs/runtimes/concepts/threads"
   />
 </Cards>

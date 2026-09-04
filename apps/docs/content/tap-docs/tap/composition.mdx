@@ -1,20 +1,18 @@
 ---
-title: Composition
-description: Combine Resources into reusable state trees.
+title: 组合
+description: 将 Resource 组合成可复用的状态树。
 ---
 
-Resources combine small stateful behaviors into larger ones. A parent Resource
-renders a child and receives its public API directly. It can read the child's
-state, call its methods, combine it with other Resources, or expose a new API of
-its own.
+Resource 将小型的有状态行为组合成更大的行为。父 Resource
+渲染一个子 Resource，并直接接收其公共 API。它可以读取子 Resource 的状态、调用其方法、将其与其他
+Resource 组合，或公开自己的新 API。
 
-The result is a tree of focused Resources rather than one monolithic store.
+最终形成的是由多个职责聚焦的 Resource 组成的树，而不是一个单体式状态存储。
 
 ## useResource
 
-A Hook call fixes its implementation at the call site. A `ResourceElement`
-makes that implementation an input, so a Resource can receive another Resource
-as configuration and render whichever implementation was provided:
+Hook 调用会在调用位置固定其实现。`ResourceElement`
+使该实现成为输入，因此 Resource 可以接收另一个 Resource 作为配置，并渲染所提供的实现：
 
 ```ts
 import {
@@ -54,7 +52,7 @@ const useLimitedCounter = ({
 const LimitedCounter = resource(useLimitedCounter);
 ```
 
-The caller chooses the counter implementation:
+调用方选择计数器实现：
 
 ```ts
 const counter = isDemo
@@ -64,17 +62,15 @@ const counter = isDemo
 const limitedCounter = LimitedCounter({ counter, max: 10 });
 ```
 
-`LimitedCounter` owns the limiting behavior while its caller decides where the
-count comes from. It accepts any Resource that returns `CounterState`.
+`LimitedCounter`负责限制行为，而调用方决定计数的来源。它接受任何返回
+`CounterState` 的 Resource。
 
-When the configured Resource changes, `useResource` unmounts the previous
-implementation and mounts the next one. The `useResource` call itself stays in
-the same place, so the choice can remain dynamic without making Hook calls
-conditional.
+配置的 Resource 发生变化时，`useResource`会卸载之前的实现并挂载下一个实现。`useResource`
+调用本身仍处于相同位置，因此无需让 Hook 调用变为条件调用，即可动态选择实现。
 
 ## useResources
 
-Use `useResources` when a Resource owns a dynamic collection:
+当 Resource 拥有动态集合时，请使用`useResources`：
 
 ```ts
 import { resource, withKey, useResources } from "@assistant-ui/tap";
@@ -93,20 +89,18 @@ const useCounterList = (ids: readonly string[]) => {
 const CounterList = resource(useCounterList);
 ```
 
-Every element in the collection needs a unique key. `withKey` gives each child a
-stable identity, so state follows the key when the collection is reordered:
+集合中的每个元素都需要唯一的 key。`withKey`为每个子 Resource 提供稳定的身份，因此集合重新排序时，状态会跟随 key：
 
 ```ts
 CounterList(["a", "b", "c"]);
 CounterList(["c", "a", "b"]);
 ```
 
-Removing a key unmounts that Resource. Reusing a key with a different Resource
-implementation replaces the old Resource and its state.
+移除某个 key 会卸载对应的 Resource。使用不同的 Resource 实现复用某个 key，会替换旧的 Resource 及其状态。
 
-## Composition creates ownership
+## 组合会创建所有权
 
-Rendering a Resource makes it a child of the current Resource:
+渲染 Resource 会使其成为当前 Resource 的子 Resource：
 
 ```text
 LimitedCounter
@@ -118,12 +112,9 @@ CounterList
 └── Counter key="c"
 ```
 
-Children mount and unmount with their parent. Effects run in the order Resources
-are rendered. See
-[Effect ordering](/tap/docs/tap/differences-from-react#effects-run-in-call-order)
-for details.
+子 Resource 会随其父 Resource 一起挂载和卸载。Effects 会按照 Resource 的渲染顺序运行。详情请参阅
+[Effect ordering](/tap/docs/tap/differences-from-react#effects-run-in-call-order)。
 
-Composition does not create a new scheduler. `useResource` and `useResources`
-remain part of the current Resource tree, so an update can propagate to its
-root. To introduce a separate scheduling boundary, use
-[`useTapRoot`](/tap/docs/tap/trees-and-rerenders#separate-scheduling-with-usetaproot).
+组合不会创建新的调度器。`useResource`和`useResources`
+仍属于当前 Resource 树的一部分，因此更新可以传播到根节点。若要引入独立的调度边界，请使用
+[`useTapRoot`](/tap/docs/tap/trees-and-rerenders#separate-scheduling-with-usetaproot)。

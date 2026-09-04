@@ -1,18 +1,17 @@
 ---
-title: Quickstart
-description: Install tap and build your first Resource.
+title: 快速入门
+description: 安装 tap 并构建你的第一个 Resource。
 ---
 
-## Install
+## 安装
 
 ```sh
 npm install @assistant-ui/tap
 ```
 
-## Define a Resource
+## 定义 Resource
 
-Write a `use`-prefixed Hook with the React Hooks you already know, then wrap it
-with `resource()`:
+使用你已经熟悉的 React Hooks 编写一个带有 `use` 前缀的 Hook，然后使用 `resource()` 将其封装：
 
 ```ts
 import { resource } from "@assistant-ui/tap";
@@ -30,11 +29,11 @@ const useCounter = () => {
 const Counter = resource(useCounter);
 ```
 
-The Resource returns state and methods instead of JSX.
+Resource 返回状态和方法，而不是 JSX。
 
-## Use it in React
+## 在 React 中使用
 
-`useResource` evaluates a Resource and returns its current value:
+`useResource` 会计算 Resource 并返回其当前值：
 
 ```tsx
 import { useResource } from "@assistant-ui/tap";
@@ -50,16 +49,15 @@ function CounterButton() {
 }
 ```
 
-The component re-renders when the Resource changes and cleans it up when it
-unmounts.
+Resource 发生变化时，组件会重新渲染；组件卸载时，会清理 Resource。
 
-## Next steps
+## 后续步骤
 
 <Cards>
-  <Card title="Resources" href="/tap/docs/tap/resources">
-    Learn how Resources package state and act as composable configuration.
+  <Card title="资源" href="/tap/docs/tap/resources">
+    了解 Resource 如何封装状态，以及如何作为可组合的配置。
   </Card>
-  <Card title="Composition" href="/tap/docs/tap/composition">
-    Compose individual Resources and dynamic keyed collections.
+  <Card title="组合" href="/tap/docs/tap/composition">
+    组合单个 Resource 和动态键控集合。
   </Card>
 </Cards>

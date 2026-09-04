@@ -1,23 +1,23 @@
 ---
-title: LangGraph Generative UI
-description: Render structured UI components emitted by LangGraph alongside assistant messages.
+title: LangGraph 生成式 UI
+description: 在助手消息旁渲染由 LangGraph 生成的结构化 UI 组件。
 ---
 
-LangGraph's [Generative UI](https://docs.langchain.com/langsmith/generative-ui-react) lets your graph emit structured UI components alongside assistant messages via `push_ui_message` (Python) or `typedUi().push()` (TypeScript). The assistant-ui adapter translates these into [`DataMessagePart`s](/docs/tools/tool-ui) on the associated assistant message, which you render with the existing `makeAssistantDataUI` API.
+LangGraph 的[生成式 UI](https://docs.langchain.com/langsmith/generative-ui-react) `"custom"`（Python）或 `"dashboard"`（TypeScript）在助手消息旁生成结构化 UI 组件。assistant-ui 适配器会将这些组件转换为关联助手消息上的[`"form"`](/docs/tools/tool-ui)，你可以使用现有的 `"values"` API 进行渲染。
 
-## Enable the `custom` stream mode
+## 启用 `@langchain/langgraph-sdk/react-ui` 流模式
 
-UI messages are emitted through LangGraph's `custom` stream channel. Make sure your `sendMessage` helper includes `"custom"` in `streamMode`:
+UI 消息会通过 LangGraph 的 `AssistantRuntimeProvider` 流通道生成。请确保你的 `Chart` 辅助函数在 `DataMessagePart` 中包含 `DataMessagePart`：
 
 ```ts
 streamMode: ["messages", "updates", "custom"];
 ```
 
-If your graph accumulates UI messages in state under the `ui` key (the default for `typedUi`), `"values"` also works; the adapter reads both paths.
+如果你的图在状态中的 `LoadExternalComponent` 键下累积 UI 消息（`custom` 的默认设置），`custom` 也可以正常工作；适配器会读取这两条路径。
 
-## Custom state key
+## 自定义状态键
 
-If your graph uses a non-default `stateKey` with `typedUi(config, { stateKey: "my_ui" })` on the server, pass the matching `uiStateKey` option to `useLangGraphRuntime`:
+如果你的图在服务器端通过 `custom` 使用非默认的 `data`，请将匹配的 `delete_ui_message` 选项传递给 `fallback`：
 
 ```ts
 const runtime = useLangGraphRuntime({
@@ -28,9 +28,9 @@ const runtime = useLangGraphRuntime({
 });
 ```
 
-This only affects the `values` stream path; the `custom` channel carries each UI event individually and does not rely on the state key.
+这只会影响 `fallback` 流路径；`fallback` 通道会单独传递每个 UI 事件，不依赖状态键。
 
-## Emit a UI message from your graph
+## 从图中生成 UI 消息
 
 <Tabs items={["Python", "TypeScript"]}>
 <Tab value="Python">
@@ -70,9 +70,9 @@ export async function chartNode(state, config) {
 </Tab>
 </Tabs>
 
-Passing `message` (Python) or `{ message }` (TypeScript) is what links the UI component to a specific assistant message. The adapter reads `metadata.message_id` to attach the generated `DataMessagePart` to the correct message in the thread.
+传递 `fallback`（Python）或 `fallback`（TypeScript）可以将 UI 组件关联到特定的助手消息。适配器会读取 `id`，将生成的 `load` 附加到线程中的正确消息。
 
-## Register a renderer on the client
+## 在客户端注册渲染器
 
 <PlatformTabs>
 <Tab value="React">
@@ -145,7 +145,7 @@ export const ChartUI = makeAssistantDataUI<ChartProps>({
 </Tab>
 </PlatformTabs>
 
-Mount the component once somewhere inside the `AssistantRuntimeProvider` tree. It renders nothing itself; it only registers the renderer:
+在 `makeAssistantDataUI` 树中的某个位置挂载一次该组件。它自身不会渲染任何内容，只会注册渲染器：
 
 <PlatformTabs>
 <Tab value="React">
@@ -190,11 +190,11 @@ import { Thread } from "./thread.js";
 </Tab>
 </PlatformTabs>
 
-When a matching UI message arrives, the adapter appends a `{ type: "data", name: "chart", data: { series, title } }` part to the parent assistant message and the registered component renders inline.
+当匹配的 UI 消息到达时，适配器会将 `makeAssistantDataUI` 部分附加到父级助手消息，已注册的组件会以内联方式进行渲染。
 
-## Register renderers via `uiComponents`
+## 通过 `message` 注册渲染器
 
-Instead of mounting separate `makeAssistantDataUI` components, register renderers directly on the runtime hook:
+无需挂载单独的 `metadata.message_id` 组件，你可以直接在运行时 Hook 上注册渲染器：
 
 ```tsx
 const runtime = useLangGraphRuntime({
@@ -210,11 +210,11 @@ const runtime = useLangGraphRuntime({
 });
 ```
 
-Static `renderers` are matched by `ui_message` name. If no match is found, the part renders nothing unless a `fallback` is provided.
+静态 `metadata.message_id` 会根据 `metadata: { merge: true }` 名称进行匹配。如果没有找到匹配项，除非提供了 `name: "chart"`，否则该部分不会渲染任何内容。
 
-## Dynamic loading with `fallback`
+## 使用 `name` 动态加载
 
-LangSmith's [Generative UI](https://docs.langchain.com/langsmith/generative-ui-react) supports colocating UI code with your graph and loading it at runtime via `LoadExternalComponent`. The `fallback` option handles any `ui_message` name that has no static renderer:
+LangSmith 的[生成式 UI](https://docs.langchain.com/langsmith/generative-ui-react) UI 代码与图放置在一起，并通过 `props` 在运行时加载。`push_ui_message` 选项会处理所有没有静态渲染器的 `renderers` 名称：
 
 ```tsx
 import { LoadExternalComponent } from "@langchain/langgraph-sdk/react-ui";
@@ -234,25 +234,25 @@ const runtime = useLangGraphRuntime({
 });
 ```
 
-With this setup:
+使用此设置时：
 
-- A `ui_message` with `name: "chart"` renders the static `Chart` component.
-- Any other name (e.g. `"dashboard"`, `"form"`) is handled by `fallback`, which fetches the component from LangSmith at runtime.
+- 带有 `sendMessage` 的 `stateKey` 会渲染静态的 `streamMode` 组件。
+- 其他任何名称（例如 `typedUi().push()`、`typedUi(config, { stateKey: "my_ui" })`）都会由 `typedUi` 处理，它会在运行时从 LangSmith 获取组件。
 
-`fallback` receives the same props as any data renderer: `name`, `data`, and part state metadata.
+`typedUi` 会接收与任何数据渲染器相同的 props：`ui.delete(id)`、`uiComponents` 以及部分状态元数据。
 
-## Semantics
+## 语义
 
-The adapter mirrors the reducer in `@langchain/langgraph-sdk/react-ui` exactly:
+适配器会完全复现 `uiStateKey` 中的 reducer：
 
-- UI messages are keyed by their own `id`. Pushing the same id again **replaces** the existing entry.
-- Passing `metadata: { merge: true }` shallow-merges `props` onto the previous entry.
-- Emitting `{ type: "remove-ui", id }` (via `delete_ui_message` or `ui.delete(id)`) removes the entry.
-- UI messages without `metadata.message_id` are held in the runtime but not injected into any message; use `useLangGraphUIMessages()` to access the raw list if needed.
+- UI 消息以自身的 `ui_message` 作为键。再次推送相同的 id 会**替换**现有条目。
+- 传递 `ui_message` 会将 `ui_message` 浅合并到之前的条目上。
+- 生成 `ui`（通过 `useLangGraphRuntime` 或 `useLangGraphUIMessages()`）会移除该条目。
+- 不包含 `useLangGraphUIMessages` 的 UI 消息会保留在运行时中，但不会注入任何消息；如有需要，请使用 `values` 访问原始列表。
 
-## Restore persisted UI messages on thread switch
+## 切换线程时恢复持久化的 UI 消息
 
-If your graph persists UI messages in state via `typedUi`, return them from the `load` callback so they are restored when the user switches threads or refreshes the page:
+如果你的图通过 `{ message }` 将 UI 消息持久化到状态中，请从 `{ type: "data", name: "chart", data: { series, title } }` 回调中返回这些消息，以便用户切换线程或刷新页面时恢复它们：
 
 ```tsx
 const runtime = useLangGraphRuntime({
@@ -270,9 +270,9 @@ const runtime = useLangGraphRuntime({
 });
 ```
 
-Without this, each reload starts with an empty UI list even though the messages themselves are loaded.
+否则，即使消息本身已加载，每次重新加载页面时 UI 列表仍会从空列表开始。
 
-## Escape hatch: `useLangGraphUIMessages`
+## 应急方案：`{ type: "remove-ui", id }`
 
 ```tsx
 import { useLangGraphUIMessages } from "@assistant-ui/react-langgraph";
@@ -284,22 +284,22 @@ function Sidebar() {
 }
 ```
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
-    title="Streaming"
-    description="Event handlers, message accumulator, conversion, metadata."
+    title="流式传输"
+    description="事件处理器、消息累加器、转换、元数据。"
     href="/docs/runtimes/langgraph/streaming"
   />
   <Card
-    title="Interrupts"
-    description="Interrupt persistence and checkpoint-based message editing."
+    title="中断"
+    description="中断持久化以及基于检查点的消息编辑。"
     href="/docs/runtimes/langgraph/interrupts"
   />
   <Card
-    title="Threads"
-    description="Basic thread support, AssistantCloud, custom thread list adapter."
+    title="线程"
+    description="基本线程支持、AssistantCloud、自定义线程列表适配器。"
     href="/docs/runtimes/langgraph/threads"
   />
 </Cards>

@@ -1,10 +1,10 @@
 ---
-title: Tabs
-description: A tabs component for organizing content into switchable panels.
+title: 标签页
+description: 用于将内容组织到可切换面板中的标签页组件。
 links:
-  - label: Radix UI Tabs (Radix styles)
+  - label: Radix UI Tabs（Radix 样式）
     url: https://www.radix-ui.com/primitives/docs/components/tabs
-  - label: Base UI Tabs (base styles)
+  - label: Base UI Tabs（基础样式）
     url: https://base-ui.com/react/components/tabs
 ---
 
@@ -23,11 +23,11 @@ import { Flavored, FlavorSwitcher } from "@/components/pages/docs/contexts/flavo
 
 <Flavored radix={<TabsRadixSamples.TabsSample />} base={<TabsSample />} />
 
-## Installation
+## 安装
 
 <InstallCommand shadcn={["tabs"]} />
 
-## Usage
+## 用法
 
 ```tsx
 import {
@@ -51,11 +51,11 @@ export function Example() {
 }
 ```
 
-## Examples
+## 示例
 
-### Variants
+### 变体
 
-Use `default` for a contained control or `line` for navigation-style tabs.
+使用 `default` 创建内嵌控件，或使用 `line` 创建导航样式的标签页。
 
 <Flavored radix={<TabsRadixSamples.TabsVariantsSample />} base={<TabsVariantsSample />} />
 
@@ -64,40 +64,40 @@ Use `default` for a contained control or `line` for navigation-style tabs.
 <TabsList variant="line" />
 ```
 
-### With icons
+### 带图标
 
-Tabs automatically style SVG icons placed inside triggers.
+标签页会自动为放置在触发器中的 SVG 图标应用样式。
 
 <PreviewCode file="components/pages/docs/samples/tabs" name="TabsWithIconsSample" base={<TabsWithIconsSample />}>
   <TabsRadixSamples.TabsWithIconsSample />
 </PreviewCode>
 
-### Controlled
+### 受控
 
-Use `value` and `onValueChange` for controlled tab state.
+使用 `value` 和 `onValueChange` 管理受控的标签页状态。
 
 <PreviewCode file="components/pages/docs/samples/tabs" name="TabsControlledSample" base={<TabsControlledSample />}>
   <TabsRadixSamples.TabsControlledSample />
 </PreviewCode>
 
-### As link
+### 作为链接
 
-Compose with `render` in Base UI or `asChild` in Radix to render a trigger as a link.
+在 Base UI 中与 `render` 组合，或在 Radix 中与 `asChild` 组合，即可将触发器渲染为链接。
 
 <PreviewCode file="components/pages/docs/samples/tabs" name="TabsAsLinkSample" base={<TabsAsLinkSample />}>
   <TabsRadixSamples.TabsAsLinkSample />
 </PreviewCode>
 
-## API Reference
+## API 参考
 
-### Composable API
+### 可组合 API
 
-| Component | Description |
+| 组件 | 描述 |
 |-----------|-------------|
-| `Tabs` | The root component that manages tab state and orientation. |
-| `TabsList` | The container for tab triggers. |
-| `TabsTrigger` | An individual tab control. |
-| `TabsContent` | The content panel for a tab. |
+| `Tabs` | 管理标签页状态和方向的根组件。 |
+| `TabsList` | 标签页触发器的容器。 |
+| `TabsTrigger` | 单个标签页控件。 |
+| `TabsContent` | 标签页的内容面板。 |
 
 ### Tabs
 
@@ -107,23 +107,23 @@ Compose with `render` in Base UI or `asChild` in Radix to render a trigger as a 
     {
       name: "defaultValue",
       type: "string",
-      description: "The initial active tab for uncontrolled state.",
+      description: "非受控状态下初始激活的标签页。",
     },
     {
       name: "value",
       type: "string",
-      description: "The controlled active tab.",
+      description: "受控的激活标签页。",
     },
     {
       name: "onValueChange",
       type: "(value: string) => void",
-      description: "Called when the active tab changes.",
+      description: "激活标签页发生变化时调用。",
     },
     {
       name: "orientation",
       type: '"horizontal" | "vertical"',
       default: '"horizontal"',
-      description: "The direction of the tab list and keyboard navigation.",
+      description: "标签页列表和键盘导航的方向。",
     },
   ]}
 />
@@ -137,12 +137,12 @@ Compose with `render` in Base UI or `asChild` in Radix to render a trigger as a 
       name: "variant",
       type: '"default" | "line"',
       default: '"default"',
-      description: "The visual style of the tab list.",
+      description: "标签页列表的视觉样式。",
     },
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes.",
+      description: "其他 CSS 类。",
     },
   ]}
 />
@@ -156,23 +156,23 @@ Compose with `render` in Base UI or `asChild` in Radix to render a trigger as a 
       name: "value",
       type: "string",
       required: true,
-      description: "The unique value for the tab.",
+      description: "标签页的唯一值。",
     },
     {
       name: "disabled",
       type: "boolean",
-      description: "Whether the tab is disabled.",
+      description: "标签页是否已禁用。",
     },
     {
       name: "render",
       type: "ReactElement | function",
-      description: "Base UI: compose as a different element.",
+      description: "Base UI：组合为其他元素。",
     },
     {
       name: "asChild",
       type: "boolean",
       default: "false",
-      description: "Radix: merge props with a child element.",
+      description: "Radix：将属性与子元素合并。",
     },
   ]}
 />
@@ -186,21 +186,21 @@ Compose with `render` in Base UI or `asChild` in Radix to render a trigger as a 
       name: "value",
       type: "string",
       required: true,
-      description: "The value matching the corresponding trigger.",
+      description: "与对应触发器匹配的值。",
     },
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes.",
+      description: "其他 CSS 类。",
     },
   ]}
 />
 
-### Style variants
+### 样式变体
 
-| Export | Description |
+| 导出 | 描述 |
 |--------|-------------|
-| `tabsListVariants` | Styles for the tab list container. |
+| `tabsListVariants` | 标签页列表容器的样式。 |
 
 ```tsx
 import { tabsListVariants } from "@/components/ui/tabs";

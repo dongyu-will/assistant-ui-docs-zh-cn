@@ -1,15 +1,13 @@
 ---
-title: Motivation
-description: Composable configuration and state built on React's lifecycle.
+title: 动机
+description: 基于 React 生命周期构建的可组合配置和状态。
 ---
 
-tap exists to bring two strengths of React to application state: composable
-configuration and a native lifecycle.
+tap 旨在将 React 的两项优势引入应用状态：可组合配置和原生生命周期。
 
-## Composable configuration
+## 可组合配置
 
-A resource element carries an implementation together with its configuration.
-Because it is a value, it can be passed, swapped, and nested before it runs.
+资源元素将实现与其配置一起封装。由于它是一个值，因此可以在执行前进行传递、替换和嵌套。
 
 ```ts
 AuiConfig({
@@ -20,21 +18,14 @@ AuiConfig({
 });
 ```
 
-Each call returns a
-[`ResourceElement`](/tap/docs/tap/api-reference#resourceelement). Together, those
-elements form a typed, declarative configuration tree. Applications can replace
-one part without changing how the rest is assembled.
+每次调用都会返回一个
+[`ResourceElement`](/tap/docs/tap/api-reference#resourceelement)。这些元素共同构成一个类型安全的声明式配置树。应用可以替换其中一部分，而无需改变其余部分的组装方式。
 
-## State management with React's lifecycle
+## 使用 React 生命周期管理状态
 
-Resources manage state with React Hooks and the same two-stage lifecycle as React
-components:
+资源使用 React Hooks 管理状态，并采用与 React 组件相同的两阶段生命周期：
 
-- During **render**, Hooks derive the resource's current state and compose child
-  resources.
-- On **mount**, effects connect that state to the outside world. They rerun when
-  dependencies change and clean up when the resource unmounts.
+- 在 **render** 阶段，Hooks 推导资源的当前状态，并组合子资源。
+- 在 **mount** 阶段，effect 将该状态连接到外部世界。当依赖项发生变化时，effect 会重新运行；当资源卸载时，effect 会进行清理。
 
-This makes lifecycle part of the state model itself. State and effects stay
-together, while resources remain independent of the component tree that presents
-them.
+这使生命周期本身成为状态模型的一部分。状态与 effect 始终保持在一起，同时资源仍独立于用于呈现它们的组件树。

@@ -1,20 +1,20 @@
 ---
-title: "Score breakdown"
-description: "A verdict with its arithmetic shown: criteria, weights, and what pulled it down."
+title: "评分明细"
+description: "展示计算过程的评判结果：标准、权重，以及拉低分数的因素。"
 ---
 
-A verdict backed by its own arithmetic: a total out of a max, a colored verdict pill, and the weighted criteria that produced it, each with its own bar and an optional note on why it scored the way it did. With a runtime the score comes from a tool result; standalone you pass the criteria and the total yourself.
+一个由自身计算过程支撑的评判结果：显示总分与满分、带颜色的评判标签，以及产生该结果的加权标准。每项标准都有自己的进度条，并可选地附带说明其得分原因。在运行时中，分数来自工具结果；独立使用时，则由你自行传入标准和总分。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-This element has no assistant-ui primitive of its own, so the runtime wiring is a tool renderer rather than a primitive composition. A score is usually the product of real grading work: running tests, checking a diff, comparing against a rubric, so the criteria belong on the tool's `result` rather than on its streamed `args`.
+此元素没有专属的 assistant-ui 原语，因此运行时接入使用的是工具渲染器，而不是原语组合。分数通常来自实际的评分工作：运行测试、检查差异、根据评分标准进行比较等，因此这些标准应放在工具的 `result` 上，而不是放在其流式传输的 `args` 上。
 
 <Steps>
   <Step>
 
-### Register the render function
+### 注册渲染函数
 
 ```tsx title="app/toolkit.tsx"
 "use client";
@@ -41,12 +41,12 @@ export const toolkit = defineToolkit({
 });
 ```
 
-Because the whole breakdown lands as one result rather than as streamed steps, `visibleCount` is simply `result.criteria.length`; there is no partial state to size it against.
+由于整个明细会作为一个结果一次性到达，而不是作为流式步骤到达，`visibleCount` 只是 `result.criteria.length`；没有部分状态需要据此调整大小。
 
   </Step>
   <Step>
 
-### Let the message list render it
+### 让消息列表渲染它
 
 ```tsx title="app/MyRuntimeProvider.tsx"
 import {
@@ -72,7 +72,7 @@ export function MyRuntimeProvider({
 }
 ```
 
-Once the toolkit is registered, `Thread` and any custom message list built on assistant-ui's message part primitives (`MessagePrimitive.Parts` or `MessagePrimitive.GroupedParts`) render the registered UI automatically wherever the `review_change` call appears in the message, so nothing needs to be placed by hand.
+注册工具包后，`Thread` 以及任何基于 assistant-ui 消息部分原语（`MessagePrimitive.Parts` 或 `MessagePrimitive.GroupedParts`）构建的自定义消息列表，都会在消息中出现 `review_change` 调用的位置自动渲染已注册的 UI，因此无需手动放置。
 
   </Step>
 </Steps>
@@ -81,12 +81,12 @@ Once the toolkit is registered, `Thread` and any custom message list built on as
 
 <StandaloneMode>
 
-Standalone, the element is a plain display component: it owns no state of its own, so the minimal usage is a constant set of criteria shown all at once.
+独立使用时，此元素是一个普通的展示组件：它不管理自身状态，因此最简单的用法是一次性显示一组固定的标准。
 
 <Steps>
   <Step>
 
-### Pass the criteria straight through
+### 直接传入标准
 
 ```tsx title="app/review-verdict.tsx"
 "use client";
@@ -123,7 +123,7 @@ export function ReviewVerdict() {
   </Step>
   <Step>
 
-### Reveal criteria on your own schedule
+### 按自己的节奏逐项展示标准
 
 ```tsx
 "use client";
@@ -156,7 +156,7 @@ export function ReviewVerdict() {
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="score-breakdown">
@@ -179,13 +179,13 @@ export function ReviewVerdict() {
 </div>
 ```
 
-The header (the total, the `/ outOf`, and the verdict pill) always renders regardless of `visibleCount`; only the criteria list is sliced, floored and clamped into `0…criteria.length` the same way it is on the other structured output elements. The verdict pill's color is a plain threshold on `total / outOf`, treated as `0` when `outOf` is `0`: emerald at `0.75` and above, amber from `0.5` up to just under `0.75`, red below `0.5`. Each criterion's own bar is scaled against the overall `outOf`, not against that criterion's own `weight` or any per-criterion maximum, so two criteria with the same `score` always draw identical bar widths no matter how differently they are weighted; `weight` only ever shows up as the `×N` label next to the score.
+无论 `visibleCount` 如何设置，页眉（总分、`/ outOf` 和评判标签）都会始终渲染；只有标准列表会像其他结构化输出元素一样，被切片、向下取整并限制在 `0…criteria.length` 中。评判标签的颜色只是基于 `total / outOf` 的简单阈值判断：当 `outOf` 为 `0` 时，`0` 会被视为：`0.75` 及以上为翠绿色，`0.5` 到低于 `0.75` 为琥珀色，低于 `0.5` 为红色。每项标准的进度条都以整体 `outOf` 为基准进行缩放，而不是以该标准自身的 `weight` 或任何单项标准的最大值为基准，因此，即使权重不同，具有相同 `score` 的两项标准也始终会绘制出相同宽度的进度条；`weight` 只会以分数旁边的 `×N` 标签形式显示。
 
-## Examples
+## 示例
 
-### An empty denominator
+### 分母为空
 
-`outOf: 0` is a real edge case the component handles rather than dividing by zero: the ratio reads as `0`, so the verdict pill always falls into the red band regardless of what `total` says.
+`outOf: 0` 是组件会处理的真实边界情况，而不是直接进行除零运算：比率会显示为 `0`，因此无论 `total` 表示什么，评判标签始终会落入红色区间。
 
 ```tsx
 <ScoreBreakdown
@@ -197,11 +197,11 @@ The header (the total, the `/ outOf`, and the verdict pill) always renders regar
 />
 ```
 
-### Where the score comes from
+### 分数的来源
 
 <RuntimeMode>
 
-The backend entry declares only what is being reviewed. The model supplies `target`, your server runs the actual grading, and the client renderer never sees anything but the finished verdict.
+后端入口只声明待评审的内容。模型提供 `target`，你的服务器执行实际评分，而客户端渲染器看到的始终只有最终评判结果。
 
 ```ts title="app/api/chat/route.ts"
 review_change: tool({
@@ -215,7 +215,7 @@ review_change: tool({
 
 <StandaloneMode>
 
-When the criteria come from your own request rather than a fixed constant, fetch them once and reset the reveal count so the animation plays from the start.
+当标准来自你自己的请求，而不是固定常量时，请获取一次这些标准，并重置展示数量，这样动画就会从头开始播放。
 
 ```tsx
 async function loadReview(target: string) {
@@ -227,36 +227,36 @@ async function loadReview(target: string) {
 
 </StandaloneMode>
 
-### Restyle the breakdown
+### 重新设置明细样式
 
-Both lanes take `className` on the root. The weight and score labels use the shared `mono` surface from `surfaces.tsx`, so restyling that token restyles every element that uses it.
+两个轨道都会在根元素上接收 `className`。权重和分数标签使用来自 `surfaces.tsx` 的共享 `mono` 表面，因此重新设置该 token 的样式会同步更新所有使用它的元素。
 
 ```tsx
 <ScoreBreakdown className="max-w-none gap-4" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Render props
+### 渲染属性
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `args` | `{ target: string }` | The tool's arguments, naming what is being reviewed. |
-| `result` | `{ verdict: string; total: number; outOf: number; criteria: ScoreCriterion[] } \| undefined` | The finished verdict, undefined until the backend executor resolves. |
+| `args` | `{ target: string }` | 工具的参数，用于说明待评审的内容。 |
+| `result` | `{ verdict: string; total: number; outOf: number; criteria: ScoreCriterion[] } \| undefined` | 最终评判结果，在后端执行器完成解析前为 undefined。 |
 
-### review_change result
+### review_change 结果
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `verdict` | `string` | Short label shown in the pill. |
-| `total` | `number` | The overall score, shown to one decimal place. |
-| `outOf` | `number` | The maximum possible score, also the denominator every criterion's bar is scaled against. |
-| `criteria[].label` | `string` | The criterion's name. |
-| `criteria[].score` | `number` | That criterion's own score, shown to one decimal place. |
-| `criteria[].weight` | `number` | Shown as `×weight`, has no effect on the bar width. |
-| `criteria[].note` | `string` | Optional caption under the bar. |
+| `verdict` | `string` | 显示在评判标签中的简短标签。 |
+| `total` | `number` | 总分，显示为一位小数。 |
+| `outOf` | `number` | 可能的最高分，也是每项标准的进度条所依据的分母。 |
+| `criteria[].label` | `string` | 标准的名称。 |
+| `criteria[].score` | `number` | 该标准自身的分数，显示为一位小数。 |
+| `criteria[].weight` | `number` | 显示为 `×weight`，不会影响进度条宽度。 |
+| `criteria[].note` | `string` | 进度条下方的可选说明文字。 |
 
 </RuntimeMode>
 
@@ -264,24 +264,24 @@ Both lanes take `className` on the root. The weight and score labels use the sha
 
 ### ScoreBreakdown
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `verdict` | `string` | required | Short label shown in the pill. |
-| `total` | `number` | required | The overall score, shown to one decimal place. |
-| `outOf` | `number` | required | The maximum possible score, also the denominator every criterion's bar is scaled against. |
-| `criteria` | `readonly ScoreCriterion[]` | required | The full list of criteria, only the first `visibleCount` render. |
-| `visibleCount` | `number` | required | How many criteria to show, floored and clamped into `0…criteria.length`. |
-| `className` | `string` | | Merged onto the root. |
+| `verdict` | `string` | 必填 | 显示在评判标签中的简短标签。 |
+| `total` | `number` | 必填 | 总分，显示为一位小数。 |
+| `outOf` | `number` | 必填 | 可能的最高分，也是每项标准的进度条所依据的分母。 |
+| `criteria` | `readonly ScoreCriterion[]` | 必填 | 完整的标准列表，但只渲染前 `visibleCount` 项。 |
+| `visibleCount` | `number` | 必填 | 要显示的标准数量，会向下取整并限制在 `0…criteria.length` 中。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` 属性都会传递给根元素。
 
 ### ScoreCriterion
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `label` | `string` | The criterion's name. |
-| `score` | `number` | That criterion's own score, shown to one decimal place. |
-| `weight` | `number` | Shown as `×weight`, has no effect on the bar width. |
-| `note` | `string` | Optional caption under the bar. |
+| `label` | `string` | 标准的名称。 |
+| `score` | `number` | 该标准自身的分数，显示为一位小数。 |
+| `weight` | `number` | 显示为 `×weight`，不会影响进度条宽度。 |
+| `note` | `string` | 进度条下方的可选说明文字。 |
 
 </StandaloneMode>

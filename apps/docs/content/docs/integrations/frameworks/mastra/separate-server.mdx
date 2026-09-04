@@ -1,32 +1,32 @@
 ---
-title: Separate server integration
-description: Run Mastra as a standalone server with assistant-ui as a separate frontend.
+title: 分离式服务器集成
+description: 将 Mastra 作为独立服务器运行，并使用单独的 assistant-ui 前端。
 ---
 
 import { MastraIcon } from "@/components/icons/mastra";
 import { VercelIcon } from "@/components/icons/vercel";
 
-Run Mastra as its own service and have the assistant-ui frontend hit it over HTTP. The two halves can deploy, scale, and version independently. The tradeoff is one extra hop and CORS to configure.
+将 Mastra 作为独立服务运行，让 assistant-ui 前端通过 HTTP 访问它。两部分可以独立部署、扩展和管理版本。这样做的代价是多了一次网络跳转，并且需要配置 CORS（跨域资源共享）。
 
-For the simpler in-process variant, see [full-stack](/docs/integrations/frameworks/mastra/full-stack) instead.
+如果需要更简单的进程内变体，请参阅[全栈集成](/docs/integrations/frameworks/mastra/full-stack)。
 
-## Setup
+## 设置
 
-The setup has two halves. Steps 1 to 4 happen in the **Mastra server** project; steps 5 to 7 happen in a **separate assistant-ui frontend** project. You'll have two terminals open by the end: one for each dev server.
+设置分为两部分。第 1 步到第 4 步在 **Mastra 服务器**项目中完成；第 5 步到第 7 步在**单独的 assistant-ui 前端**项目中完成。最后你将打开两个终端：每个开发服务器各使用一个终端。
 
 <Steps>
 
 <Step>
 
-### Create the Mastra server project
+### 创建 Mastra 服务器项目
 
-In a directory separate from your frontend, scaffold a Mastra project:
+在与前端不同的目录中，创建一个 Mastra 项目：
 
 ```sh
 npx create-mastra@latest
 ```
 
-Follow the wizard's prompts. When it finishes, change into the new directory and add the AI SDK adapter:
+按照向导提示操作。完成后，进入新目录并添加 AI SDK 适配器：
 
 ```sh
 cd your-mastra-server
@@ -34,13 +34,13 @@ cd your-mastra-server
 
 <InstallCommand npm={["@mastra/ai-sdk@latest"]} />
 
-Set the model provider keys (`OPENAI_API_KEY`, etc.) in `.env.development`. The `create-mastra` wizard prompts for some keys, but verify all the providers you plan to call are present.
+在 `.env.development` 中设置模型提供商密钥（`OPENAI_API_KEY` 等）。`create-mastra` 向导会提示你设置部分密钥，但请确认你计划调用的所有提供商都已配置。
 
 </Step>
 
 <Step>
 
-### Define an agent
+### 定义助手
 
 ```ts title="src/mastra/agents/chefAgent.ts"
 import { Agent } from "@mastra/core/agent";
@@ -58,9 +58,9 @@ export const chefAgent = new Agent({
 
 <Step>
 
-### Register the agent, chat route, and CORS
+### 注册助手、聊天路由和 CORS
 
-Open the Mastra entry point. You will set three things in the same `Mastra` constructor: the agent, a chat route, and CORS for the frontend's origin.
+打开 Mastra 入口文件。在同一个 `Mastra` 构造函数中设置三项内容：助手、聊天路由，以及针对前端来源的 CORS。
 
 ```ts title="src/mastra/index.ts"
 import { Mastra } from "@mastra/core";
@@ -81,31 +81,31 @@ export const mastra = new Mastra({
 });
 ```
 
-A few things to note:
+请注意以下几点：
 
-- `:agentId` matches the **JavaScript key** in the `agents` object, not the agent's `name` field. So `chefAgent` is reachable at `/chat/chefAgent` (camelCase), not `/chat/chef-agent`.
-- Add more agents to the `agents` object and they all become callable through this single route.
-- `FRONTEND_ORIGIN` should be set to your deployed frontend's URL in production. Without CORS configured, the browser blocks the request and the chat silently fails.
+- `:agentId` 匹配的是 `agents` 对象中的 **JavaScript 键**，而不是助手的 `name` 字段。因此，`chefAgent` 可通过 `/chat/chefAgent`（camelCase）访问，而不是 `/chat/chef-agent`。
+- 将更多助手添加到 `agents` 对象后，它们都可以通过这一条路由调用。
+- 在生产环境中，`FRONTEND_ORIGIN` 应设置为已部署前端的 URL。如果未配置 CORS，浏览器会阻止请求，聊天也会静默失败。
 
 </Step>
 
 <Step>
 
-### Run the Mastra server
+### 运行 Mastra 服务器
 
 ```bash npm2yarn
 npm run dev
 ```
 
-The server starts on `http://localhost:4111` by default. Leave it running for the rest of the steps.
+服务器默认在 `http://localhost:4111` 启动。在其余步骤中保持服务器运行。
 
 </Step>
 
 <Step>
 
-### Initialize the assistant-ui frontend
+### 初始化 assistant-ui 前端
 
-In a **different directory** from the Mastra server, scaffold the frontend:
+在与 Mastra 服务器**不同的目录**中，创建前端：
 
 ```sh title="New project"
 npx assistant-ui@latest create
@@ -115,15 +115,15 @@ npx assistant-ui@latest create
 npx assistant-ui@latest init
 ```
 
-This creates a default chat page and a local API route at `app/api/chat/route.ts`. You won't use the local route, since the agent runs on the separate Mastra server; delete it once the next step is wired.
+这会创建一个默认聊天页面，以及位于 `app/api/chat/route.ts` 的本地 API 路由。由于助手运行在独立的 Mastra 服务器上，因此不会使用该本地路由；完成下一步配置后将其删除。
 
 </Step>
 
 <Step>
 
-### Point the runtime at the Mastra server
+### 将运行时指向 Mastra 服务器
 
-Open the file containing `useChatRuntime` (typically `app/assistant.tsx`) and pass an explicit `api` URL:
+打开包含 `useChatRuntime` 的文件（通常是 `app/assistant.tsx`），并传入明确的 `api` URL：
 
 ```tsx title="app/assistant.tsx" {8}
 "use client";
@@ -147,55 +147,55 @@ export const Assistant = () => {
 };
 ```
 
-Set the URL in your frontend's environment:
+在前端的环境变量中设置该 URL：
 
 ```sh title=".env.local"
 NEXT_PUBLIC_MASTRA_URL=http://localhost:4111/chat/chefAgent
 ```
 
-`NEXT_PUBLIC_*` makes the URL available in the browser. In production, point this at your deployed Mastra server. Mastra itself uses `.env.development` for its server keys; the two projects keep separate environment files.
+`NEXT_PUBLIC_*` 会使该 URL 可在浏览器中访问。在生产环境中，将其指向已部署的 Mastra 服务器。Mastra 自身使用 `.env.development` 保存服务器密钥；两个项目使用彼此独立的环境文件。
 
 </Step>
 
 <Step>
 
-### Run and verify
+### 运行并验证
 
-Make sure the Mastra server (step 4) is still running in its own terminal, then start the frontend in a new terminal:
+确保 Mastra 服务器（第 4 步）仍在自己的终端中运行，然后在新终端中启动前端：
 
 ```bash npm2yarn
 npm run dev
 ```
 
-Open `http://localhost:3000`, send a message, and confirm:
+打开 `http://localhost:3000`，发送一条消息，并确认：
 
-- The response streams in token by token.
-- The network tab shows the `POST` going to `http://localhost:4111/chat/chefAgent`, not the local `/api/chat`.
-- No CORS errors in the console; if you see `blocked by CORS policy`, revisit step 3.
+- 响应逐个 token 以流式方式输出。
+- 网络面板显示 `POST` 正在发送到 `http://localhost:4111/chat/chefAgent`，而不是本地的 `/api/chat`。
+- 控制台中没有 CORS 错误；如果看到 `blocked by CORS policy`，请重新检查第 3 步。
 
 </Step>
 
 </Steps>
 
-## Notes
+## 说明
 
-- **Auth between frontend and Mastra**: the example above is open. In production, gate the Mastra route with a header or cookie check and forward credentials from the frontend (`AssistantChatTransport` accepts `headers` and `credentials` options).
-- **Single agent vs router**: `chatRoute({ path: "/chat/:agentId" })` works for any agent registered on the `Mastra` instance. Switching agents from the frontend is a matter of pointing `NEXT_PUBLIC_MASTRA_URL` at a different agent ID.
-- **Advanced Mastra features** (memory, tools, workflows, evals) live in the agent definition. The frontend sees only the resulting stream. See the [Mastra docs](https://mastra.ai/docs).
+- **前端与 Mastra 之间的身份验证**：上面的示例是开放的。在生产环境中，应通过请求头或 Cookie 检查保护 Mastra 路由，并从前端转发凭据（`AssistantChatTransport` 接受 `headers` 和 `credentials` 选项）。
+- **单个助手与路由器**：`chatRoute({ path: "/chat/:agentId" })` 适用于在 `Mastra` 实例上注册的任何助手。要从前端切换助手，只需将 `NEXT_PUBLIC_MASTRA_URL` 指向其他助手 ID。
+- **Mastra 高级功能**（记忆、工具、工作流、评估）都定义在助手中。前端只能看到最终的流式结果。请参阅 [Mastra 文档](https://mastra.ai/docs).
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     icon={<MastraIcon width={20} height={20} />}
-    title="Full-stack integration"
-    description="Run Mastra inside your Next.js API routes for a single deploy target."
+    title="全栈集成"
+    description="在 Next.js API 路由中运行 Mastra，以使用单一部署目标。"
     href="/docs/integrations/frameworks/mastra/full-stack"
   />
   <Card
     icon={<VercelIcon width={20} height={20} />}
-    title="AI SDK runtime"
-    description="The runtime that handles the client side of this integration."
+    title="AI SDK 运行时"
+    description="处理此集成客户端部分的运行时。"
     href="/docs/runtimes/ai-sdk/v7"
   />
 </Cards>

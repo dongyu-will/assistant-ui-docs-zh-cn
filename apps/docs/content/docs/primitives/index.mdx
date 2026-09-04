@@ -1,17 +1,17 @@
 ---
-title: Overview
-description: Unstyled, accessible building blocks for AI chat interfaces — Thread, Composer, Message, and more, ready to compose with assistant-ui.
+title: 概览
+description: 面向 AI 聊天界面的无样式、可访问构建模块——Thread、Composer、Message 等，开箱即可与 assistant-ui 组合使用。
 platforms: ["react"]
 ---
 
-Primitives are the unstyled layer of assistant-ui: accessible React components that handle all the wiring of AI chat, including state management, keyboard shortcuts, auto-scrolling, streaming, and tool calls, and leave every visual decision to you.
+原语是 assistant-ui 的无样式层：可访问的 React 组件，负责处理 AI 聊天的所有连接工作，包括状态管理、键盘快捷键、自动滚动、流式传输和工具调用，同时将所有视觉决策交给你。
 
-## Primitives or elements?
+## 原语还是元素？
 
-assistant-ui ships two layers:
+assistant-ui 提供两个层级：
 
-- **[Elements](/elements)** are styled, installable components built from primitives. Each element's page shows a live demo, its install command, and both ways to use it: wired to a runtime, or driven by plain props. If you want ready-made UI, or anything else element-related, the [element catalog](/elements) is the place to look; this section never duplicates it.
-- **Primitives** (this section) are what elements are made of. Reach for them when the UI you need doesn't exist as an element, such as a floating composer, a custom message layout, or an inline editing experience.
+- **[元素](/elements)** 是使用原语构建的、带样式且可安装的组件。每个元素页面都会展示实时演示、安装命令，以及两种使用方式：连接到运行时，或通过普通 props 驱动。如果你想使用现成的 UI，或查找其他与元素相关的内容，请查看[元素目录](/elements)；本节不会重复介绍其中的内容。
+- **原语**（本节）是元素的构成部分。当你需要的 UI 不存在对应元素时，请使用原语，例如浮动输入框、自定义消息布局或行内编辑体验。
 
 ```tsx
 import { ComposerPrimitive } from "@assistant-ui/react";
@@ -22,65 +22,65 @@ import { ComposerPrimitive } from "@assistant-ui/react";
 </ComposerPrimitive.Root>
 ```
 
-This renders an unstyled `<form>` with a `<textarea>` and a `<button>`. No styles, no opinions, but it already handles submit-on-enter, focus management, empty-state disabling, and streaming state.
+这会渲染一个无样式的 `<form>`，其中包含一个 `<textarea>` 和一个 `<button>`。它没有样式，也不带任何预设，但已经处理了按 Enter 提交、焦点管理、空状态禁用和流式传输状态。
 
-## How they work
+## 工作方式
 
-Every primitive follows the same pattern inspired by [Radix UI](https://www.radix-ui.com/):
+每个原语都遵循同一种模式，其设计灵感来自 [Radix UI](https://www.radix-ui.com/):
 
-- **`Primitive.Root`**: container that provides context to child parts
-- **`Primitive.PartName`**: individual elements (input, button, text, etc.)
-- **`asChild`**: merge primitive behavior onto your own element instead of rendering a wrapper
-- **`AuiIf`**: conditional rendering based on state
+- **`Primitive.Root`**：向子部件提供上下文的容器
+- **`Primitive.PartName`**：单独的元素（输入框、按钮、文本等）
+- **`asChild`**：将原语行为合并到你自己的元素上，而不是渲染一个包装器
+- **`AuiIf`**：根据状态进行条件渲染
 
-Primitives read from the nearest runtime context. Place them inside an `AssistantRuntimeProvider` and they work without prop drilling or manual state wiring.
+原语会读取最近的运行时上下文。将它们放在 `AssistantRuntimeProvider` 内部后，无需逐层传递 props 或手动连接状态即可工作。
 
-## Available primitives
+## 可用原语
 
 <Cards>
   <Card title="Composer" href="/docs/primitives/composer">
-    Text input, send button, attachments, and dictation. The interface for composing new messages or editing existing ones.
+    文本输入、发送按钮、附件和听写。用于编写新消息或编辑现有消息的界面。
   </Card>
   <Card title="Thread" href="/docs/primitives/thread">
-    The scrollable message container with auto-scroll, empty states, and message rendering.
+    可滚动的消息容器，支持自动滚动、空状态和消息渲染。
   </Card>
   <Card title="Message" href="/docs/primitives/message">
-    Individual message rendering with role-based content, parts, and metadata.
+    根据角色渲染内容、消息部分和元数据的单条消息渲染器。
   </Card>
   <Card title="ActionBar" href="/docs/primitives/action-bar">
-    Copy, reload, edit, and other message actions.
+    复制、重新加载、编辑和其他消息操作。
   </Card>
   <Card title="BranchPicker" href="/docs/primitives/branch-picker">
-    Navigate between message branches (alternative responses).
+    在消息分支（备选回复）之间导航。
   </Card>
   <Card title="ThreadList" href="/docs/primitives/thread-list">
-    Multi-thread management: list, create, switch, and archive threads.
+    多线程管理：列出、创建、切换和归档线程。
   </Card>
   <Card title="AssistantModal" href="/docs/primitives/assistant-modal">
-    Floating chat popover built on Radix UI Popover.
+    基于 Radix UI Popover 构建的浮动聊天弹出层。
   </Card>
   <Card title="Attachment" href="/docs/primitives/attachment">
-    File and image attachment rendering.
+    文件和图像附件渲染。
   </Card>
   <Card title="Suggestion" href="/docs/primitives/suggestion">
-    Suggested prompts and quick actions.
+    建议提示词和快速操作。
   </Card>
   <Card title="SelectionToolbar" href="/docs/primitives/selection-toolbar">
-    Floating toolbar for text selection actions like quoting.
+    用于引用等文本选择操作的浮动工具栏。
   </Card>
   <Card title="Error" href="/docs/primitives/error">
-    Error display with accessible alert role and automatic error text.
+    使用可访问的 alert 角色并自动显示错误文本的错误展示组件。
   </Card>
   <Card title="ChainOfThought" href="/docs/primitives/chain-of-thought">
-    Collapsible reasoning accordion for thinking steps and tool calls.
+    可折叠的推理折叠面板，用于展示思考步骤和工具调用。
   </Card>
 </Cards>
 
-`MessagePartPrimitive` (for rendering individual text, image, and streaming parts) is documented within the [Message](/docs/primitives/message#messagepartprimitive) primitive page.
+`MessagePartPrimitive`（用于渲染单独的文本、图像和流式传输部分）记录在 [Message](/docs/primitives/message#messagepartprimitive) 原语页面中。
 
-## Related primitive references
+## 相关原语参考
 
-Additional primitive references:
+其他原语参考：
 
 - [MessagePartPrimitive](/docs/api-reference/primitives/message-part)
 - [ThreadListItemPrimitive](/docs/api-reference/primitives/thread-list-item)
@@ -88,13 +88,13 @@ Additional primitive references:
 - [ActionBarMorePrimitive](/docs/api-reference/primitives/action-bar-more)
 - [AuiIf](/docs/api-reference/primitives/assistant-if)
 
-## Common mistakes
+## 常见错误
 
-- Forgetting to wrap primitives with runtime context (`AssistantRuntimeProvider` + runtime hook)
-- Mixing deprecated props with current APIs (`submitOnEnter`, `autoSend`, legacy `Suggestion`)
-- Mounting primitives in the wrong context (`ActionBarPrimitive` / `BranchPickerPrimitive` outside `MessagePrimitive.Root`)
-- Using unstable props unintentionally (`unstable_*` APIs)
+- 忘记为原语包裸运行时上下文（`AssistantRuntimeProvider` + 运行时 hook）
+- 将已弃用的 props 与当前 API 混用（`submitOnEnter`、`autoSend`、旧版 `Suggestion`）
+- 在错误的上下文中挂载原语（`ActionBarPrimitive` / `BranchPickerPrimitive` 位于 `MessagePrimitive.Root` 外部）
+- 无意中使用不稳定的 props（`unstable_*` API）
 
-## Next steps
+## 后续步骤
 
-Browse the [element catalog](/elements) if a ready-made component covers your case. Otherwise start with the [Composer](/docs/primitives/composer) primitive to see how primitives work in practice, or jump to the [API Reference](/docs/api-reference/primitives/composer) for full prop details.
+如果现成组件能够满足你的需求，请浏览[元素目录](/elements)。否则，可以从 [Composer](/docs/primitives/composer) 原语开始，了解原语在实际中的工作方式；或者直接前往 [API 参考](/docs/api-reference/primitives/composer)，查看完整的 prop 详情。

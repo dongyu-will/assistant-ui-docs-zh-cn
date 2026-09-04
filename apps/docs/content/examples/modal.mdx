@@ -1,29 +1,29 @@
 ---
-title: Floating Modal Chat
-description: Embeddable AI assistant in a floating button modal — drop into any React app for in-product copilots or support chat, built on assistant-ui.
+title: 浮动模态聊天
+description: 基于 assistant-ui 构建的可嵌入式 AI 助手，运行于浮动按钮模态框中——可添加到任意 React 应用，为产品内副驾驶或支持聊天提供支持。
 ---
 
-## Overview
+## 概览
 
-The Modal example demonstrates how to create a floating action button that opens an AI assistant chat interface in a modal dialog. This pattern is ideal for applications where you want to provide AI assistance without disrupting the main user interface.
+Modal 示例演示了如何创建一个浮动操作按钮，在模态对话框中打开 AI 助手聊天界面。这种模式非常适合希望提供 AI 辅助、又不干扰主用户界面的应用。
 
-## Features
+## 功能
 
-- **Floating Action Button**: A clean, accessible button fixed to the corner of the screen
-- **Modal Dialog**: Full-featured chat interface with proper focus management
-- **Smooth Animations**: Enter/exit transitions with zoom and slide effects
-- **Responsive Design**: Works across desktop and mobile devices
-- **Keyboard Navigation**: Escape key to close, proper tab order
+- **浮动操作按钮**：固定在屏幕角落的简洁、易访问按钮
+- **模态对话框**：功能完整的聊天界面，并具备完善的焦点管理
+- **流畅动画**：带有缩放和滑动效果的进入/退出过渡
+- **响应式设计**：适用于桌面设备和移动设备
+- **键盘导航**：支持使用 Escape 键关闭，并提供合理的 Tab 顺序
 
-## Quick Start
+## 快速开始
 
 ```bash
 npx assistant-ui add assistant-modal
 ```
 
-## Code
+## 代码
 
-The modal uses `AssistantModalPrimitive` to create a floating chat interface:
+该模态框使用 `AssistantModalPrimitive` 创建浮动聊天界面：
 
 ```tsx
 import { AssistantModalPrimitive } from "@assistant-ui/react";
@@ -52,22 +52,22 @@ export const AssistantModal = () => {
 };
 ```
 
-### Key Components
+### 主要组件
 
-| Component | Purpose |
+| 组件 | 用途 |
 |-----------|---------|
-| `AssistantModalPrimitive.Root` | Container that manages open/close state |
-| `AssistantModalPrimitive.Anchor` | Positions the trigger button |
-| `AssistantModalPrimitive.Trigger` | Button that opens the modal |
-| `AssistantModalPrimitive.Content` | The modal dialog containing the chat |
+| `AssistantModalPrimitive.Root` | 管理打开/关闭状态的容器 |
+| `AssistantModalPrimitive.Anchor` | 定位触发按钮 |
+| `AssistantModalPrimitive.Trigger` | 打开模态框的按钮 |
+| `AssistantModalPrimitive.Content` | 包含聊天界面的模态对话框 |
 
-### Customization Tips
+### 自定义提示
 
-- Adjust `sideOffset` to control the gap between button and modal
-- Modify `h-[500px] w-[400px]` to change modal dimensions
-- Use `data-[state=open/closed]` for animation states
-- Position the anchor with `fixed right-4 bottom-4` or any corner
+- 调整 `sideOffset` 以控制按钮与模态框之间的间距
+- 修改 `h-[500px] w-[400px]` 以更改模态框尺寸
+- 使用 `data-[state=open/closed]` 设置动画状态
+- 使用 `fixed right-4 bottom-4` 将锚点定位到任意角落
 
-## Source
+## 源码
 
 <SourceLink href="https://github.com/assistant-ui/assistant-ui/blob/main/apps/docs/components/pages/docs/samples/assistant-modal.tsx" />

@@ -1,8 +1,8 @@
 ---
-title: "Table"
-description: "A print-register data table with hairline rules and mono headers."
+title: "表格"
+description: "带有极细线规则和等宽字体表头的印刷登记数据表。"
 links:
-  - label: Source
+  - label: 来源
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/table.tsx
 ---
 
@@ -18,11 +18,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.TableSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="table" />
 
-## Usage
+## 用法
 
 ```tsx
 import {
@@ -54,25 +54,25 @@ export function Example() {
 }
 ```
 
-The table opens with a hairline, closes with one under the last row, and draws no vertical rules or fills. The wrapper scrolls horizontally on its own, so a wide table never scrolls the page.
+表格顶部以一条极细线开始，最后一行下方以一条极细线结束，不绘制垂直线或填充背景。包装器会自行进行水平滚动，因此宽表格不会导致整个页面滚动。
 
-## Examples
+## 示例
 
-### In articles
+### 在文章中
 
-Markdown tables on this site render through these parts automatically; the API reference below is one.
+此网站上的 Markdown 表格会自动通过这些部件渲染；下面的 API 参考就是其中一个示例。
 
-## API Reference
+## API 参考
 
-Every part renders its native element and accepts that element's props.
+每个部件都会渲染其原生元素，并接受该元素的 props。
 
-| Part           | Element    | Role                                            |
+| 部件           | 元素    | 作用                                            |
 | -------------- | ---------- | ----------------------------------------------- |
-| `Table`        | `table`    | Scroll wrapper plus the table surface.          |
-| `TableHeader`  | `thead`    | Header row group.                               |
-| `TableBody`    | `tbody`    | Data rows.                                      |
-| `TableFooter`  | `tfoot`    | Closing rows, set in medium weight.             |
-| `TableRow`     | `tr`       | One row, closed by a hairline.                  |
-| `TableHead`    | `th`       | Mono column label.                              |
-| `TableCell`    | `td`       | One cell, top-aligned for multi-line content.   |
-| `TableCaption` | `caption`  | Mono caption below the table.                   |
+| `Table`        | `table`    | 滚动包装器和表格表面。          |
+| `TableHeader`  | `thead`    | 表头行组。                               |
+| `TableBody`    | `tbody`    | 数据行。                                      |
+| `TableFooter`  | `tfoot`    | 结尾行，使用中等字重。             |
+| `TableRow`     | `tr`       | 单行，以极细线结束。                  |
+| `TableHead`    | `th`       | 等宽字体列标签。                              |
+| `TableCell`    | `td`       | 单元格，多行内容采用顶部对齐。   |
+| `TableCaption` | `caption`  | 表格下方的等宽字体说明文字。                   |

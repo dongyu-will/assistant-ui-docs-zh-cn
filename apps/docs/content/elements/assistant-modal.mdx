@@ -1,20 +1,20 @@
 ---
-title: "Assistant modal"
-description: "A floating chat bubble for support widgets, help desks, and embedded assistants."
+title: "助手模态框"
+description: "用于支持小组件、帮助台和嵌入式助手的浮动聊天气泡。"
 ---
 
-Assistant modal tucks a complete Thread behind a floating corner trigger: a bot icon that becomes a chevron once open, above a popover that holds the conversation. It has no standalone form, since it is a fixed composition of Thread and a runtime-driven open state rather than a set of props.
+助手模态框将完整的 Thread 隐藏在角落的浮动触发器后面：打开后，机器人图标会变成 chevron，触发器上方则是容纳对话的弹出层。它没有独立的表单，因为它是由 Thread 和运行时驱动的打开状态组成的固定组合，而不是一组 props。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-`AssistantModal` needs nothing beyond a runtime provider higher up the tree; it positions and opens itself.
+`AssistantModal`只需要组件树上层存在运行时 provider；它会自行定位并打开。
 
 <Steps>
   <Step>
 
-### Drop it in
+### 直接使用
 
 ```tsx title="app/layout.tsx"
 import { AssistantModal } from "@/components/assistant-ui/elements/assistant-modal.aui";
@@ -29,7 +29,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 }
 ```
 
-Needs an `AssistantRuntimeProvider` ancestor. Render it once, anywhere under the provider, since it is fixed-positioned to the viewport corner on its own.
+需要一个`AssistantRuntimeProvider`祖先。只需在 provider 下的任意位置渲染一次，因为它会自行固定定位在视口角落。
 
   </Step>
 </Steps>
@@ -38,11 +38,11 @@ Needs an `AssistantRuntimeProvider` ancestor. Render it once, anywhere under the
 
 <StandaloneMode>
 
-Assistant modal has no standalone form: it composes the runtime-only [Thread](/elements/thread) inside a popover it opens itself, tied to the runtime's `thread.runStart` event. Build your own floating trigger around a popover and Thread's primitives if you need different open behavior.
+助手模态框没有独立的形式：它会将仅由运行时提供的 [Thread](/elements/thread) 组合到自己打开的弹出层中，并绑定到运行时的`thread.runStart`事件。如果需要不同的打开行为，可以围绕弹出层和 Thread 原语构建自己的浮动触发器。
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div className="aui-modal-anchor fixed end-4 bottom-4 size-11">
@@ -54,17 +54,17 @@ Assistant modal has no standalone form: it composes the runtime-only [Thread](/e
 </div>
 ```
 
-The modal opens itself on the runtime's `thread.runStart` event, so sending the first message expands it even if it was launched collapsed. Once open, clicking outside or losing focus does not close it; only clicking the trigger again does, since the popover cancels every outside-press and focus-out close and honors just the explicit toggle. The trigger's accessible label switches between "Open Assistant" and "Close Assistant" along with the icon crossfade.
+模态框会在运行时的`thread.runStart`事件上自行打开，因此即使它以折叠状态启动，发送第一条消息也会将其展开。打开后，点击外部或失去焦点都不会将其关闭；只有再次点击触发器才会关闭，因为弹出层会取消所有通过点击外部和焦点移出触发的关闭行为，只响应显式切换。触发器的无障碍标签会随着图标交叉淡入淡出，在 "打开助手" 和 "关闭助手" 之间切换。
 
-## Examples
+## 示例
 
-### Trigger it from elsewhere
+### 从其他位置触发
 
-`AssistantModal` owns its open state internally and exposes no `open` prop or ref. To open it from a different control, such as a header button, lift the `open`/`setOpen` pair already at the top of the component into your own copy of the file.
+`AssistantModal`在内部管理打开状态，不提供`open` prop 或 ref。若要从其他控件（例如页眉按钮）打开它，请将组件文件顶部已有的`open`/`setOpen`组合提取到你自己的文件副本中。
 
-### Restyle the trigger and panel
+### 重新设置触发器和面板的样式
 
-The anchor, panel, and button each carry a stable class name you can target from outside without touching the copied file: `aui-modal-anchor` positions the trigger, `aui-modal-content` sizes and animates the panel, and `aui-modal-button` styles the trigger itself.
+锚点、面板和按钮各自都带有稳定的类名，你无需修改复制的文件即可从外部定位它们：`aui-modal-anchor`用于定位触发器，`aui-modal-content`用于设置面板尺寸并为其添加动画，`aui-modal-button`用于设置触发器本身的样式。
 
 ```css
 .aui-modal-content {
@@ -73,26 +73,26 @@ The anchor, panel, and button each carry a stable class name you can target from
 }
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### AssistantModal
 
-Takes no props.
+不接受任何 props。
 
-### Behavior
+### 行为
 
-| Event | Fires | Effect |
+| 事件 | 触发时机 | 效果 |
 |-------|-------|--------|
-| `thread.runStart` | Once per run start, any thread | Opens the modal via `aui.on("thread.runStart", ...)`. |
+| `thread.runStart` | 每次运行开始时一次，适用于任意线程 | 通过`aui.on("thread.runStart", ...)`打开模态框。 |
 
-### Class names
+### 类名
 
-| Class | Targets |
+| 类 | 目标 |
 |-------|---------|
-| `aui-modal-anchor` | The fixed-position trigger wrapper. |
-| `aui-modal-content` | The popover panel that holds `Thread`. |
-| `aui-modal-button` | The floating trigger button. |
+| `aui-modal-anchor` | 固定定位的触发器包装器。 |
+| `aui-modal-content` | 容纳`Thread`的弹出层面板。 |
+| `aui-modal-button` | 浮动触发器按钮。 |
 
 </RuntimeMode>

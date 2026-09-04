@@ -1,20 +1,20 @@
 ---
-title: "Confidence"
-description: "Which claims came from a source, which were inferred, and which are guesses."
+title: "置信度"
+description: "哪些声明来自来源，哪些是推断，哪些是猜测。"
 ---
 
-ConfidenceMarker underlines each claim in an answer by how sure it is: grounded, inferred, or uncertain, with the basis shown on hover or focus. With a runtime you produce the claim list from a structured tool result; standalone you already hold it.
+ConfidenceMarker 会根据每条声明的确定程度为答案中的声明添加下划线：有依据、推断或不确定，并在悬停或聚焦时显示依据。在运行时中，你可以从结构化的工具结果生成声明列表；在独立使用时，你已经持有该列表。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-assistant-ui's message content has no built-in per-claim confidence concept: text and citations are separate content parts, and neither carries a confidence grade. The closest real building block is a tool call. Ask the model to return its answer as graded claims, and read the result back off the `tool-call` part.
+assistant-ui 的消息内容没有内置的逐条声明置信度概念：文本和引用是彼此独立的内容部分，二者都不携带置信度等级。最接近的实际构建模块是工具调用。要求模型以分级声明的形式返回答案，然后从 `tool-call` 部分读取结果。
 
 <Steps>
   <Step>
 
-### Read the tool result off the message
+### 从消息中读取工具结果
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 "use client";
@@ -46,14 +46,14 @@ function ClaimsFromMessage() {
 }
 ```
 
-`cite_claims` and the `{ claims: [...] }` result shape are your own tool contract; `part.result` is the real, typed plumbing that carries whatever you defined back to the client.
+`cite_claims` 和 `{ claims: [...] }` 的结果形状属于你自己的工具契约；`part.result` 才是实际的、类型化的管道，负责将你定义的内容传回客户端。
 
   </Step>
   <Step>
 
-### Use a real citation for the grounded tier alone
+### 仅使用真实引用表示有依据等级
 
-When all you need is "this claim came from a fetched source," not a full three-tier grade, `SourceMessagePart` is a first-class runtime concept you can render directly instead of routing it through a custom tool. See [A grounded-only version](#a-grounded-only-version) below.
+如果你只需要表达“这条声明来自获取到的来源”，而不是完整的三等级分类，那么 `SourceMessagePart` 是一等运行时概念，可以直接渲染，而不必通过自定义工具传递。请参阅下方的[仅有依据版本](#a-grounded-only-version)。
 
   </Step>
 </Steps>
@@ -62,12 +62,12 @@ When all you need is "this claim came from a fetched source," not a full three-t
 
 <StandaloneMode>
 
-Standalone, you already hold the claim list; the component only tracks which one is hovered or focused.
+在独立使用时，你已经持有声明列表；组件只会跟踪当前悬停或聚焦的是哪一条声明。
 
 <Steps>
   <Step>
 
-### Hold the claims and the hover state
+### 保存声明和悬停状态
 
 ```tsx title="app/answer.tsx"
 "use client";
@@ -92,16 +92,16 @@ export function Answer() {
   </Step>
   <Step>
 
-### Basis is plain text
+### 依据是纯文本
 
-`basis` is a plain string; nothing parses it. Citing a document path, a search result title, or "not measured" are all equally valid values.
+`basis` 是一个普通字符串；不会对其进行解析。文档路径、搜索结果标题或“未测量”都可以作为同样有效的值。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="confidence-marker">
@@ -110,15 +110,15 @@ export function Answer() {
 </div>
 ```
 
-Hover and focus both reveal the basis (`onMouseEnter`/`onFocus` share the same `onHover` call), so it is reachable from the keyboard, and `aria-describedby` points at the basis pill only while it belongs to the focused claim. The basis slot has a fixed height whether or not anything is shown, so revealing it never shifts the paragraph above. The tier is marked by underline style, not color alone: solid for grounded and inferred, dotted for uncertain, so the distinction survives without color.
+悬停和聚焦都会显示依据（`onMouseEnter`/`onFocus` 共享同一个 `onHover` 调用），因此键盘用户也可以访问；`aria-describedby` 只有在依据属于当前聚焦声明时，才会指向依据标签。无论是否显示内容，依据区域都具有固定高度，因此显示依据不会使上方段落发生位移。等级通过下划线样式而不仅是颜色来标记：有依据和推断使用实线，不确定使用点线，因此即使无法分辨颜色，也能区分不同等级。
 
-## Examples
+## 示例
 
-### A grounded-only version
+### 仅有依据版本
 
 <RuntimeMode>
 
-Mapping real citations straight into the same shape skips the custom tool entirely when every claim you show is source-backed:
+当你展示的每条声明都有来源支持时，可以将真实引用直接映射为相同的形状，完全跳过自定义工具：
 
 ```tsx
 const claims: ConfidenceClaim[] = message.content
@@ -135,7 +135,7 @@ const claims: ConfidenceClaim[] = message.content
 
 <StandaloneMode>
 
-The same narrowing works on any list you already hold: keep only the claims whose confidence is `"grounded"` when a caller only wants the sourced ones.
+对于你已经持有的任何列表，也可以采用相同的筛选方式：当调用方只需要有来源支持的声明时，仅保留置信度为 `"grounded"` 的声明。
 
 ```tsx
 <ConfidenceMarker claims={claims.filter((c) => c.confidence === "grounded")} hoveredId={hoveredId} onHover={setHoveredId} />
@@ -143,25 +143,25 @@ The same narrowing works on any list you already hold: keep only the claims whos
 
 </StandaloneMode>
 
-### Restyle the underline and basis pill
+### 重新设置下划线和依据标签的样式
 
-Both lanes take `className` on the root. The basis pill reads the shared `floating` and `mono` surfaces from `surfaces.tsx`.
+两种通道都会在根元素上接收 `className`。依据标签会读取 `surfaces.tsx` 中共享的 `floating` 和 `mono` 表面样式。
 
 ```tsx
 <ConfidenceMarker className="gap-3" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Message state
+### 消息状态
 
-| Selector / field | Type | Description |
+| 选择器 / 字段 | 类型 | 描述 |
 |--------------------|------|-------------|
-| `s.message.content` | `readonly ThreadAssistantMessagePart[]` | Search this for a `tool-call` part whose `result` you shape as a claims list; assistant-ui has no built-in confidence field. |
-| `ToolCallMessagePart.result` | `TResult \| undefined` | The tool's return value once it has run, typed by the generic you give `ToolCallMessagePart<TArgs, TResult>`. |
-| `SourceMessagePart` | `{ type: "source"; sourceType: "url" \| "document"; id: string; url?: string; title?: string; filename?: string }` | A real citation part, useful when "grounded" is the only tier you need. |
+| `s.message.content` | `readonly ThreadAssistantMessagePart[]` | 在此处查找 `tool-call` 部分，其 `result` 被组织为声明列表；assistant-ui 没有内置的置信度字段。 |
+| `ToolCallMessagePart.result` | `TResult \| undefined` | 工具运行后的返回值，其类型由你提供给 `ToolCallMessagePart<TArgs, TResult>` 的泛型决定。 |
+| `SourceMessagePart` | `{ type: "source"; sourceType: "url" \| "document"; id: string; url?: string; title?: string; filename?: string }` | 真实的引用部分；当你只需要“有依据”这一个等级时很有用。 |
 
 </RuntimeMode>
 
@@ -169,22 +169,22 @@ Both lanes take `className` on the root. The basis pill reads the shared `floati
 
 ### ConfidenceMarker
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `claims` | `readonly ConfidenceClaim[]` | required | The full, ordered list to render. |
-| `hoveredId` | `string` | required | Id of the claim whose basis is shown; an empty string shows none. |
-| `onHover` | `(id: string) => void` | | Called with the claim id on hover or focus, and with `""` on leave or blur. |
-| `className` | `string` | | Merged onto the root. |
+| `claims` | `readonly ConfidenceClaim[]` | 必填 | 要渲染的完整、有序列表。 |
+| `hoveredId` | `string` | 必填 | 要显示其依据的声明 ID；空字符串表示不显示任何依据。 |
+| `onHover` | `(id: string) => void` | | 在悬停或聚焦时传入声明 ID，在离开或失焦时传入 `""`。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### ConfidenceClaim
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
 | `id` | `string` | |
 | `text` | `string` | |
-| `confidence` | `"grounded" \| "inferred" \| "uncertain"` | Drives the underline color and style. |
-| `basis` | `string` | Shown in the hover/focus pill. |
+| `confidence` | `"grounded" \| "inferred" \| "uncertain"` | 控制下划线的颜色和样式。 |
+| `basis` | `string` | 显示在悬停/聚焦时的标签中。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

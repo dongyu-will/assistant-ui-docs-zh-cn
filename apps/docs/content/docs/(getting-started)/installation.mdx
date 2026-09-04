@@ -1,36 +1,36 @@
 ---
-title: Installation
-description: Get assistant-ui running in 5 minutes with npm and your first chat component.
+title: 安装
+description: 使用 npm 和你的第一个聊天组件，在 5 分钟内运行 assistant-ui。
 platforms: ["react"]
 ---
 
 
-## Quick Start
+## 快速开始
 
-The fastest way to get started with assistant-ui.
+最快上手 assistant-ui 的方式。
 
-![animated gif showing the steps to create a new project](../../../../../.github/assets/assistant-ui-starter.gif)
+![展示创建新项目步骤的动画 GIF](../../../../../.github/assets/assistant-ui-starter.gif)
 
 <Steps>
   <Step>
 
-### Initialize assistant-ui
+### 初始化 assistant-ui
 
-**Create a new project:**
+**创建新项目：**
 
 ```sh
 npx assistant-ui@latest create
 ```
 
-Or start from a template:
+或者从模板开始：
 
 ```sh
 npx assistant-ui@latest create -t cloud
 ```
 
-The [CLI reference](/docs/cli#create) lists every template and example, and what each one includes.
+[CLI 参考](/docs/cli#create)列出了所有模板和示例，以及每个模板和示例包含的内容。
 
-**Add to an existing project:**
+**添加到现有项目：**
 
 ```sh
 npx assistant-ui@latest init
@@ -39,20 +39,20 @@ npx assistant-ui@latest init
   </Step>
   <Step>
 
-### Add API key
+### 添加 API 密钥
 
-Create a `.env` file with your API key:
+创建一个 `.env` 文件，并填入你的 API 密钥：
 
 ```
 OPENAI_API_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 ```
 
-Developing locally with a ChatGPT Plus or Pro plan? You can skip the API key and run on your subscription instead; see [ChatGPT Subscription](/docs/guides/chatgpt-subscription).
+如果你使用 ChatGPT Plus 或 Pro 方案在本地开发，可以跳过 API 密钥，直接使用你的订阅运行；请参阅 [ChatGPT 订阅](/docs/guides/chatgpt-subscription)。
 
   </Step>
   <Step>
 
-### Start the app
+### 启动应用
 
 ```sh
 npm run dev
@@ -61,11 +61,11 @@ npm run dev
   </Step>
 </Steps>
 
-## Manual Setup
+## 手动设置
 
-If you prefer not to use the CLI, you can install components manually.
+如果你不想使用 CLI，也可以手动安装组件。
 
-Add the assistant-ui registry to your `components.json` so the shadcn CLI resolves components for your style. Styles whose name starts with `base-` receive Base UI flavored components; all other styles receive the Radix flavored ones. `npx shadcn init` defaults to Base UI styles (for example `base-nova`), so new projects need this style-aware URL for components that compile against that stack.
+将 assistant-ui 注册表添加到你的 `components.json`，这样 shadcn CLI 就能解析适用于你所用样式的组件。名称以 `base-` 开头的样式会获得 Base UI 风格的组件；其他样式则会获得 Radix 风格的组件。`npx shadcn init` 默认使用 Base UI 样式（例如 `base-nova`），因此新项目需要使用此样式感知 URL，以获取针对该技术栈编译的组件。
 
 ```json title="components.json"
 {
@@ -75,21 +75,21 @@ Add the assistant-ui registry to your `components.json` so the shadcn CLI resolv
 }
 ```
 
-Existing Radix projects can keep the plain form `https://r.assistant-ui.com/{name}.json` as a fallback (for example `npx shadcn@latest add https://r.assistant-ui.com/thread.json`).
+现有的 Radix 项目可以保留普通形式 `https://r.assistant-ui.com/{name}.json` 作为后备方案（例如 `npx shadcn@latest add https://r.assistant-ui.com/thread.json`）。
 
 <Steps>
   <Step>
 
-### Add assistant-ui
+### 添加 assistant-ui
 
 <InstallCommand shadcn={["thread", "thread-list"]} manualSetupInstructions />
 
   </Step>
   <Step>
 
-### Setup Backend Endpoint
+### 设置后端端点
 
-Install provider SDK:
+安装提供商 SDK：
 
 <Tabs groupId="provider" items={["OpenAI", "Anthropic", "Azure", "AWS", "Gemini", "GCP", "Groq", "Fireworks", "Cohere", "Ollama", "Chrome AI"]}>
   <Tab>
@@ -127,7 +127,7 @@ Install provider SDK:
   </Tab>
 </Tabs>
 
-Add an API endpoint:
+添加 API 端点：
 
 <Tabs groupId="provider" items={["OpenAI", "Anthropic", "Azure", "AWS", "Gemini", "GCP", "Groq", "Fireworks", "Cohere", "Ollama", "Chrome AI"]}>
 ```ts title="/app/api/chat/route.ts" tab="OpenAI"
@@ -341,7 +341,7 @@ export async function POST(req: Request) {
 
 </Tabs>
 
-Define environment variables:
+定义环境变量：
 
 <Tabs groupId="provider" items={["OpenAI", "Anthropic", "Azure", "AWS", "Gemini", "GCP", "Groq", "Fireworks", "Cohere", "Ollama", "Chrome AI"]}>
 
@@ -396,13 +396,13 @@ COHERE_API_KEY="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 </Tabs>
 
-If you aren't using Next.js, you can also deploy this endpoint to Cloudflare Workers, or any other serverless platform.
+如果你不使用 Next.js，也可以将此端点部署到 Cloudflare Workers 或其他任何无服务器平台。
 
   </Step>
 
   <Step>
 
-### Use it in your app
+### 在应用中使用
 
 <Tabs items={["Thread", "AssistantModal"]}>
 
@@ -457,27 +457,27 @@ export default function MyApp() {
 </Step>
 </Steps>
 
-## What's Next?
+## 接下来做什么？
 
 <Cards>
   <Card
-    title="Pick a Runtime"
-    description="Choose the right runtime for your needs"
+    title="选择运行时"
+    description="选择适合你需求的运行时"
     href="/docs/runtimes/pick-a-runtime"
   />
   <Card
-    title="Generative UI"
-    description="Let the model compose UI from a component vocabulary you ship"
+    title="生成式 UI"
+    description="让模型根据你提供的组件词汇表组合 UI"
     href="/docs/tools/generative-ui"
   />
   <Card
-    title="Add Persistence"
-    description="Save and restore chat conversations"
+    title="添加持久化"
+    description="保存和恢复聊天会话"
     href="/docs/cloud"
   />
   <Card
-    title="Examples"
-    description="Explore full implementations and demos"
+    title="示例"
+    description="探索完整实现和演示"
     href="https://github.com/assistant-ui/assistant-ui/tree/main/examples"
   />
 </Cards>

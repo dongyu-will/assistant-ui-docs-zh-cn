@@ -1,29 +1,29 @@
 ---
 title: Assistant Context API
-description: Read and update assistant state to build custom React components in your chat UI — composable context API for thread, message, and runtime data via assistant-ui.
+description: 读取和更新助手状态，在聊天 UI 中构建自定义 React 组件——通过 assistant-ui 为线程、消息和运行时数据提供可组合的上下文 API。
 platforms: ["react"]
 ---
 
-The Context API provides direct access to assistant-ui's state management system, enabling you to build custom components that integrate seamlessly with the assistant runtime.
+Context API 可直接访问 assistant-ui 的状态管理系统，让你能够构建与助手运行时无缝集成的自定义组件。
 
-## Introduction
+## 简介
 
-The Context API is assistant-ui's powerful state management system that enables you to build custom components with full access to the assistant's state and capabilities. It provides:
+Context API 是 assistant-ui 强大的状态管理系统，让你能够构建可完全访问助手状态和能力的自定义组件。它提供：
 
-- **Reactive state access** - Subscribe to state changes with automatic re-renders
-- **Action execution** - Trigger operations like sending messages or reloading responses
-- **Event listening** - React to user interactions and system events
-- **Scope-aware design** - Components automatically know their context (message, thread, etc.)
+- **响应式状态访问** - 订阅状态变化并自动重新渲染
+- **操作执行** - 触发发送消息或重新加载响应等操作
+- **事件监听** - 响应用户交互和系统事件
+- **感知作用域的设计** - 组件会自动了解自身上下文（消息、线程等）
 
-It's the foundation that powers all assistant-ui primitives. When the built-in components don't meet your needs, you can use the Context API to create custom components with the same capabilities.
+它是所有 assistant-ui 原语的基础。当内置组件无法满足需求时，你可以使用 Context API 创建具备相同能力的自定义组件。
 
-The Context API is backed by the runtime you provide to `<AssistantRuntimeProvider>`. This runtime acts as a unified store that manages all assistant state, handles actions, and dispatches events across your entire application.
+Context API 由你提供给 `<AssistantRuntimeProvider>` 的运行时提供支持。该运行时充当统一存储，管理所有助手状态、处理操作，并在整个应用中分发事件。
 
-## Core Concepts
+## 核心概念
 
-### Scopes and Hierarchy
+### 作用域与层级
 
-assistant-ui organizes state into **scopes** - logical boundaries that provide access to relevant data and actions. Each scope corresponds to a specific part of the chat interface and automatically provides context-aware functionality.
+assistant-ui 将状态组织为 **作用域**（scope）——提供相关数据和操作访问权限的逻辑边界。每个作用域对应聊天界面的特定部分，并自动提供与上下文相关的功能。
 
 ```
 🗂️  ThreadList (threads) - Manages the list of conversations
@@ -45,12 +45,12 @@ assistant-ui organizes state into **scopes** - logical boundaries that provide a
 🧩 ModelContext (modelContext) - Model context and tool registration
 ```
 
-**How scopes work:**
+**作用域的工作方式：**
 
-- Scopes are **automatically determined** by where your component is rendered
-- A button inside a `<ThreadPrimitive.Messages>` automatically gets `message` scope
-- A button inside a `<ComposerPrimitive.Attachments>` automatically gets `attachment` scope
-- Child scopes can access parent scope data (e.g., a `message` component can access `thread` data)
+- 作用域由组件的渲染位置**自动确定**
+- `<ThreadPrimitive.Messages>` 内的按钮会自动获得 `message` 作用域
+- `<ComposerPrimitive.Attachments>` 内的按钮会自动获得 `attachment` 作用域
+- 子作用域可以访问父作用域的数据（例如，`message` 组件可以访问 `thread` 数据）
 
 ```tsx
 // Inside a message component
@@ -63,20 +63,20 @@ function MessageButton() {
 }
 ```
 
-### State Management Model
+### 状态管理模型
 
-The Context API follows a predictable state management pattern:
+Context API 遵循可预测的状态管理模式：
 
-1. **State** is immutable and flows down through scopes
-2. **Actions** are methods that trigger state changes
-3. **Events** notify components of state changes and user interactions
-4. **Subscriptions** let components react to changes
+1. **状态**是不可变的，并通过作用域向下传递
+2. **操作**是用于触发状态变化的方法
+3. **事件**通知组件状态变化和用户交互
+4. **订阅**让组件能够响应变化
 
-## Essential Hooks
+## 核心 Hooks
 
 ### useAuiState
 
-Read state reactively with automatic re-renders when values change. This hook works like Zustand's selector pattern - you provide a function that extracts the specific data you need, and your component only re-renders when that data changes.
+以响应式方式读取状态，并在值变化时自动重新渲染。此 Hook 的工作方式类似 Zustand 的选择器模式：你提供一个提取所需特定数据的函数，组件只会在该数据变化时重新渲染。
 
 ```tsx
 import { useAuiState } from "@assistant-ui/react";
@@ -92,9 +92,9 @@ const attachmentCount = useAuiState(
 const lastMessage = useAuiState((s) => s.thread.messages.at(-1));
 ```
 
-The selector function receives all available scopes for your component's location and should return a specific value. The component re-renders only when that returned value changes.
+选择器函数会接收组件所在位置的所有可用作用域，并应返回一个特定值。组件只会在该返回值变化时重新渲染。
 
-**Common patterns:**
+**常见模式：**
 
 ```tsx
 // Access multiple scopes
@@ -106,7 +106,7 @@ const canSend = useAuiState(
 const messageCount = useAuiState((s) => s.thread.messages.length);
 ```
 
-**Important:** Never create new objects in selectors. Return primitive values or stable references to avoid infinite re-renders.
+**重要：**不要在选择器中创建新对象。请返回原始值或稳定引用，以避免无限重新渲染。
 
 ```tsx
 // ❌ Bad - creates new object every time
@@ -122,7 +122,7 @@ const content = useAuiState((s) => s.message.content);
 
 ### useAui
 
-Access the API instance for imperative operations and actions. Unlike `useAuiState`, this hook does not subscribe to state updates: the client's identity only changes on structural changes (a scope resolving to a different instance), making it well suited for event handlers and imperative operations.
+访问 API 实例，以执行命令式操作和操作。与 `useAuiState` 不同，此 Hook 不会订阅状态更新：客户端的标识只会在结构发生变化时改变（某个作用域解析到不同实例），因此非常适合事件处理器和命令式操作。
 
 ```tsx
 import { useAui } from "@assistant-ui/react";
@@ -159,14 +159,14 @@ function CustomMessageActions() {
 }
 ```
 
-The API object doesn't cause re-renders on state updates. Use it for:
+API 对象不会因状态更新而导致重新渲染。请将其用于：
 
-- **Triggering actions** in event handlers and callbacks
-- **Reading current state** imperatively when you don't need subscriptions
-- **Accessing nested scopes** programmatically
-- **Checking scope availability** before performing actions
+- 在事件处理器和回调中**触发操作**
+- 在不需要订阅时以命令式方式**读取当前状态**
+- 以编程方式**访问嵌套作用域**
+- 执行操作前**检查作用域是否可用**
 
-**Available actions by scope:**
+**各作用域可用的操作：**
 
 ```tsx
 // Thread actions
@@ -248,7 +248,7 @@ aui.tools.getState();
 
 ### useAuiEvent
 
-Subscribe to events with automatic cleanup on unmount. This hook is perfect for reacting to user interactions, system events, or integrating with external analytics.
+订阅事件，并在卸载时自动清理。此 Hook 非常适合响应用户交互、系统事件，或与外部分析服务集成。
 
 ```tsx
 import { useAuiEvent } from "@assistant-ui/react";
@@ -285,34 +285,34 @@ function AnalyticsTracker() {
 }
 ```
 
-**Event name patterns:**
+**事件名称模式：**
 
-- Event names follow `source.action` format in camelCase (e.g., `composer.send`, `thread.runStart`)
-- Use `"*"` as the event name to listen to all events
-- The `scope` parameter controls which instances trigger the event
+- 事件名称遵循 `source.action` 格式，并使用 camelCase（例如 `composer.send`、`thread.runStart`）
+- 使用 `"*"` 作为事件名称，可以监听所有事件
+- `scope` 参数控制哪些实例会触发事件
 
-## Working with Scopes
+## 使用作用域
 
-### Available Scopes
+### 可用作用域
 
-Each scope provides access to specific state and actions:
+每个作用域都提供对特定状态和操作的访问：
 
-- **ThreadList** (`threads`): Collection and management of threads
-- **ThreadListItem** (`threadListItem`): Individual thread in the list
-- **Thread** (`thread`): Conversation with messages
-- **Message** (`message`): Individual message (user or assistant)
-- **Part** (`part`): Content part within a message (text, tool calls, etc.)
-- **ChainOfThought** (`chainOfThought`): Reasoning steps grouped within a message
-- **Composer** (`composer`): Text input for sending or editing messages
-- **Attachment** (`attachment`): File or media attached to a message or composer
-- **Suggestions** (`suggestions`): Collection of follow-up message suggestions
-- **Suggestion** (`suggestion`): Individual follow-up suggestion
-- **Tools** (`tools`): Tool UI components
-- **ModelContext** (`modelContext`): Model context and tool registration
+- **ThreadList**（`threads`）：线程的集合与管理
+- **ThreadListItem**（`threadListItem`）：列表中的单个线程
+- **Thread**（`thread`）：包含消息的会话
+- **Message**（`message`）：单条消息（用户或助手）
+- **Part**（`part`）：消息中的内容部分（文本、工具调用等）
+- **ChainOfThought**（`chainOfThought`）：消息中归组的推理步骤
+- **Composer**（`composer`）：用于发送或编辑消息的文本输入框
+- **Attachment**（`attachment`）：附加到消息或输入框的文件或媒体
+- **Suggestions**（`suggestions`）：后续消息建议的集合
+- **Suggestion**（`suggestion`）：单条后续消息建议
+- **Tools**（`tools`）：工具 UI 组件
+- **ModelContext**（`modelContext`）：模型上下文和工具注册
 
-### Scope Resolution
+### 作用域解析
 
-The Context API automatically resolves the current scope based on component location:
+Context API 会根据组件位置自动解析当前作用域：
 
 ```tsx
 function MessageButton() {
@@ -327,17 +327,17 @@ function MessageButton() {
 }
 ```
 
-### Checking Scope Availability
+### 检查作用域是否可用
 
-Read scopes that may be unavailable through the optional view — they resolve to `undefined` instead of throwing:
+通过可选视图读取可能不可用的作用域——它们会解析为 `undefined`，而不是抛出异常：
 
 ```tsx
 const role = useAuiState((s) => s.optional.message?.role);
 ```
 
-### Accessing Nested Scopes
+### 访问嵌套作用域
 
-Navigate through the scope hierarchy programmatically:
+以编程方式遍历作用域层级：
 
 ```tsx
 const aui = useAui();
@@ -363,9 +363,9 @@ const mainThread = aui.threads.thread("main");
 const message = aui.threads.thread("main").message({ id: "msg_123" });
 ```
 
-## Common Patterns
+## 常见模式
 
-### Conditional Rendering
+### 条件渲染
 
 ```tsx
 function RunIndicator() {
@@ -376,7 +376,7 @@ function RunIndicator() {
 }
 ```
 
-### Custom Action Buttons
+### 自定义操作按钮
 
 ```tsx
 function CopyButton() {
@@ -390,7 +390,7 @@ function CopyButton() {
 }
 ```
 
-### State-Aware Components
+### 感知状态的组件
 
 ```tsx
 function SmartComposer() {
@@ -415,7 +415,7 @@ function SmartComposer() {
 }
 ```
 
-### Event-Driven Updates
+### 事件驱动的更新
 
 ```tsx
 function MessageCounter() {
@@ -429,11 +429,11 @@ function MessageCounter() {
 }
 ```
 
-## Advanced Topics
+## 高级主题
 
-### Resolution Dynamics
+### 解析动态性
 
-Scopes are resolved during render and bound into the client. State updates never change the client's identity; a structural change (for example, switching threads) produces a new client and re-renders consumers through React:
+作用域会在渲染期间解析并绑定到客户端。状态更新不会改变客户端的标识；结构变化（例如切换线程）会生成新的客户端，并通过 React 重新渲染使用它的组件：
 
 ```tsx
 const aui = useAui();
@@ -445,9 +445,9 @@ aui.thread.append({ role: "user", content: "Hello" });
 // Accessors read from a previous render keep pointing at the old thread.
 ```
 
-### Performance Optimization
+### 性能优化
 
-**Selector optimization:**
+**选择器优化：**
 
 ```tsx
 // ❌ Expensive computation in selector (runs on every store update)
@@ -463,7 +463,7 @@ const userCount = useMemo(
 );
 ```
 
-**Minimize re-renders:**
+**减少重新渲染：**
 
 ```tsx
 // ❌ Subscribes to entire thread state
@@ -473,84 +473,84 @@ const thread = useAuiState((s) => s.thread);
 const isRunning = useAuiState((s) => s.thread.isRunning);
 ```
 
-## API Reference
+## API 参考
 
 ### Hooks
 
-| Hook                          | Purpose                    | Returns        |
+| Hook                          | 用途                    | 返回值        |
 | ----------------------------- | -------------------------- | -------------- |
-| `useAuiState(selector)`       | Subscribe to state changes | Selected value |
-| `useAui()`                    | Get API instance           | API object     |
-| `useAuiEvent(event, handler)` | Subscribe to events        | void           |
+| `useAuiState(selector)`       | 订阅状态变化 | 选中的值 |
+| `useAui()`                    | 获取 API 实例           | API 对象     |
+| `useAuiEvent(event, handler)` | 订阅事件        | void           |
 
-### Scope States
+### 作用域状态
 
-| Scope          | Key State Properties                                                                             | Description                                        |
+| 作用域          | 关键状态属性                                                                             | 描述                                        |
 | -------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------- |
-| ThreadList     | `mainThreadId`, `newThreadId`, `threadIds`, `archivedThreadIds`, `isLoading`, `threadItems` (`readonly ThreadListItemState[]`) | Manages all available conversation threads |
-| ThreadListItem | `id`, `title`, `status`, `remoteId`, `externalId`, `custom?: Record<string, unknown>`           | Individual thread metadata and status; `custom` carries arbitrary per-thread metadata set by remote runtimes |
-| Thread         | `isRunning` (may be explicitly set by the runtime rather than derived from last-message status), `isLoading`, `isDisabled`, `isEmpty`, `messages`, `capabilities`, `suggestions` | Active conversation state and message history |
-| Message        | `role`, `content`, `status`, `attachments`, `parts`, `parentId`, `branchNumber`, `branchCount`, `isLast`, `index` | Individual message content and metadata |
-| Part           | `type`, `status`, `text`, `toolCallId`, `toolName`                                              | Content parts within messages (text, tool calls)   |
-| ChainOfThought | `parts`, `collapsed`, `status`                                                                   | Reasoning steps grouped within a message           |
-| Composer       | `text`, `role`, `attachments`, `isEmpty`, `canCancel`, `type`, `isEditing`                      | Text input state for new/edited messages           |
-| Attachment     | `id`, `type`, `name`, `contentType`, `status`                                                   | File attachments metadata and content              |
-| Suggestions    | `suggestions`                                                                                    | Collection of follow-up message suggestions        |
-| Suggestion     | `title`, `label`, `prompt`                                                                       | Individual suggestion with title, label, and prompt |
-| ModelContext   | *(empty — use `register()` / `getToolCallParams()` methods; see [Model Context](/docs/copilots/model-context))* | System instructions, tools, and context providers |
+| ThreadList     | `mainThreadId`、`newThreadId`、`threadIds`、`archivedThreadIds`、`isLoading`、`threadItems`（`readonly ThreadListItemState[]`） | 管理所有可用的会话线程 |
+| ThreadListItem | `id`、`title`、`status`、`remoteId`、`externalId`、`custom?: Record<string, unknown>`           | 单个线程的元数据和状态；`custom` 携带由远程运行时设置的每个线程的任意元数据 |
+| Thread         | `isRunning`（可以由运行时显式设置，而不是从最后一条消息的状态推导）、`isLoading`、`isDisabled`、`isEmpty`、`messages`、`capabilities`、`suggestions` | 活跃会话状态和消息历史 |
+| Message        | `role`、`content`、`status`、`attachments`、`parts`、`parentId`、`branchNumber`、`branchCount`、`isLast`、`index` | 单条消息的内容和元数据 |
+| Part           | `type`、`status`、`text`、`toolCallId`、`toolName`                                              | 消息中的内容部分（文本、工具调用）   |
+| ChainOfThought | `parts`、`collapsed`、`status`                                                                   | 消息中归组的推理步骤           |
+| Composer       | `text`、`role`、`attachments`、`isEmpty`、`canCancel`、`type`、`isEditing`                      | 新消息或已编辑消息的文本输入状态           |
+| Attachment     | `id`、`type`、`name`、`contentType`、`status`                                                   | 文件附件的元数据和内容              |
+| Suggestions    | `suggestions`                                                                                    | 后续消息建议的集合        |
+| Suggestion     | `title`、`label`、`prompt`                                                                       | 包含标题、标签和提示词的单条建议 |
+| ModelContext   | *（为空——请使用 `register()` / `getToolCallParams()` 方法；参见 [模型上下文](/docs/copilots/model-context)）* | 系统指令、工具和上下文提供程序 |
 
-### Available Actions by Scope
+### 各作用域可用的操作
 
-The table below covers the most commonly used actions. For the full catalog, see the [API Reference](/docs/api-reference/overview).
+下表涵盖最常用的操作。完整目录请参见 [API 参考](/docs/api-reference/overview)。
 
-| Scope          | Actions                                                                                                           | Use Cases                                  |
+| 作用域          | 操作                                                                                                           | 使用场景                                  |
 | -------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
-| ThreadList     | `switchToNewThread()`, `switchToThread(id)`, `reload()`, `getLoadThreadsPromise()`, `item(selector)`, `thread("main")`, `getState()` | Thread navigation, creation, and sync |
-| ThreadListItem | `switchTo()`, `rename(title)`, `updateCustom(custom)`, `archive()`, `unarchive()`, `delete()`, `getState()`      | Thread management operations               |
-| Thread         | `append(message)`, `startRun(config)`, `resumeRun(config)`, `cancelRun()`, `reset()`, `export()`, `import(repository)`, `message(selector)`, `composer()`, `getState()` | Message handling and conversation control |
-| Message        | `reload()`, `speak()`, `stopSpeaking()`, `submitFeedback(feedback)`, `switchToBranch(options)`, `getCopyText()`, `part(selector)`, `attachment(selector)`, `composer()`, `setIsCopied(value)`, `setIsHovering(value)`, `getState()` | Message interactions and regeneration |
-| Part           | `addToolResult(result)`, `resumeToolCall(result)`, `getState()`                                                   | Tool call result handling                  |
-| ChainOfThought | `setCollapsed(collapsed)`, `part({ index })`, `getState()`                                                        | Expand/collapse reasoning steps            |
-| Composer       | `send()`, `setText(text)`, `setRole(role)`, `addAttachment(file \| attachment)`, `clearAttachments()` (async), `reset()` (async), `getState()` | Text input and message composition |
-| Attachment     | `remove()`, `getState()`                                                                                          | File management                            |
-| Suggestions    | `suggestion({ index })`, `getState()`                                                                             | Access follow-up suggestions               |
-| Suggestion     | `getState()`                                                                                                      | Read individual suggestion data            |
-| ModelContext   | `register(provider)`, `getState()`                                                                                | Register providers; full details in [Model Context](/docs/copilots/model-context) |
+| ThreadList     | `switchToNewThread()`、`switchToThread(id)`、`reload()`、`getLoadThreadsPromise()`、`item(selector)`、`thread("main")`、`getState()` | 线程导航、创建和同步 |
+| ThreadListItem | `switchTo()`、`rename(title)`、`updateCustom(custom)`、`archive()`、`unarchive()`、`delete()`、`getState()`      | 线程管理操作               |
+| Thread         | `append(message)`、`startRun(config)`、`resumeRun(config)`、`cancelRun()`、`reset()`、`export()`、`import(repository)`、`message(selector)`、`composer()`、`getState()` | 消息处理和会话控制 |
+| Message        | `reload()`、`speak()`、`stopSpeaking()`、`submitFeedback(feedback)`、`switchToBranch(options)`、`getCopyText()`、`part(selector)`、`attachment(selector)`、`composer()`、`setIsCopied(value)`、`setIsHovering(value)`、`getState()` | 消息交互和重新生成 |
+| Part           | `addToolResult(result)`、`resumeToolCall(result)`、`getState()`                                                   | 工具调用结果处理                  |
+| ChainOfThought | `setCollapsed(collapsed)`、`part({ index })`、`getState()`                                                        | 展开/折叠推理步骤            |
+| Composer       | `send()`、`setText(text)`、`setRole(role)`、`addAttachment(file \| attachment)`、`clearAttachments()`（异步）、`reset()`（异步）、`getState()` | 文本输入和消息编辑 |
+| Attachment     | `remove()`、`getState()`                                                                                          | 文件管理                            |
+| Suggestions    | `suggestion({ index })`、`getState()`                                                                             | 访问后续建议               |
+| Suggestion     | `getState()`                                                                                                      | 读取单条建议数据            |
+| ModelContext   | `register(provider)`、`getState()`                                                                                | 注册提供程序；详情请参见 [模型上下文](/docs/copilots/model-context) |
 
-### Events vs State Observation
+### 事件与状态观察
 
-Use `useAuiState` to render the current value of something; use `useAuiEvent` to react to the moment something happens. Both are supported: many events mark a transition you could also observe in state, and subscribing to the event is the intended way to run a side effect at that transition.
+使用 `useAuiState` 渲染某项的当前值；使用 `useAuiEvent` 响应某件事发生的时刻。两者都受支持：许多事件标志着一个也可以通过状态观察到的转换，而订阅事件是针对该转换执行副作用的预期方式。
 
-The rule of thumb:
+经验法则：
 
-1. Rendering a value? → use `useAuiState`.
-2. Are you the caller and want immediate feedback? → catch the rejection / read the return value.
-3. Running a side effect when something happens? → use `useAuiEvent`.
+1. 要渲染某个值？→ 使用 `useAuiState`。
+2. 你是调用方并希望立即获得反馈？→ 捕获拒绝结果 / 读取返回值。
+3. 要在某件事发生时执行副作用？→ 使用 `useAuiEvent`。
 
-#### Available Events
+#### 可用事件
 
-| Event                         | When It Fires                                                                |
+| 事件                         | 触发时机                                                                |
 | ----------------------------- | ---------------------------------------------------------------------------- |
-| `threads.selectionChanged`    | The main thread selection changed. Payload carries `threadId` (newly selected) and `previousThreadId`. Does not fire for the initially selected thread on mount. |
-| `thread.runStart` / `runEnd`  | A run started / ended on the thread (also visible as `isRunning` flipping)   |
-| `thread.initialize`           | The thread transitioned from new to initialized, before the first message is added |
-| `thread.modelContextUpdate`   | The model context provider notified a change. The model context lives in a provider, not in thread state, so this event has no state-derivable equivalent. |
-| `composer.send`               | The user sent the composer contents; `messageId` is set for edit-composer sends |
-| `composer.attachmentAdd`      | An attachment was added to the composer                                      |
-| `composer.attachmentAddError` | An `addAttachment()` call failed. Payload `reason` discriminates `no-adapter` / `not-accepted` / `adapter-error`. The event additionally surfaces a human-readable `message` (and the underlying `Error` instance via the low-level `runtime.unstable_on("attachmentAddError")` API; `useAuiEvent` payloads omit it because raw `Error` objects are not store-serializable). |
+| `threads.selectionChanged`    | 主线程选择发生变化。负载包含 `threadId`（新选中的线程）和 `previousThreadId`。初始挂载时选中的线程不会触发此事件。 |
+| `thread.runStart` / `runEnd`  | 线程上的运行开始/结束（也可通过 `isRunning` 翻转观察到）   |
+| `thread.initialize`           | 线程从新建状态转换为已初始化状态，在添加第一条消息之前 |
+| `thread.modelContextUpdate`   | 模型上下文提供程序通知发生变化。模型上下文存在于提供程序中，而不在线程状态中，因此此事件没有可从状态推导出的等价形式。 |
+| `composer.send`               | 用户发送了输入框内容；对于编辑输入框的发送，`messageId` 会被设置 |
+| `composer.attachmentAdd`      | 有附件添加到输入框                                      |
+| `composer.attachmentAddError` | 某个 `addAttachment()` 调用失败。负载中的 `reason` 用于区分 `no-adapter` / `not-accepted` / `adapter-error`。事件还会提供便于人类阅读的 `message`（以及通过底层 `runtime.unstable_on("attachmentAddError")` API 提供底层的 `Error` 实例；`useAuiEvent` 负载会省略该实例，因为原始 `Error` 对象无法序列化到存储中）。 |
 
-#### Deprecated Events
+#### 已弃用的事件
 
-| Deprecated Event              | Use Instead                                                                  |
+| 已弃用的事件              | 替代方案                                                                  |
 | ----------------------------- | ---------------------------------------------------------------------------- |
-| `threadListItem.switchedTo`   | `threads.selectionChanged` — its `threadId` is the newly selected thread     |
-| `threadListItem.switchedAway` | `threads.selectionChanged` — its `previousThreadId` is the thread switched away from |
+| `threadListItem.switchedTo`   | `threads.selectionChanged` — 其 `threadId` 是新选中的线程     |
+| `threadListItem.switchedAway` | `threads.selectionChanged` — 其 `previousThreadId` 是切换离开的线程 |
 
-## Troubleshooting
+## 故障排除
 
-### Common Errors
+### 常见错误
 
-**"Cannot access [scope] outside of [scope] context"**
+**“Cannot access [scope] outside of [scope] context”**
 
 ```tsx
 // ❌ This will throw if not inside a message component
@@ -560,7 +560,7 @@ const role = useAuiState((s) => s.message.role);
 const role = useAuiState((s) => s.optional.message?.role ?? "none");
 ```
 
-**"Maximum update depth exceeded" / Infinite re-renders**
+**“Maximum update depth exceeded” / 无限重新渲染**
 
 ```tsx
 // ❌ Creating new objects in selectors causes infinite re-renders
@@ -574,7 +574,7 @@ const role = useAuiState((s) => s.message.role);
 const content = useAuiState((s) => s.message.content);
 ```
 
-**"Scope resolution failed" / Stale scope references**
+**“Scope resolution failed” / 作用域引用过期**
 
 ```tsx
 // ❌ Storing scope references can lead to stale data
@@ -595,7 +595,7 @@ useEffect(() => {
 }, [aui]);
 ```
 
-## Quick Reference
+## 快速参考
 
 ```tsx
 // Read state

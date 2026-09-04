@@ -1,20 +1,20 @@
 ---
-title: "Elicitation form"
-description: "A server pausing mid-tool-call to ask you for the fields it still needs."
+title: "征询表单"
+description: "服务器在工具调用进行到一半时暂停，以询问仍然需要的字段。"
 ---
 
-An elicitation form is what a connected server shows when it needs structured input before it can finish: a message, one control per requested field, and a Decline/Send pair that settles into a confirmation once answered. With a runtime this comes from an MCP server's live elicitation request; standalone you supply the fields and state directly.
+当连接的服务器需要结构化输入才能完成操作时，就会显示征询表单：一条消息、每个请求字段对应一个控件，以及一对在回答后变为确认状态的“拒绝/发送”按钮。在运行时中，这来自 MCP 服务器实时发起的征询请求；单独使用时，则由你直接提供字段和状态。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-MCP form elicitation is unstyled primitives, not a toolkit renderer: `@assistant-ui/react-mcp` exposes `McpElicitationPrimitive`, and you build the same look this element has directly from its parts.
+MCP 表单征询使用的是无样式原语，而不是工具包渲染器：`@assistant-ui/react-mcp` 暴露了 `McpElicitationPrimitive`，你可以直接使用其各个部分，构建与此元素相同的外观。
 
 <Steps>
   <Step>
 
-### Compose the form from `McpElicitationPrimitive`
+### 使用 `McpElicitationPrimitive` 组合表单
 
 ```tsx title="components/assistant-ui/elements/mcp-elicitation-form.tsx"
 "use client";
@@ -95,9 +95,9 @@ export function McpElicitationForm({ serverName }: { serverName: string }) {
   </Step>
   <Step>
 
-### Mount it inside a connected server
+### 将其挂载到连接的服务器中
 
-`MCPElicitation` carries no server id of its own; the request is only ever reached through the `mcpServer` scope you're already inside when you list a connected server. Render the form in that same scope, for example beside each row of a server list:
+`MCPElicitation` 自身不携带服务器 ID；只有在列出连接的服务器时，处于已有的 `mcpServer` 作用域中，才能访问该请求。在同一作用域中渲染表单，例如将其放在服务器列表的每一行旁边：
 
 ```tsx
 {servers.map((server) => (
@@ -105,7 +105,7 @@ export function McpElicitationForm({ serverName }: { serverName: string }) {
 ))}
 ```
 
-See [User-managed MCP servers](/docs/tools/user-managed-mcp) for connecting servers and enabling their `elicitation` capability.
+有关连接服务器并启用其 `elicitation` 能力，请参阅[用户管理的 MCP 服务器](/docs/tools/user-managed-mcp)。
 
   </Step>
 </Steps>
@@ -114,12 +114,12 @@ See [User-managed MCP servers](/docs/tools/user-managed-mcp) for connecting serv
 
 <StandaloneMode>
 
-Standalone, the element is fully controlled: you own the field list, the values inside it, and which of the two settled states it shows.
+单独使用时，该元素完全受控：字段列表、其中的值，以及它显示两个已结束状态中的哪一个，都由你管理。
 
 <Steps>
   <Step>
 
-### Hold the fields and state
+### 保存字段和状态
 
 ```tsx title="app/publish-request.tsx"
 "use client";
@@ -155,9 +155,9 @@ export function PublishRequest() {
   </Step>
   <Step>
 
-### Map a field's kind from your own schema
+### 从自有 schema 映射字段类型
 
-If your fields come from a JSON-Schema-shaped source rather than being hand-authored, derive `kind` the same way the runtime lane derives it from `requestedSchema`:
+如果字段来自类似 JSON Schema 的数据源，而不是手动编写，请按照运行时流程从 `requestedSchema` 派生字段类型 `kind`：
 
 ```tsx
 function toElicitationField(
@@ -176,7 +176,7 @@ function toElicitationField(
 
 </StandaloneMode>
 
-## Anatomy
+## 构成
 
 ```tsx
 <div data-slot="elicitation-form">
@@ -187,23 +187,23 @@ function toElicitationField(
 </div>
 ```
 
-`state` fully replaces the footer rather than disabling it: once it leaves `"request"`, the Decline and Send controls are gone, not just inactive. A `"choice"` field renders every option in `options` as a pill, highlighting whichever one equals `value`, so the element trusts you to keep `value` one of the listed options. A `"toggle"` field reads truthiness from the literal string `"true"`, not from a boolean.
+`state` 会完全替换页脚，而不是将其禁用：一旦离开 `"request"` 状态，“拒绝”和“发送”控件就会消失，而不仅仅是变为不可用。`"choice"` 字段会将 `options` 中的每个选项渲染为一个标签，并突出显示与 `value` 相等的选项，因此该元素要求你确保 `value` 是所列选项之一。`"toggle"` 字段会从字面字符串 `"true"` 读取真假值，而不是从布尔值读取。
 
-## Examples
+## 示例
 
-### Restyle the form
+### 重新设置表单样式
 
-Both lanes take `className` on the root. The panel surface, the field labels, and the Send button read from the shared `paper`, `mono`, and `inkButton` tokens in `surfaces.tsx`.
+两种流程都会在根元素上接收 `className`。面板表面、字段标签和“发送”按钮会读取 `surfaces.tsx` 中共享的 `paper`、`mono` 和 `inkButton` 设计令牌。
 
 ```tsx
 <ElicitationForm className="max-w-none" /* ... */ />
 ```
 
-### Marking required fields
+### 标记必填字段
 
 <RuntimeMode>
 
-`requestedSchema.required` is a plain JSON Schema array; check membership per field to add the same marker the standalone element uses:
+`requestedSchema.required` 是一个普通的 JSON Schema 数组；对每个字段检查其成员关系，即可添加与单独使用的元素相同的标记：
 
 ```tsx
 const required = new Set(
@@ -222,11 +222,11 @@ const required = new Set(
 
 </StandaloneMode>
 
-### Declining vs canceling
+### 拒绝与取消
 
 <RuntimeMode>
 
-The protocol has three terminal actions, not two: `McpElicitationPrimitive.Cancel` submits `{ action: "cancel" }` alongside Accept's `"accept"` and Decline's `"decline"`. Add it as a third control when your host distinguishes "explicitly declined" from "dismissed without answering":
+该协议有三个终止操作，而不是两个：`McpElicitationPrimitive.Cancel` 会提交 `{ action: "cancel" }`，以及 Accept 的 `"accept"` 和 Decline 的 `"decline"`。当宿主需要区分“明确拒绝”和“未作答即关闭”时，将其作为第三个控件添加：
 
 ```tsx
 <McpElicitationPrimitive.Cancel className="text-foreground/45 h-8 rounded-full px-3.5 text-xs">
@@ -238,7 +238,7 @@ The protocol has three terminal actions, not two: `McpElicitationPrimitive.Cance
 
 <StandaloneMode>
 
-The standalone element only models two settled states. Route both a decline and a dismissal to `onDecline` if your app doesn't need the distinction:
+单独使用的元素只对两种已结束状态建模。如果应用不需要区分拒绝和关闭，请将两者都路由到 `onDecline`：
 
 ```tsx
 <ElicitationForm onDecline={() => setState("declined")} /* ... */ />
@@ -246,31 +246,31 @@ The standalone element only models two settled states. Route both a decline and 
 
 </StandaloneMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### McpElicitationPrimitive
 
-| Part | Renders | Notes |
+| 部件 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `Items` | fragment | Reads `state.mcpServer.pendingElicitations`; renders nothing while the list is empty. One `Root` subtree per pending request. |
-| `Root` | `div` | Carries `data-elicitation-id`. |
-| `Message` | `span` | Renders `elicitation.message` unless you pass children. |
-| `Error` | `div` | Renders the current validation or server error message; renders nothing when there is none. |
-| `Fields` | render prop | Calls its children once per property in `requestedSchema.properties`, each already wrapped in that field's own `{ name, schema, value, setValue }`. |
-| `Accept` | `button` | Disabled while a required field is missing or an entered value is invalid. Submits `{ action: "accept", content }`. |
-| `Decline` | `button` | Submits `{ action: "decline" }`. |
-| `Cancel` | `button` | Submits `{ action: "cancel" }`. Has no equivalent in the standalone element's two-state model. |
+| `Items` | fragment | 读取 `state.mcpServer.pendingElicitations`；列表为空时不渲染任何内容。每个待处理请求对应一个 `Root` 子树。 |
+| `Root` | `div` | 携带 `data-elicitation-id`。 |
+| `Message` | `span` | 除非传入 children，否则渲染 `elicitation.message`。 |
+| `Error` | `div` | 渲染当前的验证错误或服务器错误消息；没有错误时不渲染任何内容。 |
+| `Fields` | render prop | 对 `requestedSchema.properties` 中的每个属性调用一次 children，并且每个 children 都已包装在该字段自己的 `{ name, schema, value, setValue }` 中。 |
+| `Accept` | `button` | 必填字段缺失或输入值无效时处于禁用状态。提交 `{ action: "accept", content }`。 |
+| `Decline` | `button` | 提交 `{ action: "decline" }`。 |
+| `Cancel` | `button` | 提交 `{ action: "cancel" }`。单独使用的元素的双状态模型中没有对应项。 |
 
-### MCP server state
+### MCP 服务器状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.mcpServer.pendingElicitations` | `readonly MCPElicitation[]` | Every request currently waiting on this server; read by `Items`. |
-| `aui.mcpServer.answerElicitation(id, response)` | `(id: string, response: MCPElicitationResponse) => readonly { property: string; message: string }[] \| undefined` | What `Accept`, `Decline`, and `Cancel` call; returns validation errors instead of submitting when `response.action === "accept"` and a value is invalid. |
+| `s.mcpServer.pendingElicitations` | `readonly MCPElicitation[]` | 当前在此服务器上等待的所有请求；由 `Items` 读取。 |
+| `aui.mcpServer.answerElicitation(id, response)` | `(id: string, response: MCPElicitationResponse) => readonly { property: string; message: string }[] \| undefined` | `Accept`、`Decline` 和 `Cancel` 调用的内容；当 `response.action === "accept"` 且值无效时，返回验证错误而不是提交。 |
 
-Requires `@assistant-ui/react-mcp` and a connected server whose `elicitation` capability has not been set to `false`. See [User-managed MCP servers](/docs/tools/user-managed-mcp).
+需要 `@assistant-ui/react-mcp`，并且连接的服务器不能将其 `elicitation` 能力设置为 `false`。请参阅[用户管理的 MCP 服务器](/docs/tools/user-managed-mcp)。
 
 </RuntimeMode>
 
@@ -278,16 +278,16 @@ Requires `@assistant-ui/react-mcp` and a connected server whose `elicitation` ca
 
 ### ElicitationForm
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `server` | `string` | required | Server name shown in the header. |
-| `message` | `string` | required | The request text. |
-| `fields` | `readonly ElicitationField[]` | required | The requested fields, in order. |
-| `state` | `ElicitationState` | required | `"request"` shows the form; `"accepted"` or `"declined"` replace the footer with a settled message. |
-| `onAccept` | `() => void` | | Called when Send is pressed. |
-| `onDecline` | `() => void` | | Called when Decline is pressed. |
-| `className` | `string` | | Merged onto the root. |
+| `server` | `string` | 必填 | 标题栏中显示的服务器名称。 |
+| `message` | `string` | 必填 | 请求文本。 |
+| `fields` | `readonly ElicitationField[]` | 必填 | 按顺序排列的请求字段。 |
+| `state` | `ElicitationState` | 必填 | `"request"` 显示表单；`"accepted"` 或 `"declined"` 会将页脚替换为已结束状态消息。 |
+| `onAccept` | `() => void` | | 点击“发送”时调用。 |
+| `onDecline` | `() => void` | | 点击“拒绝”时调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-`ElicitationField` is `{ name: string; label: string; value: string; kind: "text" | "choice" | "toggle"; options?: readonly string[]; required?: boolean }`, and `ElicitationState` is `"request" | "accepted" | "declined"`. All other `div` props are forwarded to the root.
+`ElicitationField` 是 `{ name: string; label: string; value: string; kind: "text" | "choice" | "toggle"; options?: readonly string[]; required?: boolean }`，`ElicitationState` 是 `"request" | "accepted" | "declined"`。所有其他 `div` props 都会转发到根元素。
 
 </StandaloneMode>

@@ -1,18 +1,18 @@
 ---
-title: "Reasoning effort"
-description: "How hard to think, and how much of that budget the run actually spent."
+title: "推理力度"
+description: "思考的难度，以及运行实际消耗了多少该预算。"
 ---
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-`reasoningEffort` is a real field on assistant-ui's model context, the same mechanism the composer's own model picker uses to pass an effort setting through to the model. Selecting a level and reading how much it cost are two separate concerns: the first is a registration, the second is usage data from the adapter.
+`reasoningEffort` 是 assistant-ui 模型上下文中的一个真实字段，其机制与输入框组件自身的模型选择器用来向模型传递力度设置的机制相同。选择一个级别和读取其消耗量是两个独立的问题：前者是注册，后者是适配器提供的使用数据。
 
 <Steps>
   <Step>
 
-### Register the selected effort
+### 注册所选的推理力度
 
 ```tsx title="components/assistant-ui/elements/reasoning-effort.tsx"
 "use client";
@@ -41,12 +41,12 @@ function useRegisteredEffort() {
 }
 ```
 
-`budget` has no runtime counterpart: it is a fact about your own effort tiers, so it stays app defined either way. Registering through `modelContext` only affects the next run; it does not retroactively change one already in flight.
+`budget` 没有对应的运行时机制：它描述的是你自己的力度级别，因此无论如何都由应用定义。通过 `modelContext` 注册只会影响下一次运行，不会追溯性地修改已经进行中的运行。
 
   </Step>
   <Step>
 
-### Show what the run spent
+### 显示运行的实际消耗
 
 ```tsx
 import { useThreadTokenUsage } from "@assistant-ui/ai-sdk";
@@ -66,7 +66,7 @@ function AssistantEffort() {
 }
 ```
 
-`useThreadTokenUsage` is exported by `@assistant-ui/ai-sdk`; with a different adapter, `reasoningTokens` comes from whatever shape that provider's usage data takes.
+`useThreadTokenUsage` 由 `@assistant-ui/ai-sdk` 导出；如果使用其他适配器，`reasoningTokens` 则取决于该提供方使用数据的具体结构。
 
   </Step>
 </Steps>
@@ -75,12 +75,12 @@ function AssistantEffort() {
 
 <StandaloneMode>
 
-Standalone, `levels`, `selectedKey`, and `spent` are all plain values you own; the element only renders them and reports clicks.
+单独使用时，`levels`、`selectedKey` 和 `spent` 都只是由你管理的普通值；该元素只负责渲染它们并报告点击事件。
 
 <Steps>
   <Step>
 
-### Hold the selected level
+### 保存所选级别
 
 ```tsx title="app/effort.tsx"
 "use client";
@@ -104,7 +104,7 @@ export function Effort() {
   </Step>
   <Step>
 
-### Track spend yourself
+### 自行跟踪消耗
 
 ```tsx
 const [spent, setSpent] = useState(0);
@@ -116,7 +116,7 @@ const [spent, setSpent] = useState(0);
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="reasoning-effort">
@@ -126,32 +126,32 @@ const [spent, setSpent] = useState(0);
 </div>
 ```
 
-Levels render in the order given; there is no reordering or grouping. If `selectedKey` does not match any `level.key`, the budget resolves to 0 and the progress fill stays collapsed at 0 percent rather than erroring. The fill's width is `spent` as a share of the matched level's `budget`, clamped between 0 and 100 percent, so an over-large `spent` value does not overflow the bar.
+级别按照给定的顺序渲染，不会重新排序或分组。如果 `selectedKey` 与任何 `level.key` 都不匹配，预算将解析为 0，进度填充会保持折叠在 0%，而不会抛出错误。填充宽度是 `spent`，表示匹配级别的 `budget` 的占比，并限制在 0% 到 100% 之间，因此过大的 `spent` 值不会溢出进度条。
 
-## Examples
+## 示例
 
-### Reading the model's own effort field
+### 读取模型自身的力度字段
 
-The composer's model picker (`/elements/model-selector`) writes to the same `config.reasoningEffort` field through its own effort control. Mounting both at once registers two providers for the same field, so keep only one of them wired to the model context in a given app; assistant-ui merges registered model contexts by priority, not by which component happens to render.
+输入框组件的模型选择器（`/elements/model-selector`）通过自身的力度控件写入同一个 `config.reasoningEffort` 字段。同时挂载两者会为同一字段注册两个提供方，因此在同一个应用中，应确保只有其中一个连接到模型上下文；assistant-ui 会根据优先级合并已注册的模型上下文，而不是根据实际渲染的组件进行选择。
 
-### Restyle the control
+### 重新设置控件样式
 
-Both lanes take `className` on the root, which starts as `flex w-full max-w-sm flex-col gap-2.5`. The segmented control's track uses the shared `field` surface and the counts use the `mono` token, both from `surfaces.tsx`.
+两个通道的根元素都接收 `className`，其初始值为 `flex w-full max-w-sm flex-col gap-2.5`。分段控件的轨道使用共享的 `field` 表面，计数使用 `mono` 令牌，两者都来自 `surfaces.tsx`。
 
 ```tsx
 <ReasoningEffort className="max-w-none" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Model context and usage
+### 模型上下文和使用情况
 
-| Selector / call | Type | Description |
+| 选择器 / 调用 | 类型 | 描述 |
 |------|------|-------------|
-| `aui.modelContext.register(provider)` | `(provider: ModelContextProvider) => Unsubscribe` | Registers `config.reasoningEffort` for the next run; the returned function unregisters it. |
-| `useThreadTokenUsage()` (`@assistant-ui/ai-sdk`) | `ThreadTokenUsage \| undefined` | `reasoningTokens` is tokens spent on reasoning for the latest message with usage data. |
+| `aui.modelContext.register(provider)` | `(provider: ModelContextProvider) => Unsubscribe` | 为下一次运行注册 `config.reasoningEffort`；返回的函数会取消注册。 |
+| `useThreadTokenUsage()`（`@assistant-ui/ai-sdk`） | `ThreadTokenUsage \| undefined` | `reasoningTokens` 是包含使用数据的最新消息在推理上消耗的令牌数。 |
 
 </RuntimeMode>
 
@@ -159,14 +159,14 @@ Both lanes take `className` on the root, which starts as `flex w-full max-w-sm f
 
 ### ReasoningEffort
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `levels` | `readonly EffortLevel[]` | required | `{ key: string; label: string; budget: number }[]`, rendered in order. |
-| `selectedKey` | `string` | required | The active level's `key`. An unmatched key resolves the budget to 0. |
-| `spent` | `number` | required | Progress fill value, read against the selected level's `budget`. |
-| `onSelect` | `(key: string) => void` | required | Called with a level's `key` when its button is pressed. |
-| `className` | `string` | | Merged onto the root. |
+| `levels` | `readonly EffortLevel[]` | 必填 | `{ key: string; label: string; budget: number }[]`，按照给定顺序渲染。 |
+| `selectedKey` | `string` | 必填 | 活动级别的 `key`。不匹配的键会将预算解析为 0。 |
+| `spent` | `number` | 必填 | 进度填充值，根据所选级别的 `budget` 读取。 |
+| `onSelect` | `(key: string) => void` | 必填 | 按钮按下时，使用某个级别的 `key` 进行调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props except `children`, `levels`, `selectedKey`, `spent`, and `onSelect` are forwarded to the root.
+除 `children`、`levels`、`selectedKey`、`spent` 和 `onSelect` 外，所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

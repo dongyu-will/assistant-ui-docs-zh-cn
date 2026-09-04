@@ -1,35 +1,35 @@
 ---
-title: User Authorization
-description: Configure workspace auth tokens and integrate with auth providers.
+title: 用户授权
+description: 配置工作区身份验证令牌并与身份验证提供商集成。
 ---
 
-The Assistant Cloud API is accessed directly from your frontend. This eliminates the need for a backend server for most operations—except for authorizing your users.
+Assistant Cloud API 直接从前端访问。除授权用户外，大多数操作都不再需要后端服务器。
 
-This guide explains how to set up user authentication and authorization for Assistant Cloud.
+本指南介绍如何为 Assistant Cloud 设置用户身份验证和授权。
 
-## Workspaces
+## 工作区
 
-Authorization is granted to a **workspace**. A workspace is a scope that contains threads and messages. Most commonly:
+授权授予给一个**工作区**。工作区是包含线程和消息的作用域。常见用法包括：
 
-- Use a `userId` as the workspace for personal chats
-- Use `orgId + userId` for organization-scoped conversations
-- Use `projectId + userId` for project-based apps
+- 使用 `userId` 作为个人聊天的工作区
+- 使用 `orgId + userId` 处理组织范围内的对话
+- 使用 `projectId + userId` 构建基于项目的应用
 
-## Authentication Approaches
+## 身份验证方式
 
-Choose the approach that fits your app:
+选择适合你的应用的方式：
 
-| Approach | Best For | Complexity |
+| 方式 | 适用场景 | 复杂度 |
 |----------|----------|------------|
-| **Direct auth provider integration** | Supported providers (Clerk, Auth0, Supabase, etc.) | Low |
-| **Backend server** | Custom auth, multi-user workspaces, or self-hosted solutions | Medium |
-| **Anonymous mode** | Demos, prototypes, or testing | None |
+| **直接集成身份验证提供商** | 受支持的提供商（Clerk、Auth0、Supabase 等） | 低 |
+| **后端服务器** | 自定义身份验证、多用户工作区或自托管解决方案 | 中 |
+| **匿名模式** | 演示、原型或测试 | 无 |
 
-### Direct Integration with Auth Provider
+### 直接集成身份验证提供商
 
-In the Assistant Cloud dashboard, go to **Auth Integrations** and add your provider. This sets up automatic workspace assignment based on the user's ID from your auth provider.
+在 Assistant Cloud 控制台中，前往 **Auth Integrations** 并添加你的提供商。这会根据身份验证提供商返回的用户 ID 自动分配工作区。
 
-Then pass an `authToken` function that returns your provider's ID token:
+然后传入一个 `authToken` 函数，使其返回提供商的 ID 令牌：
 
 ```ts
 import { AssistantCloud } from "@assistant-ui/react";
@@ -40,16 +40,16 @@ const cloud = new AssistantCloud({
 });
 ```
 
-### Backend Server Approach
+### 后端服务器方式
 
-Use this when you need custom workspace logic or unsupported auth providers.
+当你需要自定义工作区逻辑或使用不受支持的身份验证提供商时，可以采用此方式。
 
 <Steps>
 <Step>
 
-#### Create an API Key
+#### 创建 API 密钥
 
-In the Assistant Cloud dashboard, go to **API Keys** and create a key. Add it to your environment:
+在 Assistant Cloud 控制台中，前往 **API Keys** 并创建密钥。将其添加到环境中：
 
 ```bash
 ASSISTANT_API_KEY=your_key_here
@@ -58,7 +58,7 @@ ASSISTANT_API_KEY=your_key_here
 </Step>
 <Step>
 
-#### Create the Token Endpoint
+#### 创建令牌端点
 
 ```ts title="/app/api/assistant-ui-token/route.ts"
 import { AssistantCloud } from "assistant-cloud";
@@ -86,7 +86,7 @@ export const POST = async (req: Request) => {
 </Step>
 <Step>
 
-#### Use the Token on the Frontend
+#### 在前端使用令牌
 
 ```tsx title="app/chat/page.tsx"
 const cloud = new AssistantCloud({
@@ -103,9 +103,9 @@ const runtime = useChatRuntime({
 </Step>
 </Steps>
 
-### Anonymous Mode (No Auth)
+### 匿名模式（无身份验证）
 
-For demos or testing, use anonymous mode to create browser-session-based users:
+对于演示或测试，可以使用匿名模式创建基于浏览器会话的用户：
 
 ```tsx
 import { AssistantCloud } from "@assistant-ui/react";
@@ -117,19 +117,19 @@ const cloud = new AssistantCloud({
 ```
 
 <Callout type="warning">
-  Anonymous mode creates a new user for each browser session. Threads won't persist across sessions or devices. Use this only for prototyping.
+  匿名模式会为每个浏览器会话创建一个新用户。线程不会在不同会话或设备之间保留。仅将此模式用于原型开发。
 </Callout>
 
-## Auth Provider Examples
+## 身份验证提供商示例
 
 ### Clerk
 
 <Steps>
 <Step>
 
-#### Configure the JWT Template
+#### 配置 JWT 模板
 
-In the Clerk dashboard, go to **Configure → JWT Templates**. Create a new blank template named "assistant-ui":
+在 Clerk 控制台中，前往 **Configure → JWT Templates**。创建一个名为“assistant-ui”的新空白模板：
 
 ```json
 {
@@ -138,27 +138,27 @@ In the Clerk dashboard, go to **Configure → JWT Templates**. Create a new blan
 ```
 
 <Callout type="info">
-  The `aud` claim ensures the JWT is only valid for Assistant Cloud.
+  `aud` 声明可确保 JWT 仅对 Assistant Cloud 有效。
 </Callout>
 
-Note the **Issuer** and **JWKS Endpoint** values.
+记下 **Issuer** 和 **JWKS Endpoint** 的值。
 
 </Step>
 <Step>
 
-#### Add Auth Integration in Assistant Cloud
+#### 在 Assistant Cloud 中添加身份验证集成
 
-In the Assistant Cloud dashboard, go to **Auth Rules** and create a new rule:
+在 Assistant Cloud 控制台中，前往 **Auth Rules** 并创建新规则：
 
-- **Provider**: Clerk
-- **Issuer**: Paste from Clerk JWT Template
-- **JWKS Endpoint**: Paste from Clerk JWT Template
-- **Audience**: `assistant-ui`
+- **Provider**：Clerk
+- **Issuer**：从 Clerk JWT Template 中粘贴
+- **JWKS Endpoint**：从 Clerk JWT Template 中粘贴
+- **Audience**：`assistant-ui`
 
 </Step>
 <Step>
 
-#### Use in Your App
+#### 在应用中使用
 
 ```tsx
 import { useAuth } from "@clerk/nextjs";
@@ -205,7 +205,7 @@ function Chat() {
 }
 ```
 
-Configure the Auth0 integration in the Assistant Cloud dashboard with your Auth0 domain and audience.
+在 Assistant Cloud 控制台中，使用你的 Auth0 域名和 audience 配置 Auth0 集成。
 
 ### Supabase Auth
 

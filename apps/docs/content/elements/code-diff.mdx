@@ -1,18 +1,18 @@
 ---
-title: "Code diff"
-description: "A unified diff with tinted additions and removals, sized for chat."
+title: "代码差异"
+description: "适用于聊天的统一差异视图，为新增和删除内容添加色调。"
 ---
 
-A code diff shows one file's changed lines: a filename and its net additions and deletions up top, then every context, added, and removed line beneath, each tinted and gutter-marked by kind. With a runtime the filename and lines come from an edit tool's result; standalone you supply the same shape directly.
+代码差异显示一个文件中发生变化的行：顶部显示文件名以及新增和删除的净数量，下面依次显示所有上下文行、新增行和删除行，并根据类型为每行添加色调和 gutter 标记。在运行时中，文件名和行内容来自编辑工具的结果；独立使用时，则直接提供相同的数据结构。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
 <Steps>
   <Step>
 
-### Render the tool call
+### 渲染工具调用
 
 ```tsx title="components/assistant-ui/elements/edit-file-tool-ui.tsx"
 "use client";
@@ -43,7 +43,7 @@ export const EditFileToolUI: ToolCallMessagePartComponent<
   </Step>
   <Step>
 
-### Register the tool
+### 注册工具
 
 ```tsx title="app/toolkit.ts"
 import { defineToolkit } from "@assistant-ui/react";
@@ -73,7 +73,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-The diff renders once the call completes; while it runs, `result` is `undefined` and the renderer above returns `null`. See [Tool UI](/docs/tools/tool-ui) for a loading state in between.
+工具调用完成后，差异视图会进行渲染；运行期间，`result` 为 `undefined`，上面的渲染器则返回 `null`。有关中间状态下的加载状态，请参阅 [工具 UI](/docs/tools/tool-ui)。
 
   </Step>
 </Steps>
@@ -85,7 +85,7 @@ The diff renders once the call completes; while it runs, `result` is `undefined`
 <Steps>
   <Step>
 
-### Hold the diff
+### 保持差异视图
 
 ```tsx title="app/patch.tsx"
 "use client";
@@ -114,9 +114,9 @@ export function Patch() {
   </Step>
   <Step>
 
-### Replay on a new diff
+### 在新的差异视图上重播
 
-Bump `cycle` alongside a new `lines` array to restart the stagger animation even when the component stays mounted:
+同时递增 `cycle` 并提供新的 `lines` 数组，即使组件仍处于挂载状态，也可以重新启动交错动画：
 
 ```tsx
 async function reEdit(path: string) {
@@ -132,7 +132,7 @@ async function reEdit(path: string) {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="code-diff">
@@ -141,21 +141,21 @@ async function reEdit(path: string) {
 </div>
 ```
 
-The additions and deletions counts always render, even at zero; there is no threshold that hides a `+0` or `−0`. Lines keep their own whitespace and scroll horizontally inside their own container rather than wrapping, so a long line never pushes the card wider than its `max-w-md`. Each line's entrance is staggered by `60ms` per row and keyed on `cycle`, so bumping `cycle` replays the stagger for identical line text.
+新增和删除数量始终会渲染，即使数量为零；不存在会隐藏 `+0` 或 `−0` 的阈值。每行会保留自身的空白，并在自己的容器中水平滚动，而不是换行，因此长行不会使卡片宽度超过其 `max-w-md`。每行的进入动画按每行 `60ms` 的间隔交错显示，并以 `cycle` 作为 key，因此递增 `cycle` 会为相同的行文本重新播放交错动画。
 
-## Examples
+## 示例
 
-### Restyle the diff
+### 重新设置差异视图的样式
 
-Both lanes take `className` on the root. The card surface comes from the shared `paper` token and the scroll region from `codeScroll`/`codeSurface`, both in `surfaces.tsx`.
+两条轨道都会在根元素上接收 `className`。卡片表面使用共享的 `paper` token，滚动区域使用 `codeScroll`/`codeSurface`；二者都位于 `surfaces.tsx` 中。
 
 ```tsx
 <CodeDiff className="max-w-none" /* ... */ />
 ```
 
-### No lines changed
+### 没有行发生变化
 
-An empty `lines` array is a valid diff: the header still shows the filename and counts, and the body renders as an empty scroll region.
+空的 `lines` 数组是有效的差异视图：标题仍会显示文件名和数量，正文则渲染为空的滚动区域。
 
 ```tsx
 <CodeDiff filename="README.md" additions={0} deletions={0} lines={[]} cycle={0} />
@@ -163,9 +163,9 @@ An empty `lines` array is a valid diff: the header still shows the filename and 
 
 <StandaloneMode>
 
-### Replaying the entrance animation
+### 重播进入动画
 
-Pair a `cycle` counter with whatever loads the next diff so the same mounted card can show a fresh patch without unmounting:
+将 `cycle` 计数器与负责加载下一个差异视图的逻辑配对，这样同一个已挂载的卡片就能在不卸载的情况下显示新的补丁：
 
 ```tsx
 const [cycle, setCycle] = useState(0);
@@ -174,18 +174,18 @@ const [lines, setLines] = useState<DiffLine[]>(INITIAL_LINES);
 
 </StandaloneMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool-call render props
+### 工具调用渲染属性
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `args` | `{ path: string }` | The file the model asked to edit. |
-| `result` | `{ additions: number; deletions: number; lines: DiffLine[] } \| undefined` | The applied patch, once the call completes. |
+| `args` | `{ path: string }` | 模型要求编辑的文件。 |
+| `result` | `{ additions: number; deletions: number; lines: DiffLine[] } \| undefined` | 工具调用完成后应用的补丁。 |
 
-See [Tool UI](/docs/tools/tool-ui) for the full render-prop surface and for backend tool registration.
+有关完整的渲染属性列表以及后端工具注册方式，请参阅[工具 UI](/docs/tools/tool-ui)。
 
 </RuntimeMode>
 
@@ -195,13 +195,13 @@ See [Tool UI](/docs/tools/tool-ui) for the full render-prop surface and for back
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `filename` | `string` | required | Shown in the header. |
-| `additions` | `number` | required | Green count in the header. |
-| `deletions` | `number` | required | Red count in the header. |
-| `lines` | `readonly DiffLine[]` | required | The diff body, in order. |
-| `cycle` | `number` | required | Folded into each line's key; increment to replay the entrance animation. |
-| `className` | `string` | | Merged onto the root. |
+| `filename` | `string` | required | 在标题中显示。 |
+| `additions` | `number` | required | 标题中的绿色数量。 |
+| `deletions` | `number` | required | 标题中的红色数量。 |
+| `lines` | `readonly DiffLine[]` | required | 按顺序排列的差异正文。 |
+| `cycle` | `number` | required | 合并到每行的 key 中；递增后可重新播放进入动画。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-`DiffLine` is `{ kind: "context" | "added" | "removed"; text: string }`. All other `div` props are forwarded to the root.
+`DiffLine` 是 `{ kind: "context" | "added" | "removed"; text: string }`。所有其他 `div` props 都会转发到根元素。
 
 </StandaloneMode>

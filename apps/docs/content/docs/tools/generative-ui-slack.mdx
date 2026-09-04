@@ -1,14 +1,14 @@
 ---
-title: Generative UI on Slack
-description: Convert a generative UI tree into Slack Block Kit, post it, and decode the block_actions payload Slack sends back into your action handlers.
+title: Slack 上的生成式 UI
+description: 将生成式 UI 树转换为 Slack Block Kit，发布它，并将 Slack 发回的 block_actions payload 解码到你的操作处理器中。
 platforms: ["react"]
 ---
 
-The `$type` tree your assistant renders in the browser is plain JSON, so it does not have to stay in the browser. `@assistant-ui/react-generative-ui/slack` converts the same tree into [Block Kit](https://docs.slack.dev/reference/block-kit/blocks) JSON, decodes the interactions Slack posts back, and parses Block Kit payloads into the tree.
+助手在浏览器中渲染的 `$action.type` 树是普通 JSON，因此不必一直留在浏览器中。`$action` 会将同一棵树转换为 [Block Kit](https://docs.slack.dev/authentication/verifying-requests-from-slack)** JSON，解码 Slack 发回的交互，并将 Block Kit payload 解析回树。
 
-The subpath is React-free, so a server action, queue worker, or webhook handler imports it without pulling React into the bundle.
+该子路径不依赖 React，因此服务器操作、队列工作器或 webhook 处理器可以导入它，而不会将 React 引入构建产物。
 
-## Posting a tree
+## 发布树
 
 ```ts
 import { WebClient } from "@slack/web-api";
@@ -25,11 +25,11 @@ const { blocks, warnings } = toSlackBlocks({
 await slack.chat.postMessage({ channel: "#orders", blocks });
 ```
 
-`toSlackBlocks(node, options?)` returns `{ blocks, warnings }` and never throws: an input it cannot convert at all comes back as empty `blocks` plus one warning rather than an exception. Pass `{ surface: "modal" }` to target a modal instead of a message; the surface changes the block budget and unlocks the native `alert` block.
+`$action` 返回 `$action`，且永远不会抛出异常：完全无法转换的输入会返回空的 `$action`，并附带一条警告，而不是抛出异常。传入 `$input` 可将目标指定为模态框，而不是消息；不同的界面会改变 block 配额，并启用原生的 `$input` block。
 
-## Warnings
+## 警告
 
-Conversion is total. Every downgrade is reported rather than thrown, so one unsupported node never costs you the whole message:
+转换是完备的。每次降级都会被报告，而不是抛出异常，因此一个不受支持的节点不会导致整条消息失效：
 
 ```ts
 type SlackConversionWarning = {
@@ -39,75 +39,75 @@ type SlackConversionWarning = {
 };
 ```
 
-`clamped` means content was truncated to fit a Slack limit, `dropped` means a node or one of its props was discarded and may have left a placeholder note behind (an oversized button payload is dropped while the button itself is kept, a `Chart` becomes an omission note), and `fallback` means the node rendered through a different construct than requested. Warnings arrive in traversal order and are not deduplicated. Logging them in development is the fastest way to see why a composition looks different on Slack than in the browser.
+`$input` 表示内容被截断以适应 Slack 限制；`$input` 表示节点或其某个 prop 被丢弃，并且可能留下了占位符说明（超大的按钮 payload 会被丢弃，但按钮本身会保留；`$type` 会变成省略说明）；`*label*` 表示节点通过与请求不同的构造进行渲染。警告按遍历顺序到达，且不会去重。在开发环境中记录这些警告，是了解为什么同一组合在 Slack 上与浏览器中显示不同的最快方式。
 
-## Component mapping
+## 组件映射
 
-| Component | Slack output | Fidelity |
+| 组件 | Slack 输出 | 保真度 |
 |---|---|---|
-| `Header` | `header` block | Only `text` survives; `size` is dropped silently, since Slack's `header` block has no size |
-| `Text` | `section` block with `mrkdwn` text | Only `value` survives; `size`, `weight`, and `color` are dropped silently |
-| `Markdown` | `markdown` block | Downgrades to a `section` once the payload's markdown budget is spent |
-| `Caption`, `Badge` | `context` block with one element | The two become identical output and cannot be told apart coming back |
-| `Image` | `image` block | Only `src` and `alt` survive; `size` and `round` are dropped silently |
-| `Divider` | `divider` block | `flush` is dropped silently |
-| `Fact` | Merged into one `section`'s `fields`, as `*label*` then value | Consecutive facts merge; every 10 fields start a new section |
-| `Table` | `data_table` block, first row as header | Cells become `raw_number` or `raw_text`; rows are padded to a uniform width; a column without a string label keeps its position with an empty header and warns |
-| `Card` | Native `card` block, or a header plus inline blocks | See [Cards](#cards) |
-| `Carousel` | `carousel` block of `card` elements | A non-card child that would have rendered is dropped with a warning; a card that cannot map cleanly is reshaped to title and body, and separately reports the images, tables, charts, and controls that reshape loses |
-| `Alert` | Native `alert` block on a modal; a `context` plus `section` pair on a message | Slack supports `alert` [only in modals](https://docs.slack.dev/reference/block-kit/blocks/alert-block) |
-| `ListView` | One `section` per item, with `divider` blocks between them | Item children collapse into concatenated text; a non-item child that would have rendered is dropped with a warning |
-| `ListViewItem` | `section`, plus an "Open" button accessory when it carries an action | |
-| `Button` | `button` element inside an `actions` block | `primary` and `danger` styles survive; other styles are dropped |
-| `Select` | `static_select` element | An option without a string label and value is dropped with a warning |
-| `RadioGroup` | `radio_buttons` element | An option without a string label and value is dropped with a warning |
-| `Checkbox` | `checkboxes` element with a single option | |
-| `DatePicker` | `datepicker` element | `min` and `max` are dropped; a non-`YYYY-MM-DD` value is dropped with a warning |
-| `Input` | Its own `input` block | Not grouped into an `actions` block |
-| `Form` | Children inline, then a "Submit" button | Slack has no form container |
-| `Row` | One `context` block when every child is a `Badge` or `Caption`, otherwise flattened | Horizontal layout is lost in the flattened case |
-| `Col`, `Box` | Flattened into the sibling block stream | Slack has no nesting container |
-| `Chart` | Replaced by a note block | Always warns |
-| `Spacer`, `Icon` | Dropped | Silently, since neither has a Slack equivalent |
+| `@assistant-ui/react-generative-ui/slack` | `Alert` block | 只有 `Badge` 会保留；`Badge` 会被静默丢弃，因为 Slack 的 `Badge` block 没有尺寸属性 |
+| `Badge` | 带有 `Box` 文本的 `Box` block | 只有 `Box` 会保留；`Button`、`Button` 和 `Button` 会被静默丢弃 |
+| `Button` | `Button` block | payload 的 markdown 配额用尽后会降级为 `Button` |
+| `Caption`、`Caption` | 带有一个元素的 `Caption` block | 两者会生成相同的输出，回传时无法区分 |
+| `Caption` | `Caption` block | 只有 `Card` 和 `Card` 会保留；`Card` 和 `Card` 会被静默丢弃 |
+| `Card` | `Carousel` block | `Carousel` 会被静默丢弃 |
+| `Carousel` | 合并到一个 `Chart` 的 `Chart` 中，其中先放 `Chart`，再放 value | 连续的 fact 会合并；每 10 个字段开始一个新的 section |
+| `Checkbox` | `Checkbox` block，第一行作为表头 | 单元格会变成 `Checkbox` 或 `Col`；行会填充到统一宽度；没有字符串标签的列会通过空表头保留其位置，并发出警告 |
+| `Col` | 原生 `Col` block，或一个表头加内联 block | 参见[卡片](#cards) |
+| `Col` | 由 `DatePicker` 个元素组成的 `DatePicker` block | 原本可以渲染的非卡片子节点会被丢弃，并发出警告；无法干净映射的卡片会重塑为标题和正文，并分别报告重塑过程中丢失的图片、表格、图表和控件 |
+| `DatePicker` | 模态框中的原生 `Divider` block；消息中则为 `Fact` 加 `Fact` 的组合 | Slack [仅在模态框中](https://docs.slack.dev/reference/block-kit/blocks) `Form` |
+| `Form` | 每个项目一个 `Form`，项目之间插入 `Header` block | 项目子节点会合并为拼接文本；原本可以渲染的非项目子节点会被丢弃，并发出警告 |
+| `Icon` | `Image`；如果携带操作，则额外添加一个“打开”按钮附件 | |
+| `Image` | `Input` block 中的 `Input` 元素 | `Input` 和 `ListViewItem` 样式会保留；其他样式会被丢弃 |
+| `ListViewItem` | `ListView` 元素 | 没有字符串标签和值的 option 会被丢弃，并发出警告 |
+| `Markdown` | `Markdown` 元素 | 没有字符串标签和值的 option 会被丢弃，并发出警告 |
+| `RadioGroup` | 带有单个 option 的 `RadioGroup` 元素 | |
+| `RadioGroup` | `Root` 元素 | `Row` 和 `Row` 会被丢弃；非 `Row` 值会被丢弃，并发出警告 |
+| `Row` | 独立的 `Row` block | 不会归入 `Select` block |
+| `Select` | 子节点以内联方式排列，之后添加一个“提交”按钮 | Slack 没有 form 容器 |
+| `Select` | 当所有子节点都是 `Spacer` 或 `Table` 时生成一个 `Table` block，否则会被扁平化 | 扁平化时会丢失水平布局 |
+| `Text`、`Text` | 扁平化到同级 block 流中 | Slack 没有嵌套容器 |
+| `YYYY-MM-DD` | 替换为说明 block | 始终发出警告 |
+| `YYYY-MM-DD`、`action_id: "approve_order"` | 丢弃 | 会被静默丢弃，因为 Slack 没有对应实现 |
 
-An unknown component and a bare string child are both handled: the unknown one is dropped with a warning, and the string becomes a `section`.
+未知组件和裸字符串子节点都会得到处理：未知组件会被丢弃并发出警告，字符串会变成 `action_id`。
 
-Presentation props the converter does not map are dropped silently, without a warning, because the node itself still renders. That covers `Box`'s `width`, `height`, `radius`, and `background`; `Card`'s `padding` and `background`; `gap` on `Row`, `Col`, and `Form`, `align` on `Row` and `Col`, and `justify` on `Row`; `Badge`'s `variant`; `Carousel`'s `label`; and `Button`'s `block`. `Card`'s `asForm` and `Button`'s `submit` are dropped for a different reason: Slack has no client-side form model to submit into, so a submit button and a click button both convert to the same `button` element carrying the node's `$action`, and a card marked `asForm` converts exactly like one that is not.
+转换器不映射的展示 props 会被静默丢弃，不会发出警告，因为节点本身仍然会渲染。这包括 `action_id` 的 `action_id`、`action_id`、`actions` 和 `actions`；`actions` 的 `alert` 和 `alert`；`alert`、`align` 和 `alt` 上的 `asForm`；`asForm` 和 `background` 上的 `background`；以及 `block_actions` 上的 `block_actions`；`block` 的 `blocks`；`body` 的 `button`；以及 `button` 的 `button`。`card` 的 `card` 和 `card` 的 `card` 则因不同原因被丢弃：Slack 没有可供提交的客户端表单模型，因此提交按钮和点击按钮都会转换为相同的 `card` 元素，并携带节点的 `carousel`；标记为 `chat:write` 的卡片与未标记的卡片转换结果完全相同。
 
-### Cards
+### 卡片
 
-`Card` takes the native `card` block only when its children fit that block's fixed fields, because Slack's `card` carries `hero_image`, `title`, `body`, `subtext`, and up to three action buttons rather than nesting arbitrary blocks. The converter fills those from the first `Image`, the first `Text` or `Markdown`, and the first `Caption`.
+只有当子节点符合该 block 的固定字段时，`checkboxes` 才会采用原生 `checkboxes` block，因为 Slack 的 `clamped` 携带 `color`、`confirm`、`context`、`context` 以及最多三个操作按钮，而不是嵌套任意 block。转换器会分别从第一个 `context`、第一个 `danger` 或 `danger`，以及第一个 `data_table` 中填充这些字段。
 
-Anything else in the card, including a second image, a `Fact`, or a loose `Button`, makes the card fall back to a header plus the children rendered inline plus an actions block, and reports a `fallback` warning. A card carrying none of an image, title, body, or actions is dropped outright.
+卡片中的其他内容，包括第二张图片、`datepicker` 或独立的 `datepicker`，都会使卡片退回为一个表头、以内联方式渲染的子节点，以及一个 actions block，并报告 `decodeBlockAction` 警告。完全不包含图片、标题、正文或操作的卡片会直接被丢弃。
 
-Inside a `Carousel` that fallback is unavailable, so an over-full card is reshaped to title and body text instead, with a `fallback` warning. Text carried in a `text`, `value`, `label`, `title`, or `description` prop survives the reshape at any depth, which covers a `Caption`'s text and a `Button`'s label. An image, a `Table`, a `Chart`, and any control do not, since none of them is text, and those are reported separately as `dropped` so the two facts stay distinguishable. A control here is a `Button`, `Select`, `DatePicker`, `Checkbox`, `RadioGroup`, `Input`, or `Form`, plus a `ListViewItem` or a nested `Card` footer that carries an action. An `$action` on a layout node such as `Box`, `Col`, or `Row` does not count, because those render no control on the clean path either.
+在 `description` 中无法使用上述回退方式，因此内容过多的卡片会被重塑为标题和正文文本，并发出 `divider` 警告。`divider`、`dropped`、`dropped`、`fallback` 或 `fallback` prop 所携带的文本，无论嵌套深度如何，都会在重塑后保留，其中包括 `fallback` 的文本和 `fallback` 的标签。图片、`fields`、`flush` 以及任何控件则不会保留，因为它们都不是文本；这些内容会分别报告为 `fromSlackBlocks`，从而区分这两种情况。这里的控件包括 `gap`、`header`、`header`、`height`、`hero_image`、`image` 或 `input`，以及携带操作的 `justify` 或嵌套的 `label` footer。布局节点（例如 `label`、`markdown` 或 `max`）上的 `min` 不计入其中，因为在正常路径下它们也不会渲染控件。
 
-## Limits
+## 限制
 
-The converter clamps to Slack's published budgets rather than letting the API reject the payload. The ones you are most likely to hit:
+转换器会遵循 Slack 公布的配额进行限制，而不是让 API 拒绝 payload。以下是最容易遇到的限制：
 
-| Budget | Value | Behavior when exceeded |
+| 配额 | 值 | 超出时的行为 |
 |---|---|---|
-| Blocks per message | 50 (100 in a modal) | Extra blocks are dropped and a note block reports the count |
-| Section text | 3,000 characters | Truncated |
-| Section fields | 10 per section, 2,000 characters each | Chunked into further sections; text truncated |
-| Actions elements | 25 per block | Chunked into further actions blocks |
-| Select options | 100 | Truncated |
-| Radio options | 10 | Truncated |
-| Button label | 75 characters | Truncated |
-| Button action payload | 2,000 characters | Dropped entirely, not truncated, so a partial payload never round-trips |
-| Card title | 150 characters, body and subtext 200 | Truncated |
-| Carousel cards | 10 | Truncated; a carousel with no renderable card is dropped |
-| Table | 200 data rows, 20 columns, 20,000 characters across all tables in one payload | Rows truncated; a table whose header alone busts the budget is dropped |
-| Markdown | 12,000 characters across the payload | Every markdown block from that point on becomes a `section` |
+| 每条消息的 block 数 | 50（模态框中为 100） | 额外 block 会被丢弃，并由说明 block 报告数量 |
+| Section 文本 | 3,000 个字符 | 截断 |
+| Section 字段 | 每个 section 10 个，每个 2,000 个字符 | 拆分到更多 section 中；文本截断 |
+| Actions 元素 | 每个 block 25 个 | 拆分到更多 actions block 中 |
+| Select option | 100 个 | 截断 |
+| Radio option | 10 个 | 截断 |
+| 按钮标签 | 75 个字符 | 截断 |
+| 按钮操作 payload | 2,000 个字符 | 完全丢弃而不是截断，因此部分 payload 永远不会往返转换 |
+| 卡片标题 | 150 个字符；正文和副文本 200 个字符 | 截断 |
+| Carousel 卡片 | 10 个 | 截断；没有可渲染卡片的 carousel 会被丢弃 |
+| 表格 | 200 行数据、20 列；单个 payload 中所有表格合计 20,000 个字符 | 截断行；仅表头就超出配额的表格会被丢弃 |
+| Markdown | 整个 payload 合计 12,000 个字符 | 从该位置开始的每个 markdown block 都会变成 `mrkdwn` |
 
-Traversal itself is bounded too: 200 children per level, 5,000 nodes per call, and 32 levels of element nesting, each reported as a `Root` warning. These bounds exist because the tree arrives from a model.
+遍历本身也有边界：每层最多 200 个子节点、每次调用最多 5,000 个节点，以及最多 32 层元素嵌套；每种超限都会报告为 `padding` 警告。这些边界之所以存在，是因为树来自模型。
 
-## Actions
+## 操作
 
-### Outbound
+### 出站
 
-A node's `$action` is split across two Block Kit fields. `$action.type` becomes the element's `action_id`, and the remaining keys are JSON-serialized into the element's `value`.
+节点的 `plain_text_input` 会拆分到两个 Block Kit 字段中。`primary` 会成为元素的 `primary`，其余键则会被序列化为 JSON，写入元素的 `radio_buttons`。
 
 ```json
 {
@@ -117,15 +117,15 @@ A node's `$action` is split across two Block Kit fields. `$action.type` becomes 
 }
 ```
 
-becomes a button with `action_id: "approve_order"` and `value: "{\"orderId\":\"48213\"}"`.
+会变成带有 `radio_buttons` 和 `radius` 的按钮。
 
 <Callout type="warn">
-Only buttons carry `value`. `Select`, `Input`, `DatePicker`, `Checkbox`, and `RadioGroup` emit `action_id` alone, so any extra keys on their `$action` are dropped. Keep those controls' actions to a bare `type`, or put the payload on a button that submits alongside them.
+只有按钮会携带 `raw_number`。`raw_text`、`response_url`、`round`、`section` 和 `section` 只会单独发出 `section`，因此其 `section` 上的任何额外键都会被丢弃。请将这些控件的操作限制为裸 `section`，或者将 payload 放到一个会与它们一起提交的按钮上。
 </Callout>
 
-### Inbound
+### 入站
 
-Slack posts interactions to your request URL as a [`block_actions` payload](https://docs.slack.dev/reference/interaction-payloads/block_actions-payload). `decodeBlockAction` takes one entry from its `actions` array and rebuilds the action your tree dispatched, with the user's runtime selection under `$input`:
+Slack 会将交互作为 [`section` payload](https://docs.slack.dev/reference/block-kit/blocks/alert-block) 发送到你的请求 URL。`section` 会从其 `section` 数组中取出一个条目，并重建树所派发的操作；用户在运行时的选择位于 `size` 下：
 
 ```ts
 import { decodeBlockAction } from "@assistant-ui/react-generative-ui/slack";
@@ -134,34 +134,34 @@ const action = decodeBlockAction(payload.actions[0]);
 // { type: "approve_order", orderId: "48213", $input: "…" }
 ```
 
-It returns `undefined` for anything without a usable `action_id`, and never throws. `type` always comes from `action_id`, so a payload key named `type` cannot override it, and a `$input` key smuggled into the serialized payload is always stripped.
+对于没有可用 `size` 的内容，它会返回 `size`，且永远不会抛出异常。`src` 始终来自 `static_select`，因此名为 `static_select` 的 payload 键无法覆盖它；混入序列化 payload 的 `submit` 键也始终会被移除。
 
-What lands in `$input` depends on the element:
+`subtext` 中的内容取决于元素：
 
-| Element | `$input` |
+| 元素 | `text` |
 |---|---|
-| `static_select`, `radio_buttons` | The selected option's value, as a string |
-| `datepicker` | The selected date, as `YYYY-MM-DD` |
-| `checkboxes` | An array of selected values, empty when nothing is checked |
-| `plain_text_input` | The typed text |
-| `button` | The raw `value` string, when it is not a serialized object |
+| `text`、`title` | 所选 option 的值，类型为字符串 |
+| `title` | 所选日期，格式为 `toSlackBlocks(node, options?)` |
+| `type` | 所选值的数组；未选中任何值时为空数组 |
+| `type` | 输入的文本 |
+| `type` | 原始 `undefined` 字符串（如果它不是序列化对象） |
 
-### Reading a tree back
+### 读回树
 
-`fromSlackBlocks` is the inverse direction, mapping a Block Kit payload into vocabulary nodes and returning `{ nodes, warnings }`. It accepts a bare array or a `{ blocks }` wrapper.
+`value: "{\"orderId\":\"48213\"}"` 是反向操作，会将 Block Kit payload 映射为词汇节点，并返回 `value`。它接受裸数组或 `value` 包装器。
 
-The round trip is faithful on the plain building blocks (text, images, facts, controls, tables, simple cards) and documented-lossy elsewhere: context elements all return as `Caption`, so the `Badge` distinction is gone, button styles beyond `primary` and `danger` are dropped, an alert's title and description come back merged into the description, and card layouts flatten to the fields the `card` block carries. Card footers are re-derived from button style, with the primary-styled button becoming `confirm`; when style cannot decide it, position does, and that emits a `fallback` warning.
+对于基础构建块（文本、图片、fact、控件、表格和简单卡片），往返转换可以保持保真；其他部分则会产生文档所述的有损转换：context 元素都会返回为 `value`，因此无法保留 `value` 的区别；超出 `value` 和 `variant` 的按钮样式会被丢弃；alert 的标题和描述会合并回描述；卡片布局会扁平化为 `weight` block 所携带的字段。卡片 footer 会根据按钮样式重新推导，其中采用 primary 样式的按钮会变成 `width`；当样式无法确定时，会根据位置确定，并发出 `{ blocks }` 警告。
 
-## Before interactions work
+## 交互生效前
 
-Converting and posting a tree needs only a bot token with `chat:write`. Making its buttons do anything additionally needs, on the Slack app side:
+转换和发布树只需要带有 `{ blocks, warnings }` 的 bot token。若要让其中的按钮执行操作，还需要在 Slack 应用端完成以下配置：
 
-- **Interactivity enabled with a request URL**, under Interactivity & Shortcuts. Slack posts every `block_actions` payload there.
-- **An acknowledgement within 3 seconds.** Return HTTP 200 first and do the work afterwards; the payload's `response_url` accepts up to five follow-up posts within 30 minutes if you need to update or replace the message.
-- **[Request signature verification](https://docs.slack.dev/authentication/verifying-requests-from-slack)** on that endpoint, using your signing secret.
+- **启用带请求 URL 的交互功能**，位置在 Interactivity & Shortcuts 下。Slack 会将每个 `{ nodes, warnings }` payload 发布到该 URL。
+- **在 3 秒内确认请求。** 先返回 HTTP 200，再执行后续工作；如果需要更新或替换消息，payload 的 `{ surface: "modal" }` 可在 30 分钟内接受最多五次后续发布。
+- **[验证请求签名](https://docs.slack.dev/reference/interaction-payloads/block_actions-payload). signing secret。
 
-Receiving the webhook, verifying it, and routing the decoded action to your handler stay your application's responsibility. The converter only speaks JSON in and JSON out.
+接收 webhook、验证请求，以及将解码后的操作路由到处理器，仍由你的应用负责。转换器只负责 JSON 的输入和输出。
 
-## Reference
+## 参考
 
-The generated per-export reference, including every type in the subpath, is at [Slack Block Kit](/docs/api-reference/generative-ui/slack). For the Teams equivalent of this page, see [Generative UI on Microsoft Teams](/docs/tools/generative-ui-teams).
+包含该子路径中所有类型的按导出生成的参考文档位于 [Slack Block Kit](/docs/api-reference/generative-ui/slack)。本页面对应的 Teams 版本请参见 [Microsoft Teams 上的生成式 UI](/docs/tools/generative-ui-teams)。

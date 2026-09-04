@@ -1,22 +1,22 @@
 ---
-title: "Tool fallback"
-description: "The default runtime renderer for tool calls that do not have dedicated UI."
+title: "工具回退"
+description: "用于没有专用 UI 的工具调用的默认运行时渲染器。"
 ---
 
-Tool fallback renders any tool call that has no dedicated UI of its own: a collapsed one-line summary that opens into the arguments, the result, and (when the tool is waiting on a decision) the buttons to answer it. With a runtime it reads the live tool-call part and calls back into that same run; there is no standalone form, since a tool call and the run it belongs to are the same thing.
+Tool fallback 会渲染没有专属 UI 的任何工具调用：默认显示为折叠的单行摘要，展开后可查看参数、结果，以及（当工具正在等待决策时）用于响应的按钮。在运行时中，它会读取实时的工具调用部分，并回调到同一次运行中；由于工具调用与其所属的运行本质上是同一个整体，因此不存在独立表单。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-`Thread` already renders this for every tool call that doesn't have its own UI.
+`Thread` 已经会为每个没有自身 UI 的工具调用渲染此内容。
 
 <Steps>
   <Step>
 
-### It's already your default
+### 它已经是你的默认选项
 
-Inside `Thread`'s message renderer, a tool-call part falls back to `ToolFallback` whenever nothing more specific (a per-tool renderer, or generative UI) claims it first.
+在 `Thread` 的消息渲染器中，当没有更具体的渲染器（例如针对单个工具的渲染器或生成式 UI）优先处理工具调用部分时，它会回退到 `ToolFallback`。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 case "tool-call":
@@ -26,15 +26,15 @@ case "tool-call":
   </Step>
   <Step>
 
-### Replace it for every unregistered tool
+### 为所有未注册工具替换它
 
-Pass `components.ToolFallback` to `Thread` to swap the renderer used whenever a tool call has no dedicated UI. A tool with its own registered renderer still takes precedence over this override, the same way it takes precedence over the built-in `ToolFallback`.
+将 `components.ToolFallback` 传递给 `Thread`，即可替换在工具调用没有专用 UI 时使用的渲染器。拥有自身注册渲染器的工具仍然优先于此覆盖项，就像它优先于内置的 `ToolFallback` 一样。
 
 ```tsx
 <Thread components={{ ToolFallback: MyToolCard }} />
 ```
 
-`MyToolCard` receives the same props as `ToolFallback` itself. See the API reference below.
+`MyToolCard` 接收的 props 与 `ToolFallback` 本身相同。请参阅下面的 API 参考。
 
   </Step>
 </Steps>
@@ -43,11 +43,11 @@ Pass `components.ToolFallback` to `Thread` to swap the renderer used whenever a 
 
 <StandaloneMode>
 
-Standalone, there's nothing to fall back to: `ToolFallback` exists specifically to render whatever `ToolCallMessagePart` a runtime handed it and to call back into that same run, so a props-only version would just be a static picture of the same shape you already have. Build your own tool-call card directly against your own data instead of reaching for this element.
+单独使用时，没有可供回退的内容：`ToolFallback` 专门用于渲染运行时交给它的 `ToolCallMessagePart`，并回调到同一次运行中，因此仅接收 props 的版本只会静态呈现你已有的相同结构。请直接根据你自己的数据构建工具调用卡片，而不要使用此元素。
 
 </StandaloneMode>
 
-## Anatomy
+## 组成结构
 
 <RuntimeMode>
 
@@ -68,25 +68,25 @@ Standalone, there's nothing to fall back to: `ToolFallback` exists specifically 
 </div>
 ```
 
-The row opens by default whenever the tool call's status is `"requires-action"`, and stays exactly as the user left it otherwise. Duration only shows once the call has a recorded start; it keeps counting up once per second while the call is running, and freezes at the recorded total once it completes.
+当工具调用的状态为 `"requires-action"` 时，该行默认展开；在其他情况下，则保持用户离开时的状态。只有调用记录了开始时间后才会显示持续时间；调用运行期间每秒持续递增，完成后则冻结在记录的总时长。
 
 </RuntimeMode>
 
-## Examples
+## 示例
 
 <RuntimeMode>
 
-### Approval without declared options
+### 未声明选项的批准
 
-With no `approval` and no `interrupt` on the part, a plain Allow / Deny pair calls `addResult` directly with a fixed approved or denied string. With `interrupt` set, the same pair instead calls `resume({ approved })` to unpause the paused frontend tool execution.
+当部分中既没有 `approval`，也没有 `interrupt` 时，一对普通的“允许 / 拒绝”按钮会直接使用固定的 approved 或 denied 字符串调用 `addResult`。设置 `interrupt` 后，同一对按钮则会改为调用 `resume({ approved })`，以恢复暂停的前端工具执行。
 
 ```tsx
 <ToolFallback {...part} />
 ```
 
-### Approval with declared options
+### 已声明选项的批准
 
-When `part.approval.options` is set, one button renders per option instead of a plain pair: allow-kind options first (the first one styled as primary), then any custom kind, then reject-kind options. An option can opt into a confirmation step before it resolves.
+设置 `part.approval.options` 后，每个选项都会渲染一个按钮，而不是普通的成对按钮：先显示 allow 类型的选项（第一个使用主要按钮样式），然后是 custom 类型的选项，最后是 reject 类型的选项。选项可以选择在解析前加入确认步骤。
 
 ```tsx
 approval: {
@@ -99,11 +99,11 @@ approval: {
 }
 ```
 
-Choosing "Always allow" here shows a confirm/back step before it calls `respondToApproval({ optionId: "always" })`; the other two resolve immediately. Once `approval.approved` or `approval.resolution` is set, the whole approval block stops rendering.
+在此处选择“始终允许”会先显示确认 / 返回步骤，然后再调用 `respondToApproval({ optionId: "always" })`；另外两个选项则会立即解析。设置 `approval.approved` 或 `approval.resolution` 后，整个批准区块将停止渲染。
 
-### Restyle a part
+### 重新设置部分样式
 
-Every piece is a named export you can recompose, and each carries its own `data-slot` for targeted styling.
+每个部分都是具名导出，可以重新组合，并且各自携带 `data-slot`，以便进行有针对性的样式设置。
 
 ```tsx
 import { ToolFallbackTrigger, ToolFallbackContent } from "@/components/assistant-ui/elements/tool-fallback.aui";
@@ -113,52 +113,52 @@ import { ToolFallbackTrigger, ToolFallbackContent } from "@/components/assistant
 
 </RuntimeMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Parts
+### 部分
 
-| Part | Renders | Notes |
+| 部分 | 渲染内容 | 备注 |
 |------|---------|-------|
-| `ToolFallback` | full composition | The default export; a complete `ToolCallMessagePartComponent`. |
-| `ToolFallbackRoot` | `div` | Collapsible container. Opens automatically on `"requires-action"`. |
-| `ToolFallbackTrigger` | `button` | Takes `toolName` and `status`. |
-| `ToolFallbackContent` | `div` | The collapsible panel. |
-| `ToolFallbackArgs` | `pre` | Takes `argsText`; renders `null` when empty. |
-| `ToolFallbackResult` | `pre` | Takes `result`; renders `null` when `undefined`. Stringifies non-string results. |
-| `ToolFallbackError` | text | Takes `status`; renders `null` unless `status.type === "incomplete"` and it carries an error. |
-| `ToolFallbackApproval` | buttons | Takes `approval`, `interrupt`, `status`, `addResult`, `resume`, `respondToApproval`. |
+| `ToolFallback` | 完整组合 | 默认导出；完整的 `ToolCallMessagePartComponent`。 |
+| `ToolFallbackRoot` | `div` | 可折叠容器。在 `"requires-action"` 时自动展开。 |
+| `ToolFallbackTrigger` | `button` | 接收 `toolName` 和 `status`。 |
+| `ToolFallbackContent` | `div` | 可折叠面板。 |
+| `ToolFallbackArgs` | `pre` | 接收 `argsText`；为空时渲染 `null`。 |
+| `ToolFallbackResult` | `pre` | 接收 `result`；当 `undefined` 时渲染 `null`。将非字符串结果转换为字符串。 |
+| `ToolFallbackError` | 文本 | 接收 `status`；除非 `status.type === "incomplete"` 且其中包含错误，否则渲染 `null`。 |
+| `ToolFallbackApproval` | 按钮 | 接收 `approval`、`interrupt`、`status`、`addResult`、`resume`、`respondToApproval`。 |
 
-### Tool-call part fields
+### 工具调用部分字段
 
-`ToolFallback` (and each part above) receives the current tool call as `ToolCallMessagePartProps`, the full `ToolCallMessagePart` plus three callbacks:
+`ToolFallback`（以及上面的每个部分）会将当前工具调用作为 `ToolCallMessagePartProps` 接收，同时接收完整的 `ToolCallMessagePart` 和三个回调：
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|--------------|
-| `toolCallId` | `string` | Stable id for this invocation. |
-| `toolName` | `string` | Name of the tool the model called. |
-| `argsText` | `string` | Raw, possibly partial, JSON the model has streamed so far. |
-| `result` | `TResult \| undefined` | The tool's result, once it has one. |
-| `isError` | `boolean \| undefined` | Whether the result represents a failure. |
-| `status` | `ToolCallMessagePartStatus` | `"running"`, `"complete"`, `"incomplete"` (with a `reason`, e.g. `"cancelled"`), or `"requires-action"` (`reason: "tool-calls" \| "interrupt"`). |
-| `timing` | `ToolCallTiming \| undefined` | Wall-clock start/completion, when tracked. |
-| `interrupt` | `{ type: "human"; payload: unknown } \| undefined` | A paused human-input request. |
-| `approval` | object `\| undefined` | Server-side approval gate: `id`, `approved?`, `options?`, `optionId?`, `resolution?`. |
+| `toolCallId` | `string` | 此次调用的稳定 ID。 |
+| `toolName` | `string` | 模型调用的工具名称。 |
+| `argsText` | `string` | 模型目前已流式传输的原始 JSON，可能不完整。 |
+| `result` | `TResult \| undefined` | 工具产生结果后的工具结果。 |
+| `isError` | `boolean \| undefined` | 结果是否表示失败。 |
+| `status` | `ToolCallMessagePartStatus` | `"running"`、`"complete"`、`"incomplete"`（带有 `reason`，例如 `"cancelled"`），或 `"requires-action"`（`reason: "tool-calls" \| "interrupt"`）。 |
+| `timing` | `ToolCallTiming \| undefined` | 在进行跟踪时记录的实际开始 / 完成时间。 |
+| `interrupt` | `{ type: "human"; payload: unknown } \| undefined` | 暂停的人类输入请求。 |
+| `approval` | 对象 `\| undefined` | 服务端批准门：`id`、`approved?`、`options?`、`optionId?`、`resolution?`。 |
 
-### Callbacks
+### 回调
 
-| Callback | Type | Description |
+| 回调 | 类型 | 描述 |
 |----------|------|-------------|
-| `addResult` | `(result) => void` | Sets this part's result from the renderer instead of a tool's `execute`. |
-| `resume` | `(payload: unknown) => void` | Resumes a paused frontend tool execution with the requested payload. |
-| `respondToApproval` | `(response: ToolApprovalResponse) => Promise<void>` | Answers an approval gate: `{ approved }`, `{ optionId }`, both, or `{ text }` when the request takes a free-form answer. |
+| `addResult` | `(result) => void` | 从渲染器设置此部分的结果，而不是使用工具的 `execute`。 |
+| `resume` | `(payload: unknown) => void` | 使用请求的 payload 恢复暂停的前端工具执行。 |
+| `respondToApproval` | `(response: ToolApprovalResponse) => Promise<void>` | 响应批准门：`{ approved }`、`{ optionId }`、两者，或者当请求接收自由格式答案时使用 `{ text }`。 |
 
-### Composition
+### 组合
 
-| Part | Type | Description |
+| 部分 | 类型 | 描述 |
 |------|------|-------------|
-| `components.ToolFallback` | `ToolCallMessagePartComponent` | `Thread` prop that replaces this renderer for every tool call without a dedicated UI. |
-| `useToolCallElapsed()` | `number \| undefined` | Elapsed milliseconds for the current tool-call part; `undefined` off a tool-call scope or with no recorded timing. |
+| `components.ToolFallback` | `ToolCallMessagePartComponent` | `Thread` prop，用于替换所有没有专用 UI 的工具调用所使用的渲染器。 |
+| `useToolCallElapsed()` | `number \| undefined` | 当前工具调用部分经过的毫秒数；在工具调用作用域之外或没有记录计时时为 `undefined`。 |
 
 </RuntimeMode>

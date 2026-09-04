@@ -1,13 +1,13 @@
 ---
 title: better-auth
-description: TypeScript-first auth with database-owned sessions; gate the chat route and scope threads to the signed-in user.
+description: 以 TypeScript 为先、由数据库管理会话的身份验证；保护聊天路由，并将线程限定为已登录用户。
 ---
 
-[better-auth](https://www.better-auth.com/) is a TypeScript-first auth library that owns the session, the user table, and the cookie story end to end. It pairs naturally with assistant-ui's [custom thread persistence](/docs/integrations/persistence/custom-adapter): the same database holds users and threads, and `session.user.id` flows directly into your where clauses.
+[better-auth](https://www.better-auth.com/) 是一个以 TypeScript 为先的身份验证库，端到端管理会话、用户表和 Cookie。它与 assistant-ui 的[自定义线程持久化](/docs/integrations/persistence/custom-adapter)天然搭配：用户和线程存储在同一个数据库中，而 `session.user.id` 可以直接用于你的 where 子句。
 
-This page covers the non-cloud path. AssistantCloud users should see [cloud authorization](/docs/cloud/authorization) for the JWT-exchange pattern.
+本页面介绍非云端方案。AssistantCloud 用户应参阅[云端授权](/docs/cloud/authorization)，了解 JWT 交换模式。
 
-## How it works
+## 工作原理
 
 ```mermaid
 flowchart LR
@@ -18,24 +18,24 @@ flowchart LR
     session --> uid["session.user.id"] --> scope["scope queries by userId"]
 ```
 
-Three integration points:
+有三个集成点：
 
-1. **Auth handlers** mounted at `/api/auth/[...all]/route.ts` via `toNextJsHandler(auth)`.
-2. **API routes** read the session server-side with `auth.api.getSession({ headers: await headers() })`.
-3. **Reload-on-auth** uses better-auth's React client to detect sign-in and trigger `aui.threads.reload()`.
+1. 通过 `toNextJsHandler(auth)` 将**身份验证处理器**挂载到 `/api/auth/[...all]/route.ts`。
+2. **API 路由**通过 `auth.api.getSession({ headers: await headers() })` 在服务端读取会话。
+3. **身份验证后重新加载**使用 better-auth 的 React 客户端检测登录状态，并触发 `aui.threads.reload()`。
 
-`session.user.id` is exposed on the session object directly, so route handlers can scope queries against it.
+`session.user.id` 直接暴露在会话对象上，因此路由处理器可以据此限定查询范围。
 
-## Setup
+## 设置
 
-This guide assumes you already have better-auth configured. If not, follow the [better-auth Next.js guide](https://www.better-auth.com/docs/integrations/next) first; the steps below pick up after `auth.ts` exports a `betterAuth(...)` instance.
+本指南假设你已经配置好 better-auth。如果还没有，请先按照[better-auth Next.js 指南](https://www.better-auth.com/docs/integrations/next) 操作；以下步骤从 `auth.ts` 导出 `betterAuth(...)` 实例之后开始。
 
 <Steps>
 <Step>
 
-### Confirm the auth handler is mounted
+### 确认身份验证处理器已挂载
 
-better-auth ships its own catch-all handler. Make sure it's wired:
+better-auth 自带全捕获处理器。请确保已完成接线：
 
 ```ts title="app/api/auth/[...all]/route.ts"
 import { auth } from "@/auth";
@@ -44,14 +44,14 @@ import { toNextJsHandler } from "better-auth/next-js";
 export const { GET, POST } = toNextJsHandler(auth);
 ```
 
-Without this, sign-in, sign-out, and session refresh requests have nowhere to land.
+否则，登录、登出和会话刷新请求将无处处理。
 
 </Step>
 <Step>
 
-### Gate the chat route
+### 保护聊天路由
 
-Resolve the session server-side with `auth.api.getSession`. It accepts request headers (which carry the session cookie) and returns `null` for unauthenticated requests.
+使用 `auth.api.getSession` 在服务端解析会话。它接受请求标头（其中包含会话 Cookie），并在未通过身份验证的请求中返回 `null`。
 
 ```ts title="app/api/chat/route.ts"
 import { auth } from "@/auth";
@@ -73,14 +73,14 @@ export async function POST(req: Request) {
 }
 ```
 
-`headers()` from `next/headers` returns the active request's headers in App Router route handlers. Always `await` it.
+App Router 路由处理器中的 `headers()` 来自 `next/headers`，会返回当前请求的标头。请始终 `await` 它。
 
 </Step>
 <Step>
 
-### Scope thread queries by user
+### 按用户限定线程查询范围
 
-If you use [custom thread persistence](/docs/integrations/persistence/custom-adapter), every endpoint must filter by `session.user.id`. The pattern mirrors the chat route:
+如果使用[自定义线程持久化](/docs/integrations/persistence/custom-adapter)，每个端点都必须按 `session.user.id` 进行筛选。其模式与聊天路由相似：
 
 ```ts title="app/api/threads/route.ts"
 import { auth } from "@/auth";
@@ -103,14 +103,14 @@ export async function GET() {
 }
 ```
 
-If your better-auth schema lives in the same database as your threads table, you can also reference `users.id` as a foreign key for cascading deletes.
+如果 better-auth 的 schema 与线程表位于同一个数据库中，还可以将 `users.id` 作为外键，以支持级联删除。
 
 </Step>
 <Step>
 
-### Set up the React client
+### 设置 React 客户端
 
-Create the client once and import it from a shared module so all hooks share state:
+只创建一次客户端，并从共享模块中导入它，以便所有 Hook 共享状态：
 
 ```ts title="lib/auth-client.ts"
 import { createAuthClient } from "better-auth/react";
@@ -121,9 +121,9 @@ export const authClient = createAuthClient();
 </Step>
 <Step>
 
-### Reload threads after async auth
+### 异步身份验证后重新加载线程
 
-`useSession` from the React client tracks the live session. Drop a small effect inside `<AssistantRuntimeProvider>` that reloads the thread list when the user signs in:
+React 客户端中的 `useSession` 会跟踪实时会话。在 `<AssistantRuntimeProvider>` 中加入一个小型 effect，在用户登录时重新加载线程列表：
 
 ```tsx title="app/components/ReloadOnAuth.tsx"
 "use client";
@@ -142,47 +142,47 @@ export function ReloadOnAuth() {
 }
 ```
 
-Mount this component anywhere inside your `<AssistantRuntimeProvider>` subtree (typically next to the runtime's provider in `MyProvider`). `reload()` discards in-flight responses from superseded calls, so it is safe to invoke on every auth transition.
+将此组件挂载到 `<AssistantRuntimeProvider>` 子树中的任意位置（通常与 `MyProvider` 中运行时的 Provider 相邻）。`reload()` 会丢弃已被后续调用取代的进行中响应，因此可以在每次身份验证状态切换时安全调用。
 
 </Step>
 <Step>
 
-### Run and verify
+### 运行并验证
 
-Sign in. Check:
+登录后检查：
 
-- `/api/chat` returns `200` when authenticated; `401` when not.
-- `/api/threads` returns only the current user's threads.
-- A second user (incognito tab) sees a different thread list.
-- The session cookie set by `/api/auth/sign-in/*` is `HttpOnly` and travels with same-origin fetches.
+- 身份验证成功时，`/api/chat` 返回 `200`；未通过身份验证时返回 `401`。
+- `/api/threads` 仅返回当前用户的线程。
+- 第二个用户（使用无痕标签页）会看到不同的线程列表。
+- `/api/auth/sign-in/*` 设置的会话 Cookie 是 `HttpOnly`，并会随同源 fetch 请求一起发送。
 
 </Step>
 </Steps>
 
-## Notes
+## 注意事项
 
-- **`session.user.id` is populated by default.** The `id` field comes from the user row better-auth manages, so route handlers can scope queries without any callback configuration.
-- **Cookie-based, same-origin.** Browser fetches automatically include the session cookie. If you split the API onto a different host, set `credentials: "include"` and configure CORS on the API.
-- **Database alignment.** If you use Drizzle and put both better-auth's user schema and your threads schema in the same database, foreign keys keep deletes consistent. better-auth's CLI generates the user schema; add your `threads` table referencing `user.id`.
-- **Edge runtime.** `auth.api.getSession` works in both Node and Edge runtimes when better-auth is configured for an edge-compatible adapter.
-- **Cloud users.** [AssistantCloud's auth-provider integrations](/docs/cloud/authorization) cover Clerk, Auth0, Supabase, and Firebase via JWT exchange. To pair Cloud with better-auth, use the [backend-server token approach](/docs/cloud/authorization#backend-server-approach): resolve `session.user.id` server-side, mint an Assistant Cloud token with that id as the `userId`, and return it from a token endpoint.
+- **`session.user.id` 默认会填充。**`id` 字段来自 better-auth 管理的用户行，因此路由处理器无需任何回调配置即可限定查询范围。
+- **基于 Cookie、同源。**浏览器 fetch 会自动包含会话 Cookie。如果将 API 拆分到其他主机，请设置 `credentials: "include"`，并在 API 上配置 CORS。
+- **数据库对齐。**如果使用 Drizzle，并将 better-auth 的用户 schema 与线程 schema 放在同一个数据库中，外键可以确保删除操作保持一致。better-auth 的 CLI 会生成用户 schema；请添加引用 `user.id` 的 `threads` 表。
+- **Edge 运行时。**当 better-auth 配置为使用兼容 Edge 的适配器时，`auth.api.getSession` 可同时运行在 Node 和 Edge 运行时中。
+- **云端用户。**[AssistantCloud 的身份验证提供商集成](/docs/cloud/authorization)通过 JWT 交换支持 Clerk、Auth0、Supabase 和 Firebase。若要将 Cloud 与 better-auth 搭配使用，请采用[后端服务器令牌方案](/docs/cloud/authorization#backend-server-approach)：在服务端解析 `session.user.id`，以该 ID 作为 `userId` 生成 Assistant Cloud 令牌，并从令牌端点返回它。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
-    title="Custom thread persistence"
-    description="The persistence story this page builds on; required for per-user threads outside AssistantCloud."
+    title="自定义线程持久化"
+    description="本页面所构建的持久化方案；在 AssistantCloud 之外实现按用户区分的线程时必需。"
     href="/docs/integrations/persistence/custom-adapter"
   />
   <Card
     title="Auth.js (next-auth)"
-    description="The other common Next.js auth library. Different session shape; same wiring approach."
+    description="另一个常见的 Next.js 身份验证库。会话结构不同，但接线方式相同。"
     href="/docs/integrations/auth/next-auth"
   />
   <Card
-    title="Threads (concepts)"
-    description="The full RemoteThreadListAdapter contract and reload-on-auth pattern."
+    title="线程（概念）"
+    description="完整的 RemoteThreadListAdapter 契约和身份验证后重新加载模式。"
     href="/docs/runtimes/concepts/threads"
   />
 </Cards>

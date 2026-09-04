@@ -1,41 +1,38 @@
 ---
-title: Runtime options
-description: useAgUiRuntime options, adapters, message conversion, thread list.
+title: 运行时选项
+description: useAgUiRuntime 选项、适配器、消息转换、线程列表。
 ---
 
 import { AguiIcon } from "@/components/icons/agui";
 
-Reference for the runtime's API surface. Start with [quickstart](/docs/runtimes/ag-ui/quickstart) if you have not already.
+运行时 API 的参考文档。如果你还没有阅读过，请先从[快速入门](/docs/runtimes/ag-ui/quickstart)开始。
 
-## useAgUiRuntime options
+## useAgUiRuntime 选项
 
-| Option | Type | Description |
+| 选项 | 类型 | 描述 |
 | --- | --- | --- |
-| `agent` | `HttpAgent` | An AG-UI client agent (from `@ag-ui/client`). Required. |
-| `logger` | `Partial<Logger>` | Optional logger overrides. The runtime logs event-parser warnings and run lifecycle events. |
-| `showThinking` | `boolean` | Whether to render `THINKING_*` and `REASONING_*` events as visible reasoning. Defaults to `true`. |
-| `autoCancelPendingToolCalls` | `boolean` | Cancel unresolved client-side tool calls automatically when the user sends, edits, or reloads a message. Defaults to `true`. See [below](#auto-cancelling-pending-tool-calls). |
-| `onError` | `(e: Error) => void` | Error callback fired on `RUN_ERROR` events and protocol errors. |
-| `onCancel` | `() => void` | Cancellation callback fired when a run is cancelled, including user cancel and runtime teardown. |
-| `adapters` | `UseAgUiRuntimeAdapters` | Standard adapter slots (see below). |
+| `agent` | `HttpAgent` | AG-UI 客户端代理（来自 `@ag-ui/client`）。必填。 |
+| `logger` | `Partial<Logger>` | 可选的日志记录器覆盖配置。运行时会记录事件解析器警告和运行生命周期事件。 |
+| `showThinking` | `boolean` | 是否将 `THINKING_*` 和 `REASONING_*` 事件渲染为可见的推理内容。默认为 `true`。 |
+| `autoCancelPendingToolCalls` | `boolean` | 当用户发送、编辑或重新加载消息时，是否自动取消未解决的客户端工具调用。默认为 `true`。参见[下文](#auto-cancelling-pending-tool-calls)。 |
+| `onError` | `(e: Error) => void` | 在 `RUN_ERROR` 事件和协议错误发生时触发的错误回调。 |
+| `onCancel` | `() => void` | 运行被取消时触发的取消回调，包括用户取消和运行时销毁。 |
+| `adapters` | `UseAgUiRuntimeAdapters` | 标准适配器插槽（见下文）。 |
 
-## Adapter slots
+## 适配器插槽
 
-| Adapter | Slot | Notes |
+| 适配器 | 插槽 | 备注 |
 | --- | --- | --- |
-| Attachments | `adapters.attachments` | See [attachment adapter](/docs/runtimes/concepts/adapters#attachment-adapter). |
-| Speech | `adapters.speech` | Text-to-speech. See [speech adapter](/docs/runtimes/concepts/adapters#speech-adapter). |
-| Dictation | `adapters.dictation` | Speech-to-text input. |
-| Feedback | `adapters.feedback` | Thumbs up / down. See [feedback adapter](/docs/runtimes/concepts/adapters#feedback-adapter). |
-| History | `adapters.history` | Per-thread message persistence. |
-| Thread list | `adapters.threadList` | Multi-thread switching (experimental, see below). |
+| 附件 | `adapters.attachments` | 请参阅[附件适配器](/docs/runtimes/concepts/adapters#attachment-adapter)。 |
+| 语音 | `adapters.speech` | 文本转语音。请参阅[语音适配器](/docs/runtimes/concepts/adapters#speech-adapter)。 |
+| 听写 | `adapters.dictation` | 语音转文本输入。 |
+| 反馈 | `adapters.feedback` | 点赞/点踩。请参阅[反馈适配器](/docs/runtimes/concepts/adapters#feedback-adapter)。 |
+| 历史记录 | `adapters.history` | 按线程持久化消息。 |
+| 线程列表 | `adapters.threadList` | 多线程切换（实验性功能，见下文）。 |
 
-## Loading conversation history
+## 加载会话历史
 
-If your backend exposes the persisted AG-UI messages of a conversation (for
-example a `GET /agents/state` endpoint), use `fromAgUiMessages` to convert them
-to assistant-ui messages and return them from the history adapter so the thread
-is restored on page load:
+如果后端公开了某个会话中持久化的 AG-UI 消息（例如 `GET /agents/state` 端点），请使用 `fromAgUiMessages` 将其转换为 assistant-ui 消息，并从历史记录适配器中返回这些消息，以便线程在页面加载时恢复：
 
 ```tsx
 import { fromAgUiMessages } from "@assistant-ui/react-ag-ui";
@@ -57,37 +54,29 @@ const runtime = useAgUiRuntime({
 });
 ```
 
-Messages sent during the session are always forwarded to the agent through the
-run input, independent of `append`. A no-op `append` is therefore only safe when
-your backend already persists the conversation on its own; otherwise those
-messages are gone on the next page load.
+会话期间发送的消息始终会通过运行输入转发给代理，与 `append` 无关。因此，只有当后端已经自行持久化会话时，空操作 `append` 才是安全的；否则，这些消息会在下一次页面加载时丢失。
 
-`fromAgUiMessages` accepts an optional second argument: pass
-`{ showThinking: false }` to match a runtime configured with
-`showThinking: false`, so the readable text of an imported reasoning message is
-dropped at conversion time, the same way a live run never stores it. An
-`encryptedValue` on that message is kept, because it is opaque state the agent
-needs back rather than something the option hides.
+`fromAgUiMessages` 接受一个可选的第二个参数：传入 `{ showThinking: false }`，以匹配配置了 `showThinking: false` 的运行时。这样，导入的推理消息中的可读文本会在转换时被丢弃，就像实时运行永远不会存储该文本一样。消息上的 `encryptedValue` 会被保留，因为它是不透明的状态，代理需要将其取回，而不是该选项要隐藏的内容。
 
-Reasoning makes the round trip in the shape it arrived in. `fromAgUiMessages` imports a `reasoning` record as an assistant message holding a reasoning part, and the run input converts that part back into a standalone `reasoning` record instead of dropping it, so a reloaded thread keeps its reasoning history on the next run. A reasoning part on an assistant message that also has text or tool calls leaves as its own `reasoning` record placed ahead of that assistant record; the AG-UI message body carries no run identity, so the original position of reasoning within a run is not recoverable.
+推理会以其到达时的形状完成往返。`fromAgUiMessages` 会将 `reasoning` 记录导入为包含推理部分的助手消息，而运行输入会将该部分转换回独立的 `reasoning` 记录，而不是将其丢弃，因此重新加载的线程会在下一次运行时保留其推理历史。若助手消息中的推理部分同时包含文本或工具调用，则该推理部分会作为独立的 `reasoning` 记录，在该助手记录之前输出；AG-UI 消息体不携带运行标识，因此无法恢复推理在一次运行中的原始位置。
 
-The encrypted value survives with it. AG-UI describes it as an opaque chain-of-thought blob the client stores and forwards for state continuity, not as a signature computed over the text. An imported `ReasoningMessage` carrying `encryptedValue` keeps it at `providerMetadata.agui.encryptedValue` on the part, and a live run picks the same value up from the `REASONING_ENCRYPTED_VALUE` event (`subtype: "message"`, keyed by `entityId`), so reasoning from either source is re-emitted with the value intact and an agent that needs it back can replay it. A record whose readable `content` is empty and whose payload lives entirely in `encryptedValue`, the zero-data-retention shape AG-UI describes when an agent advertises `capabilities.reasoning.encrypted`, is preserved on the import path only. It has nothing to render by construction, so it never becomes a message or a part; it rides on `metadata.custom.agui.opaqueReasoning` of the message it sat next to on the wire and is replayed into the run input adjacent to that message. `showThinking` does not discard it. That option hides reasoning from the UI, and the encrypted value is opaque state the agent needs back rather than something rendered, so a hidden record keeps it and loses only the readable text. This is an import-path guarantee: a live run with `showThinking: false` opens no reasoning block, so a `REASONING_ENCRYPTED_VALUE` arriving during it resolves no slot and is not retained. The same thread therefore carries the value after a reload but not within the live session that produced it. A consumer calling `fromAgUiMessages` directly sees the metadata rather than a part.
+加密值也会随之保留。AG-UI 将其描述为不透明的思维链数据块，由客户端存储并转发以保持状态连续性，而不是根据文本计算出的签名。携带 `encryptedValue` 的导入 `ReasoningMessage` 会将其保留在部分的 `providerMetadata.agui.encryptedValue` 中，而实时运行会从 `REASONING_ENCRYPTED_VALUE` 事件中获取相同的值（`subtype: "message"`，键为 `entityId`）。因此，来自任一来源的推理都会以完整保留该值的形式重新输出，需要取回该值的代理也能够重放它。当一条记录的可读 `content` 为空，且其负载完全位于 `encryptedValue` 中时，这就是 AG-UI 在代理声明 `capabilities.reasoning.encrypted` 时描述的零数据保留形式，该记录仅在导入路径上保留。它按设计没有任何可渲染内容，因此不会成为消息或部分；它会附加到线路上与其相邻的消息的 `metadata.custom.agui.opaqueReasoning` 中，并在运行输入中重放到该消息旁边。`showThinking` 不会丢弃它。该选项会将推理从 UI 中隐藏，而加密值是不透明的状态，代理需要将其取回，并非用于渲染的内容，因此隐藏的记录会保留该值，只丢失可读文本。这是导入路径的保证：启用 `showThinking: false` 的实时运行不会打开推理块，因此运行期间到达的 `REASONING_ENCRYPTED_VALUE` 无法解析到任何槽位，也不会被保留。因此，同一线程在重新加载后会携带该值，但不会在产生它的实时会话中携带该值。直接调用 `fromAgUiMessages` 的使用者看到的是元数据，而不是部分。
 
-Three limits apply to that record. A live stream that emits no readable content produces no reasoning part, so the runtime has nothing to attach the value to; only `fromAgUiMessages` preserves it, whether you call it yourself or the runtime calls it for you while importing a `MESSAGES_SNAPSHOT`. A record that sat between an assistant message and its own tool result is replayed after that tool result rather than between the two, because the import folds the result into the assistant message and the boundary is gone by export. A record in a snapshot that contains no other message has nothing to anchor to and is dropped.
+该记录有三个限制。不会输出可读内容的实时流不会生成推理部分，因此运行时没有可供附加该值的对象；只有 `fromAgUiMessages` 会保留它，无论是由你直接调用，还是由运行时在导入 `MESSAGES_SNAPSHOT` 时为你调用。位于助手消息及其自身工具结果之间的记录，会在该工具结果之后重放，而不是位于二者之间，因为导入过程会将结果折叠到助手消息中，而导出时边界已经消失。快照中没有其他消息的记录没有可供锚定的对象，因此会被丢弃。
 
-Sending reasoning back is what the protocol asks for, and the inbound side has to handle it. `ag-ui-langgraph` is worth pinning for that reason: below 0.0.36 it raises `ValueError: Unsupported message role: reasoning` on the second turn of any thread that produced reasoning, because its converter recognised only the user, assistant, system, and tool roles. 0.0.36 skips inbound `reasoning` and `developer` records instead of raising, so the turn succeeds but the reasoning is discarded. 0.0.42 re-attaches an inbound `reasoning` record as a content block on the assistant message that follows it, encrypted content included, so the replay actually reaches the model; a record that no assistant message follows is still discarded there, which is what becomes of one replayed after the last message of a thread. Keep it at 0.0.36 or newer to avoid the error, and at 0.0.42 or newer for the replay to be worth anything.
+协议要求将推理发回，因此入站端必须处理它。出于这一原因，`ag-ui-langgraph` 值得固定版本：在 0.0.36 之前，任何产生过推理的线程在第二轮运行时都会抛出 `ValueError: Unsupported message role: reasoning`，因为其转换器只识别用户、助手、系统和工具角色。0.0.36 会跳过入站的 `reasoning` 和 `developer` 记录，而不是抛出错误，因此该轮运行能够成功，但推理会被丢弃。0.0.42 会将入站的 `reasoning` 记录重新附加为其后续助手消息上的内容块，其中也包括加密内容，因此重放内容确实能够到达模型；如果其后没有助手消息，该记录仍会在那里被丢弃，这正是在线程最后一条消息之后重放的记录的结果。请至少使用 0.0.36，以避免错误；如需让重放真正有意义，请至少使用 0.0.42。
 
-What a server does with a replayed record remains its own choice, so treat continuity as best effort rather than guaranteed. `ag-ui-langgraph` covers all three behaviours across those three versions, and another integration may pick any of them; an `encryptedValue` reaches the provider only where the server forwards it.
+服务器如何处理重放的记录仍由服务器自行决定，因此应将连续性视为尽力而为，而不是保证。`ag-ui-langgraph` 涵盖了这三个版本中的全部三种行为，其他集成可能采用其中任意一种；只有在服务器转发 `encryptedValue` 的情况下，它才会到达提供商。
 
-`fromAgUiMessages` reconstructs the text, reasoning, and tool calls of each message. Multimodal user input (`image`, `audio`, `video`, and `document` parts, as well as legacy `binary` parts) is restored as attachments on the user message, so a backend that persists multimodal messages shows them again on reload and re-sends them on the next run. Legacy `binary` parts that only reference a file id are not restored.
+`fromAgUiMessages` 会重建每条消息的文本、推理和工具调用。多模态用户输入（`image`、`audio`、`video` 和 `document` 部分，以及旧版 `binary` 部分）会作为用户消息上的附件恢复。因此，持久化多模态消息的后端会在重新加载时再次显示它们，并在下一次运行时重新发送它们。仅引用文件 ID 的旧版 `binary` 部分不会被恢复。
 
-An assistant message whose tool call has no matching tool result is reconstructed with `requires-action` status, the same status the runtime derives for a pending tool call, so a reloaded human-in-the-loop call (for example an `ask_user` tool) is actionable rather than stuck. This matches how every other external-store runtime surfaces a pending tool call on reload. The AG-UI wire snapshot carries no run outcome, so a tool call that a successful run intentionally left without a result is also surfaced as actionable.
+如果助手消息中的工具调用没有匹配的工具结果，则会以 `requires-action` 状态重建，这与运行时为待处理工具调用推导出的状态相同。因此，重新加载后的人在回路工具调用（例如 `ask_user` 工具）仍可操作，而不会陷入卡住状态。这与其他外部状态存储运行时在重新加载时呈现待处理工具调用的方式一致。AG-UI 线路快照不携带运行结果，因此，即使某次成功运行有意留下了没有结果的工具调用，该调用也会被呈现为可操作状态。
 
-Interrupts are restored when your backend persists them on the assistant message. The AG-UI message body has no interrupt field, so persist the runtime's own `metadata.custom.agui.interrupts` array alongside the message; `fromAgUiMessages` reads it back, reconstructs `requires-action` / `interrupt` status, and re-attaches the metadata, so `getPendingInterrupts`, `useAgUiInterrupts`, and `submitInterruptResponses` work on reload. When both a pending tool call and an interrupt are present on the same message, interrupt status wins. Without the persisted array, interrupt state cannot be reconstructed.
+当后端将中断持久化到助手消息上时，中断也会被恢复。AG-UI 消息体没有中断字段，因此请将运行时自身的 `metadata.custom.agui.interrupts` 数组与消息一起持久化；`fromAgUiMessages` 会读取该数组，重建 `requires-action` / `interrupt` 状态，并重新附加元数据，因此 `getPendingInterrupts`、`useAgUiInterrupts` 和 `submitInterruptResponses` 在重新加载后仍可正常工作。如果同一消息上同时存在待处理工具调用和中断，则以中断状态为准。没有持久化的数组，就无法重建中断状态。
 
-## Building AG-UI run input
+## 构建 AG-UI 运行输入
 
-`toAgUiMessages` is the converter the runtime uses to build `runAgent` input. Use it when you own the transport, for example an AG-UI WebSocket, and need the same conversion from `onNew`'s `AppendMessage`:
+`toAgUiMessages` 是运行时用于构建 `runAgent` 输入的转换器。当你负责传输层（例如 AG-UI WebSocket），并且需要对 `onNew` 的 `AppendMessage` 进行相同的转换时，请使用它：
 
 ```tsx
 import { toAgUiMessages } from "@assistant-ui/react-ag-ui";
@@ -95,21 +84,21 @@ import { toAgUiMessages } from "@assistant-ui/react-ag-ui";
 const [agUiMessage] = toAgUiMessages([message]);
 ```
 
-`AppendMessage` has no `id`. The converter assigns one so the AG-UI message schema is satisfied. A caller-supplied id is kept. A generated id is new on every call, so convert once and send that object. Only `user`, `assistant`, `system`, `developer`, `tool`, and `reasoning` inputs are converted.
+`AppendMessage` 没有 `id`。转换器会为其分配一个，以满足 AG-UI 消息架构的要求。调用方提供的 id 会被保留。每次调用都会生成新的 id，因此请转换一次后发送该对象。只有 `user`、`assistant`、`system`、`developer`、`tool` 和 `reasoning` 输入会被转换。
 
-## Thread list (experimental)
+## 线程列表（实验性）
 
 <Callout type="warn">
-The thread list adapter is currently experimental and may change without notice.
+线程列表适配器目前处于实验阶段，可能会在不另行通知的情况下发生变化。
 </Callout>
 
-`UseAgUiThreadListAdapter` lets you back the thread list with your own state.
+`UseAgUiThreadListAdapter` 允许你使用自己的状态管理线程列表。
 
-| Option | Type | Description |
+| 选项 | 类型 | 描述 |
 | --- | --- | --- |
-| `threadId` | `string` | The currently active thread ID. |
-| `onSwitchToNewThread` | `() => Promise<void>` | Called when the user creates a new thread. Reset your thread state here. |
-| `onSwitchToThread` | `(threadId: string) => Promise<{ messages, state? }>` | Called when the user switches threads. Return the persisted messages (and optional opaque state). |
+| `threadId` | `string` | 当前处于活动状态的线程 ID。 |
+| `onSwitchToNewThread` | `() => Promise<void>` | 用户创建新线程时调用。在此处重置线程状态。 |
+| `onSwitchToThread` | `(threadId: string) => Promise<{ messages, state? }>` | 用户切换线程时调用。返回已持久化的消息（以及可选的不透明状态）。 |
 
 ```tsx
 const runtime = useAgUiRuntime({
@@ -130,24 +119,24 @@ const runtime = useAgUiRuntime({
 });
 ```
 
-## Interrupts (experimental)
+## 中断（实验性）
 
 <Callout type="warn">
-The interrupt API is experimental and may change without notice.
+中断 API 具有实验性，可能会随时更改，恕不另行通知。
 </Callout>
 
-When the agent emits `RUN_FINISHED` with `outcome = { type: "interrupt", interrupts: [...] }`, the active assistant message is marked `requires-action` with `reason: "interrupt"` and the `Interrupt[]` payload is written to `metadata.custom.agui.interrupts`. Render an approval / input UI from there.
+当代理发出 `RUN_FINISHED` 并携带 `outcome = { type: "interrupt", interrupts: [...] }` 时，活动助手消息会被标记为 `requires-action`，并附带 `reason: "interrupt"`；`Interrupt[]` 负载会写入 `metadata.custom.agui.interrupts`。接下来可以据此渲染审批 / 输入 UI。
 
-Because the protocol carries the outcome only on `RUN_FINISHED`, a registered frontend tool does not run while the run is still open: its `execute` fires once the run's outcome is known, so a gate can never land on a call the client has already executed.
+由于协议只会在 `RUN_FINISHED` 上携带结果，因此运行仍处于打开状态时，已注册的前端工具不会运行：其 `execute` 会在运行结果已知后触发，所以网关不会落在客户端已经执行过的调用上。
 
-`useAgUiRuntime` returns an `AgUiAssistantRuntime` with two extra methods:
+`useAgUiRuntime` 返回一个 `AgUiAssistantRuntime`，并额外提供两个方法：
 
-| Method | Description |
+| 方法 | 描述 |
 | --- | --- |
-| `unstable_getPendingInterrupts(): readonly AgUiInterrupt[]` | Snapshot of the open interrupts on the most recent assistant message. |
-| `unstable_submitInterruptResponses(responses: ResumeEntry[]): Promise<void>` | Submits one `ResumeEntry` per open interrupt and resumes the run. |
+| `unstable_getPendingInterrupts(): readonly AgUiInterrupt[]` | 最近一条助手消息中处于打开状态的中断的快照。 |
+| `unstable_submitInterruptResponses(responses: ResumeEntry[]): Promise<void>` | 为每个处于打开状态的中断提交一个 `ResumeEntry`，并恢复运行。 |
 
-`responses` must address every open interrupt; missing entries, unknown ids, or expired interrupts (`expiresAt`) reject before any network call. Each entry is `{ interruptId, status: "resolved" | "cancelled", payload? }`. The next `RunAgentInput` carries `resume: ResumeEntry[]`.
+`responses` 必须处理每个处于打开状态的中断；缺少条目、未知 ID 或已过期的中断（`expiresAt`）会在发起任何网络调用前被拒绝。每个条目都是 `{ interruptId, status: "resolved" | "cancelled", payload? }`。下一条 `RunAgentInput` 会携带 `resume: ResumeEntry[]`。
 
 ```tsx
 const runtime = useAgUiRuntime({ agent });
@@ -162,11 +151,11 @@ await runtime.unstable_submitInterruptResponses(
 );
 ```
 
-### Steering away from an interrupt
+### 从中断转向其他操作
 
-When the user ignores the interrupt UI and just sends a new message, use the `useAgUiSteerAway` hook. Every open interrupt defaults to `status: "cancelled"`, the new message is appended, and the run resumes with `resume: ResumeEntry[]` on the wire.
+当用户忽略中断 UI，直接发送新消息时，请使用 `useAgUiSteerAway` hook。每个处于打开状态的中断默认会被设为 `status: "cancelled"`，新消息会被追加，并在传输层中携带 `resume: ResumeEntry[]` 以恢复运行。
 
-The same hook also steers away from pending client-side tool calls. When the head assistant message is in `requires-action` with `reason: "tool-calls"` (frontend tools awaiting a result) and the user sends a new message, every unresolved tool call is cancelled with an error result, the message is completed, and a single fresh run starts with those cancellations in its history. Passing `responses` in this case throws, since responses only address interrupts. With nothing pending, `steerAway` behaves like a normal append.
+同一个 hook 也可以从待处理的客户端工具调用转向其他操作。当头部助手消息处于 `requires-action` 状态，并带有 `reason: "tool-calls"`（等待结果的前端工具）时，如果用户发送新消息，所有未解决的工具调用都会被取消，并返回错误结果；消息会被完成，同时启动一次新的运行，并将这些取消操作纳入其历史记录。在此情况下传入 `responses` 会抛出异常，因为响应只能处理中断。没有待处理项时，`steerAway` 的行为与普通追加相同。
 
 ```tsx
 const steerAway = useAgUiSteerAway();
@@ -175,7 +164,7 @@ const steerAway = useAgUiSteerAway();
 await steerAway("actually, let's do something else");
 ```
 
-The message accepts a plain string or a partial `AppendMessage` (the parent defaults to the current head, which is the interrupted assistant message). Pass `responses` to override the status of specific interrupts; the rest still default to cancelled.
+该消息接受普通字符串或部分 `AppendMessage`（父级默认使用当前头部，即被中断的助手消息）。传入 `responses` 可覆盖特定中断的状态；其余中断仍默认被取消。
 
 ```tsx
 await steerAway("continue without the file", [
@@ -183,63 +172,63 @@ await steerAway("continue without the file", [
 ]);
 ```
 
-### Auto-cancelling pending tool calls
+### 自动取消待处理的工具调用
 
-By default the runtime does the tool-call half of this automatically: when client-side tool calls are still unresolved and the user sends a new message, edits an earlier one, or reloads, every unresolved tool call receives the same cancellation error result, the assistant message is completed, and the run proceeds with those cancellations in its history. Set `autoCancelPendingToolCalls: false` to opt out, in which case pending tool calls stay unresolved on a plain send and [steering away](#steering-away-from-an-interrupt) remains the explicit way to cancel them.
+默认情况下，运行时会自动完成工具调用的取消部分：当客户端工具调用仍未解决，而用户发送新消息、编辑较早的消息或重新加载页面时，所有未解决的工具调用都会收到相同的取消错误结果，助手消息会被完成，运行会继续，并将这些取消操作纳入其历史记录。设置 `autoCancelPendingToolCalls: false` 可选择退出此行为；此时，普通发送不会解决待处理的工具调用，而[从中断转向其他操作](#steering-away-from-an-interrupt)仍是取消它们的显式方式。
 
-Pending interrupts are never auto-cancelled: sending while an interrupt is open still throws, and the interrupt must be answered with `useAgUiSubmitInterruptResponses` or discarded with `useAgUiSteerAway`.
+待处理的中断永远不会被自动取消：中断处于打开状态时发送消息仍会抛出异常，必须使用 `useAgUiSubmitInterruptResponses` 回答中断，或使用 `useAgUiSteerAway` 丢弃中断。
 
-## Subagents
+## 子代理
 
-A backend running the agents-as-tools pattern emits `SUBAGENT_STARTED` / `SUBAGENT_FINISHED` / `SUBAGENT_ERROR` plus a `subagentRunId` on every event that subagent produces. The runtime groups that activity into one nested assistant message per subagent run and attaches it to the spawning tool call as `ToolCallMessagePart.messages`, joined on `SUBAGENT_STARTED.parentToolCallId`. [`MessagePartPrimitive.Messages`](/docs/tools/multi-agent) renders it with no extra wiring, and the run's `name`, `description`, `parentSubagentRunId`, `result`, `interruptIds`, and `errorCode` ride on the nested message's `metadata.custom.agui`.
+采用 agents-as-tools 模式运行代理的后端，会在每个子代理产生的事件中发出 `SUBAGENT_STARTED` / `SUBAGENT_FINISHED` / `SUBAGENT_ERROR`，并附带一个 `subagentRunId`。运行时会将这些活动归组为每次子代理运行对应的一条嵌套助手消息，并通过 `ToolCallMessagePart.messages` 将其附加到生成该子代理的工具调用上，再通过 `SUBAGENT_STARTED.parentToolCallId` 将二者关联。[`MessagePartPrimitive.Messages`](/docs/tools/multi-agent) 无需额外接线即可渲染这些内容，而本次运行的 `name`、`description`、`parentSubagentRunId`、`result`、`interruptIds` 和 `errorCode` 会通过嵌套消息的 `metadata.custom.agui` 传递。
 
-A subagent that names no reachable spawning call has nowhere to nest, so its output renders in the parent thread instead of being dropped. `parentToolCallId` is optional, may name a call this run never saw, and two runs may name each other; each of those falls back to flat rendering, matching the downgrade the protocol's own pre-subagent compatibility middleware performs. A malformed or cyclic parent chain is bounded by a depth guard rather than followed.
+没有命名任何可达生成调用的子代理没有可嵌套的位置，因此其输出会渲染在父线程中，而不会被丢弃。`parentToolCallId` 是可选的，可以命名本次运行从未见过的调用；两个运行也可以互相命名。在这些情况下，都会回退为扁平渲染，这与协议自身在子代理之前执行的兼容性中间件所进行的降级一致。格式错误或存在循环的父级链会受到深度保护限制，而不会被继续追踪。
 
-A repeated `SUBAGENT_STARTED` for an id the run has already seen is treated as a continuation, since a suspended subagent is re-announced on resume. It refreshes the descriptive fields and reopens the status, but never re-parents an established run, which would move already-rendered output to a different tool call.
+对于运行已经见过的 id，重复出现的 `SUBAGENT_STARTED` 会被视为延续，因为挂起的子代理会在恢复时重新声明。它会刷新描述性字段并重新打开状态，但绝不会重新设置已建立运行的父级关系，否则已经渲染的输出会被移动到另一个工具调用下。
 
-A subagent's frontend-executed tool calls behave the same way the root agent's do: a call nested on `ToolCallMessagePart.messages` is reachable by `getPendingToolCalls()`, resolves through `addToolResult`, and its result rides the resume as a `tool` record on the spawning assistant record. Approval gates cover nested calls too, so a gate naming a subagent-scoped call projects onto the nested part, the frontend tool stays unexecuted while the gate is open, and an undecided gate's result is never exported to the backend.
+子代理在前端执行的工具调用与根代理的行为相同：嵌套在 `ToolCallMessagePart.messages` 上的调用可以通过 `getPendingToolCalls()` 访问，通过 `addToolResult` 解析，其结果会作为生成该调用的助手记录上的 `tool` 记录，随恢复操作传递。审批门也涵盖嵌套调用，因此，命名子代理作用域内调用的门会投影到嵌套部分；门处于打开状态时，前端工具不会执行；而未决门的结果永远不会导出到后端。
 
-Two limitations are worth knowing before you rely on this:
+在依赖此功能之前，需要了解以下两个限制：
 
-- **Nested structure does not survive a reload.** Thread restore reads the flattened wire shape, so a restored subagent tool call comes back as a root-level part rather than nested under its spawning call. Results and decisions are preserved; only the nesting is not.
+- **重新加载后嵌套结构不会保留。** 线程恢复会读取扁平化的线协议结构，因此恢复后的子代理工具调用会作为根级部分返回，而不会嵌套在生成它的调用下。结果和决策都会保留，只有嵌套关系不会保留。
 
-- **Nested human-in-the-loop has no resume path.** A `SUBAGENT_FINISHED` carrying a `suspended` outcome marks the nested message `requires-action` and preserves its `interruptIds` on the message metadata, but nothing answers them yet.
+- **嵌套的人在回路没有恢复路径。** 携带 `suspended` 结果的 `SUBAGENT_FINISHED` 会标记嵌套消息的 `requires-action`，并在消息元数据中保留其 `interruptIds`，但目前还没有任何机制响应这些内容。
 
-### Compared to LangChain
+### 与 LangChain 的比较
 
-`@assistant-ui/react-langchain` exposes subagents as discovery; AG-UI exposes them as structure. `useLangChainSubagents()` returns a namespace-keyed map and leaves message fetching to the caller (see [subagent and subgraph views](/docs/runtimes/langchain#subagent-and-subgraph-views)), while this runtime nests the messages directly and offers no discovery hook. Neither runtime provides the other's shape, and the split follows the protocols rather than taste: AG-UI carries an explicit `parentToolCallId` on the lifecycle event, a precise join that LangChain's namespace scheme cannot give, so nesting is available here and not there.
+`@assistant-ui/react-langchain` 将子代理作为发现机制公开；AG-UI 则将其作为结构公开。`useLangChainSubagents()` 返回一个以命名空间为键的映射，并将消息获取留给调用方（参见[子代理和子图视图](/docs/runtimes/langchain#subagent-and-subgraph-views)）；而此运行时会直接嵌套消息，不提供发现钩子。两种运行时都不提供对方的结构，这种差异源于协议而非偏好：AG-UI 在生命周期事件上携带明确的 `parentToolCallId`，提供了 LangChain 的命名空间方案无法实现的精确关联，因此这里可以进行嵌套，而那里不行。
 
-## Supported events
+## 支持的事件
 
-The runtime parses the AG-UI event stream and maps each event type to assistant-ui state.
+运行时会解析 AG-UI 事件流，并将每种事件类型映射到 assistant-ui 状态。
 
-| Event | Effect |
+| 事件 | 作用 |
 | --- | --- |
-| `RUN_STARTED` / `RUN_FINISHED` | Toggles thread `isRunning`. `RUN_FINISHED.outcome` is honored (success / interrupt). |
-| `RUN_CANCELLED` | Marks the in-flight assistant message as cancelled. |
-| `RUN_ERROR` | Marks the message as errored; fires `onError`. |
-| `TEXT_MESSAGE_START` / `_CONTENT` / `_END` | Streams text content into an assistant message. |
-| `TEXT_MESSAGE_CHUNK` | Appends a delta without explicit lifecycle. |
-| `THINKING_START` / `_END` | Wraps reasoning blocks (when `showThinking` is on). |
-| `THINKING_TEXT_MESSAGE_*` | Streams thinking text deltas. |
-| `REASONING_START` / `_MESSAGE_*` / `_END` | Streams structured reasoning per message. |
-| `TOOL_CALL_START` / `_ARGS` / `_END` | Streams tool calls into the current assistant message. |
-| `TOOL_CALL_CHUNK` | Streams tool deltas without explicit lifecycle. |
-| `TOOL_CALL_RESULT` | Attaches a tool result to a tool call. |
-| `SUBAGENT_STARTED` | Opens a nested assistant message for the subagent run, attached to the tool call named by `parentToolCallId`. |
-| `SUBAGENT_FINISHED` | Completes the nested message and records `result`; a `suspended` outcome marks it `requires-action`. |
-| `SUBAGENT_ERROR` | Marks the nested message errored with `message`, and records `code` as `errorCode`. |
-| `STATE_SNAPSHOT` | Replaces the agent's external state. |
-| `STATE_DELTA` | Applies a JSON-patch-style delta to the agent's state. |
-| `MESSAGES_SNAPSHOT` | Replaces the full message list (used for thread restore). |
-| `CUSTOM` | Appended to the in-flight assistant message as a `data` part. |
-| `RAW` | Parsed and ignored; unrecognized wire event types are normalized into `RAW`. |
+| `RUN_STARTED` / `RUN_FINISHED` | 切换线程 `isRunning`。`RUN_FINISHED.outcome` 会被遵循（成功 / 中断）。 |
+| `RUN_CANCELLED` | 将正在处理中的助手消息标记为已取消。 |
+| `RUN_ERROR` | 将消息标记为出错；触发 `onError`。 |
+| `TEXT_MESSAGE_START` / `_CONTENT` / `_END` | 将文本内容流式传输到助手消息中。 |
+| `TEXT_MESSAGE_CHUNK` | 在没有显式生命周期的情况下追加增量。 |
+| `THINKING_START` / `_END` | 包裹推理块（当 `showThinking` 启用时）。 |
+| `THINKING_TEXT_MESSAGE_*` | 流式传输思考文本增量。 |
+| `REASONING_START` / `_MESSAGE_*` / `_END` | 按消息流式传输结构化推理。 |
+| `TOOL_CALL_START` / `_ARGS` / `_END` | 将工具调用流式传输到当前助手消息中。 |
+| `TOOL_CALL_CHUNK` | 在没有显式生命周期的情况下流式传输工具增量。 |
+| `TOOL_CALL_RESULT` | 将工具结果附加到工具调用。 |
+| `SUBAGENT_STARTED` | 为子代理运行打开嵌套助手消息，并将其附加到名为 `parentToolCallId` 的工具调用。 |
+| `SUBAGENT_FINISHED` | 完成嵌套消息并记录 `result`；`suspended` 结果会将其标记为 `requires-action`。 |
+| `SUBAGENT_ERROR` | 使用 `message` 将嵌套消息标记为出错，并将 `code` 记录为 `errorCode`。 |
+| `STATE_SNAPSHOT` | 替换代理的外部状态。 |
+| `STATE_DELTA` | 将 JSON Patch 风格的增量应用到代理状态。 |
+| `MESSAGES_SNAPSHOT` | 替换完整消息列表（用于恢复线程）。 |
+| `CUSTOM` | 作为 `data` 部分追加到正在处理中的助手消息。 |
+| `RAW` | 解析后忽略；无法识别的线路事件类型会被规范化为 `RAW`。 |
 
-### Custom events
+### 自定义事件
 
-`CUSTOM` events are the protocol's extension mechanism for application-defined data. Each event is appended to the in-flight assistant message as a canonical `data` part in arrival order: `CUSTOM { name: "sources", value: {...} }` becomes `{ type: "data", name: "sources", data: {...} }`. Repeated names append separate parts, the `value` is passed through verbatim, and data parts reset with each run. Tool calls that carry a `parentMessageId` are anchored under that message rather than at their wire position, so a data part can render after a tool call that arrived later. A run that delivers its assistant message only through `MESSAGES_SNAPSHOT`, with no streamed text or tool calls, drops that run's data parts when the snapshot supersedes the in-flight message.
+`CUSTOM` 事件是协议为应用定义数据提供的扩展机制。每个事件都会按照到达顺序，作为规范化的 `data` 部分追加到正在处理中的助手消息：`CUSTOM { name: "sources", value: {...} }` 会变为 `{ type: "data", name: "sources", data: {...} }`。重复的名称会追加为独立的部分，`value` 会原样透传，并且每次运行都会重置数据部分。携带 `parentMessageId` 的工具调用会锚定在该消息下，而不是锚定在其在线路中的位置，因此，即使某个数据部分到达得晚于工具调用，也可以在该工具调用之后渲染。如果某次运行仅通过 `MESSAGES_SNAPSHOT` 传递其助手消息，而没有流式文本或工具调用，那么当快照取代正在处理中的消息时，该运行的数据部分会被丢弃。
 
-Render them by registering a per-name renderer; parts without a registered renderer are not displayed, unless a `Data` fallback component is registered, in which case the fallback receives every custom event name, including the framework plumbing listed below.
+通过注册按名称区分的渲染器来渲染这些事件；没有注册渲染器的部分不会显示，除非注册了 `Data` 回退组件。在这种情况下，回退组件会接收每个自定义事件名称，包括下面列出的框架基础设施事件。
 
 ```tsx
 import { useAssistantDataUI } from "@assistant-ui/react";
@@ -250,44 +239,44 @@ useAssistantDataUI({
 });
 ```
 
-Data parts stay in the assistant-ui message but are not sent back to the agent, since the AG-UI assistant record has no field for them. History adapters, including the assistant-cloud one, persist them as part of the message JSON. Framework integrations emit their own plumbing over this channel (`on_interrupt`, `PredictState`, `Exit`, `hook_error`, `state_update_error`, `system:*`, `MultiAgentHandoff`), and those names surface as data parts like any other, so only register renderers for names your backend owns.
+数据部分会保留在 assistant-ui 消息中，但不会发送回代理，因为 AG-UI 助手记录没有用于存储这些数据的字段。历史记录适配器（包括 assistant-cloud 适配器）会将其作为消息 JSON 的一部分持久化。框架集成会通过此通道发送自己的基础设施事件（`on_interrupt`、`PredictState`、`Exit`、`hook_error`、`state_update_error`、`system:*`、`MultiAgentHandoff`），这些名称会像其他名称一样显示为数据部分，因此只为后端负责的名称注册渲染器。
 
-## Feature support
+## 功能支持
 
-| Feature | Supported |
+| 功能 | 支持情况 |
 | --- | --- |
-| Streaming text | Yes |
-| Thinking / reasoning blocks | Yes |
-| Tool calls and results | Yes |
-| Tool result handoff (client-side execution) | Yes |
-| Subagents (nested `ToolCallMessagePart.messages`) | Yes, with [two limitations](#subagents) |
-| State snapshots and deltas | Yes |
-| Custom events (as `data` parts) | Yes |
-| Cancellation | Yes |
-| Message editing | Yes |
-| Message reload | Yes |
-| Run resumption | Yes |
-| Interrupts (human-in-the-loop) | Experimental (`unstable_*` API, see [Interrupts](#interrupts-experimental)) |
-| Multi-thread | Experimental (`adapters.threadList`) |
-| History persistence | Via [history adapter](/docs/runtimes/concepts/adapters#history-adapter) |
+| 流式文本 | 是 |
+| 思考 / 推理块 | 是 |
+| 工具调用和结果 | 是 |
+| 工具结果交接（客户端执行） | 是 |
+| 子代理（嵌套 `ToolCallMessagePart.messages`） | 是，但有[两项限制](#subagents) |
+| 状态快照和增量 | 是 |
+| 自定义事件（作为 `data` 部分） | 是 |
+| 取消 | 是 |
+| 消息编辑 | 是 |
+| 消息重新加载 | 是 |
+| 运行恢复 | 是 |
+| 中断（人在回路） | 实验性（`unstable_*` API，参见[中断](#interrupts-experimental)） |
+| 多线程 | 实验性（`adapters.threadList`） |
+| 历史记录持久化 | 通过[历史记录适配器](/docs/runtimes/concepts/adapters#history-adapter) |
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     icon={<AguiIcon width={20} height={20} />}
-    title="AG-UI overview"
-    description="What AG-UI is and when to pick it."
+    title="AG-UI 概览"
+    description="了解 AG-UI 是什么，以及何时选择它。"
     href="/docs/runtimes/ag-ui/overview"
   />
   <Card
-    title="Quickstart"
-    description="Minimal runtime + Thread setup."
+    title="快速入门"
+    description="最小运行时与 Thread 设置。"
     href="/docs/runtimes/ag-ui/quickstart"
   />
   <Card
-    title="Adapters"
-    description="Attachments, speech, feedback, history, thread list."
+    title="适配器"
+    description="附件、语音、反馈、历史记录和线程列表。"
     href="/docs/runtimes/concepts/adapters"
   />
 </Cards>

@@ -1,11 +1,11 @@
 ---
 title: Model Context Protocol (MCP)
-description: Connect MCP servers as a tool catalog in your assistant-ui app.
+description: 在你的 assistant-ui 应用中将 MCP 服务器连接为工具目录。
 ---
 
-[MCP](https://modelcontextprotocol.io/) is an open protocol for exposing tools, resources, and prompts to LLMs. One MCP server can publish many tools (file system, GitHub, Slack, your own service) and any MCP-aware client can use them. The AI SDK has a built-in MCP client; this page is the wiring guide for plugging it into an assistant-ui app.
+[MCP](https://modelcontextprotocol.io/) 是一种开放协议，用于向 LLM 暴露工具、资源和提示词。一个 MCP 服务器可以发布许多工具（文件系统、GitHub、Slack 或你自己的服务），任何支持 MCP 的客户端都可以使用这些工具。AI SDK 内置了 MCP 客户端；本页面介绍如何将其接入 assistant-ui 应用。
 
-## How it works
+## 工作原理
 
 ```mermaid
 flowchart LR
@@ -13,40 +13,40 @@ flowchart LR
     mcp --> tools["tools()"] --> stream["passed to<br/>streamText({ tools })"]
 ```
 
-The MCP client lives on the server inside your AI SDK route handler. It connects to one or more MCP servers, calls `tools()` to get a tool map, and hands that map to `streamText`. assistant-ui's existing tool-call UI (`ToolFallback`, or toolkit entries with `render`) renders the results.
+MCP 客户端位于服务器端的 AI SDK 路由处理器中。它连接一个或多个 MCP 服务器，调用 `tools()` 获取工具映射，然后将该映射传递给 `streamText`。assistant-ui 现有的工具调用 UI（`ToolFallback`，或带有 `render` 的工具包条目）会渲染结果。
 
 <Callout type="info">
-  If you use a `"use generative"` toolkit, spread `defineMcpToolkit({ ... })`
-  in the toolkit and use `AISDKToolkit` in your route. It opens the MCP clients,
-  merges their tools with your toolkit, and closes them for you.
+  如果你使用 `"use generative"` 工具包，请在工具包中展开 `defineMcpToolkit({ ... })`，
+  并在路由中使用 `AISDKToolkit`。它会为你打开 MCP 客户端，
+  将其中的工具与工具包合并，并负责关闭客户端。
 </Callout>
 
-## Setup
+## 设置
 
 <Steps>
 <Step>
 
-### Install the MCP client
+### 安装 MCP 客户端
 
 <InstallCommand npm={["@ai-sdk/mcp"]} />
 
-For stdio transports (local dev only), also install the official MCP SDK:
+对于 stdio 传输层（仅限本地开发），还需要安装官方 MCP SDK：
 
 <InstallCommand npm={["@modelcontextprotocol/sdk"]} />
 
 </Step>
 <Step>
 
-### Connect to an MCP server
+### 连接到 MCP 服务器
 
-Set the server URL and any auth token your server requires:
+设置服务器 URL 以及服务器要求的任何身份验证令牌：
 
 ```sh title=".env.local"
 MCP_SERVER_URL=https://your-mcp-server.example/mcp
 MCP_TOKEN=...
 ```
 
-Then inside your AI SDK route handler, create the client with the transport that matches your server. **HTTP** is the production transport; **SSE** is the legacy streaming transport; **stdio** spawns a local process and is dev-only.
+然后在 AI SDK 路由处理器中，使用与服务器匹配的传输层创建客户端。**HTTP** 是生产环境传输层；**SSE** 是旧版流式传输层；**stdio** 会启动本地进程，仅限开发环境使用。
 
 ```ts title="app/api/chat/route.ts"
 import { createMCPClient } from "@ai-sdk/mcp";
@@ -60,7 +60,8 @@ const mcpClient = await createMCPClient({
 });
 ```
 
-For stdio:
+对于 stdio：
+
 
 ```ts
 import { createMCPClient } from "@ai-sdk/mcp";
@@ -77,12 +78,11 @@ const mcpClient = await createMCPClient({
 </Step>
 <Step>
 
-### Define MCP servers in your toolkit
+### 在工具包中定义 MCP 服务器
 
-In a generative toolkit, spread `defineMcpToolkit({ ... })` with one entry per
-MCP server. The entry key names the server connection; the MCP server publishes
-the actual tool names. Use a readable key because it appears in connection,
-tool-listing, and close errors for debugging.
+在生成式工具包中，为每个 MCP 服务器展开一个 `defineMcpToolkit({ ... })` 条目。
+条目键用于命名服务器连接；MCP 服务器会发布实际的工具名称。请使用易读的键，
+因为它会出现在连接、工具列表和关闭错误中，便于调试。
 
 ```tsx title="app/toolkit.tsx"
 "use generative";
@@ -100,9 +100,8 @@ export default defineToolkit({
 });
 ```
 
-Use `{ server, disabled }` when a whole MCP server should stay configured but
-not expose tools for the current request, such as missing credentials, feature
-flags, or plan gating:
+当整个 MCP 服务器应保持配置状态，但不应为当前请求暴露工具时，请使用 `{ server, disabled }`，
+例如缺少凭据、功能标志或套餐限制：
 
 ```tsx
 defineMcpToolkit({
@@ -116,8 +115,7 @@ defineMcpToolkit({
 });
 ```
 
-Use `tools` when the server should stay enabled but specific MCP tools should
-be hidden from the model:
+当服务器应保持启用状态，但需要对模型隐藏特定 MCP 工具时，请使用 `tools`：
 
 ```tsx
 defineMcpToolkit({
@@ -135,8 +133,8 @@ defineMcpToolkit({
 });
 ```
 
-If multiple MCP servers expose the same tool name, wrap the entry with
-`{ server, prefix }` to give each server's tools distinct model-visible names:
+如果多个 MCP 服务器暴露了同名工具，请使用 `{ server, prefix }` 包裹条目，
+为每个服务器的工具提供不同的模型可见名称：
 
 ```tsx
 export default defineToolkit({
@@ -153,15 +151,14 @@ export default defineToolkit({
 });
 ```
 
-If both servers publish `search`, the model receives `docs_search` and
-`github_search` instead of an ambiguous duplicate.
+如果两个服务器都发布 `search`，模型会收到 `docs_search` 和
+`github_search`，而不是含义不明确的重复名称。
 
-Use `AISDKToolkit` in the route. It opens the MCP clients, merges their tools
-with the rest of your toolkit, and closes them when you call `close()`:
+在路由中使用 `AISDKToolkit`。它会打开 MCP 客户端，将其中的工具与工具包的其余部分合并，
+并在你调用 `close()` 时关闭客户端：
 
-`connectionTimeout` is optional and measured in milliseconds. Set it to fail
-the server-side MCP readiness flow (`createMCPClient()` plus `tools()`) before
-a bad URL or hanging local process can stall the route.
+`connectionTimeout` 是可选项，单位为毫秒。将其设置为在错误的 URL 或挂起的本地进程阻塞路由之前，
+使服务器端 MCP 就绪流程（`createMCPClient()` 加上 `tools()`）失败。
 
 ```ts title="app/api/chat/route.ts"
 import { AISDKToolkit } from "@assistant-ui/ai-sdk";
@@ -192,11 +189,11 @@ export async function POST(req: Request) {
 </Step>
 <Step>
 
-### Wire the tools into the route
+### 将工具接入路由
 
-For manual MCP client control, `mcpClient.tools()` returns an object shaped
-exactly like the `tools` argument of `streamText`. Spread it in alongside any of
-your own tools, and close the client when the response finishes:
+如果要手动控制 MCP 客户端，`mcpClient.tools()` 会返回一个对象，其结构
+与 `streamText` 的 `tools` 参数完全相同。将其与自定义工具一并展开，
+并在响应完成时关闭客户端：
 
 ```ts title="app/api/chat/route.ts"
 import { createMCPClient } from "@ai-sdk/mcp";
@@ -232,14 +229,15 @@ export async function POST(req: Request) {
 }
 ```
 
-`onFinish` is the right place to call `close()`: it fires after the stream completes, so the connection stays open as long as the model is still calling tools.
+`onFinish` 是调用 `close()` 的合适位置：它会在流式传输完成后触发，
+因此只要模型仍在调用工具，连接就会保持打开。
 
 </Step>
 <Step>
 
-### Combine multiple MCP servers
+### 组合多个 MCP 服务器
 
-Each server has its own client. Spread their tool maps together:
+每个服务器都有自己的客户端。将它们的工具映射合并展开：
 
 ```ts
 const githubClient = await createMCPClient({
@@ -257,17 +255,16 @@ const tools = {
 // remember to close both in onFinish
 ```
 
-If two servers expose tools with the same name, the later spread wins. Rename or scope as needed.
+如果两个服务器暴露了同名工具，后展开的工具会覆盖先展开的工具。请根据需要重命名或限定作用域。
 
 </Step>
 <Step>
 
-### Render results in the UI
+### 在 UI 中渲染结果
 
-Tool calls flow through the existing assistant-ui tool-call rendering. With no
-setup, the bundled `<ToolFallback>` component renders the call name, arguments,
-and result. To customize the appearance for a specific tool in a generative
-toolkit, add an `externalTool()` renderer whose key matches the MCP tool name:
+工具调用会通过现有的 assistant-ui 工具调用渲染流程。无需额外设置时，内置的
+`<ToolFallback>` 组件会渲染调用名称、参数和结果。要为生成式工具包中的特定工具自定义外观，
+请添加 `externalTool()` 渲染器，其键与 MCP 工具名称匹配：
 
 <PlatformTabs>
 <Tab value="React">
@@ -363,8 +360,8 @@ export const toolkit = defineToolkit({
 </Tab>
 </PlatformTabs>
 
-Register the toolkit once with `Tools({ toolkit })`. Renderer keys such as
-`github_get_issue` must match the tool names your MCP server publishes.
+使用 `Tools({ toolkit })` 注册一次工具包。诸如 `github_get_issue` 的渲染器键
+必须与 MCP 服务器发布的工具名称匹配。
 
 ```tsx title="app/components/RuntimeProvider.tsx"
 "use client";
@@ -389,14 +386,17 @@ export function MyRuntimeProvider({ children }: { children: ReactNode }) {
 }
 ```
 
-`useChatRuntime()` targets `/api/chat` by default. To point at a different endpoint or customize requests, see [Custom transport](/docs/runtimes/ai-sdk/v7#custom-transport).
+`useChatRuntime()` 默认指向 `/api/chat`。如需指向其他端点或自定义请求，请参阅[自定义传输层](/docs/runtimes/ai-sdk/v7#custom-transport)。
 
 </Step>
 <Step>
 
-### Require approval before an MCP tool runs
+### MCP 工具运行前要求批准
 
-MCP tools execute on the server, so approval is a server-side tool gate, not a `humanTool()` result. Gate the call with AI SDK v7's call-level `toolApproval` option, keyed by the tool's model-visible name. The tool name stays the same, so your custom renderer or the default `ToolFallback` receives `approval` and `respondToApproval` like any other backend tool:
+MCP 工具在服务器端执行，因此批准是服务器端工具门控，而不是 `humanTool()` 结果。
+使用 AI SDK v7 的调用级 `toolApproval` 选项对调用进行门控，并以工具的模型可见名称作为键。
+工具名称保持不变，因此你的自定义渲染器或默认的 `ToolFallback` 会像接收其他后端工具一样，
+接收 `approval` 和 `respondToApproval`：
 
 ```ts title="app/api/chat/route.ts"
 const tools = await mcpClient.tools();
@@ -414,10 +414,10 @@ const result = streamText({
 });
 ```
 
-With `AISDKToolkit`, pass the same `toolApproval` option alongside the tools returned by `await aiToolkit.tools(...)`; key it by the prefixed name when the entry sets one.
+使用 `AISDKToolkit` 时，将相同的 `toolApproval` 选项与 `await aiToolkit.tools(...)` 返回的工具一并传入；
+如果条目设置了前缀名称，请使用带前缀的名称作为键。
 
-On the client, let the AI SDK send the recorded approval decision back to the
-route:
+在客户端，让 AI SDK 将记录的批准决定发送回路由：
 
 ```tsx title="app/components/RuntimeProvider.tsx"
 import { lastAssistantMessageIsCompleteWithApprovalResponses } from "ai";
@@ -427,40 +427,42 @@ const runtime = useChatRuntime({
 });
 ```
 
-Use this pattern for backend-owned actions such as deleting, writing, deploying, or calling privileged MCP tools. Use `humanTool()` only when the user supplies the tool result itself. For custom approval UIs, see [Server-side approval gates](/docs/tools/tool-ui#server-side-approval-gates); for the full wire setup, see [Server-side tool approval](/docs/runtimes/ai-sdk/v7#server-side-tool-approval).
+对于删除、写入、部署或调用特权 MCP 工具等由后端负责的操作，请使用此模式。
+仅当用户自行提供工具结果时，才使用 `humanTool()`。如需自定义批准 UI，请参阅[服务器端批准门控](/docs/tools/tool-ui#server-side-approval-gates)；
+如需完整的接线设置，请参阅[服务器端工具批准](/docs/runtimes/ai-sdk/v7#server-side-tool-approval)。
 
 </Step>
 <Step>
 
-### Run and verify
+### 运行和验证
 
-Start the app and trigger a tool call (e.g., ask the assistant to do something the MCP server can do). Confirm:
+启动应用并触发工具调用（例如，让助手执行 MCP 服务器能够完成的操作）。确认：
 
-- The tool call appears in the chat with the expected arguments.
-- The result renders (either via your custom `ToolUI` or the fallback).
-- No connection leaks: the MCP client closes after each response. If you see open connections accumulating, check `onFinish`.
+- 工具调用会以预期参数显示在聊天中。
+- 结果能够渲染（通过自定义的 `ToolUI` 或回退方案）。
+- 没有连接泄漏：MCP 客户端会在每次响应后关闭。如果看到打开的连接不断累积，请检查 `onFinish`。
 
 </Step>
 </Steps>
 
-## Notes
+## 注意事项
 
-- **Server-side only.** The MCP client uses Node APIs (sockets, optionally child processes). Never instantiate it in client code.
-- **Per-request lifecycle.** A fresh client per request keeps connection state simple. For high-throughput servers, pool clients yourself with care: the AI SDK's `tools()` call assumes the connection is alive when `streamText` runs.
-- **Sampling.** If your MCP server uses `sampling/createMessage` (lets the server ask the LLM mid-call), assistant-cloud users can instrument it via [`instrumentMcpSampling`](/docs/cloud) for observability. This is independent of the wiring above.
-- **Transport choice.** HTTP for any networked server. SSE only if the server doesn't speak HTTP. stdio is for local development against an MCP server in your monorepo.
+- **仅限服务器端。** MCP 客户端使用 Node API（套接字，也可以使用子进程）。切勿在客户端代码中实例化它。
+- **每个请求一个生命周期。** 每个请求创建一个全新的客户端可以简化连接状态。对于高吞吐量服务器，请谨慎自行复用客户端：AI SDK 的 `tools()` 调用假设在执行 `streamText` 时连接仍然存活。
+- **采样。** 如果你的 MCP 服务器使用 `sampling/createMessage`（允许服务器在调用过程中请求 LLM），assistant-cloud 用户可以通过 [`instrumentMcpSampling`](/docs/cloud) 对其进行监测，以实现可观测性。这与上述接线方式无关。
+- **传输层选择。** 对于任何联网服务器，使用 HTTP。仅当服务器不支持 HTTP 时使用 SSE。stdio 用于在 monorepo 中针对 MCP 服务器进行本地开发。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
-    title="AI SDK runtime"
-    description="The runtime that ferries MCP tool calls to the chat UI."
+    title="AI SDK 运行时"
+    description="将 MCP 工具调用传递到聊天 UI 的运行时。"
     href="/docs/runtimes/ai-sdk/v7"
   />
   <Card
-    title="Tools and tool UI"
-    description="Build custom renderers for tool calls and approvals."
+    title="工具与工具 UI"
+    description="为工具调用和批准构建自定义渲染器。"
     href="/docs/tools/defining-tools"
   />
 </Cards>

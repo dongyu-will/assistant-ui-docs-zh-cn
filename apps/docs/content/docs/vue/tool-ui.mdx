@@ -1,13 +1,13 @@
 ---
-title: Tool UI
-description: Render AI SDK tool calls with Vue components, text descriptors, and human-in-the-loop actions.
+title: 工具 UI
+description: 使用 Vue 组件、文本描述符和人在回路操作来渲染 AI SDK 工具调用。
 ---
 
-`MessagePrimitiveParts` renders a registered tool UI for matching tool-call parts. A Vue tool UI receives one required `tool` prop of type `ToolUIProps`. Vue does not spread tool-call fields into the component because undeclared props fall through to the DOM. Read all tool state and callbacks from `tool` instead.
+`MessagePrimitiveParts` 会为匹配的工具调用部分渲染已注册的工具 UI。Vue 工具 UI 接收一个必需的 `tool` 属性，其类型为 `ToolUIProps`。Vue 不会将工具调用字段展开传入组件，因为未声明的属性会向下传递到 DOM。请改为从 `tool` 读取所有工具状态和回调。
 
-## Register tool UIs in config
+## 在配置中注册工具 UI
 
-Use `Tools({ toolkit })` when the toolkit and its renderers belong to the assistant configuration. The tools scope registers the renderers for message rendering and exposes the toolkit to model context.
+当工具包及其渲染器属于助手配置时，请使用 `Tools({ toolkit })`。tools 作用域会为消息渲染注册这些渲染器，并将工具包暴露给模型上下文。
 
 ```ts title="app/components/Assistant.client.vue"
 import { AuiConfig } from "@assistant-ui/vue";
@@ -21,7 +21,7 @@ const config = AuiConfig({
 });
 ```
 
-For a tool that only has status text, a toolkit entry can use `renderText`. String and number results render in Vue without a component. A descriptor that returns a React element is React-only and renders nothing in Vue.
+对于只有状态文本的工具，工具包条目可以使用 `renderText`。字符串和数字结果无需组件即可在 Vue 中渲染。返回 React 元素的描述符仅适用于 React，在 Vue 中不会渲染任何内容。
 
 ```ts title="app/toolkit.ts"
 export const toolkit = {
@@ -35,9 +35,9 @@ export const toolkit = {
 };
 ```
 
-## Register a Vue component at runtime
+## 在运行时注册 Vue 组件
 
-Use `aui.tools.setToolUI` when the renderer is local to a Vue subtree or must follow the component lifecycle. It returns an unregister function.
+当渲染器属于某个 Vue 子树，或必须遵循组件生命周期时，请使用 `aui.tools.setToolUI`。它会返回一个注销函数。
 
 ```vue title="app/components/RegisterToolUIs.vue"
 <script setup lang="ts">
@@ -62,7 +62,7 @@ onUnmounted(() => unregister?.());
 <template><slot /></template>
 ```
 
-Declare the single `tool` prop in the Vue component:
+在 Vue 组件中声明唯一的 `tool` 属性：
 
 ```vue title="app/components/WeatherToolUI.vue"
 <script setup lang="ts">
@@ -85,9 +85,9 @@ const result = computed(
 </template>
 ```
 
-## Human-in-the-loop actions
+## 人在回路操作
 
-`ToolUIProps` also supplies the callbacks for a pending tool call:
+`ToolUIProps` 还会为待处理的工具调用提供回调：
 
 ```ts
 tool.addResult(result);
@@ -95,8 +95,8 @@ tool.resume(payload);
 tool.respondToApproval({ approved: true });
 ```
 
-Call `addResult` to provide a tool result, `resume` to continue a paused tool call with its payload, and `respondToApproval` with the user's approval response. The runtime forwards these actions to the matching adapter callbacks.
+调用 `addResult` 以提供工具结果，调用 `resume` 携带其 payload 继续已暂停的工具调用，并使用 `respondToApproval` 传入用户的批准响应。运行时会将这些操作转发给匹配的适配器回调。
 
-## Chain of thought
+## 思维链
 
-`ChainOfThoughtPrimitiveParts` iterates the current chain-of-thought parts through its default slot. It does not hide itself when `s.chainOfThought.collapsed` is true. Gate the containing UI with `AuiIf` when collapsed content should be hidden. Use `MessagePrimitiveParts` for the normal message path that dispatches registered tool UIs.
+`ChainOfThoughtPrimitiveParts` 会将当前的思维链部分通过其默认插槽进行迭代。当 `s.chainOfThought.collapsed` 为 true 时，它不会自动隐藏自身。当折叠内容应当隐藏时，请使用 `AuiIf` 控制外层 UI。对于分发已注册工具 UI 的常规消息路径，请使用 `MessagePrimitiveParts`。

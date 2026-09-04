@@ -1,13 +1,13 @@
 ---
 title: Thread
-description: Build custom scrollable message containers with auto-scroll, empty states, and message rendering.
+description: 构建支持自动滚动、空状态和消息渲染的自定义可滚动消息容器。
 platforms: ["react"]
 ---
 
 import { ThreadPrimitiveSample } from "@/components/pages/docs/samples/thread-primitive";
 import { ThreadPrimitive as ThreadPrimitiveDocs } from "@/generated/primitiveDocs";
 
-The Thread primitive is the scrollable message container, and the backbone of any chat interface. It handles viewport management, auto-scrolling, empty states, message rendering, and suggestions. You provide the layout and styling.
+Thread 原语是可滚动的消息容器，也是任何聊天界面的核心。它负责视口管理、自动滚动、空状态、消息渲染和建议。你只需提供布局和样式。
 
 <Tabs items={["Preview", "Code"]}>
   <Tab>
@@ -80,9 +80,9 @@ function AssistantMessage() {
   </Tab>
 </Tabs>
 
-## Quick Start
+## 快速开始
 
-Minimal example:
+最小示例：
 
 ```tsx
 import { ThreadPrimitive } from "@assistant-ui/react";
@@ -96,17 +96,17 @@ import { ThreadPrimitive } from "@assistant-ui/react";
 </ThreadPrimitive.Root>
 ```
 
-`Root` renders a `<div>`, `Viewport` renders a scrollable `<div>`, and `Messages` iterates over the thread's messages. Add your own styles and components; the primitive handles the rest.
+`Root` 渲染一个 `<div>`，`Viewport` 渲染一个可滚动的 `<div>`，`Messages` 遍历会话线程中的消息。添加你自己的样式和组件；原语会处理其余工作。
 
 <Callout type="info">
-Runtime setup: primitives require runtime context. Wrap your UI in `AssistantRuntimeProvider` with a runtime (for example `useLocalRuntime(...)`). See [Pick a Runtime](/docs/runtimes/pick-a-runtime).
+运行时设置：原语需要运行时上下文。将 UI 包裹在带有运行时的 `AssistantRuntimeProvider` 中（例如 `useLocalRuntime(...)`）。请参阅[选择运行时](/docs/runtimes/pick-a-runtime)。
 </Callout>
 
-## Core Concepts
+## 核心概念
 
-### Viewport & Auto-Scroll
+### 视口与自动滚动
 
-`Viewport` is the scrollable container. It auto-scrolls to the bottom as new content streams in, but only if the user hasn't scrolled up manually. Set `autoScroll={false}` to disable this entirely.
+`Viewport` 是可滚动容器。新内容流式传输时，它会自动滚动到底部，但仅当用户没有手动向上滚动时才会如此。设置 `autoScroll={false}` 可完全禁用此功能。
 
 ```tsx
 <ThreadPrimitive.Viewport autoScroll={true}>
@@ -114,9 +114,9 @@ Runtime setup: primitives require runtime context. Wrap your UI in `AssistantRun
 </ThreadPrimitive.Viewport>
 ```
 
-### Turn Anchor
+### 回合锚点
 
-By default, new messages appear at the bottom and scroll down. With `turnAnchor="top"`, the user's message anchors to the top of the viewport. This creates the modern reading experience where you see the question at the top and the response flowing below it.
+默认情况下，新消息会出现在底部，并向下滚动。使用 `turnAnchor="top"` 后，用户消息会锚定在视口顶部。这会带来现代的阅读体验：问题显示在顶部，回复在其下方逐步呈现。
 
 ```tsx
 <ThreadPrimitive.Viewport turnAnchor="top">
@@ -124,9 +124,9 @@ By default, new messages appear at the bottom and scroll down. With `turnAnchor=
 </ThreadPrimitive.Viewport>
 ```
 
-When `turnAnchor="top"` is set, `MessagePrimitive.Root` automatically registers the latest assistant message as the top-anchor target and the preceding user message as the anchor — no additional component is required. The viewport itself manages a stable reserve element that provides the missing scroll range while the assistant response grows. This is the behavior used by the [Thread](/elements/thread) component by default.
+设置 `turnAnchor="top"` 后，`MessagePrimitive.Root` 会自动将最新的助手消息注册为顶部锚点目标，并将前一条用户消息注册为锚点——无需额外组件。视口自身会管理一个稳定的预留元素，在助手回复不断增长时提供缺失的滚动范围。这就是 [Thread](/elements/thread) 组件默认使用的行为。
 
-Use `topAnchorMessageClamp` to control how much of a long user message remains visible when `turnAnchor="top"`. Messages up to `tallerThan` stay fully visible. For messages taller than that, `visibleHeight` controls how much of the message's bottom edge remains visible above the assistant response:
+使用 `topAnchorMessageClamp` 控制 `turnAnchor="top"` 时长用户消息仍保持可见。高度不超过 `tallerThan` 的消息会完整显示。对于高度超过该值的消息，`visibleHeight` 控制其底部边缘在助手回复上方保持可见的范围：
 
 ```tsx
 <ThreadPrimitive.Viewport
@@ -137,15 +137,15 @@ Use `topAnchorMessageClamp` to control how much of a long user message remains v
 </ThreadPrimitive.Viewport>
 ```
 
-### Viewport Scroll Options
+### 视口滚动选项
 
-`ThreadPrimitive.Viewport` has three event-specific scroll controls:
+`ThreadPrimitive.Viewport` 提供三个针对特定事件的滚动控制项：
 
-- `scrollToBottomOnRunStart` (default `true`): scrolls when `thread.runStart` fires
-- `scrollToBottomOnInitialize` (default `true`): scrolls when `thread.initialize` fires
-- `scrollToBottomOnThreadSwitch` (default `true`): scrolls when `threads.selectionChanged` fires
+- `scrollToBottomOnRunStart`（默认值为 `true`）：`thread.runStart` 触发时滚动
+- `scrollToBottomOnInitialize`（默认值为 `true`）：`thread.initialize` 触发时滚动
+- `scrollToBottomOnThreadSwitch`（默认值为 `true`）：`threads.selectionChanged` 触发时滚动
 
-These work alongside `autoScroll`. If `autoScroll` is omitted, it defaults to `true` for `turnAnchor="bottom"` and `false` for `turnAnchor="top"`.
+这些选项与 `autoScroll` 一起生效。如果省略 `autoScroll`，则对于 `turnAnchor="bottom"` 默认为 `true`，对于 `turnAnchor="top"` 默认为 `false`。
 
 ```tsx
 <ThreadPrimitive.Viewport
@@ -166,7 +166,7 @@ These work alongside `autoScroll`. If `autoScroll` is omitted, it defaults to `t
 
 ### ViewportFooter
 
-`ViewportFooter` sticks to the bottom of the viewport and registers its height so the auto-scroll system accounts for it. This is where you place your composer:
+`ViewportFooter` 固定在视口底部，并注册自身高度，以便自动滚动系统将其考虑在内。你可以在这里放置输入框：
 
 ```tsx
 <ThreadPrimitive.Viewport>
@@ -179,10 +179,10 @@ These work alongside `autoScroll`. If `autoScroll` is omitted, it defaults to `t
 </ThreadPrimitive.Viewport>
 ```
 
-### Empty State
+### 空状态
 
 <Callout type="warn">
-`ThreadPrimitive.Empty` is deprecated. Use [`AuiIf`](/docs/api-reference/primitives/assistant-if) instead.
+`ThreadPrimitive.Empty` 已弃用。请改用 [`AuiIf`](/docs/api-reference/primitives/assistant-if)。
 </Callout>
 
 ```tsx
@@ -194,9 +194,9 @@ These work alongside `autoScroll`. If `autoScroll` is omitted, it defaults to `t
 </AuiIf>
 ```
 
-### Messages Iterator
+### 消息迭代器
 
-`Messages` now prefers a children render function. It gives you the current message state so you can branch inline:
+`Messages` 现在优先使用 children 渲染函数。它会提供当前消息状态，让你可以直接在内联逻辑中进行分支处理：
 
 ```tsx
 <ThreadPrimitive.Messages>
@@ -208,11 +208,11 @@ These work alongside `autoScroll`. If `autoScroll` is omitted, it defaults to `t
 </ThreadPrimitive.Messages>
 ```
 
-`components` is deprecated. Use the `children` render function instead.
+`components` 已弃用。请改用 `children` 渲染函数。
 
-### Suggestions Iterator
+### 建议迭代器
 
-`Suggestions` follows the same pattern. Prefer the children render function when rendering custom suggestion UIs:
+`Suggestions` 遵循相同模式。渲染自定义建议 UI 时，优先使用 children 渲染函数：
 
 ```tsx
 <ThreadPrimitive.Suggestions>
@@ -220,11 +220,11 @@ These work alongside `autoScroll`. If `autoScroll` is omitted, it defaults to `t
 </ThreadPrimitive.Suggestions>
 ```
 
-## Parts
+## 部件
 
 ### Root
 
-Top-level container for a thread layout. Renders a `<div>` element unless `asChild` is set.
+线程布局的顶层容器。除非设置了 `asChild`，否则会渲染一个 `<div>` 元素。
 
 ```tsx
 <ThreadPrimitive.Root className="flex h-full flex-col">
@@ -238,7 +238,7 @@ Top-level container for a thread layout. Renders a `<div>` element unless `asChi
 
 ### Viewport
 
-The scrollable area with auto-scroll behavior. Renders a `<div>` element unless `asChild` is set.
+带有自动滚动行为的可滚动区域。除非设置了 `asChild`，否则会渲染一个 `<div>` 元素。
 
 ```tsx
 <ThreadPrimitive.Viewport
@@ -259,7 +259,7 @@ The scrollable area with auto-scroll behavior. Renders a `<div>` element unless 
 
 ### ViewportFooter
 
-Footer container that registers its height with the viewport scroll system. Renders a `<div>` element unless `asChild` is set.
+向视口滚动系统注册自身高度的页脚容器。除非设置了 `asChild`，否则会渲染一个 `<div>` 元素。
 
 ```tsx
 <ThreadPrimitive.ViewportFooter className="sticky bottom-0 pt-2">
@@ -269,7 +269,7 @@ Footer container that registers its height with the viewport scroll system. Rend
 
 ### ViewportProvider
 
-Provides viewport context without rendering a scrollable element. Use this when you have a custom scroll container.
+提供视口上下文，但不会渲染可滚动元素。当你使用自定义滚动容器时可以使用它。
 
 ```tsx
 <ThreadPrimitive.ViewportProvider>
@@ -287,12 +287,12 @@ Provides viewport context without rendering a scrollable element. Use this when 
 ### ViewportSlack
 
 <Callout type="warn">
-  `ThreadPrimitive.ViewportSlack` has been removed from the public API. Top-anchor target registration is handled automatically by `MessagePrimitive.Root` when `turnAnchor="top"`. Remove `ViewportSlack` from your tree; if you customized `fillClampThreshold` or `fillClampOffset` on `ViewportSlack` or `MessagePrimitive.Root`, replace those props with `topAnchorMessageClamp` on `ThreadPrimitive.Viewport`.
+  `ThreadPrimitive.ViewportSlack` 已从公共 API 中移除。当 `turnAnchor="top"` 时，`MessagePrimitive.Root` 会自动处理顶部锚点目标注册。从组件树中移除 `ViewportSlack`；如果你在 `ViewportSlack` 或 `MessagePrimitive.Root` 上自定义了 `fillClampThreshold` 或 `fillClampOffset`，请将这些 props 替换为 `ThreadPrimitive.Viewport` 上的 `topAnchorMessageClamp`。
 </Callout>
 
 ### Messages
 
-Renders a component for each message in the thread, resolved by role and edit state.
+为线程中的每条消息渲染一个组件，并根据角色和编辑状态解析要渲染的组件。
 
 ```tsx
 <ThreadPrimitive.Messages>
@@ -308,7 +308,7 @@ Renders a component for each message in the thread, resolved by role and edit st
 
 ### MessageByIndex
 
-Renders a single message at a specific index in the thread.
+在会话线程中的指定索引处渲染单条消息。
 
 ```tsx
 <ThreadPrimitive.MessageByIndex
@@ -321,10 +321,7 @@ Renders a single message at a specific index in the thread.
 
 ### Unstable_MessageById
 
-Renders a single message by id with the same `components` surface as
-`MessageByIndex`. Pair it with `unstable_useThreadMessageIds` for virtualized or
-custom message lists that should stay attached to messages across reordering and
-windowing. Unknown ids render `null`.
+按 id 渲染单条消息，使用与 `MessageByIndex` 相同的 `components` 表面。将它与 `unstable_useThreadMessageIds` 搭配使用，可用于虚拟化消息列表或自定义消息列表，使其在重新排序和窗口化期间仍与消息保持关联。未知 id 会渲染 `null`。
 
 ```tsx
 const messageIds = unstable_useThreadMessageIds();
@@ -339,13 +336,12 @@ messageIds.map((messageId) => (
 ```
 
 <Callout type="warn">
-  `unstable_useThreadMessageIds` and `ThreadPrimitive.Unstable_MessageById` are
-  experimental and may change in any release.
+  `unstable_useThreadMessageIds` 和 `ThreadPrimitive.Unstable_MessageById` 处于实验阶段，可能在任何版本中发生变化。
 </Callout>
 
 ### ScrollToBottom
 
-Scrolls the viewport to the bottom. Automatically disabled when already at the bottom. Renders a `<button>` element unless `asChild` is set.
+将视口滚动到底部。已经位于底部时会自动禁用。除非设置了 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ThreadPrimitive.ScrollToBottom className="rounded-full bg-background p-2 shadow-md">
@@ -357,7 +353,7 @@ Scrolls the viewport to the bottom. Automatically disabled when already at the b
 
 ### Suggestions
 
-Renders suggestion prompts via a component.
+通过组件渲染建议提示。
 
 ```tsx
 <ThreadPrimitive.Suggestions>
@@ -369,7 +365,7 @@ Renders suggestion prompts via a component.
 
 ### SuggestionByIndex
 
-Renders a single suggestion at a specific index.
+在指定索引处渲染单条建议。
 
 ```tsx
 <ThreadPrimitive.SuggestionByIndex
@@ -382,7 +378,7 @@ Renders a single suggestion at a specific index.
 
 ### Suggestion
 
-Self-contained suggestion button. Renders a `<button>` element unless `asChild` is set. *(Legacy -- prefer `Suggestions` iterator.)*
+自包含的建议按钮。除非设置了 `asChild`，否则会渲染一个 `<button>` 元素。*（旧版——优先使用 `Suggestions` 迭代器。）*
 
 ```tsx
 <ThreadPrimitive.Suggestion prompt="Write a blog post" send />
@@ -393,10 +389,10 @@ Self-contained suggestion button. Renders a `<button>` element unless `asChild` 
 ### Empty
 
 <Callout type="warn">
-Deprecated. Use [`AuiIf`](/docs/api-reference/primitives/assistant-if) with `s.thread.isEmpty` instead.
+已弃用。请改用带有 `s.thread.isEmpty` 的 [`AuiIf`](/docs/api-reference/primitives/assistant-if)。
 </Callout>
 
-Legacy helper that only renders its children when the thread is empty.
+仅在线程为空时渲染其 children 的旧版辅助组件。
 
 ```tsx
 <ThreadPrimitive.Empty>
@@ -406,10 +402,10 @@ Legacy helper that only renders its children when the thread is empty.
 </ThreadPrimitive.Empty>
 ```
 
-### If (deprecated)
+### If（已弃用）
 
 <Callout type="warn">
-Deprecated. Use [`AuiIf`](/docs/api-reference/primitives/assistant-if) instead.
+已弃用。请改用 [`AuiIf`](/docs/api-reference/primitives/assistant-if)。
 </Callout>
 
 ```tsx
@@ -424,9 +420,9 @@ Deprecated. Use [`AuiIf`](/docs/api-reference/primitives/assistant-if) instead.
 <AuiIf condition={(s) => s.thread.isDisabled}>...</AuiIf>
 ```
 
-## Patterns
+## 模式
 
-### Welcome Screen with Suggestions
+### 带建议的欢迎屏幕
 
 ```tsx
 <AuiIf condition={(s) => s.thread.isEmpty}>
@@ -441,7 +437,7 @@ Deprecated. Use [`AuiIf`](/docs/api-reference/primitives/assistant-if) instead.
 </AuiIf>
 ```
 
-### Scroll-to-Bottom Button
+### 滚动到底部按钮
 
 ```tsx
 <ThreadPrimitive.ScrollToBottom className="fixed bottom-24 right-4 rounded-full bg-background p-2 shadow-md">
@@ -449,9 +445,9 @@ Deprecated. Use [`AuiIf`](/docs/api-reference/primitives/assistant-if) instead.
 </ThreadPrimitive.ScrollToBottom>
 ```
 
-The button is automatically disabled when the viewport is already scrolled to the bottom.
+当视口已经滚动到底部时，该按钮会自动禁用。
 
-### Turn Anchor Top Layout
+### 回合锚点顶部布局
 
 ```tsx
 <ThreadPrimitive.Root className="flex h-full flex-col">
@@ -469,7 +465,7 @@ The button is automatically disabled when the viewport is already scrolled to th
 </ThreadPrimitive.Root>
 ```
 
-### Custom Message Components
+### 自定义消息组件
 
 ```tsx
 <ThreadPrimitive.Messages>
@@ -495,15 +491,15 @@ The button is automatically disabled when the viewport is already scrolled to th
 </ThreadPrimitive.Messages>
 ```
 
-## Relationship to Components
+## 与组件的关系
 
-The [Thread](/elements/thread) component is a full chat interface built from these primitives with Tailwind styling. Start there for a default implementation. Reach for `ThreadPrimitive` when you need a custom layout, different scroll behavior, or a non-standard thread structure.
+[Thread](/elements/thread) 组件是使用这些原语和 Tailwind 样式构建的完整聊天界面。默认实现可以从这里开始。如果你需要自定义布局、不同的滚动行为或非标准的线程结构，请使用 `ThreadPrimitive`。
 
-## API Reference
+## API 参考
 
-For full prop details on every part, see the [ThreadPrimitive API Reference](/docs/api-reference/primitives/thread).
+有关每个部件的完整 props 详情，请参阅 [ThreadPrimitive API 参考](/docs/api-reference/primitives/thread)。
 
-Related:
-- [MessagePrimitive API Reference](/docs/api-reference/primitives/message)
-- [ComposerPrimitive API Reference](/docs/api-reference/primitives/composer)
-- [ThreadListPrimitive API Reference](/docs/api-reference/primitives/thread-list)
+相关内容：
+- [MessagePrimitive API 参考](/docs/api-reference/primitives/message)
+- [ComposerPrimitive API 参考](/docs/api-reference/primitives/composer)
+- [ThreadListPrimitive API 参考](/docs/api-reference/primitives/thread-list)

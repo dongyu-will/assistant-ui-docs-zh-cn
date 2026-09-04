@@ -1,72 +1,68 @@
 ---
-title: Tools
-description: Give the model callable capabilities with assistant-ui toolkits — define frontend, backend, human, and provider tools, render tool calls as interactive UI, and connect MCP servers.
+title: 工具
+description: 使用 assistant-ui 工具包为模型提供可调用的能力——定义前端、后端、人工和提供商工具，将工具调用渲染为交互式 UI，并连接 MCP 服务器。
 platforms: ["react"]
 ---
 
-Tools are how the model takes action: fetch data, call an API, query a database, drive your UI, or run a workflow. In assistant-ui you declare tools in a **toolkit** — a named map where each key is the tool name the model sees and each value describes the tool's schema, where it runs, and how its call renders in the chat.
+工具是模型执行操作的方式：获取数据、调用 API、查询数据库、驱动 UI 或运行工作流。在 assistant-ui 中，你可以在**工具包**中声明工具——这是一个命名映射，其中每个键都是模型看到的工具名称，每个值描述工具的架构、运行位置，以及其调用在聊天中的渲染方式。
 
-## Start here
+## 从这里开始
 
 <Cards>
-  <Card title="Defining Tools" href="/docs/tools/defining-tools">
-    Author a toolkit with the `"use generative"` directive — frontend, backend, human, and provider tools, with the schema, executor, and renderer in one file.
+  <Card title="定义工具" href="/docs/tools/defining-tools">
+    使用 `"use generative"` 指令编写工具包——在同一个文件中定义前端、后端、人工和提供商工具，以及架构、执行器和渲染器。
   </Card>
-  <Card title="Backend Tools" href="/docs/tools/backend">
-    Wire a toolkit into your AI SDK route with `AISDKToolkit` / `frontendTools`, mix client and server tools, and round-trip multi-modal results.
+  <Card title="后端工具" href="/docs/tools/backend">
+    使用 `AISDKToolkit` / `frontendTools` 将工具包接入 AI SDK 路由，混合使用客户端和服务器工具，并往返传递多模态结果。
   </Card>
-  <Card title="Tool UI" href="/docs/tools/tool-ui">
-    Render tool calls as custom components — loading and result states, human-in-the-loop, approvals, and streaming.
+  <Card title="工具 UI" href="/docs/tools/tool-ui">
+    将工具调用渲染为自定义组件——支持加载和结果状态、人在回路、审批以及流式传输。
   </Card>
-  <Card title="Dynamic Tools" href="/docs/tools/dynamic-tools">
-    Tools whose executor closes over React state, via `stubTool()` + `useAuiToolOverrides`.
+  <Card title="动态工具" href="/docs/tools/dynamic-tools">
+    通过 `stubTool()` + `useAuiToolOverrides`，让工具执行器闭包捕获 React 状态。
   </Card>
 </Cards>
 
-## Define tools with `"use generative"`
+## 使用 `"use generative"` 定义工具
 
 <Callout type="info">
-  Use `"use generative"` + `defineToolkit` for toolkits. For tools that execute
-  elsewhere, spread `defineMcpToolkit({ ... })` for MCP servers or use
-  `execute: externalTool()` to attach a renderer to a non-MCP external tool.
+  使用 `"use generative"` + `defineToolkit` 创建工具包。对于在其他位置执行的工具，可以展开 `defineMcpToolkit({ ... })` 以连接 MCP 服务器，或使用 `execute: externalTool()` 为非 MCP 外部工具附加渲染器。
 </Callout>
 
-In a `"use generative"` file every tool declares an `execute` and the kind is
-**inferred** from it (you never write `type`). See
-[Defining Tools](/docs/tools/defining-tools#define-tools-with-use-generative).
+在 `"use generative"` 文件中，每个工具都会声明一个 `execute`，其类型会从中**推断**出来（无需手动写入 `type`）。请参阅[定义工具](/docs/tools/defining-tools#define-tools-with-use-generative)。
 
-## Rendering AI output as UI
+## 将 AI 输出渲染为 UI
 
-assistant-ui has a few ways to turn model output into React UI. Pick by **who decides what renders**:
+assistant-ui 提供了多种将模型输出转换为 React UI 的方式。请根据**谁决定渲染什么**进行选择：
 
-| You want… | Use | The decider |
+| 你的需求是…… | 使用 | 决策者 |
 | --- | --- | --- |
-| A custom component for a known tool call (form, picker, chart, status) | [Tool UI](/docs/tools/tool-ui) — `render` on a toolkit entry | the **model**, by calling the tool |
-| Persistent, out-of-thread state the AI can read and write | [Interactables](/docs/tools/interactables) | the **model + the user**, bidirectionally |
-| UI composed from a component vocabulary you ship | [Generative UI](/docs/tools/generative-ui) — the `present` tool | the **model**, composing a tree |
-| UI pushed by a LangGraph node alongside messages | [LangGraph Generative UI](/docs/runtimes/langgraph/generative-ui) — `makeAssistantDataUI` | the **backend / orchestrator** |
-| UI composed in OpenUI Lang, rendered by OpenUI's kit (third-party) | [OpenUI](/docs/tools/openui) — `@openuidev/assistant-ui` | the **model**, composing a tree |
+| 为已知的工具调用（表单、选择器、图表、状态）创建自定义组件 | [工具 UI](/docs/tools/tool-ui)——在工具包条目上使用 `render` | **模型**，通过调用工具决定 |
+| AI 可以读写的持久化线程外状态 | [可交互组件](/docs/tools/interactables) | **模型 + 用户**，双向决定 |
+| 使用你提供的组件词汇组合 UI | [生成式 UI](/docs/tools/generative-ui)——`present` 工具 | **模型**，组合出组件树 |
+| LangGraph 节点随消息推送的 UI | [LangGraph 生成式 UI](/docs/runtimes/langgraph/generative-ui)——`makeAssistantDataUI` | **后端 / 编排器** |
+| 使用 OpenUI Lang 组合 UI，并由 OpenUI 工具包渲染（第三方） | [OpenUI](/docs/tools/openui)——`@openuidev/assistant-ui` | **模型**，组合出组件树 |
 
-## Connect external tools
+## 连接外部工具
 
 <Cards>
-  <Card title="MCP (server-side)" href="/docs/tools/mcp">
-    Wire one or more MCP servers into your API route as a tool catalog.
+  <Card title="MCP（服务器端）" href="/docs/tools/mcp">
+    将一个或多个 MCP 服务器接入 API 路由，作为工具目录使用。
   </Card>
-  <Card title="User-managed MCP" href="/docs/tools/user-managed-mcp">
-    Let end users add and authenticate MCP servers from the browser.
+  <Card title="用户管理的 MCP" href="/docs/tools/user-managed-mcp">
+    允许最终用户从浏览器添加并认证 MCP 服务器。
   </Card>
   <Card title="MCP Apps" href="/docs/tools/mcp-apps">
-    Render MCP UI resources (`ui://`) inline in sandboxed frames.
+    在沙盒化框架中内联渲染 MCP UI 资源（`ui://`）。
   </Card>
-  <Card title="Multi-Agent" href="/docs/tools/multi-agent">
-    Render sub-agent conversations inside a tool call.
+  <Card title="多智能体" href="/docs/tools/multi-agent">
+    在工具调用中渲染子智能体对话。
   </Card>
 </Cards>
 
-## Reference & components
+## 参考与组件
 
-- [Tools API Reference](/docs/api-reference/tools) — `tool`, `Toolkit`, `Tools`, and the tool-status hooks.
-- [`ToolFallback`](/elements/tool-fallback) — a default tool card for tools with no custom UI.
-- [`ToolGroup`](/elements/tool-group) — collapse consecutive tool calls into one container.
-- [Migrating Tools to Toolkits](/docs/migrations/toolkit-tools) — move off the deprecated `makeAssistantTool` / `useAssistantToolUI` APIs.
+- [工具 API 参考](/docs/api-reference/tools)——`tool`、`Toolkit`、`Tools`以及工具状态相关的 hooks。
+- [`ToolFallback`](/elements/tool-fallback)——适用于没有自定义 UI 的工具的默认工具卡片。
+- [`ToolGroup`](/elements/tool-group)——将连续的工具调用折叠到一个容器中。
+- [将工具迁移到工具包](/docs/migrations/toolkit-tools)——弃用 `makeAssistantTool` / `useAssistantToolUI` API，迁移到新的 API。

@@ -1,58 +1,58 @@
 ---
-title: OpenCode Runtime
-description: Build a React chat UI for OpenCode coding agents with assistant-ui — streaming, tool calls, file edits, and terminal output rendered in chat.
+title: OpenCode 运行时
+description: 使用 assistant-ui 为 OpenCode 编程代理构建 React 聊天 UI — 将流式输出、工具调用、文件编辑和终端输出渲染到聊天界面中。
 ---
 
-`@assistant-ui/react-opencode` is a runtime adapter for [OpenCode](https://opencode.ai/), an open-source AI coding agent. It wires the OpenCode server's session and event APIs into an assistant-ui thread, including tool permissions, interactive questions, and session state.
+`@assistant-ui/react-opencode` 是用于 [OpenCode](https://opencode.ai/), 的运行时适配器。OpenCode 是一个开源 AI 编程代理。它将 OpenCode 服务器的会话和事件 API 接入 assistant-ui 线程，包括工具权限、交互式问题和会话状态。
 
 <Callout type="warn">
-This adapter is at v0.0.3 and is experimental. The runtime API and exported hooks may change without notice.
+此适配器当前版本为 v0.0.3，属于实验性功能。运行时 API 和导出的 hooks 可能会随时变更，恕不另行通知。
 </Callout>
 
-## When to use it
+## 适用场景
 
-Pick the OpenCode runtime when:
+在以下情况下选择 OpenCode 运行时：
 
-- You are building a UI on top of an OpenCode agent server.
-- You need first-class support for OpenCode's permission and question flows.
-- You want session-aware features: fork, revert, unrevert, refresh.
+- 你正在基于 OpenCode 代理服务器构建 UI。
+- 你需要原生支持 OpenCode 的权限和提问流程。
+- 你希望使用与会话相关的功能：fork、revert、unrevert、refresh。
 
-If your backend is not OpenCode-based, see [picking a runtime](/docs/runtimes/pick-a-runtime) for alternatives.
+如果你的后端不是基于 OpenCode 构建的，请参阅[选择运行时](/docs/runtimes/pick-a-runtime)了解其他方案。
 
-## Architecture
+## 架构
 
-`@assistant-ui/react-opencode` is layered on `ExternalStoreRuntime` plus a `RemoteThreadList` for session-backed thread management (see [architecture](/docs/runtimes/concepts/architecture)). OpenCode sessions map to assistant-ui threads; the runtime subscribes to a server-sent event stream and projects messages into the thread.
+`@assistant-ui/react-opencode` 基于 `ExternalStoreRuntime` 构建，并额外使用 `RemoteThreadList` 管理由会话支持的线程（参见[架构](/docs/runtimes/concepts/architecture)）。OpenCode 会话会映射到 assistant-ui 线程；运行时订阅服务器发送事件流，并将消息投影到线程中。
 
-## Requirements
+## 要求
 
-- A running [OpenCode](https://opencode.ai/) server (defaults to `http://localhost:4096`).
-- React 18 or 19.
+- 正在运行的 [OpenCode](https://opencode.ai/) 服务器（默认使用 `http://localhost:4096`）。
+- React 18 或 19。
 
-## Sub-agent conversations
+## 子代理对话
 
-OpenCode `task` tool calls expose their child session through tool metadata. The runtime loads those child sessions, keeps them synchronized from the same OpenCode event stream, and projects their transcripts into `ToolCallMessagePart.messages`. Parallel and recursively nested tasks are supported.
+OpenCode `task` 工具调用会通过工具元数据公开其子会话。运行时会加载这些子会话，通过同一个 OpenCode 事件流使它们保持同步，并将其会话记录投影到 `ToolCallMessagePart.messages` 中。支持并行任务和递归嵌套任务。
 
-Loading is eager, not keyed to what a renderer displays. Once a thread is subscribed, every `task` part in its transcript fetches its child session, and each child does the same for its own nested tasks, so a long session with many task calls fetches every sub-agent transcript whether or not any of them is expanded. Each child session is fetched once and then kept current from the event stream, so re-subscribing a thread does not refetch it.
+加载采用主动加载方式，而不是根据渲染器显示的内容按需加载。线程订阅后，其会话记录中的每个 `task` part 都会获取对应的子会话；每个子会话也会对其自身的嵌套任务执行相同操作。因此，一个包含许多任务调用的长会话会获取所有子代理的会话记录，无论这些会话是否处于展开状态。每个子会话只会获取一次，之后通过事件流保持最新状态，因此重新订阅线程不会再次获取它。
 
-A `task` part carries `messages` only once its child session has loaded. While the child is still loading, the part projects as an ordinary tool call, so an empty `messages` array always means the sub-agent produced nothing rather than that its transcript is still in flight.
+只有在子会话加载完成后，`task` part 才会携带 `messages`。子会话仍在加载时，该 part 会被投影为普通工具调用，因此空的 `messages` 数组始终表示子代理没有产生任何内容，而不是表示其会话记录仍在传输中。
 
-Use assistant-ui's [`MessagePartPrimitive.Messages`](/docs/tools/multi-agent) inside a `task` tool renderer to display the child conversation. Nested conversations are read-only and inherit the parent thread's tool renderers.
+在 `task` 工具渲染器中使用 assistant-ui 的 [`MessagePartPrimitive.Messages`](/docs/tools/multi-agent) 来显示子对话。嵌套对话为只读，并继承父线程的工具渲染器。
 
-## Install
+## 安装
 
 <InstallCommand npm={["@assistant-ui/react", "@assistant-ui/react-opencode", "@opencode-ai/sdk"]} />
 
-## Next
+## 后续步骤
 
 <Cards>
   <Card
-    title="Quickstart"
-    description="Minimal useOpenCodeRuntime setup against a local OpenCode server."
+    title="快速开始"
+    description="针对本地 OpenCode 服务器使用 OpenCodeRuntime 的最小配置示例。"
     href="/docs/runtimes/opencode/quickstart"
   />
   <Card
     title="Hooks"
-    description="Permissions, questions, session state, runtime extras."
+    description="权限、问题、会话状态和运行时扩展。"
     href="/docs/runtimes/opencode/hooks"
   />
 </Cards>

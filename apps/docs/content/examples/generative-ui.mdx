@@ -1,33 +1,33 @@
 ---
-title: Generative UI Example
-description: Live demo of the present tool, where the model composes a dashboard from a component vocabulary at runtime, alongside the Tool UI and legacy primitive routes.
+title: 生成式 UI 示例
+description: present 工具的实时演示：模型在运行时从组件词汇表组合出一个仪表板，同时展示 Tool UI 和旧版原语路由。
 ---
 
-## Overview
+## 概述
 
-The main route of `examples/with-generative-ui` demonstrates **generative UI**: the model composes an interface at runtime by calling the `present` tool, choosing components from a vocabulary the app ships. Nothing in the app binds a component to a specific tool call.
+`examples/with-generative-ui`的主路由演示了**生成式 UI**：模型通过调用`present`工具，在运行时组合界面，并从应用提供的词汇表中选择组件。应用中的任何内容都不会将组件绑定到特定的工具调用。
 
-- **Default vocabulary** — cards, facts, rows, tables, and charts come from `defaultGenerativeUILibrary`, so the app registers one tool and writes no renderers
-- **A custom component** — `DashboardHeader` is added through `defineGenerativeComponents`, showing how to extend the vocabulary with your own React component, and `Markdown` is swapped for the registry item's real renderer
-- **Styled output** — the vocabulary stylesheet is mounted from `@assistant-ui/ui` through the monorepo's tsconfig alias, the way every in-repo example consumes that package; in your own app the same CSS arrives through `shadcn add generative-ui`
-- **Dashboard prompts** — the suggestions describe data, not layout, and let the model decide the composition
+- **默认词汇表** — 卡片、事实、行、表格和图表来自`defaultGenerativeUILibrary`，因此应用只需注册一个工具，无需编写渲染器
+- **自定义组件** — 通过`defineGenerativeComponents`添加`DashboardHeader`，展示如何使用自己的 React 组件扩展词汇表；同时将`Markdown`替换为注册表项的实际渲染器
+- **带样式的输出** — 词汇表样式表通过 monorepo 的 tsconfig 别名从`@assistant-ui/ui`加载，这是仓库内每个示例使用该包的方式；在自己的应用中，相同的 CSS 会通过`shadcn add generative-ui`引入
+- **仪表板提示** — 建议描述数据而非布局，并让模型决定组合方式
 
-### Routes in the same example app
+### 同一示例应用中的路由
 
-| Route | What it demonstrates |
+| 路由 | 演示内容 |
 |-------|---------------------|
-| `/` | The `present` tool (`JSONGenerativeUI`) — the model composes UI from a vocabulary |
-| `/tool-ui` | Tool UI (`Tools({ toolkit })`) — a renderer bound to each known tool |
-| `/primitive` | Static `GenerativeUIRender` with a hand-written spec (legacy) |
-| `/gui-chat` | Chat with a `render_gui` tool bridged to `MessagePrimitive.GenerativeUI` (legacy) |
+| `/` | `present`工具（`JSONGenerativeUI`）——模型从词汇表中组合 UI |
+| `/tool-ui` | Tool UI（`Tools({ toolkit })`）——为每个已知工具绑定一个渲染器 |
+| `/primitive` | 带有手写规范的静态`GenerativeUIRender`（旧版） |
+| `/gui-chat` | 与`MessagePrimitive.GenerativeUI`桥接的`render_gui`工具聊天（旧版） |
 
-See the [Generative UI guide](/docs/tools/generative-ui) for the full setup, and [Tool UI](/docs/tools/tool-ui) for the per-tool alternative.
+查看[生成式 UI 指南](/docs/tools/generative-ui)了解完整设置，查看[Tool UI](/docs/tools/tool-ui)了解按工具配置的替代方案。
 
-## Patterns Demonstrated
+## 演示的模式
 
-### The present tool
+### present 工具
 
-One toolkit entry exposes the whole vocabulary. `display: "standalone"` renders the result on its own surface rather than inside the chain-of-thought trace:
+一个工具包条目就能暴露整个词汇表。`display: "standalone"`会在自身的界面上渲染结果，而不是将其渲染在思维链轨迹中：
 
 ```tsx title="app/present-toolkit.tsx"
 "use generative";
@@ -64,9 +64,9 @@ export default defineToolkit({
 });
 ```
 
-The two demos keep separate toolkits and separate routes. If `/` also carried the Tool UI entries, `generate_chart` would compete with `present` for every prompt that mentions a chart, and the demo would render a Recharts widget instead of a composed dashboard.
+两个演示使用彼此独立的工具包和路由。如果`/`也包含 Tool UI 条目，那么对于每个提到图表的提示，`generate_chart`都会与`present`竞争，演示最终会渲染 Recharts 小部件，而不是组合出的仪表板。
 
-Because `present` resolves in the browser, the provider passes `sendAutomaticallyWhen` so the run continues once the UI has rendered. The transport points this route at its own endpoint, which is what keeps the two demos' tool sets apart:
+由于`present`会在浏览器中解析，提供程序会传入`sendAutomaticallyWhen`，以便 UI 渲染完成后继续运行。传输层会将此路由指向自己的端点，从而使两个演示使用彼此独立的工具集：
 
 ```tsx title="app/page.tsx"
 const runtime = useChatRuntime({
@@ -75,9 +75,9 @@ const runtime = useChatRuntime({
 });
 ```
 
-### Backend-Rendered Tools (Chart, Location)
+### 后端渲染的工具（图表、位置）
 
-On `/tool-ui`, these tools have backend `execute` functions and frontend toolkit renderers. The AI generates the data, the backend confirms, and the frontend renders rich UI from `args`:
+在`/tool-ui`中，这些工具具有后端`execute`函数和前端工具包渲染器。AI 生成数据，后端进行确认，然后前端根据`args`渲染丰富的 UI：
 
 ```tsx
 const toolkit = defineToolkit({
@@ -92,9 +92,9 @@ const toolkit = defineToolkit({
 });
 ```
 
-### Frontend-Only Tools (Date Picker, Contact Form)
+### 仅前端工具（日期选择器、联系人表单）
 
-These tools have no backend `execute` — the AI triggers the tool call, and the user completes it through interactive UI. The `addResult` callback sends the user's input back to the AI:
+这些工具没有后端`execute`——AI 触发工具调用，用户通过交互式 UI 完成操作。`addResult`回调会将用户输入发送回 AI：
 
 ```tsx
 const toolkit = defineToolkit({
@@ -115,17 +115,17 @@ const toolkit = defineToolkit({
 });
 ```
 
-## Key Concepts
+## 核心概念
 
-| Concept | Used In | Description |
+| 概念 | 使用位置 | 描述 |
 |---------|---------|-------------|
-| `JSONGenerativeUI` | `/` | Turn a component library into the model-facing schema for `present` |
-| `defineGenerativeComponents` | `/` | Add your own component to the vocabulary |
-| `sendAutomaticallyWhen` | `/` | Continue the run once the frontend tool has resolved |
-| `Tools({ toolkit })` | `/tool-ui` | Register a React renderer for a specific tool call |
-| `addResult` | Date Picker, Contact Form | Send user input back to the AI as the tool result |
-| `status.type` | Chart, Location | Show loading states while the AI streams tool arguments |
+| `JSONGenerativeUI` | `/` | 将组件库转换为面向模型的`present`架构 |
+| `defineGenerativeComponents` | `/` | 将自己的组件添加到词汇表 |
+| `sendAutomaticallyWhen` | `/` | 前端工具解析后继续运行 |
+| `Tools({ toolkit })` | `/tool-ui` | 为特定工具调用注册 React 渲染器 |
+| `addResult` | 日期选择器、联系人表单 | 将用户输入作为工具结果发送回 AI |
+| `status.type` | 图表、位置 | AI 流式传输工具参数时显示加载状态 |
 
-## Source
+## 源码
 
 <SourceLink href="https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-generative-ui" />

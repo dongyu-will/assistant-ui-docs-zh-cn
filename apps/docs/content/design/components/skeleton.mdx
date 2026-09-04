@@ -1,8 +1,8 @@
 ---
 title: "Skeleton"
-description: "The loading shape of content that has a known layout."
+description: "具有已知布局的内容加载形状。"
 links:
-  - label: Source
+  - label: 官方原文
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/skeleton.tsx
 ---
 
@@ -21,11 +21,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.SkeletonSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="skeleton" />
 
-## Usage
+## 使用
 
 ```tsx
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,21 +40,21 @@ export function Example() {
 }
 ```
 
-## Examples
+## 示例
 
-### Card
+### 卡片
 
-Compose skeleton blocks into the layout the data will fill; the closer the shapes, the calmer the swap.
+将骨架屏块组合成数据填充后的布局；形状越接近，替换时越平滑。
 
 <PreviewCode file="components/pages/design/specimens" name="SkeletonCardSpecimen" base={<SkeletonCardSpecimen />}>
   <RadixSpecimens.SkeletonCardSpecimen />
 </PreviewCode>
 
-## API Reference
+## API 参考
 
 ### Skeleton
 
-Renders a pulsing `div`; the size comes entirely from `className`.
+渲染一个脉动的 `div`；其尺寸完全取决于 `className`。
 
 <ParametersTable
   type="SkeletonProps"
@@ -62,7 +62,7 @@ Renders a pulsing `div`; the size comes entirely from `className`.
     {
       name: "className",
       type: "string",
-      description: "Width, height, and radius of the placeholder.",
+      description: "占位符的宽度、高度和圆角半径。",
     },
   ]}
 />

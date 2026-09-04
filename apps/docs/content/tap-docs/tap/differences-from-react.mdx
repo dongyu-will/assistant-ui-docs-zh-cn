@@ -1,18 +1,13 @@
 ---
-title: How tap differs from React
-description: The handful of behaviors that aren't quite React.
+title: tap 与 React 的差异
+description: 少数与 React 不完全相同的行为。
 ---
 
-Resources are React hooks, so almost everything carries over: the rules of hooks,
-dependency arrays, memoization, refs, and effect cleanup all work as you expect.
-This page covers the few places tap deliberately differs.
+Resources 是 React Hooks，因此几乎所有内容都可以直接沿用：Hooks 规则、依赖数组、记忆化、引用和副作用清理都与预期一致。本页面介绍 tap 有意做出差异的少数地方。
 
-## Effects run in call order
+## 副作用按调用顺序运行
 
-In React, effects run children-first (inside-out), because a component can only
-reach its children by returning them. In tap, `useResource` is just another hook,
-so **effects run in the exact order they are called**, and you can place effects
-before or after a child.
+在 React 中，副作用会优先在子组件中运行（由内向外），因为组件只能通过返回子组件来访问它们。在 tap 中，`useResource` 只是另一个 Hook，因此**副作用会严格按照调用顺序运行**，你可以将副作用放在子组件之前或之后。
 
 ```ts
 import { resource, useResource } from "@assistant-ui/tap";
@@ -35,31 +30,21 @@ const Child = resource(useChild);
 // Mount order: 1, 2, 3
 ```
 
-Cleanup on unmount runs in the same order (FIFO). This lets a parent run setup
-both before and after its children, which is useful when it reacts to data a child
-provides.
+卸载时的清理也会按照相同顺序（FIFO）运行。这样，父组件就可以在子组件之前和之后执行设置操作，这在父组件需要响应子组件提供的数据时非常有用。
 
-## The tree re-renders from the root
+## 树从根节点重新渲染
 
-This is the biggest difference. In React, a state change re-renders only the
-component that changed and its descendants. In tap, **the whole resource tree
-re-renders from the root**: because a parent reads its child's return value
-directly, the parent must re-run to receive the new value, and so must its parent,
-all the way up.
+这是最大的差异。在 React 中，状态变化只会重新渲染发生变化的组件及其后代。在 tap 中，**整个资源树都会从根节点重新渲染**：由于父资源会直接读取子资源的返回值，父资源必须重新运行才能接收新值，而它的父资源也必须重新运行，如此一直向上。
 
 [`useTapRoot`](/tap/docs/tap/trees-and-rerenders#separate-scheduling-with-usetaproot)
-breaks this chain by creating a new root with its own scheduler. Everything
-below it re-renders independently, and the parent does not re-render when that
-root updates.
+通过使用自己的调度器创建新的根节点，打破了这一链路。其下方的所有内容都会独立重新渲染，父节点不会在该根节点更新时重新渲染。
 
-## `useLayoutEffect` and `useInsertionEffect` collapse onto `useEffect`
+## `useLayoutEffect` 和 `useInsertionEffect` 都归并为 `useEffect`
 
-tap has a single effect primitive. `useLayoutEffect` and `useInsertionEffect`
-are accepted (so React code ports cleanly) but behave like `useEffect` inside a
-resource.
+tap 只有一个副作用原语。`useLayoutEffect` 和 `useInsertionEffect` 均可使用（因此 React 代码可以顺利移植），但在资源内部的行为与 `useEffect` 相同。
 
-## Where a throwing snapshot surfaces depends on the host
+## 抛出异常的快照在哪里呈现取决于宿主
 
-`useSyncExternalStore` matches React: when a store notifies and `getSnapshot` throws, the snapshot counts as changed and the resource re-renders. The error comes from that render, not from the store's notify loop.
+`useSyncExternalStore` 与 React 的行为一致：当 store 发出通知且 `getSnapshot` 抛出异常时，该快照会被视为已更改，资源也会重新渲染。错误来自这次渲染，而不是来自 store 的通知循环。
 
-Which render that is depends on the host at the root of the tree, not on the hook that reads the store. A tree owned by a React component ([`useResource`](/tap/docs/tap/api-reference#useresource) called from a component, or [`useTapRoot`](/tap/docs/tap/trees-and-rerenders#separate-scheduling-with-usetaproot), which escalates a throwing update into a host render) surfaces the error in a React render, where an error boundary can catch it. A bare [`createTapRoot`](/tap/docs/tap/api-reference#createtaproot) re-renders in the scheduler flush, so the error is uncaught, the same route every other resource render error takes there.
+具体是哪次渲染取决于树根节点的宿主，而不是读取 store 的 Hook。由 React 组件拥有的树（从组件中调用的 [`useResource`](/tap/docs/tap/api-reference#useresource)，或将抛出异常的更新提升为宿主渲染的 [`useTapRoot`](/tap/docs/tap/trees-and-rerenders#separate-scheduling-with-usetaproot)）会在 React 渲染中呈现错误，因此错误边界可以捕获它。单独使用的 [`createTapRoot`](/tap/docs/tap/api-reference#createtaproot) 会在调度器刷新期间重新渲染，因此错误不会被捕获，这与其他资源渲染错误在这里采用的路径相同。

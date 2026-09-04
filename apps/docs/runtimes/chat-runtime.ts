@@ -16,15 +16,13 @@ import { anonymousSessionFetch } from "@/lib/anonymous-session-client";
 
 type Adapters = UseChatRuntimeOptions["adapters"];
 
-export function useAnonymousCloud() {
-  return useMemo(
-    () =>
-      new AssistantCloud({
-        baseUrl: process.env.NEXT_PUBLIC_ASSISTANT_BASE_URL!,
-        anonymous: true,
-      }),
-    [],
-  );
+export function useAnonymousCloud(): AssistantCloud | undefined {
+  return useMemo(() => {
+    const baseUrl = process.env.NEXT_PUBLIC_ASSISTANT_BASE_URL;
+    return baseUrl
+      ? new AssistantCloud({ baseUrl, anonymous: true })
+      : undefined;
+  }, []);
 }
 
 const subscribeToNothing = () => () => {};

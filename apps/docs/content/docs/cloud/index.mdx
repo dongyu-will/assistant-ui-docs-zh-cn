@@ -1,46 +1,46 @@
 ---
-title: Cloud Persistence
-description: Add managed thread persistence and chat history to your AI app in minutes — assistant-ui Cloud handles thread sync, search, and multi-tenant storage.
+title: 云端持久化
+description: 只需几分钟，即可为你的 AI 应用添加托管的线程持久化和聊天历史记录 — assistant-ui Cloud 负责线程同步、搜索和多租户存储。
 ---
 
-Assistant Cloud is a hosted service that adds thread management, message persistence, and user authorization to AI chat applications. It works with any React UI—whether you use assistant-ui components or your own.
+Assistant Cloud 是一项托管服务，可为 AI 聊天应用添加线程管理、消息持久化和用户授权功能。它适用于任何 React UI——无论你使用 assistant-ui 组件，还是自行构建 UI。
 
-## What You Get
+## 你将获得什么
 
-- **Thread Persistence** — Messages automatically save as conversations progress. Users can resume chats at any time, even across sessions.
-- **Thread List** — Built-in UI components (or hooks) for browsing, switching, and managing conversations.
-- **Auto-Generated Titles** — Conversations get meaningful titles based on the initial messages.
-- **User Authorization** — Integrates with your auth provider to scope threads per user or workspace.
+- **线程持久化** — 随着对话进行，消息会自动保存。用户可以随时继续聊天，即使跨越多个会话也不受影响。
+- **线程列表** — 提供用于浏览、切换和管理对话的内置 UI 组件（或 hooks）。
+- **自动生成标题** — 根据初始消息，为对话生成有意义的标题。
+- **用户授权** — 与你的身份验证提供商集成，按用户或工作区限定线程范围。
 
-## Supported Backends
+## 支持的后端
 
-| Backend | Standalone Mode | With assistant-ui |
+| 后端 | 独立模式 | 与 assistant-ui 配合 |
 |---------|----------------|-------------------|
 | AI SDK | [`useCloudChat`](/docs/cloud/ai-sdk) | [`useChatRuntime`](/docs/cloud/ai-sdk-assistant-ui) / `AISDKThreads` |
 | LangGraph | — | [`useLangGraphRuntime`](/docs/cloud/langgraph) |
-| Custom | — | Local Runtime |
+| Custom | — | 本地运行时 |
 
-## Getting Started
+## 开始使用
 
 <Callout type="info">
-  You'll need an Assistant Cloud account. [Sign up here](https://cloud.assistant-ui.com/) to create a project.
+  你需要一个 Assistant Cloud 账户。[在此注册](https://cloud.assistant-ui.com/) 以创建项目。
 
-  From your project settings, copy the **Frontend API URL** (`https://proj-[ID].assistant-api.com`)—you'll need it for the guides below.
+  在项目设置中，复制 **Frontend API URL**（`https://proj-[ID].assistant-api.com`）——你将在下面的指南中用到它。
 </Callout>
 
-### Choose Your Integration Path
+### 选择集成路径
 
-**Using AI SDK with your own UI?**  
-→ Follow the [AI SDK guide](/docs/cloud/ai-sdk) for the `useCloudChat` hook. One hook, minimal changes to your existing code.
+**使用 AI SDK 和你自己的 UI？**
+→ 按照 [AI SDK 指南](/docs/cloud/ai-sdk)使用 `useCloudChat` hook。只需一个 hook，即可对现有代码进行最少的修改。
 
-**Want pre-built components like `<Thread />` and `<ThreadList />`?**  
-→ Follow the [AI SDK + assistant-ui guide](/docs/cloud/ai-sdk-assistant-ui) for full UI components with cloud persistence.
+**想要使用 `<Thread />` 和 `<ThreadList />` 这样的预构建组件？**
+→ 按照 [AI SDK + assistant-ui 指南](/docs/cloud/ai-sdk-assistant-ui)操作，使用支持云端持久化的完整 UI 组件。
 
-**Using LangGraph?**  
-→ Follow the [LangGraph guide](/docs/cloud/langgraph) for cloud-backed LangGraph Cloud integration.
+**使用 LangGraph？**
+→ 按照 [LangGraph 指南](/docs/cloud/langgraph)操作，集成由云端支持的 LangGraph Cloud。
 
-## Example Repositories
+## 示例仓库
 
-- [AI SDK (standalone)](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-cloud-standalone) — Minimal `useCloudChat` setup
-- [AI SDK + assistant-ui](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-cloud) — Full component integration
-- [LangGraph + assistant-ui](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-langgraph) — LangGraph Cloud with persistence
+- [AI SDK（独立模式）](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-cloud-standalone) — 最小化的 `useCloudChat` 设置
+- [AI SDK + assistant-ui](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-cloud) — 完整的组件集成
+- [LangGraph + assistant-ui](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-langgraph) — 支持持久化的 LangGraph Cloud

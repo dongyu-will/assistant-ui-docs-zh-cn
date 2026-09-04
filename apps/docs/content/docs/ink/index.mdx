@@ -1,16 +1,16 @@
 ---
-title: Terminal AI Chat with Ink
-description: Build AI chat interfaces for the terminal in TypeScript with @assistant-ui/react-ink — streaming, tool calls, and keyboard navigation in CLI apps.
+title: 使用 Ink 构建终端 AI 聊天
+description: 使用 TypeScript 和 @assistant-ui/react-ink 为终端构建 AI 聊天界面，支持流式输出、工具调用和 CLI 应用中的键盘导航。
 ---
 
-## Quick Start
+## 快速开始
 
-The fastest way to get started with assistant-ui for the terminal.
+在终端中开始使用 assistant-ui 的最快方式。
 
 <Steps>
   <Step>
 
-### Create a new project
+### 创建新项目
 
 ```sh
 npx assistant-ui@latest create --ink my-chat-app
@@ -20,7 +20,7 @@ cd my-chat-app
   </Step>
   <Step>
 
-### Install dependencies
+### 安装依赖
 
 ```sh
 pnpm install
@@ -29,7 +29,7 @@ pnpm install
   </Step>
   <Step>
 
-### Start the app
+### 启动应用
 
 ```sh
 pnpm dev
@@ -38,23 +38,23 @@ pnpm dev
   </Step>
 </Steps>
 
-## Manual Setup
+## 手动设置
 
-If you prefer to add assistant-ui to an existing Node.js project, follow these steps.
+如果你希望将 assistant-ui 添加到现有的 Node.js 项目中，请按照以下步骤操作。
 
 <Steps>
   <Step>
 
-### Install dependencies
+### 安装依赖
 
 <InstallCommand npm={["@assistant-ui/react-ink", "@assistant-ui/react-ink-markdown", "ink", "react"]} />
 
   </Step>
   <Step>
 
-### Create a chat model adapter
+### 创建聊天模型适配器
 
-Define how your app communicates with your AI backend. This example uses a simple streaming adapter:
+定义应用如何与 AI 后端通信。此示例使用简单的流式传输适配器：
 
 ```ts title="adapters/my-chat-adapter.ts"
 import type { ChatModelAdapter } from "@assistant-ui/react-ink";
@@ -87,13 +87,13 @@ export const myChatAdapter: ChatModelAdapter = {
 ```
 
 <Callout type="info">
-  This is the same `ChatModelAdapter` interface used in `@assistant-ui/react` and `@assistant-ui/react-native`. If you already have an adapter, you can reuse it as-is.
+  这是 `ChatModelAdapter` 中使用的相同 `@assistant-ui/react` 接口和 `@assistant-ui/react-native`。如果你已经有适配器，可以直接复用。
 </Callout>
 
   </Step>
   <Step>
 
-### Set up the runtime
+### 设置运行时
 
 ```tsx title="app.tsx"
 import { Box, Text } from "ink";
@@ -120,9 +120,9 @@ export function App() {
   </Step>
   <Step>
 
-### Build your chat UI
+### 构建聊天 UI
 
-Use primitives to compose your terminal chat interface:
+使用原语组合终端聊天界面：
 
 ```tsx title="components/thread.tsx"
 import { Box, Text } from "ink";
@@ -199,7 +199,7 @@ export const Thread = () => {
   </Step>
   <Step>
 
-### Render with Ink
+### 使用 Ink 渲染
 
 ```tsx title="index.tsx"
 import { render } from "ink";
@@ -211,27 +211,27 @@ render(<App />);
   </Step>
 </Steps>
 
-## What's Next?
+## 接下来做什么？
 
 <Cards>
   <Card
-    title="Migration from Web"
-    description="Already using assistant-ui? Migrate your web app to the terminal."
+    title="从 Web 迁移"
+    description="已经在使用 assistant-ui？将你的 Web 应用迁移到终端。"
     href="/docs/ink/migration"
   />
   <Card
-    title="Custom Backend"
-    description="Connect to your own backend API or manage threads server-side."
+    title="自定义后端"
+    description="连接到你自己的后端 API，或在服务端管理线程。"
     href="/docs/ink/custom-backend"
   />
   <Card
-    title="Primitives"
-    description="Composable terminal UI components for building chat interfaces."
+    title="原语"
+    description="用于构建聊天界面的可组合终端 UI 组件。"
     href="/docs/ink/primitives"
   />
   <Card
-    title="Example App"
-    description="Full terminal chat example with markdown rendering and streaming."
+    title="示例应用"
+    description="包含 Markdown 渲染和流式输出的完整终端聊天示例。"
     href="https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-react-ink"
   />
 </Cards>

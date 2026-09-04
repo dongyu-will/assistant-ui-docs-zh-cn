@@ -1,20 +1,20 @@
 ---
-title: "Generative UI"
-description: "A styled component library for rendering structured generative UI output."
+title: "生成式 UI"
+description: "用于渲染结构化生成式 UI 输出的样式化组件库。"
 ---
 
-`styledGenerativeUILibrary` is `@assistant-ui/react-generative-ui`'s default component vocabulary (headings, text, cards, lists, and more) with one entry swapped: its `Markdown` component renders with `react-markdown` and GitHub-flavored markdown instead of dumping the raw source as plain text. With a runtime the library backs a tool the model calls to render structured UI; standalone you call `renderGenerativeUI` yourself with any spec built against the same library.
+`styledGenerativeUILibrary` 是 `@assistant-ui/react-generative-ui` 的默认组件集合（标题、文本、卡片、列表等），但替换了其中一个条目：其 `Markdown` 组件使用 `react-markdown` 和 GitHub 风格 Markdown 进行渲染，而不是将原始源内容直接作为纯文本输出。配合运行时使用时，该库为模型调用的工具提供支持，以渲染结构化 UI；单独使用时，你可以自行调用 `renderGenerativeUI`，传入基于同一组件库构建的任意规范。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-The library only supplies components; something still has to expose them to the model and mount the result when it calls them. `JSONGenerativeUI` builds that bridge: a tool whose parameters come from the library's Zod schemas, and whose render draws the model's response through the library.
+该库只提供组件；仍然需要有机制将这些组件暴露给模型，并在模型调用它们时挂载渲染结果。`JSONGenerativeUI` 构建了这座桥梁：工具的参数来自该库的 Zod schema，而其渲染逻辑则通过该库渲染模型的响应。
 
 <Steps>
   <Step>
 
-### Build a toolkit around the library
+### 围绕该库构建工具包
 
 ```tsx title="app/toolkit.ts"
 import { defineToolkit } from "@assistant-ui/react";
@@ -31,7 +31,7 @@ export default defineToolkit({
   </Step>
   <Step>
 
-### Register it on your runtime
+### 在运行时中注册它
 
 ```tsx title="app/page.tsx"
 import { AssistantRuntimeProvider, AuiConfig, Tools } from "@assistant-ui/react";
@@ -45,7 +45,7 @@ const runtime = useChatRuntime(/* ... */); // or useLocalRuntime, etc.
 </AssistantRuntimeProvider>;
 ```
 
-The model can now call `present` with a `{ $type, ...props }` tree; it renders through `styledGenerativeUILibrary`, so a `Markdown` node comes out fully formatted instead of as raw text.
+现在，模型可以调用 `present` 并传入 `{ $type, ...props }` 树；它会通过 `styledGenerativeUILibrary` 进行渲染，因此 `Markdown` 节点会以完整格式呈现，而不是显示为原始文本。
 
   </Step>
 </Steps>
@@ -54,12 +54,12 @@ The model can now call `present` with a `{ $type, ...props }` tree; it renders t
 
 <StandaloneMode>
 
-Standalone, skip the tool: call `renderGenerativeUI` with any spec built against the library.
+单独使用时，可以跳过工具：调用 `renderGenerativeUI`，传入基于该库构建的任意规范。
 
 <Steps>
   <Step>
 
-### Render a spec directly
+### 直接渲染规范
 
 ```tsx
 import { renderGenerativeUI } from "@assistant-ui/react-generative-ui";
@@ -73,18 +73,18 @@ function Report() {
 }
 ```
 
-Each node selects a component by `$type` and passes its other keys as props; nest further nodes under a `children` key.
+每个节点通过 `$type` 选择组件，并将其他键作为 props 传入；将更多节点嵌套在 `children` 键下。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Examples
+## 示例
 
-### See the override in action
+### 查看覆盖效果
 
-`defaultGenerativeUILibrary.Markdown` renders `value` as plain text; `styledGenerativeUILibrary.Markdown` parses the same string as GitHub-flavored markdown. Both wrap the result in the same `<div data-aui="markdown">`, so any styling already targeting that attribute keeps applying.
+`defaultGenerativeUILibrary.Markdown` 会将 `value` 渲染为纯文本；`styledGenerativeUILibrary.Markdown` 则会将同一个字符串解析为 GitHub 风格 Markdown。两者都会将结果包装在相同的 `<div data-aui="markdown">` 中，因此现有的、针对该属性的样式仍会继续生效。
 
 ```tsx
 import { defaultGenerativeUILibrary, renderGenerativeUI } from "@assistant-ui/react-generative-ui";
@@ -94,9 +94,9 @@ renderGenerativeUI({ $type: "Markdown", value: "**bold**" }, defaultGenerativeUI
 renderGenerativeUI({ $type: "Markdown", value: "**bold**" }, styledGenerativeUILibrary); // <div data-aui="markdown"><strong>bold</strong></div>
 ```
 
-### Extend the library with your own component
+### 使用自定义组件扩展该库
 
-Add to it with a plain object spread. No special wrapper is required for a library that is not split across a client and a server build.
+使用普通的对象展开即可添加组件。对于未拆分为客户端和服务器构建的库，无需特殊的包装器。
 
 ```tsx title="app/toolkit.ts"
 import { JSONGenerativeUI } from "@assistant-ui/react-generative-ui";
@@ -115,19 +115,19 @@ const library = {
 const generative = new JSONGenerativeUI({ library });
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### JSONGenerativeUI
 
-| Member | Parameters | Description |
+| 成员 | 参数 | 描述 |
 |--------|-----------|-------------|
-| `new JSONGenerativeUI(options)` | `{ library: GenerativeUILibrary; actions?: ActionRegistry }` | Builds the tool's parameter schema once, from the library's Zod `properties`. |
-| `.present(options?)` | `{ display?: "standalone" }`, returns a `PresentTool` | A frontend tool: parameters are the library's schema, and calling it renders the model's `{ $type, ...props }` tree through the library. `display: "standalone"` surfaces the result outside the chain-of-thought trace instead of inline. |
-| `.promptUser()` | none, returns a `PromptUserTool` | The same rendering, as a human-in-the-loop tool: the model pauses until the rendered UI supplies a result. |
+| `new JSONGenerativeUI(options)` | `{ library: GenerativeUILibrary; actions?: ActionRegistry }` | 根据该库的 Zod `properties`，一次性构建工具的参数 schema。 |
+| `.present(options?)` | `{ display?: "standalone" }`，返回 `PresentTool` | 一个前端工具：参数使用该库的 schema，调用它会通过该库渲染模型的 `{ $type, ...props }` 树。`display: "standalone"` 会将结果显示在思维链轨迹之外，而不是以内联方式显示。 |
+| `.promptUser()` | 无，返回 `PromptUserTool` | 相同的渲染逻辑，但作为人在回路工具使用：模型会暂停，直到渲染出的 UI 提供结果。 |
 
-Register the resulting tool the way you register any other: `defineToolkit({ present: generative.present() })`, then `Tools({ toolkit })` into your `AuiConfig`.
+像注册其他工具一样注册生成的工具：`defineToolkit({ present: generative.present() })`，然后将 `Tools({ toolkit })` 注册到你的 `AuiConfig` 中。
 
 </RuntimeMode>
 
@@ -135,12 +135,12 @@ Register the resulting tool the way you register any other: `defineToolkit({ pre
 
 ### renderGenerativeUI
 
-| Parameter | Type | Description |
+| 参数 | 类型 | 描述 |
 |-----------|------|-------------|
-| `node` | `unknown` | A `{ $type, ...props }` tree, or an array of them. `$type` selects the component; every other key becomes a prop; a `children` key nests further nodes. |
-| `library` | `GenerativeUILibrary` | Looked up by `$type`. An unknown type logs a console error in development and renders nothing. |
-| `context` | `{ status: "streaming" \| "done"; dispatch?(action) }` | Optional, defaults to `{ status: "done" }`. A component whose `streamProperties` is not `true` renders nothing while `status` is `"streaming"`. |
+| `node` | `unknown` | 一个 `{ $type, ...props }` 树，或由多个此类节点组成的数组。`$type` 用于选择组件；其他所有键都会成为 prop；`children` 键用于嵌套更多节点。 |
+| `library` | `GenerativeUILibrary` | 通过 `$type` 查找。未知类型会在开发环境中记录控制台错误，并且不渲染任何内容。 |
+| `context` | `{ status: "streaming" \| "done"; dispatch?(action) }` | 可选，默认为 `{ status: "done" }`。当组件的 `streamProperties` 不为 `true` 时，如果 `status` 为 `"streaming"`，该组件不会渲染任何内容。 |
 
-`styledGenerativeUILibrary` itself takes no props: it is a `GenerativeUILibrary` value, the same shape as `defaultGenerativeUILibrary`, with its `Markdown` entry replaced.
+`styledGenerativeUILibrary` 本身不接收任何 props：它是一个 `GenerativeUILibrary` 值，形状与 `defaultGenerativeUILibrary` 相同，只是替换了其中的 `Markdown` 条目。
 
 </StandaloneMode>

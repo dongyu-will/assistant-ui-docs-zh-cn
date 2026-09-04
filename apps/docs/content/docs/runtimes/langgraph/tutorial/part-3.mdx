@@ -1,9 +1,9 @@
 ---
-title: "Part 3: Approval UI"
-description: Add human-in-the-loop approval for tool calls.
+title: "第 3 部分：审批 UI"
+description: 为工具调用添加人在回路的审批流程。
 ---
 
-## Background: LangGraph implementation details
+## 背景：LangGraph 实现细节
 
 import Image from "next/image";
 import approval from "./images/stockbroker-langgraph.png";
@@ -15,7 +15,7 @@ import approval from "./images/stockbroker-langgraph.png";
   className="mx-auto rounded-lg border shadow"
 />
 
-Our LangGraph backend interrupts the `purchase_stock` tool execution in order to ensure the user confirms the purchase. The user confirms the purchase by submitting a tool message with the `approve` field set to `true`.
+我们的 LangGraph 后端会中断 `purchase_stock` 工具的执行，以确保用户确认购买操作。用户通过提交一条消息，将其中的 `approve` 字段设置为 `true`，来确认购买操作。
 
 ```ts title="assistant-ui-stockbroker/backend/src/index.ts" {6,18-19,32-35}
 const purchaseApproval = async (state: typeof GraphAnnotation.State) => {
@@ -60,11 +60,11 @@ const workflow = new StateGraph(GraphAnnotation)
   ]);
 ```
 
-## Add approval UI
+## 添加审批 UI
 
-We create a new file under `/components/tools/purchase-stock/PurchaseStockTool.tsx` to define the tool.
+我们会在 `/components/tools/purchase-stock/PurchaseStockTool.tsx` 下创建一个新文件，用于定义工具。
 
-First, we define the tool arguments and result types:
+首先，我们定义工具参数和结果类型：
 
 ```ts title="@/components/tools/purchase-stock/PurchaseStockTool.tsx"
 type PurchaseStockArgs = {
@@ -81,7 +81,7 @@ type PurchaseStockResult = {
 };
 ```
 
-Then we define a tool UI renderer:
+然后，我们定义工具 UI 渲染器：
 
 ```tsx title="@/components/tools/purchase-stock/PurchaseStockTool.tsx"
 "use client";
@@ -121,13 +121,13 @@ export const PurchaseStockToolUI: ToolCallMessagePartComponent<
 };
 ```
 
-Finally, we add a `TransactionConfirmationPending` component to ask for approval.
+最后，我们添加一个 `TransactionConfirmationPending` 组件来请求审批。
 
-This requires shadcn/ui's `Card` and `Button` components. We will install them as a dependency.
+这需要使用 shadcn/ui 的 `Card` 和 `Button` 组件。我们将其作为依赖安装。
 
 <InstallCommand shadcn={["card", "button"]} />
 
-Then create a new file under `/components/tools/purchase-stock/transaction-confirmation-pending.tsx` to define the approval UI.
+然后在 `/components/tools/purchase-stock/transaction-confirmation-pending.tsx` 下创建一个新文件，用于定义审批 UI。
 
 ```tsx title="@/components/tools/purchase-stock/transaction-confirmation-pending.tsx"
 "use client";
@@ -204,7 +204,7 @@ export function TransactionConfirmationPending(props: TransactionConfirmation) {
 }
 ```
 
-### Bind approval UI
+### 绑定审批 UI
 
 ```tsx title="@/app/page.tsx" {1-5,12}
 "use client";
@@ -236,9 +236,9 @@ export default function Home() {
 }
 ```
 
-### Try it out!
+### 试试看！
 
-Ask the assistant to buy 5 shares of Tesla. You should see the following appear:
+让助手购买 5 股 Tesla。你应该会看到以下内容：
 
 import purchase from "./images/acme-approve.png";
 
@@ -249,9 +249,9 @@ import purchase from "./images/acme-approve.png";
   className="mx-auto rounded-lg border shadow"
 />
 
-## Add `TransactionConfirmationFinal` to show approval result
+## 添加 `TransactionConfirmationFinal` 以显示审批结果
 
-We will add a component to display the approval result.
+我们将添加一个组件来显示审批结果。
 
 ```ts title="@/components/tools/purchase-stock/transaction-confirmation-final.tsx"
 "use client";
@@ -310,9 +310,9 @@ export function TransactionConfirmationFinal(props: TransactionConfirmation) {
 }
 ```
 
-### Update `PurchaseStockTool`
+### 更新 `PurchaseStockTool`
 
-We will import the new `<TransactionConfirmationFinal />` component and use it in the `render` function whenever an approval result is available.
+我们将导入新的 `<TransactionConfirmationFinal />` 组件，并在审批结果可用时，在 `render` 函数中使用它。
 
 ```tsx title="@/components/tools/purchase-stock/PurchaseStockTool.tsx" {3,25-30,37-42}
 "use client";
@@ -379,9 +379,9 @@ export const PurchaseStockToolUI: ToolCallMessagePartComponent<
 };
 ```
 
-### Try it out!
+### 试试看！
 
-Confirm the purchase of shares. You should see the approval confirmation UI appear.
+确认购买股票。你应该会看到审批确认 UI。
 
 import purchase2 from "./images/acme-confirmed.png";
 

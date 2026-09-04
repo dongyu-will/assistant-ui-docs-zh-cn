@@ -1,18 +1,18 @@
 ---
-title: Suggested Prompts
-description: Display suggested starter prompts in your AI chat to onboard users faster. Configurable suggestion components for React, built into assistant-ui.
+title: 建议提示词
+description: 在 AI 聊天中显示建议的起始提示词，帮助用户更快上手。为 React 提供可配置的建议组件，内置于 assistant-ui。
 platforms: ["react"]
 ---
 
-Suggestions are pre-defined prompts that help users discover what your assistant can do. They appear in the welcome screen and provide a quick way to start conversations.
+建议提示词是预先定义的提示词，可帮助用户了解助手的功能。它们会显示在欢迎屏幕中，为开始对话提供快捷方式。
 
-## Overview
+## 概览
 
-The Suggestions API allows you to configure a list of suggested prompts that are displayed when the thread is empty. Users can click on a suggestion to either populate the composer or immediately send the message.
+Suggestions API 允许你配置一组建议提示词，并在线程为空时显示。用户可以点击建议，将其填入输入框，或立即发送消息。
 
-## Quick Start
+## 快速开始
 
-Configure suggestions using the `Suggestions()` API in your runtime provider:
+在运行时提供程序中使用 `Suggestions()` API 配置建议：
 
 ```tsx
 import { AuiConfig, Tools, Suggestions } from "@assistant-ui/react";
@@ -38,11 +38,11 @@ function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-## Suggestion Format
+## 建议格式
 
-Suggestions can be provided as either strings or objects with title, label, and prompt:
+建议可以是字符串，也可以是包含 title、label 和 prompt 的对象：
 
-### Simple Strings
+### 简单字符串
 
 ```tsx
 AuiConfig({
@@ -54,9 +54,9 @@ AuiConfig({
 });
 ```
 
-### Objects with Title and Description
+### 包含标题和描述的对象
 
-For more detailed suggestions with separate display text and prompts:
+如果需要将显示文本与提示词分开，可以使用更详细的建议：
 
 ```tsx
 AuiConfig({
@@ -80,13 +80,13 @@ AuiConfig({
 });
 ```
 
-## Displaying Suggestions
+## 显示建议
 
-The default Thread component from the shadcn registry already includes suggestion rendering. The suggestions are displayed in the welcome screen when the thread is empty.
+shadcn 注册表中的默认 Thread 组件已经包含建议渲染功能。线程为空时，建议会显示在欢迎屏幕中。
 
-### Customizing Suggestion Display
+### 自定义建议显示方式
 
-If you want to customize how suggestions are displayed, you can modify your Thread component. The idiomatic pattern is to wrap the suggestions in `AuiIf` so they only appear when the thread is empty:
+如果你想自定义建议的显示方式，可以修改 Thread 组件。惯用模式是将建议包裹在 `AuiIf` 中，使其仅在线程为空时显示：
 
 ```tsx
 import {
@@ -128,21 +128,21 @@ const SuggestionItem = () => {
 };
 ```
 
-### Dismissal
+### 隐藏建议
 
-Suggestions dismiss automatically once the user sends a message because `thread.isEmpty` becomes false. No extra state management is needed. If you want to dismiss suggestions without sending (for example, after a user clicks away), manage a local boolean and combine it with the `AuiIf` condition or a plain conditional render.
+用户发送消息后，建议会自动隐藏，因为 `thread.isEmpty` 会变为 false。无需额外管理状态。如果你希望在不发送消息的情况下隐藏建议（例如用户点击其他位置后），可以管理一个本地布尔值，并将其与 `AuiIf` 条件结合，或直接使用条件渲染。
 
-## Suggestion Primitives
+## 建议原语
 
-The primitives available for rendering suggestions are `ThreadPrimitive.Suggestions`, `ThreadPrimitive.SuggestionByIndex`, `SuggestionPrimitive.Title`, `SuggestionPrimitive.Description`, and `SuggestionPrimitive.Trigger`. `ThreadPrimitive.SuggestionByIndex` is useful when you need layout control over a specific suggestion slot rather than iterating all of them. For the full prop reference and usage patterns, see the [Suggestion primitive docs](/docs/primitives/suggestion).
+用于渲染建议的原语包括 `ThreadPrimitive.Suggestions`、`ThreadPrimitive.SuggestionByIndex`、`SuggestionPrimitive.Title`、`SuggestionPrimitive.Description` 和 `SuggestionPrimitive.Trigger`。当你需要控制特定建议插槽的布局，而不是遍历所有建议时，`ThreadPrimitive.SuggestionByIndex` 会很有用。有关完整的 prop 参考和使用模式，请参阅[建议原语文档](/docs/primitives/suggestion)。
 
-## Runtime driven suggestions
+## 由运行时驱动的建议
 
-The static `Suggestions(...)` API covers welcome screens. For follow up prompts that depend on the conversation, a tool result, or your backend, push suggestions through the runtime itself. They land on `thread.suggestions`, and when no static `Suggestions(...)` configuration is set, the `suggestions` scope derives from them, so `ThreadPrimitive.Suggestions` renders them as well. Runtime suggestions use the `ThreadSuggestion` shape: a required `prompt` plus optional `title` and `label`. When `title` is omitted it falls back to the prompt, and an omitted `label` renders as empty, so a prompt-only runtime suggestion looks exactly like a plain string suggestion.
+静态的 `Suggestions(...)` API 用于欢迎屏幕。对于依赖对话内容、工具结果或后端的后续提示词，可以通过运行时本身推送建议。它们会存储在 `thread.suggestions` 中；当未设置静态的 `Suggestions(...)` 配置时，`suggestions` 作用域会从这些建议中派生，因此 `ThreadPrimitive.Suggestions` 也会渲染它们。运行时建议使用 `ThreadSuggestion` 结构：必需的 `prompt`，以及可选的 `title` 和 `label`。省略 `title` 时，它会回退到 prompt；省略 `label` 时会渲染为空。因此，仅包含 prompt 的运行时建议看起来与普通字符串建议完全相同。
 
-### Local runtime: `SuggestionAdapter`
+### 本地运行时：`SuggestionAdapter`
 
-Pass a `suggestion` adapter to `useLocalRuntime`. Its `generate` function runs after every assistant turn and may return a promise or an async generator for streaming updates.
+将 `suggestion` 适配器传递给 `useLocalRuntime`。其 `generate` 函数会在每次助手轮次结束后运行，并且可以返回 promise 或用于流式更新的异步生成器。
 
 ```tsx
 import { useLocalRuntime, type SuggestionAdapter } from "@assistant-ui/react";
@@ -163,7 +163,7 @@ const runtime = useLocalRuntime(myChatModel, {
 });
 ```
 
-For LLM-powered follow ups, use `createSuggestionAdapter`. It builds a deterministic transcript prompt from recent messages and calls your `complete` function. Forward the optional `signal` so in-flight generation can be cancelled when a new run starts.
+对于由 LLM 驱动的后续提示词，请使用 `createSuggestionAdapter`。它会根据最近的消息构建确定性的会话记录提示词，并调用你的 `complete` 函数。传递可选的 `signal`，这样新运行开始时就可以取消正在进行的生成。
 
 ```tsx
 import { createSuggestionAdapter, useLocalRuntime } from "@assistant-ui/react";
@@ -187,9 +187,9 @@ const runtime = useLocalRuntime(myChatModel, {
 });
 ```
 
-### External store runtime
+### 外部状态存储运行时
 
-`useExternalStoreRuntime` exposes a `suggestions` field, so you can drive follow ups straight from your application state.
+`useExternalStoreRuntime` 提供 `suggestions` 字段，因此你可以直接通过应用状态驱动后续提示词。
 
 ```tsx
 const [suggestions, setSuggestions] = useState<ThreadSuggestion[]>([]);
@@ -204,9 +204,9 @@ const runtime = useExternalStoreRuntime({
 setSuggestions([{ prompt: "Summarize this case" }]);
 ```
 
-### AI SDK runtime
+### AI SDK 运行时
 
-`useChatRuntime` and `useAISDKRuntime` accept the same `suggestions` field and forward it to the underlying external store.
+`useChatRuntime` 和 `useAISDKRuntime` 接受相同的 `suggestions` 字段，并将其转发到底层外部状态存储。
 
 ```tsx
 const [suggestions, setSuggestions] = useState<ThreadSuggestion[]>([]);
@@ -214,7 +214,7 @@ const [suggestions, setSuggestions] = useState<ThreadSuggestion[]>([]);
 const runtime = useChatRuntime({ suggestions });
 ```
 
-They also accept the same `suggestion` adapter as the local runtime under `adapters`, so one adapter works across both runtimes. When set, the adapter owns `thread.suggestions` after each run settles, and any static `suggestions` option is ignored. Pair it with `createSuggestionAdapter` for built-in prompt construction:
+它们还接受与本地运行时相同的 `suggestion` 适配器，并通过 `adapters` 传入，因此同一个适配器可以在两种运行时之间复用。设置后，适配器会在每次运行完成后负责管理 `thread.suggestions`，任何静态的 `suggestions` 选项都会被忽略。将其与 `createSuggestionAdapter` 搭配使用，即可内置提示词构建：
 
 ```tsx
 import { createSuggestionAdapter } from "@assistant-ui/react";
@@ -237,7 +237,7 @@ const runtime = useChatRuntime({
 });
 ```
 
-Example route that returns suggestion strings with the AI SDK:
+以下是使用 AI SDK 返回建议字符串的示例路由：
 
 ```ts
 // app/api/suggestions/route.ts
@@ -259,11 +259,11 @@ export async function POST(req: Request) {
 }
 ```
 
-The local runtime clears its suggestions when a new run starts. External store runtimes keep whatever state you push, so you control the lifetime. With `adapters.suggestion` on the AI SDK runtime, suggestions clear on run start and regenerate after settle, matching the local runtime.
+本地运行时会在新运行开始时清除建议。外部状态存储运行时会保留你推送的状态，因此建议的生命周期由你控制。在 AI SDK 运行时上使用 `adapters.suggestion` 后，建议会在运行开始时清除，并在运行完成后重新生成，与本地运行时的行为一致。
 
-### Rendering runtime suggestions
+### 渲染运行时建议
 
-Runtime suggestions land on `thread.suggestions`, and `ThreadPrimitive.Suggestions` picks them up unless a static `Suggestions(...)` configuration overrides the scope. The shadcn registry ships `ThreadFollowupSuggestions` for the common single line pill layout. For a custom layout, read the array yourself:
+运行时建议会存储在 `thread.suggestions` 中，除非静态的 `Suggestions(...)` 配置覆盖了该作用域，否则 `ThreadPrimitive.Suggestions` 会读取这些建议。shadcn 注册表提供了 `ThreadFollowupSuggestions`，用于常见的单行胶囊式布局。如果需要自定义布局，可以自行读取该数组：
 
 ```tsx
 import { useAuiState, ThreadPrimitive, AuiIf } from "@assistant-ui/react";
@@ -287,9 +287,9 @@ function FollowUps() {
 }
 ```
 
-## Reacting to application state
+## 响应应用状态
 
-You can dynamically change the static suggestion list based on your application state:
+你可以根据应用状态动态更改静态建议列表：
 
 ```tsx
 import { useMemo } from "react";
@@ -326,20 +326,20 @@ function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Keep suggestions concise**: Use clear, actionable prompts that users can understand at a glance
-2. **Show capabilities**: Use suggestions to highlight your assistant's key features
-3. **Provide variety**: Offer suggestions across different use cases
-4. **Use the object format for complex suggestions**: When you need separate title/description, use the object format
-5. **Limit the number**: 3-6 suggestions work best to avoid overwhelming users
-6. **Make them actionable**: Each suggestion should lead to a meaningful interaction
+1. **保持建议简洁**：使用清晰、可执行的提示词，让用户一眼就能理解
+2. **展示功能**：使用建议突出助手的核心功能
+3. **提供多样性**：针对不同使用场景提供建议
+4. **复杂建议使用对象格式**：需要分别设置标题和描述时，请使用对象格式
+5. **限制数量**：建议使用 3–6 条，以免让用户感到不知所措
+6. **确保可执行**：每条建议都应引导用户进行有意义的交互
 
-## Switching from `ThreadPrimitive.Suggestion`
+## 从 `ThreadPrimitive.Suggestion` 迁移
 
-If your codebase uses the inline `ThreadPrimitive.Suggestion` component (which renders one suggestion at a time with hardcoded `prompt` / `send` props), you can move to the runtime-driven `Suggestions()` API for centralized configuration. The inline component is still supported, but the runtime-driven approach scales better when suggestions need to update dynamically.
+如果你的代码库使用内联的 `ThreadPrimitive.Suggestion` 组件（该组件通过硬编码的 `prompt` / `send` props 一次渲染一条建议），可以迁移到由运行时驱动的 `Suggestions()` API，以便集中配置。内联组件仍受支持，但当建议需要动态更新时，由运行时驱动的方式具有更好的扩展性。
 
-### Inline form
+### 内联形式
 
 ```tsx
 <ThreadPrimitive.Suggestion
@@ -348,9 +348,9 @@ If your codebase uses the inline `ThreadPrimitive.Suggestion` component (which r
 />
 ```
 
-### Runtime-driven form
+### 由运行时驱动的形式
 
-1. Configure suggestions in your runtime provider's `config`:
+1. 在运行时提供程序的 `config` 中配置建议：
 
 ```tsx
 AuiConfig({
@@ -358,7 +358,7 @@ AuiConfig({
 });
 ```
 
-2. Display suggestions using the primitives:
+2. 使用原语显示建议：
 
 ```tsx
 <ThreadPrimitive.Suggestions>
@@ -366,14 +366,14 @@ AuiConfig({
 </ThreadPrimitive.Suggestions>
 ```
 
-The new API provides:
-- **Centralized configuration**: Define suggestions once in your runtime provider
-- **Better separation of concerns**: Configuration separate from presentation
-- **Type safety**: Full TypeScript support
-- **Consistency**: Follows the same pattern as the Tools API
+新 API 提供：
+- **集中配置**：在运行时提供程序中定义一次建议
+- **更好的关注点分离**：将配置与展示分离
+- **类型安全**：完整支持 TypeScript
+- **一致性**：遵循与 Tools API 相同的模式
 
-## Related
+## 相关内容
 
-- [Thread Component](/elements/thread) - Main chat interface
-- [Tools Guide](/docs/tools/defining-tools) - Configure assistant actions
-- [Context API](/docs/guides/context-api) - Access assistant state
+- [Thread 组件](/elements/thread) - 主要聊天界面
+- [Tools 指南](/docs/tools/defining-tools) - 配置助手操作
+- [Context API](/docs/guides/context-api) - 访问助手状态

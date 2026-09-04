@@ -1,23 +1,23 @@
 ---
 title: Vue
-description: Build streaming AI chat interfaces with Vue, Nuxt, and the AI SDK.
+description: 使用 Vue、Nuxt 和 AI SDK 构建流式 AI 聊天界面。
 ---
 
-`@assistant-ui/vue` provides Vue components and composables for assistant-ui's runtime. Use it with Nuxt for a streaming chat route, a client-side assistant tree, and styled chat components from the assistant-ui registry.
+`@assistant-ui/vue` 为 assistant-ui 的运行时提供 Vue 组件和组合式函数。将其与 Nuxt 搭配使用，即可构建流式聊天路由、客户端助手树，以及来自 assistant-ui registry 的样式化聊天组件。
 
-The Vue surface includes `AuiProvider` and `AuiIf`, the `useAui`, `useAuiState`, and `useAuiEvent` composables, and primitives for threads, messages, composers, thread lists, attachments, suggestions, actions, branches, errors, and chain of thought.
+Vue API 包括 `AuiProvider` 和 `AuiIf`、`useAui`、`useAuiState` 和 `useAuiEvent` 组合式函数，以及用于线程、消息、输入框、线程列表、附件、建议、操作、分支、错误和思维链的原语。
 
-## Start here
+## 从这里开始
 
 <Cards>
-  <Card title="Five-minute quickstart" description="Add a streaming Nuxt chat with AISDKChat and the assistant-ui registry." href="/docs/vue/quickstart" />
-  <Card title="Runtimes" description="Choose a single chat, multi-thread chat, or an external-store runtime." href="/docs/vue/runtimes" />
-  <Card title="Server rendering" description="Keep assistant client state out of Vue's server-rendered scope." href="/docs/vue/ssr" />
-  <Card title="Tool UI" description="Register Vue renderers for tool calls and human-in-the-loop actions." href="/docs/vue/tool-ui" />
+  <Card title="五分钟快速入门" description="使用 AISDKChat 和 assistant-ui registry 添加流式 Nuxt 聊天。" href="/docs/vue/quickstart" />
+  <Card title="运行时" description="选择单聊天、多线程聊天或外部状态存储运行时。" href="/docs/vue/runtimes" />
+  <Card title="服务端渲染" description="避免将助手客户端状态置于 Vue 的服务端渲染范围内。" href="/docs/vue/ssr" />
+  <Card title="工具 UI" description="为工具调用和人在回路操作注册 Vue 渲染器。" href="/docs/vue/tool-ui" />
 </Cards>
 
-## How it fits together
+## 工作原理
 
-`AuiProvider` owns an assistant client. Its `AuiConfig` connects a runtime such as `AISDKChat()` to Vue primitives and composables. The AI SDK runtime posts messages to a Nuxt route, and the route returns the UI message stream to the browser.
+`AuiProvider` 负责管理助手客户端。其 `AuiConfig` 将诸如 `AISDKChat()` 的运行时连接到 Vue 原语和组合式函数。AI SDK 运行时会将消息发送到 Nuxt 路由，而该路由会将 UI 消息流返回给浏览器。
 
-Use a `.client.vue` boundary for the provider and runtime. Keep model credentials and `streamText` in a Nitro route. The [quickstart](/docs/vue/quickstart) contains the complete path.
+为 provider 和运行时使用 `.client.vue` 边界。将模型凭据和 `streamText` 保存在 Nitro 路由中。[快速入门](/docs/vue/quickstart)包含完整流程。

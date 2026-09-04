@@ -1,20 +1,20 @@
 ---
-title: "Flow graph"
-description: "Work as a graph rather than a list: branches that fan out and rejoin."
+title: "流程图"
+description: "以图而非列表的形式处理工作：分支展开后再重新汇合。"
 ---
 
-Flow graph draws work as a small dependency graph instead of a flat list: nodes sit in columns, and curved edges connect the ones that depend on each other. With a runtime you lay it out from a tool call's arguments as the model writes them; standalone you hold the node and edge arrays yourself.
+Flow graph 将工作绘制成小型依赖图，而不是扁平列表：节点排列在各列中，曲线边连接相互依赖的节点。在运行时中，你可以根据模型逐步写入的工具调用参数来布局；独立使用时，则由你自行维护节点和边数组。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-With a runtime, a flow graph is usually one tool call whose arguments describe an entire plan: a list of steps, each naming what it depends on. A small layout function turns that list into the columns, rows, and edges `FlowGraph` expects.
+在运行时中，流程图通常对应一个工具调用，其参数描述完整计划：一个步骤列表，其中每个步骤都标明自身依赖的内容。一个小型布局函数会将该列表转换为 `FlowGraph` 所需的列、行和边。
 
 <Steps>
   <Step>
 
-### Lay out the plan from the tool call
+### 根据工具调用布局计划
 
 ```tsx title="components/assistant-ui/elements/plan-graph-tool-ui.tsx"
 "use client";
@@ -63,7 +63,7 @@ export const PlanGraphToolUI: ToolCallMessagePartComponent<
   </Step>
   <Step>
 
-### Register the tool
+### 注册工具
 
 ```tsx title="app/toolkit.ts"
 import { defineToolkit } from "@assistant-ui/react";
@@ -103,7 +103,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-See [Tool UI](/docs/tools/tool-ui) for backend-defined tools and approval gates.
+有关后端定义的工具和审批闸门，请参阅[工具 UI](/docs/tools/tool-ui)。
 
   </Step>
 </Steps>
@@ -112,12 +112,12 @@ See [Tool UI](/docs/tools/tool-ui) for backend-defined tools and approval gates.
 
 <StandaloneMode>
 
-Standalone, you already hold `nodes` and `edges` with their layout decided; `visibleCount` is the one thing that changes over time.
+独立使用时，你已经持有 `nodes` 和 `edges`，并且它们的布局已经确定；`visibleCount` 是唯一会随时间变化的内容。
 
 <Steps>
   <Step>
 
-### Hold the graph
+### 持有图
 
 ```tsx title="app/plan.tsx"
 "use client";
@@ -154,7 +154,7 @@ export function Plan() {
   </Step>
   <Step>
 
-### Reveal nodes as work happens
+### 随工作进展显示节点
 
 ```tsx
 useEffect(() => {
@@ -169,7 +169,7 @@ useEffect(() => {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="flow-graph">
@@ -178,44 +178,44 @@ useEffect(() => {
 </div>
 ```
 
-`visibleCount` slices `nodes` from the start of the array. An edge draws with a bright stroke only once both its `from` and `to` ids are inside that slice, and reads as a faint stroke otherwise; an edge naming an id that isn't in `nodes` is skipped entirely. `state` drives each node's border and fill: `"done"` is a muted filled box, `"active"` is a blue outline, and `"pending"` is a dashed, dimmer box.
+`visibleCount` 从数组开头截取 `nodes`。只有当边的 `from` 和 `to` id 都位于该切片中时，边才会以明亮描边绘制；否则会显示为较浅的描边。若边引用的 id 不在 `nodes` 中，则会完全跳过该边。`state` 控制每个节点的边框和填充：`"done"` 是低调的实心框，`"active"` 是蓝色轮廓，`"pending"` 是带虚线且颜色更暗的框。
 
-## Examples
+## 示例
 
-### Positioning nodes
+### 定位节点
 
-`column` and `row` are grid coordinates you choose, not derived from `edges`; two nodes can share a column, and the graph does not try to avoid overlaps for you.
+`column` 和 `row` 是由你选择的网格坐标，而不是从 `edges` 推导出来的；两个节点可以位于同一列，图不会替你尝试避免重叠。
 
 ```tsx
 { id: "search", label: "search", column: 2, row: 0, state: "done" },
 { id: "patch", label: "patch", column: 2, row: 2, state: "active" },
 ```
 
-### Restyle the graph
+### 重新设置图的样式
 
-Both lanes take `className` on the root. Node labels read the shared `mono` token and the root reads `paper`, both from `surfaces.tsx`.
+两个泳道都会在根元素上接收 `className`。节点标签读取共享的 `mono` 令牌，根元素读取 `paper`，二者都来自 `surfaces.tsx`。
 
 ```tsx
 <FlowGraph className="max-w-none" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool-call render props
+### 工具调用渲染属性
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `args` | `TArgs` | Parsed arguments. Partial while the model is still streaming them. |
-| `argsText` | `string` | Raw JSON argument text streamed by the model. |
-| `result` | `TResult \| undefined` | The tool's return value once it completes. `undefined` while running. |
-| `status` | `ToolCallMessagePartStatus` | `status.type` is `"running"`, `"requires-action"`, `"complete"`, or `"incomplete"`. |
-| `toolName` | `string` | Name of the tool the model called. |
-| `toolCallId` | `string` | Stable id for this invocation. |
-| `isError` | `boolean \| undefined` | Whether `result` represents a tool execution error. |
+| `args` | `TArgs` | 解析后的参数。模型仍在流式传输参数时，该值可能不完整。 |
+| `argsText` | `string` | 模型流式传输的原始 JSON 参数文本。 |
+| `result` | `TResult \| undefined` | 工具完成后返回的值。运行过程中为 `undefined`。 |
+| `status` | `ToolCallMessagePartStatus` | `status.type` 为 `"running"`、`"requires-action"`、`"complete"` 或 `"incomplete"`。 |
+| `toolName` | `string` | 模型调用的工具名称。 |
+| `toolCallId` | `string` | 此次调用的稳定 id。 |
+| `isError` | `boolean \| undefined` | `result` 是否表示工具执行错误。 |
 
-There is no dedicated plan-to-graph primitive: `layout` above is a plain function you write, turning whatever shape your tool's arguments take into the `FlowNode[]` and `FlowEdge[]` that `FlowGraph` expects. Register the renderer on a toolkit entry's `render` field and attach the toolkit with `Tools({ toolkit })`. See [Tool UI](/docs/tools/tool-ui) for the full render-prop surface.
+没有专用的计划转图原语：上面的 `layout` 是由你编写的普通函数，用于将工具参数的任意形状转换为 `FlowGraph` 所需的 `FlowNode[]` 和 `FlowEdge[]`。在工具包条目的 `render` 字段上注册渲染器，并使用 `Tools({ toolkit })` 附加工具包。有关完整的渲染属性接口，请参阅[工具 UI](/docs/tools/tool-ui)。
 
 </RuntimeMode>
 
@@ -223,13 +223,13 @@ There is no dedicated plan-to-graph primitive: `layout` above is a plain functio
 
 ### FlowGraph
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `nodes` | `readonly FlowNode[]` | required | Every node in the graph, with its own layout position. |
-| `edges` | `readonly FlowEdge[]` | required | Connections between node ids. |
-| `visibleCount` | `number` | required | How many nodes from the start of `nodes` to show. |
-| `className` | `string` | | Merged onto the root. |
+| `nodes` | `readonly FlowNode[]` | 必需 | 图中的每个节点，以及各自的布局位置。 |
+| `edges` | `readonly FlowEdge[]` | 必需 | 节点 id 之间的连接。 |
+| `visibleCount` | `number` | 必需 | 要显示 `nodes` 开头的多少个节点。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-`FlowNode` is `{ id: string; label: string; column: number; row: number; state: "done" | "active" | "pending" }`. `FlowEdge` is `{ from: string; to: string }`, referencing node ids. All other `div` props are forwarded to the root.
+`FlowNode` 是 `{ id: string; label: string; column: number; row: number; state: "done" | "active" | "pending" }`。`FlowEdge` 是 `{ from: string; to: string }`，引用节点 id。所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

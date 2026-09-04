@@ -1,20 +1,20 @@
 ---
-title: "Launcher"
-description: "The floating entry point, and the panel it opens into."
+title: "启动器"
+description: "浮动入口，以及它打开的面板。"
 ---
 
-A single floating button that opens into a small panel: a greeting, a few starter prompts, and a way to begin. With a runtime the prompts populate the real composer and the button that starts the conversation is the real send; standalone every interaction is a callback you wire yourself.
+一个浮动按钮，点击后打开一个小面板：包含问候语、几个起始提示，以及开始对话的方式。在运行时中，这些提示会填入真正的输入框，而启动对话的按钮就是实际的发送按钮；在独立模式下，每次交互都是由你自行接入的回调。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-Nothing about the panel is runtime state except what happens when you press something in it. Rebuild the panel's two interactive pieces from `ThreadPrimitive.Suggestion` and `ComposerPrimitive.Send`, and the launcher drives the same composer and thread the rest of your app does.
+除了用户在面板中按下某个控件后发生的事情外，面板本身没有任何运行时状态。使用 `ThreadPrimitive.Suggestion` 和 `ComposerPrimitive.Send` 重建面板中的两个交互部分，启动器会驱动与你的应用其余部分相同的输入框和会话线程。
 
 <Steps>
   <Step>
 
-### Wire the prompts and the start button to the runtime
+### 将提示和开始按钮接入运行时
 
 ```tsx title="components/assistant-ui/elements/launcher.tsx"
 "use client";
@@ -79,7 +79,7 @@ export function Launcher() {
 }
 ```
 
-`ThreadPrimitive.Suggestion` defaults to replacing the composer text rather than sending, so picking a prompt loads it for the user to glance at before `ComposerPrimitive.Send` (which disables itself while the composer is empty) actually starts the run.
+`ThreadPrimitive.Suggestion` 默认会替换输入框文本，而不是直接发送，因此选择提示后会将其载入输入框，供用户查看；之后由 `ComposerPrimitive.Send` 真正开始运行（输入框为空时，该按钮会自动禁用）。
 
   </Step>
 </Steps>
@@ -88,12 +88,12 @@ export function Launcher() {
 
 <StandaloneMode>
 
-Standalone, `open`, `unread`, picking a prompt, and starting are four plain callbacks; nothing about the panel's content is computed for you.
+在独立模式下，`open`、`unread`、选择提示和开始对话是四个普通回调；面板内容的任何部分都不会由系统替你计算。
 
 <Steps>
   <Step>
 
-### Hold the open state and the prompt list
+### 保存打开状态和提示列表
 
 ```tsx title="app/support-launcher.tsx"
 "use client";
@@ -129,7 +129,7 @@ export function SupportLauncher() {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="launcher-bubble">
@@ -147,43 +147,43 @@ export function SupportLauncher() {
 </div>
 ```
 
-The toggle button always renders; the panel above it mounts only while `open` is true, with an entrance animation (fade, scale, and slide up) and no matching exit, so closing is instant. The unread badge disappears the moment `open` becomes true regardless of the `unread` value, so a host app should clear its own unread count on open rather than rely on the badge to do it. Nothing here is disabled: standalone, the prompt buttons and the start button are always clickable, since there is no composer state to gate them against.
+切换按钮始终会渲染；它上方的面板仅在 `open` 为 true 时挂载，并带有进入动画（淡入、缩放和向上滑动），没有匹配的退出动画，因此关闭会立即生效。当 `open` 变为 true 时，未读徽标会立即消失，与 `unread` 的值无关。因此，宿主应用应在打开面板时清除自己的未读计数，而不要依赖徽标来完成这项工作。这里没有任何控件会被禁用：在独立模式下，提示按钮和开始按钮始终可以点击，因为没有输入框状态可以用来限制它们。
 
-## Examples
+## 示例
 
-### Restyle the panel and the toggle
+### 重新设置面板和切换按钮的样式
 
-Both lanes take `className` on the root, which only affects layout (width, gap, alignment); the panel and toggle button read their surfaces from the shared `floating` and `inkButton` tokens, so retheming those two covers this element everywhere it appears.
+两种模式都会在根元素上接收 `className`，它只影响布局（宽度、间距和对齐方式）；面板和切换按钮会从共享的 `floating` 和 `inkButton` 令牌中读取表面样式，因此重新设置这两个令牌的主题，就能覆盖此元素在各处的显示效果。
 
 ```tsx
 <LauncherBubble className="max-w-xs" /* ... */ />
 ```
 
-### Badging the closed toggle
+### 为关闭状态的切换按钮添加徽标
 
 <StandaloneMode>
 
-`unread` is a plain number you own. A common pattern is to increment it whenever a message arrives while the panel is closed, and to reset it in `onToggle` as in the example above, so the badge always reflects "since I last opened this."
+`unread` 是一个由你管理的普通数字。常见做法是在面板关闭期间每收到一条消息就将其递增，并像上面的示例一样在 `onToggle` 中将其重置，这样徽标始终表示“自我上次打开此面板以来”的消息数。
 
 </StandaloneMode>
 
 <RuntimeMode>
 
-The runtime has no concept of unread messages; nothing distinguishes "a message the user has seen" from "a message they have not." Track it yourself, for example by diffing `s.thread.messages.length` against the count you last saw when the panel was open, and pass the difference through the same `unread` prop the standalone lane uses.
+运行时没有未读消息的概念；它不会区分“用户已查看的消息”和“用户尚未查看的消息”。请自行跟踪，例如将 `s.thread.messages.length` 与面板打开时上次记录的数量进行比较，然后通过独立模式使用的同一个 `unread` 属性传入差值。
 
 </RuntimeMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-This element has no dedicated primitive; its two interactive pieces are `ThreadPrimitive.Suggestion` and `ComposerPrimitive.Send`, both part of `@assistant-ui/react`'s primitive set. The rest, opening, closing, and the unread count, is component state you own, as in Getting started.
+此元素没有专用原语；其中的两个交互部分是 `ThreadPrimitive.Suggestion` 和 `ComposerPrimitive.Send`，二者都属于 `@assistant-ui/react` 的原语集合。其余部分——打开、关闭和未读计数——都是由你管理的组件状态，具体如入门部分所示。
 
-### Thread events used above
+### 上文使用的线程事件
 
-| Event | Payload | Description |
+| 事件 | 负载 | 描述 |
 |-------|---------|-------------|
-| `thread.runStart` | `{ threadId: string }` | Fires when a run begins, from any source. Subscribing with `useAuiEvent` is what lets the panel surface itself even when a message was sent from elsewhere in the app. |
+| `thread.runStart` | `{ threadId: string }` | 任意来源启动运行时触发。使用 `useAuiEvent` 订阅后，即使消息是在应用的其他位置发送的，也能让面板显示出来。 |
 
 </RuntimeMode>
 
@@ -191,17 +191,17 @@ This element has no dedicated primitive; its two interactive pieces are `ThreadP
 
 ### LauncherBubble
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `open` | `boolean` | required | Whether the panel is shown. |
-| `unread` | `number` | required | Count shown on the toggle button while closed. Hidden entirely while `open` is true. |
-| `greeting` | `string` | required | Heading shown at the top of the panel. |
-| `prompts` | `readonly string[]` | required | Starter prompts, one button each. |
-| `onToggle` | `() => void` | | Called when the toggle button is pressed. |
-| `onPick` | `(prompt: string) => void` | | Called with a prompt's text when its button is pressed. |
-| `onStart` | `() => void` | | Called when "Start a conversation" is pressed. |
-| `className` | `string` | | Merged onto the root. |
+| `open` | `boolean` | 必填 | 面板是否显示。 |
+| `unread` | `number` | 必填 | 面板关闭时显示在切换按钮上的计数。当 `open` 为 true 时完全隐藏。 |
+| `greeting` | `string` | 必填 | 显示在面板顶部的标题。 |
+| `prompts` | `readonly string[]` | 必填 | 起始提示，每条提示对应一个按钮。 |
+| `onToggle` | `() => void` | | 按下切换按钮时调用。 |
+| `onPick` | `(prompt: string) => void` | | 按下提示按钮时，以该提示的文本作为参数调用。 |
+| `onStart` | `() => void` | | 按下“开始对话”时调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

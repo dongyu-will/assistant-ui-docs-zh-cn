@@ -1,32 +1,32 @@
 ---
-title: Mem0 Memory Chat
-description: AI chat with persistent memory powered by Mem0 — remembers user preferences, facts, and history across sessions. Open-source React example built on assistant-ui.
+title: Mem0 记忆聊天
+description: 由 Mem0 提供持久记忆的 AI 聊天——跨会话记住用户偏好、事实和历史记录。基于 assistant-ui 构建的开源 React 示例。
 ---
 
-## Overview
+## 概述
 
-A personalized AI chat experience powered by Mem0 that remembers user preferences, facts, and context across conversations. Unlike traditional chat applications where each conversation starts fresh, this example maintains a persistent memory of user interactions to provide increasingly relevant and personalized responses.
+这是一个由 Mem0 提供支持的个性化 AI 聊天体验，可以记住跨对话的用户偏好、事实和上下文。与每次对话都从头开始的传统聊天应用不同，此示例会持续保存用户交互记忆，从而提供越来越相关且个性化的回复。
 
-## Features
+## 功能
 
-- **Persistent Memory**: Facts and preferences survive across chat sessions
-- **Automatic Extraction**: AI automatically identifies and stores important information
-- **Context Injection**: Relevant memories are included in each conversation
-- **Memory Management**: Users can view, edit, and delete stored memories
-- **Privacy Controls**: Fine-grained control over what gets remembered
-- **Memory Visualization**: Clear interface showing what the AI remembers
+- **持久记忆**：事实和偏好会在不同聊天会话之间保留
+- **自动提取**：AI 会自动识别并存储重要信息
+- **上下文注入**：每次对话都会包含相关记忆
+- **记忆管理**：用户可以查看、编辑和删除已存储的记忆
+- **隐私控制**：精细控制要记住哪些内容
+- **记忆可视化**：通过清晰的界面展示 AI 记住的内容
 
-## How It Works
+## 工作原理
 
-1. **Conversation**: User chats normally with the AI
-2. **Extraction**: Mem0 identifies key facts (e.g., "User prefers dark mode")
-3. **Storage**: Facts are stored in Mem0's memory system
-4. **Retrieval**: On future conversations, relevant memories are retrieved
-5. **Personalization**: AI responses incorporate remembered context
+1. **对话**：用户正常与 AI 聊天
+2. **提取**：Mem0 识别关键事实（例如：“用户偏好深色模式”）
+3. **存储**：事实存储在 Mem0 的记忆系统中
+4. **检索**：在后续对话中检索相关记忆
+5. **个性化**：AI 回复会结合已记住的上下文
 
-## Integration
+## 集成
 
-The example integrates Mem0's memory SDK with assistant-ui:
+此示例将 Mem0 的记忆 SDK 与 assistant-ui 集成：
 
 ```tsx
 import MemoryClient from "mem0ai";
@@ -57,7 +57,7 @@ async function getRelevantMemories(userId: string, query: string) {
 }
 ```
 
-### Using Memories in Chat
+### 在聊天中使用记忆
 
 ```tsx
 // In your API route
@@ -89,15 +89,15 @@ Use this context to personalize your responses.`;
 }
 ```
 
-### Memory Types
+### 记忆类型
 
-| Type | Example |
+| 类型 | 示例 |
 |------|---------|
-| Preferences | "User prefers concise answers" |
-| Facts | "User works at Acme Corp" |
-| Context | "User is building a React app" |
-| History | "Previously discussed authentication" |
+| 偏好 | “用户偏好简洁的回答” |
+| 事实 | “用户在 Acme Corp 工作” |
+| 上下文 | “用户正在构建 React 应用” |
+| 历史记录 | “之前讨论过身份验证” |
 
-## Source
+## 源代码
 
 <SourceLink href="https://github.com/mem0ai/mem0/blob/main/examples/mem0-demo/components/assistant-ui/thread.tsx" />

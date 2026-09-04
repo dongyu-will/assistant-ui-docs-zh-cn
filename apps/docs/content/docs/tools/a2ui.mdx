@@ -1,16 +1,16 @@
 ---
 title: A2UI over AG-UI
-description: Render A2UI surfaces from AG-UI activity snapshots as generative UI, using the community a2ui-surface convention.
+description: 使用社区 a2ui-surface 约定，将 AG-UI 活动快照中的 A2UI 界面渲染为生成式 UI。
 platforms: ["react"]
 ---
 
-[A2UI](https://a2ui.org/) is a declarative generative UI protocol: the agent streams surface operations (create a surface, upsert components, update a data model) and the host renders them from a pre-approved component catalog, with no code over the wire. The AG-UI ecosystem carries A2UI as `ACTIVITY_SNAPSHOT` events with `activityType: "a2ui-surface"` and the operations under `content.a2ui_operations`; this is the convention emitted by [`@ag-ui/a2ui-middleware`](https://github.com/ag-ui-protocol/ag-ui/tree/main/middlewares/a2ui-middleware).
+[A2UI](https://a2ui.org/) 是一种声明式生成式 UI 协议：助手流式传输界面操作（创建界面、插入或更新组件、更新数据模型），宿主则根据预先批准的组件目录进行渲染，整个过程中不会传输代码。AG-UI 生态将 A2UI 作为 `ACTIVITY_SNAPSHOT` 事件传输，其中包含 `activityType: "a2ui-surface"`，操作则位于 `content.a2ui_operations` 下；这是由 [`@ag-ui/a2ui-middleware`](https://github.com/ag-ui-protocol/ag-ui/tree/main/middlewares/a2ui-middleware).
 
-`useAgUiRuntime` consumes these snapshots natively. Each surface becomes one tool-call part with `toolCallId` `a2ui:<surfaceId>` and `toolName` `"present"`, whose args are the converted generative UI spec, so surfaces render through the same path as the [`present` frontend tool](/docs/tools/generative-ui). Snapshots with any other `activityType` are ignored, and the MCP Apps activity path is unaffected.
+`useAgUiRuntime` 原生使用这些快照。每个界面都会成为一个工具调用部分，其中包含 `toolCallId` `a2ui:<surfaceId>` 和 `toolName` `"present"`，其参数是转换后的生成式 UI 规范，因此界面会通过与 [`present` 前端工具](/docs/tools/generative-ui)相同的路径进行渲染。任何其他 `activityType` 的快照都会被忽略，MCP Apps 的活动路径不受影响。
 
-## Wire contract
+## 传输协议
 
-A backend paints or updates a surface by emitting an activity snapshot on the AG-UI stream:
+后端通过在 AG-UI 流中发出活动快照来绘制或更新界面：
 
 ```json
 {
@@ -40,15 +40,15 @@ A backend paints or updates a surface by emitting an activity snapshot on the AG
 }
 ```
 
-- A snapshot with `replace: true` (the schema default) rebuilds that `messageId`'s surface state from the operations it carries. `replace: false` means the snapshot is ignored when that `messageId` has already been seen, matching the AG-UI event spec. The middleware always emits `replace: true`.
-- Surfaces are keyed by the `surfaceId` inside the operations, not by `messageId`. Multiple snapshots that share a `messageId` update their surfaces in place, and the synthesized part keeps its `toolCallId`, so the rendered surface updates without duplicating parts.
-- Component trees use the A2UI adjacency-list model: nodes reference children by id, the root node has id `root`, and props of shape `{ "path": "/x/y" }` are JSON Pointer bindings resolved against the surface data model. Both v0.9 and v1.0 operation payloads are accepted, including the v1.0 inline `components` and `dataModel` on `createSurface`.
-- Lifecycle snapshots that carry a `status` (such as `"building"`) but no `a2ui_operations` are tolerated and produce no part until operations arrive. A `deleteSurface` operation removes the surface's part.
-- The `a2ui:` tool-call id prefix is reserved for synthesized surface parts: they are client-side render artifacts and are excluded from the history sent back to the agent, so genuine agent tool calls must not use ids starting with `a2ui:`.
+- 包含 `replace: true`（模式默认值）的快照，会根据其中携带的操作重建该 `messageId` 的界面状态。如果已经看到该 `messageId`，则 `replace: false` 表示忽略该快照，这与 AG-UI 事件规范一致。中间件始终会发出 `replace: true`。
+- 界面由操作中的 `surfaceId` 标识，而不是由 `messageId` 标识。共享同一 `messageId` 的多个快照会原地更新其界面，并且合成部分会保留其 `toolCallId`，因此渲染后的界面会更新，而不会重复创建部分。
+- 组件树使用 A2UI 邻接表模型：节点通过 id 引用子节点，根节点的 id 为 `root`，而形如 `{ "path": "/x/y" }` 的 props 是 JSON Pointer 绑定，会根据界面数据模型进行解析。v0.9 和 v1.0 的操作负载均受支持，包括 `createSurface` 上 v1.0 内联的 `components` 和 `dataModel`。
+- 携带 `status`（例如 `"building"`）但不包含 `a2ui_operations` 的生命周期快照会被容忍，在操作到达前不会生成部分。`deleteSurface` 操作会移除界面的部分。
+- `a2ui:` 工具调用 ID 前缀专用于合成的界面部分：它们是客户端的渲染产物，不会包含在发回助手的历史记录中，因此真实的助手工具调用不得使用以 `a2ui:` 开头的 ID。
 
-## Quick start
+## 快速开始
 
-Register the `present` frontend tool from `@assistant-ui/react-generative-ui`; incoming surfaces then render with the default vocabulary:
+从 `@assistant-ui/react-generative-ui` 注册 `present` 前端工具；传入的界面随后会使用默认词汇进行渲染：
 
 ```tsx
 import {
@@ -65,11 +65,11 @@ const toolkit = {
 };
 ```
 
-Pass the toolkit to your assistant as on the [Generative UI](/docs/tools/generative-ui) page; no other configuration is needed on `useAgUiRuntime`.
+按照 [生成式 UI](/docs/tools/generative-ui) 页面中的方式，将工具包传递给助手；`useAgUiRuntime` 无需其他配置。
 
-## Actions
+## 操作
 
-`Button` nodes dispatch `$action` objects with type `"a2ui:action"` through the action registry. Wire the registry to `useAgUiSendA2uiAction` inside a component; the hook returns a stable function, so the toolkit can be memoized on it:
+`Button` 节点会通过操作注册表分发类型为 `"a2ui:action"` 的 `$action` 对象。在组件内部，将注册表连接到 `useAgUiSendA2uiAction`；该 hook 会返回一个稳定函数，因此工具包可以基于它进行记忆化：
 
 ```tsx
 import { useMemo } from "react";
@@ -94,14 +94,14 @@ function useA2uiToolkit() {
 }
 ```
 
-Sending an action triggers a run with no new user message, and the agent receives it as `forwardedProps.a2uiAction.userAction`, the convention `@ag-ui/a2ui-middleware` consumes. The action rides exactly one run; the `type` field is stripped and a `timestamp` is added when absent.
+发送操作会触发一次不包含新用户消息的运行，助手会以 `forwardedProps.a2uiAction.userAction` 的形式接收它，这是 `@ag-ui/a2ui-middleware` 所使用的约定。该操作只在一次运行中传递；`type` 字段会被移除，并且在缺失时会添加 `timestamp`。
 
-The middleware turns the action into a synthetic `log_a2ui_event` tool-call pair that is never declared in `input.tools`; a backend that validates tool calls against the declared tool list will reject it.
+中间件会将该操作转换为合成的 `log_a2ui_event` 工具调用对，但它从未在 `input.tools` 中声明；如果后端根据已声明的工具列表验证工具调用，就会拒绝它。
 
-## Component mapping
+## 组件映射
 
-The converter maps the A2UI basic catalog onto the default generative UI vocabulary: `Text` becomes `Markdown` (`h1` to `h6` variants become `Header`, `caption` becomes `Caption`), `Column` becomes `Col`, `TextField` becomes `Input` (the control name is derived from the last segment of its binding path), `CheckBox` becomes `Checkbox`, and `Image`, `Row`, `Card`, `Divider`, `Button` map one to one. A node with template children expands into a `ListView` over the bound list. `Button` actions become `$action` objects with type `"a2ui:action"` carrying the action name, `surfaceId`, and `sourceComponentId`, which is how your action registry receives them. Unknown components and operations are skipped with a debug warning, and conversion is bounded (depth 32, 100 template items, 5000 nodes) so a malformed stream cannot hang the client.
+转换器会将 A2UI 基础目录映射到默认的生成式 UI 词汇：`Text` 变为 `Markdown`（`h1` 至 `h6` 变体会变为 `Header`，`caption` 变为 `Caption`），`Column` 变为 `Col`，`TextField` 变为 `Input`（控件名称取自其绑定路径的最后一段），`CheckBox` 变为 `Checkbox`，而 `Image`、`Row`、`Card`、`Divider`、`Button` 则一一对应映射。带有模板子节点的节点会根据绑定列表展开为一个 `ListView`。`Button` 操作会变为类型为 `"a2ui:action"` 的 `$action` 对象，其中包含操作名称、`surfaceId` 和 `sourceComponentId`，操作注册表正是通过这些内容接收操作。未知组件和操作会跳过，并输出调试警告；转换受到限制（深度 32、100 个模板项、5000 个节点），因此格式错误的流不会使客户端挂起。
 
-## Limitations
+## 限制
 
-- The upstream middleware currently emits v0.9 operation payloads; the renderer accepts v0.9 and v1.0 shapes.
+- 上游中间件目前发出 v0.9 操作负载；渲染器同时接受 v0.9 和 v1.0 形状。

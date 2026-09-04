@@ -1,13 +1,13 @@
 ---
-title: Composer
-description: Build custom message input UIs with full control over layout and behavior.
+title: 输入框
+description: 完全控制布局和行为，构建自定义消息输入 UI。
 platforms: ["react"]
 ---
 
 import { ComposerPrimitiveSample } from "@/components/pages/docs/samples/composer-primitive";
 import { ComposerPrimitive as ComposerPrimitiveDocs } from "@/generated/primitiveDocs";
 
-The Composer primitive is the interface for composing new messages or editing existing ones. It handles submit behavior, keyboard shortcuts, focus management, attachment state, and streaming status. You provide the UI.
+Composer 原语是用于编写新消息或编辑现有消息的接口。它负责提交行为、键盘快捷键、焦点管理、附件状态和流式传输状态。UI 由你提供。
 
 <Tabs items={["Preview", "Code"]}>
   <Tab>
@@ -38,9 +38,9 @@ export function MinimalComposer() {
   </Tab>
 </Tabs>
 
-## Quick Start
+## 快速开始
 
-Minimal example:
+最小示例：
 
 ```tsx
 import { ComposerPrimitive } from "@assistant-ui/react";
@@ -51,17 +51,17 @@ import { ComposerPrimitive } from "@assistant-ui/react";
 </ComposerPrimitive.Root>
 ```
 
-`Root` renders a `<form>`, `Input` renders a `<textarea>`, and `Send` renders a `<button>`. Each part renders its native element by default, and supports `asChild` for element substitution.
+`Root` 渲染一个 `<form>`，`Input` 渲染一个 `<textarea>`，而 `Send` 渲染一个 `<button>`。每个部分默认渲染其原生元素，并支持使用 `asChild` 替换元素。
 
 <Callout type="info">
-Runtime setup: primitives require runtime context. Wrap your UI in `AssistantRuntimeProvider` with a runtime (for example `useLocalRuntime(...)`). See [Pick a Runtime](/docs/runtimes/pick-a-runtime).
+运行时设置：原语需要运行时上下文。将 UI 包裹在带有运行时的 `AssistantRuntimeProvider` 中（例如 `useLocalRuntime(...)`）。请参阅[选择运行时](/docs/runtimes/pick-a-runtime)。
 </Callout>
 
-## Core Concepts
+## 核心概念
 
-### New Message vs Edit Mode
+### 新消息与编辑模式
 
-A Composer placed inside a **Thread** composes new messages. A Composer placed inside a **Message** edits that message. The same primitives handle both, and the behavior changes automatically based on context.
+放置在 **Thread** 中的 Composer 用于编写新消息。放置在 **Message** 中的 Composer 用于编辑该消息。相同的原语可以处理这两种情况，并会根据上下文自动改变行为。
 
 ```tsx
 // New message composer
@@ -82,9 +82,9 @@ A Composer placed inside a **Thread** composes new messages. A Composer placed i
 </MessagePrimitive.Root>
 ```
 
-### The `asChild` Pattern
+### `asChild` 模式
 
-Every primitive part accepts `asChild` to merge its behavior onto your own element. This is how you use primitives with your own design system:
+每个原语部分都接受 `asChild`，将其行为合并到你自己的元素上。这就是如何将原语与自己的设计系统结合使用：
 
 ```tsx
 import { ComposerPrimitive } from "@assistant-ui/react";
@@ -101,19 +101,15 @@ import { ComposerPrimitive } from "@assistant-ui/react";
 </ComposerPrimitive.Send>
 ```
 
-The primitive's behavior (keyboard handling, disabled state, form submission) is merged onto your element. Your styles, your component, primitive wiring.
+原语的行为（键盘处理、禁用状态、表单提交）会合并到你的元素上。样式由你定义，组件由你提供，原语负责连接。
 
 <Callout type="info">
-Own the input DOM entirely, such as a `contentEditable` surface or editor
-library that cannot be expressed through `asChild` or `render`? See
-[Headless Composer Input](/docs/guides/headless-composer-input) for the
-unstable hook that supplies composer text and send gating without
-`ComposerPrimitive.Input`.
+如果你需要完全掌控输入 DOM，例如使用无法通过 `asChild` 或 `render` 表达的 `contentEditable` 表面或编辑器库，请参阅[无头 Composer 输入框](/docs/guides/headless-composer-input)，了解可提供输入框文本和发送门控、且不依赖 `ComposerPrimitive.Input` 的不稳定 hook。
 </Callout>
 
-### Unstable Trigger Popovers
+### 不稳定的触发器弹出层
 
-Composer includes an unstable **trigger popover** system for character-triggered popovers (e.g. `@` for mentions, `/` for slash commands). Multiple triggers coexist under a single `TriggerPopoverRoot`.
+Composer 包含一个用于字符触发弹出层的不稳定 **触发器弹出层**系统（例如，`@` 用于提及，`/` 用于斜杠命令）。多个触发器可以共存于单个 `TriggerPopoverRoot` 下。
 
 ```tsx
 <ComposerPrimitive.Unstable_TriggerPopoverRoot>
@@ -150,13 +146,13 @@ Composer includes an unstable **trigger popover** system for character-triggered
 </ComposerPrimitive.Unstable_TriggerPopoverRoot>
 ```
 
-See the [Mentions guide](/docs/guides/mentions) and [Slash Commands guide](/docs/guides/slash-commands) for full documentation.
+完整文档请参阅[提及指南](/docs/guides/mentions)和[斜杠命令指南](/docs/guides/slash-commands)。
 
-## Parts
+## 部件
 
 ### Root
 
-Form container for message composition. Renders a `<form>` element unless `asChild` is set.
+用于编写消息的表单容器。除非设置了 `asChild`，否则会渲染一个 `<form>` 元素。
 
 ```tsx
 <ComposerPrimitive.Root className="flex w-full flex-col rounded-3xl border bg-muted">
@@ -165,9 +161,9 @@ Form container for message composition. Renders a `<form>` element unless `asChi
 </ComposerPrimitive.Root>
 ```
 
-#### Compact Mode
+#### 紧凑模式
 
-Pass `compact` to opt into compact detection. While the input holds at most a single line of text and the composer has no attachments, quote, queued messages, or active dictation, the root renders a `data-compact` attribute. The prop only exposes this attribute for styling — it does not change the layout by itself. Target it with CSS to collapse the composer into a single row:
+传入 `compact` 以启用紧凑模式检测。当输入最多只有单行文本，且输入框没有附件、引用、排队消息或正在进行的听写时，root 会渲染 `data-compact` 属性。此 prop 只提供该属性用于样式设置，本身不会改变布局。可以使用 CSS 定位该属性，将输入框折叠为单行：
 
 ```tsx
 <ComposerPrimitive.Root
@@ -179,11 +175,11 @@ Pass `compact` to opt into compact detection. While the input holds at most a si
 </ComposerPrimitive.Root>
 ```
 
-Once the text wraps onto a second line, the composer expands and stays expanded until the input is cleared, so the layout doesn't oscillate at the wrap boundary.
+文本换行到第二行后，输入框会展开，并保持展开状态，直到输入内容被清空，因此布局不会在换行边界来回变化。
 
 ### Input
 
-Text input with keyboard shortcuts. Renders a `<textarea>` element unless `asChild` is set.
+带有键盘快捷键的文本输入框。除非设置了 `asChild`，否则会渲染一个 `<textarea>` 元素。
 
 ```tsx
 <ComposerPrimitive.Input
@@ -197,7 +193,7 @@ Text input with keyboard shortcuts. Renders a `<textarea>` element unless `asChi
 
 ### Send
 
-Submits the composer form. Renders a `<button>` element unless `asChild` is set.
+提交输入框表单。除非设置了 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ComposerPrimitive.Send className="rounded-full bg-primary px-3 py-2 text-primary-foreground">
@@ -207,7 +203,7 @@ Submits the composer form. Renders a `<button>` element unless `asChild` is set.
 
 ### Cancel
 
-Cancels the current composition or edit session. Renders a `<button>` element unless `asChild` is set.
+取消当前的编写或编辑会话。除非设置了 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ComposerPrimitive.Cancel className="rounded-md px-3 py-2 text-sm hover:bg-muted">
@@ -217,7 +213,7 @@ Cancels the current composition or edit session. Renders a `<button>` element un
 
 ### AddAttachment
 
-Opens file picker for attachments. Renders a `<button>` element unless `asChild` is set.
+打开附件文件选择器。除非设置了 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ComposerPrimitive.AddAttachment multiple>
@@ -229,7 +225,7 @@ Opens file picker for attachments. Renders a `<button>` element unless `asChild`
 
 ### Attachments
 
-Renders each attachment. Prefer the children render function for new code.
+渲染每个附件。新代码中建议使用 children render function。
 
 ```tsx
 <ComposerPrimitive.Attachments>
@@ -245,7 +241,7 @@ Renders each attachment. Prefer the children render function for new code.
 
 ### AttachmentByIndex
 
-Renders a single attachment at a specific index.
+渲染指定索引处的单个附件。
 
 ```tsx
 <ComposerPrimitive.AttachmentByIndex
@@ -258,7 +254,7 @@ Renders a single attachment at a specific index.
 
 ### AttachmentDropzone
 
-Drag-and-drop zone for file attachments. Sets `data-dragging` when a file is being dragged over it and the runtime supports attachments; without the attachments capability the dropzone accepts no files and shows no highlight. Non-file drags (text, links) are ignored. Renders a `<div>` element unless `asChild` is set.
+用于文件附件的拖放区域。当文件拖动到该区域上方且运行时支持附件时，会设置 `data-dragging`；如果没有附件能力，拖放区域不会接受任何文件，也不会显示高亮。非文件拖放（文本、链接）会被忽略。除非设置了 `asChild`，否则会渲染一个 `<div>` 元素。
 
 ```tsx
 <ComposerPrimitive.AttachmentDropzone className="rounded-xl border-2 border-dashed data-[dragging]:border-primary data-[dragging]:bg-primary/5">
@@ -272,7 +268,7 @@ Drag-and-drop zone for file attachments. Sets `data-dragging` when a file is bei
 
 ### Dictate
 
-Starts a dictation session. Renders a `<button>` element unless `asChild` is set.
+开始听写会话。除非设置了 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ComposerPrimitive.Dictate className="rounded-md px-3 py-2 text-sm hover:bg-muted">
@@ -282,7 +278,7 @@ Starts a dictation session. Renders a `<button>` element unless `asChild` is set
 
 ### StopDictation
 
-Stops the current dictation session. Renders a `<button>` element unless `asChild` is set.
+停止当前的听写会话。除非设置了 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ComposerPrimitive.StopDictation className="rounded-md px-3 py-2 text-sm hover:bg-muted">
@@ -292,16 +288,16 @@ Stops the current dictation session. Renders a `<button>` element unless `asChil
 
 ### DictationTranscript
 
-Renders the interim transcript while dictation is active. Renders a `<span>` element unless `asChild` is set.
+在听写处于活动状态时渲染临时转录文本。除非设置了 `asChild`，否则会渲染一个 `<span>` 元素。
 
 ```tsx
 <ComposerPrimitive.DictationTranscript className="text-sm text-muted-foreground" />
 ```
 
-### If (deprecated)
+### If（已弃用）
 
 <Callout type="warn">
-Deprecated. Use [`AuiIf`](/docs/api-reference/primitives/assistant-if) instead.
+已弃用。请改用[`AuiIf`](/docs/api-reference/primitives/assistant-if)。
 </Callout>
 
 ```tsx
@@ -316,7 +312,7 @@ Deprecated. Use [`AuiIf`](/docs/api-reference/primitives/assistant-if) instead.
 
 ### Quote
 
-Container for quoted text preview inside the composer. Only renders when a quote is set. Renders a `<div>` element unless `asChild` is set.
+输入框内引用文本预览的容器。仅在设置了引用时渲染。除非设置了 `asChild`，否则会渲染一个 `<div>` 元素。
 
 ```tsx
 <ComposerPrimitive.Quote className="rounded-lg border bg-background px-3 py-2 text-sm">
@@ -327,7 +323,7 @@ Container for quoted text preview inside the composer. Only renders when a quote
 
 ### QuoteText
 
-Renders the quoted text content. Renders a `<span>` element unless `asChild` is set.
+渲染引用文本内容。除非设置了 `asChild`，否则会渲染一个 `<span>` 元素。
 
 ```tsx
 <ComposerPrimitive.QuoteText />
@@ -335,7 +331,7 @@ Renders the quoted text content. Renders a `<span>` element unless `asChild` is 
 
 ### QuoteDismiss
 
-Clears the active quote from the composer. Renders a `<button>` element unless `asChild` is set.
+清除输入框中的当前引用。除非设置了 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ComposerPrimitive.QuoteDismiss className="rounded-full p-1 hover:bg-muted">
@@ -345,7 +341,7 @@ Clears the active quote from the composer. Renders a `<button>` element unless `
 
 ### Unstable_TriggerPopoverRoot
 
-Root provider that groups one or more `TriggerPopover` declarations and owns the shared input plugin registry.
+用于分组一个或多个 `TriggerPopover` 声明的根 provider，并拥有共享的输入插件注册表。
 
 ```tsx
 <ComposerPrimitive.Unstable_TriggerPopoverRoot>
@@ -361,7 +357,7 @@ Root provider that groups one or more `TriggerPopover` declarations and owns the
 
 ### Unstable_TriggerPopover
 
-Declares a trigger (by `char`, `adapter`) and renders the popover container. Selection behavior is declared by rendering exactly one behavior sub-primitive inside — either `<Unstable_TriggerPopover.Directive>` (insert a directive on selection) or `<Unstable_TriggerPopover.Action>` (run `onExecute` on selection). Only renders its DOM (and children) while the trigger is active in the composer input.
+声明一个触发器（通过 `char`、`adapter`），并渲染弹出层容器。通过在其中恰好渲染一个行为子原语来声明选择行为——可以是 `<Unstable_TriggerPopover.Directive>`（选择时插入指令），也可以是 `<Unstable_TriggerPopover.Action>`（选择时运行 `onExecute`）。只有当该触发器在输入框中处于活动状态时，才会渲染其 DOM（及其子元素）。
 
 ```tsx
 <ComposerPrimitive.Unstable_TriggerPopover
@@ -383,14 +379,14 @@ Declares a trigger (by `char`, `adapter`) and renders the popover container. Sel
 </ComposerPrimitive.Unstable_TriggerPopover>
 ```
 
-Behavior is supplied by exactly one of two sub-primitives:
+行为由以下两个子原语中的一个提供：
 
-- `<Unstable_TriggerPopover.Directive formatter={...} onInserted={...} />` — writes `:type[label]{name=id}` into the composer text (mention behavior)
-- `<Unstable_TriggerPopover.Action onExecute={...} removeOnExecute={...} />` — runs a callback on selection; leaves a directive chip behind by default (slash-command behavior)
+- `<Unstable_TriggerPopover.Directive formatter={...} onInserted={...} />` — 将 `:type[label]{name=id}` 写入输入框文本（提及行为）
+- `<Unstable_TriggerPopover.Action onExecute={...} removeOnExecute={...} />` — 在选择时运行回调；默认在执行后保留一个指令芯片（斜杠命令行为）
 
 ### Unstable_TriggerPopover.Directive
 
-Behavior sub-primitive. Registers the directive-insert behavior with its parent `TriggerPopover`. Renders nothing.
+行为子原语。向其父级 `TriggerPopover` 注册指令插入行为。不渲染任何内容。
 
 ```tsx
 <ComposerPrimitive.Unstable_TriggerPopover.Directive
@@ -401,7 +397,7 @@ Behavior sub-primitive. Registers the directive-insert behavior with its parent 
 
 ### Unstable_TriggerPopover.Action
 
-Behavior sub-primitive. Registers the action behavior with its parent `TriggerPopover`. Renders nothing. By default leaves a directive chip behind after executing (audit trail); pass `removeOnExecute` to strip the trigger text entirely.
+行为子原语。向其父级 `TriggerPopover` 注册操作行为。默认在执行后保留一个指令芯片（审计轨迹）；传入 `removeOnExecute` 可完全移除触发器文本。不渲染任何内容。
 
 ```tsx
 <ComposerPrimitive.Unstable_TriggerPopover.Action
@@ -412,7 +408,7 @@ Behavior sub-primitive. Registers the action behavior with its parent `TriggerPo
 
 ### Unstable_TriggerPopoverCategories
 
-Render-function primitive for the top-level category list. Only renders while no category is active and search mode is off.
+用于顶级分类列表的 render function 原语。仅在没有激活分类且未处于搜索模式时渲染。
 
 ```tsx
 <ComposerPrimitive.Unstable_TriggerPopoverCategories>
@@ -429,7 +425,7 @@ Render-function primitive for the top-level category list. Only renders while no
 
 ### Unstable_TriggerPopoverCategoryItem
 
-Button that selects a category and drills into its items.
+用于选择分类并深入查看其项目的按钮。
 
 ```tsx
 <ComposerPrimitive.Unstable_TriggerPopoverCategoryItem categoryId="tools">
@@ -439,7 +435,7 @@ Button that selects a category and drills into its items.
 
 ### Unstable_TriggerPopoverItems
 
-Render-function primitive for the items inside the currently selected category (or global search results).
+用于渲染当前选定分类中的项目（或全局搜索结果）的 render function 原语。
 
 ```tsx
 <ComposerPrimitive.Unstable_TriggerPopoverItems>
@@ -451,7 +447,7 @@ Render-function primitive for the items inside the currently selected category (
 
 ### Unstable_TriggerPopoverItem
 
-Selectable item inside the popover.
+弹出层中可选择的项目。
 
 ```tsx
 <ComposerPrimitive.Unstable_TriggerPopoverItem item={item}>
@@ -461,7 +457,7 @@ Selectable item inside the popover.
 
 ### Unstable_TriggerPopoverBack
 
-Back button used when drilling from categories into a specific item list.
+从分类深入到具体项目列表时使用的返回按钮。
 
 ```tsx
 <ComposerPrimitive.Unstable_TriggerPopoverBack className="rounded-md px-2 py-1 text-sm hover:bg-accent">
@@ -469,9 +465,9 @@ Back button used when drilling from categories into a specific item list.
 </ComposerPrimitive.Unstable_TriggerPopoverBack>
 ```
 
-## Patterns
+## 使用模式
 
-### With Attachments
+### 添加附件
 
 ```tsx
 <ComposerPrimitive.Root>
@@ -490,9 +486,9 @@ Back button used when drilling from categories into a specific item list.
 </ComposerPrimitive.Root>
 ```
 
-### With Drag-and-Drop
+### 添加拖放功能
 
-Wrap your composer with `AttachmentDropzone` to support dragging files directly onto the input area:
+将输入框包裹在 `AttachmentDropzone` 中，以支持将文件直接拖动到输入区域：
 
 ```tsx
 <ComposerPrimitive.AttachmentDropzone className="rounded-xl border-2 border-dashed data-[dragging]:border-primary data-[dragging]:bg-primary/5">
@@ -507,9 +503,9 @@ Wrap your composer with `AttachmentDropzone` to support dragging files directly 
 </ComposerPrimitive.AttachmentDropzone>
 ```
 
-The dropzone sets `data-dragging` when a file is being dragged over it, so you can style the active state with CSS. It requires the runtime's attachments capability (an attachment adapter); without it the dropzone stays inert.
+当文件拖动到拖放区域上方时，该区域会设置 `data-dragging`，因此你可以使用 CSS 设置活动状态的样式。它需要运行时的附件能力（附件适配器）；没有该能力时，拖放区域会保持非活动状态。
 
-### With Voice Input
+### 添加语音输入
 
 ```tsx
 <ComposerPrimitive.Root>
@@ -527,15 +523,15 @@ The dropzone sets `data-dragging` when a file is being dragged over it, so you c
 </ComposerPrimitive.Root>
 ```
 
-`DictationTranscript` renders a `<span>` showing the interim speech-to-text transcript while the user is speaking.
+`DictationTranscript` 会渲染一个 `<span>`，在用户说话时显示临时的语音转文本结果。
 
 <Callout type="info">
-Voice input requires a `DictationAdapter` configured in your runtime. See [Dictation](/docs/guides/dictation) for setup.
+语音输入需要在运行时中配置 `DictationAdapter`。设置方法请参阅[听写](/docs/guides/dictation)。
 </Callout>
 
-### Custom Submit Behavior
+### 自定义提交行为
 
-Use `onSubmit` on `Root` to intercept submission:
+在 `Root` 上使用 `onSubmit` 来拦截提交：
 
 ```tsx
 <ComposerPrimitive.Root
@@ -550,11 +546,11 @@ Use `onSubmit` on `Root` to intercept submission:
 </ComposerPrimitive.Root>
 ```
 
-### Gate Sending on External State
+### 根据外部状态控制发送
 
-Sometimes you want users to type while sending is temporarily blocked, for example while tool configuration, auth, or the first model context is still loading. Disabling the entire thread via `isDisabled` works but also disables the text input, which feels broken.
+有时你希望用户在发送暂时被阻止时仍然可以输入，例如工具配置、身份验证或首个模型上下文仍在加载时。通过 `isDisabled` 禁用整个线程虽然可行，但也会禁用文本输入，用户体验不佳。
 
-Use `isSendDisabled` on the runtime adapter to keep the input usable while blocking send:
+在运行时适配器上使用 `isSendDisabled`，即可在阻止发送的同时保持输入可用：
 
 ```tsx
 const runtime = useExternalStoreRuntime({
@@ -565,14 +561,14 @@ const runtime = useExternalStoreRuntime({
 });
 ```
 
-When `isSendDisabled` is `true`:
+当 `isSendDisabled` 为 `true` 时：
 
-- `composer.canSend` becomes `false`
-- `<ComposerPrimitive.Send>` is disabled
-- Enter and the `Cmd/Ctrl+Shift+Enter` steer hotkey become no-ops
-- `aui.composer.send()` short-circuits at the runtime, so direct calls cannot escape the gate
+- `composer.canSend` 变为 `false`
+- `<ComposerPrimitive.Send>` 被禁用
+- Enter 和 `Cmd/Ctrl+Shift+Enter` 发送快捷键不执行任何操作
+- `aui.composer.send()` 会在运行时提前返回，因此直接调用也无法绕过该门控
 
-Read the same flag from React with `<AuiIf>` to render hints alongside the input:
+使用 `<AuiIf>` 从 React 中读取相同的标志，以便在输入框旁渲染提示：
 
 ```tsx
 <ComposerPrimitive.Root>
@@ -584,13 +580,13 @@ Read the same flag from React with `<AuiIf>` to render hints alongside the input
 </ComposerPrimitive.Root>
 ```
 
-`canSend` reflects the composer's own willingness to send (editing mode, non-empty content, `isSendDisabled` not set). Cross-thread gating like an in-flight run without queue support is layered on top by `<ComposerPrimitive.Send>` automatically.
+`canSend` 反映输入框自身是否允许发送（编辑模式、内容非空且未设置 `isSendDisabled`）。不支持排队时正在运行的任务等跨线程门控，则会由 `<ComposerPrimitive.Send>` 自动叠加处理。
 
-`isSendDisabled` only gates the thread composer. Saving an in-progress message edit is unaffected, since it is a per-message action rather than a new send.
+`isSendDisabled` 仅控制线程输入框。保存正在进行的消息编辑不受影响，因为它是针对单条消息的操作，而不是新的发送。
 
-For the difference between `isDisabled` and `isSendDisabled`, see the [external store adapter reference](/docs/runtimes/custom/external-store).
+关于 `isDisabled` 和 `isSendDisabled` 的区别，请参阅[外部状态存储适配器参考](/docs/runtimes/custom/external-store)。
 
-### Ctrl+Enter to Submit
+### 使用 Ctrl+Enter 提交
 
 ```tsx
 <ComposerPrimitive.Root>
@@ -599,9 +595,9 @@ For the difference between `isDisabled` and `isSendDisabled`, see the [external 
 </ComposerPrimitive.Root>
 ```
 
-With `submitMode="ctrlEnter"`, plain Enter inserts a newline and Ctrl/Cmd+Enter submits.
+使用 `submitMode="ctrlEnter"` 后，普通 Enter 会插入换行，而 Ctrl/Cmd+Enter 会提交。
 
-### Mobile / touch devices
+### 移动设备 / 触摸设备
 
 ```tsx
 <ComposerPrimitive.Root>
@@ -610,13 +606,13 @@ With `submitMode="ctrlEnter"`, plain Enter inserts a newline and Ctrl/Cmd+Enter 
 </ComposerPrimitive.Root>
 ```
 
-`unstable_insertNewlineOnTouchEnter` switches Enter to insert a newline on touch-primary devices (detected via `(pointer: coarse) and (not (any-pointer: fine))`), so the on-screen Return key never accidentally sends a half-finished message. Submission moves to the explicit Send button, matching WhatsApp, Slack, Discord, iMessage, ChatGPT, and Claude.ai.
+`unstable_insertNewlineOnTouchEnter` 会在以触摸为主的设备上将 Enter 切换为插入换行（通过 `(pointer: coarse) and (not (any-pointer: fine))` 检测），这样屏幕上的 Return 键就不会意外发送未完成的消息。提交操作会转移到显式的 Send 按钮，与 WhatsApp、Slack、Discord、iMessage、ChatGPT 和 Claude.ai 的行为一致。
 
-Desktop behavior is unchanged. A tablet paired with a hardware keyboard still gets `submitMode`'s usual semantics if you set `submitMode="ctrlEnter"` or `"none"` — the flag only downgrades the default `"enter"` mode.
+桌面端行为不变。如果为配备硬件键盘的平板电脑设置了 `submitMode="ctrlEnter"` 或 `"none"`，它仍会获得 `submitMode` 的通常语义——该标志只会降低默认的 `"enter"` 模式。
 
-### Floating Composer
+### 浮动输入框
 
-Primitives aren't bound to any layout. Here's how the floating composer on this docs site is built, using the same `ComposerPrimitive.Root` and `ComposerPrimitive.Input` positioned with CSS:
+原语不受任何布局限制。下面介绍此文档站点中的浮动输入框是如何构建的：使用相同的 `ComposerPrimitive.Root` 和 `ComposerPrimitive.Input`，并通过 CSS 定位：
 
 ```tsx
 import { ComposerPrimitive } from "@assistant-ui/react";
@@ -644,16 +640,16 @@ function FloatingComposer() {
 }
 ```
 
-The primitive handles everything about composing a message. The layout, animation, and visibility logic is all yours.
+原语负责处理消息编写的所有功能。布局、动画和可见性逻辑则完全由你控制。
 
-## Relationship to Components
+## 与组件的关系
 
-The [Thread](/elements/thread) component includes a full composer built from these primitives. If you need a working chat UI fast, start there. When you need a composer that doesn't fit inside a thread, such as a floating input, a sidebar composer, or a multi-step form, reach for `ComposerPrimitive` directly.
+[Thread](/elements/thread) 组件包含一个由这些原语构建的完整输入框。如果你需要快速构建可用的聊天 UI，可以从那里开始。当你需要一个不适合放在会话线程中的输入框，例如浮动输入框、侧边栏输入框或多步骤表单时，可以直接使用 `ComposerPrimitive`。
 
-## API Reference
+## API 参考
 
-For full prop details on every part, see the [ComposerPrimitive API Reference](/docs/api-reference/primitives/composer).
+如需了解每个部件的完整 prop 详情，请参阅 [ComposerPrimitive API 参考](/docs/api-reference/primitives/composer)。
 
-Related:
+相关内容：
 - [ThreadPrimitive](/docs/primitives/thread)
 - [AttachmentPrimitive](/docs/primitives/attachment)

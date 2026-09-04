@@ -1,20 +1,20 @@
 ---
-title: "Comparison"
-description: "Two options weighed side by side, with the pick named and argued."
+title: "比较"
+description: "将两个选项并列权衡，指出最终选择并说明理由。"
 ---
 
-Two options set side by side, each with its own traits and one of them marked as the pick, with a sentence underneath arguing the choice. With a runtime the comparison comes from a tool call the model completes in one shot; standalone you supply the options and the reason yourself.
+将两个选项并列展示，每个选项都有自己的特征，其中一个被标记为最终选择，并在下方用一句话说明选择理由。在运行时中，比较结果来自模型一次完成的工具调用；单独使用时，则由你自行提供选项和理由。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-This element has no assistant-ui primitive of its own, so the runtime wiring is a tool renderer rather than a primitive composition. A comparison has no natural row by row reveal: watching option cards fill in out of order as JSON streams in would read as broken rather than progressive, so this is one of the cases worth waiting for the call to finish before mounting anything at all.
+此元素没有自己的 assistant-ui 原语，因此运行时接入使用的是工具渲染器，而不是原语组合。比较结果没有自然的逐行展示过程：随着 JSON 流式传输，选项卡片以乱序填充，看起来会像是渲染出错，而不是渐进式展示。因此，在这些情况下，值得等待调用完成后再挂载任何内容。
 
 <Steps>
   <Step>
 
-### Register the render function
+### 注册渲染函数
 
 ```tsx title="app/toolkit.tsx"
 "use client";
@@ -33,12 +33,12 @@ export const toolkit = defineToolkit({
 });
 ```
 
-Returning `null` until `status.type` is `"complete"` mounts the card once, with its final arguments, rather than re-rendering it through every partial parse. See [deferred rendering](/docs/tools/tool-ui#deferred-rendering) for the general pattern.
+在 `status.type` 为 `"complete"` 之前返回 `null`，可以让卡片使用最终参数挂载一次，而不是在每次部分解析后都重新渲染。有关通用模式，请参阅[延迟渲染](/docs/tools/tool-ui#deferred-rendering)。
 
   </Step>
   <Step>
 
-### Let the message list render it
+### 让消息列表进行渲染
 
 ```tsx title="app/MyRuntimeProvider.tsx"
 import {
@@ -64,7 +64,7 @@ export function MyRuntimeProvider({
 }
 ```
 
-Once the toolkit is registered, `Thread` and any custom message list built on assistant-ui's message part primitives (`MessagePrimitive.Parts` or `MessagePrimitive.GroupedParts`) render the registered UI automatically wherever the `compare_options` call appears in the message, so nothing needs to be placed by hand.
+注册工具包后，`Thread` 以及任何基于 assistant-ui 消息部分原语构建的自定义消息列表（`MessagePrimitive.Parts` 或 `MessagePrimitive.GroupedParts`），都会在消息中出现 `compare_options` 调用的位置自动渲染已注册的 UI，因此无需手动放置任何内容。
 
   </Step>
 </Steps>
@@ -73,12 +73,12 @@ Once the toolkit is registered, `Thread` and any custom message list built on as
 
 <StandaloneMode>
 
-Standalone, the element is a plain display component: it owns no state of its own. Unlike the other structured output elements it has no reveal prop at all; every option and every trait renders as soon as you pass it.
+单独使用时，该元素是一个普通的展示组件：它不拥有自身状态。与其他结构化输出元素不同，它完全没有 reveal 属性；传入后，每个选项和每个特征都会立即渲染。
 
 <Steps>
   <Step>
 
-### Pass the options straight through
+### 直接传入选项
 
 ```tsx title="app/runtime-choice.tsx"
 "use client";
@@ -120,9 +120,9 @@ export function RuntimeChoice() {
   </Step>
   <Step>
 
-### Point the pick at a different option
+### 将最终选择指向其他选项
 
-Recompute `recommendedId` and `reason` from whatever decided the comparison, the card itself has no memory of a previous pick.
+根据比较结果的决定来源，重新计算 `recommendedId` 和 `reason`；卡片自身不会记住之前的选择。
 
 ```tsx
 export function RuntimeChoice({ selfHostedOnly }: { selfHostedOnly: boolean }) {
@@ -147,7 +147,7 @@ export function RuntimeChoice({ selfHostedOnly }: { selfHostedOnly: boolean }) {
 
 </StandaloneMode>
 
-## Anatomy
+## 组成结构
 
 ```tsx
 <div data-slot="comparison-card">
@@ -168,13 +168,13 @@ export function RuntimeChoice({ selfHostedOnly }: { selfHostedOnly: boolean }) {
 </div>
 ```
 
-Unlike the other structured output elements, this one takes no `visibleCount` and no `take()`: every option and every trait row in the arrays you pass renders unconditionally. An option counts as recommended purely by `option.id === recommendedId`, so an id that matches no option leaves every card untinted with no "pick" label anywhere; there is no fallback highlight. A trait counts as present exactly when `option.traits[i]` is truthy: pass `false`, or leave `traits` shorter than `traitLabels`, and that row shows the trait's own label dimmed behind a minus icon instead of the option's value.
+与其他结构化输出元素不同，该元素既不接受 `visibleCount`，也不接受 `take()`：你传入的数组中的每个选项和每个特征行都会无条件渲染。选项是否为推荐项完全由 `option.id === recommendedId` 决定，因此，如果某个 id 与任何选项都不匹配，所有卡片都会保持未着色状态，任何地方都不会显示“最终选择”标签；不存在备用高亮。仅当 `option.traits[i]` 为真值时，特征才会被视为存在：传入 `false`，或者让 `traits` 短于 `traitLabels`，该行就会显示该特征自身的标签，并在减号图标后以变暗样式呈现，而不是显示选项的值。
 
-## Examples
+## 示例
 
-### Marking a trait as absent
+### 将特征标记为不存在
 
-An absent trait is not an empty string, it is `false` or a missing array slot. Either one falls back to the shared `traitLabels` entry, dimmed, so the row still names what the option lacks instead of leaving a blank.
+不存在的特征不是空字符串，而是 `false` 或缺失的数组项。两种情况都会回退到共享的 `traitLabels` 条目，并以变暗样式显示，因此该行仍会说明选项缺少什么，而不是留下空白。
 
 ```tsx
 const options: readonly ComparisonOption[] = [
@@ -183,11 +183,11 @@ const options: readonly ComparisonOption[] = [
 ];
 ```
 
-### Where the comparison comes from
+### 比较结果的来源
 
 <RuntimeMode>
 
-The model reasons about the options itself, so there is nothing for the backend to look up; `execute` only needs to hand the arguments back for the type system and the wire format.
+模型会自行分析这些选项，因此后端无需查询任何内容；`execute` 只需返回参数，以满足类型系统和线格式的要求。
 
 ```ts title="app/api/chat/route.ts"
 compare_options: tool({
@@ -213,7 +213,7 @@ compare_options: tool({
 
 <StandaloneMode>
 
-When the comparison follows from your own data rather than a fixed constant, derive `options` and `recommendedId` together so they never disagree about which id is being recommended.
+当比较结果来自你自己的数据，而不是固定常量时，请同时推导 `options` 和 `recommendedId`，这样它们就不会对推荐的选项 id 产生分歧。
 
 ```tsx
 const options = plans.map((plan) => ({
@@ -227,36 +227,36 @@ const recommendedId = pickBestPlan(plans).id;
 
 </StandaloneMode>
 
-### Restyle the card
+### 重新设置卡片样式
 
-Both lanes take `className` on the root. The "pick" label uses the shared `mono` surface and a non-recommended option's card uses the shared `field` surface, both from `surfaces.tsx`, so restyling those tokens restyles every element that uses them.
+两个区域的根元素都接受 `className`。“最终选择”标签使用共享的 `mono` 表面，非推荐选项的卡片使用共享的 `field` 表面；二者都来自 `surfaces.tsx`。因此，重新设置这些设计令牌的样式，就会重新设置所有使用它们的元素。
 
 ```tsx
 <ComparisonCard className="max-w-lg gap-4" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Render props
+### 渲染属性
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `args` | `{ traitLabels: string[]; options: ComparisonOption[]; recommendedId: string; reason: string }` | The tool's arguments, a partial parse while `status.type` is `"running"`. |
-| `status` | `ToolCallMessagePartStatus` | `"running"` while the model is still emitting `args`, `"complete"` once the call settles. Gate rendering on `"complete"` to avoid a half built card. |
+| `args` | `{ traitLabels: string[]; options: ComparisonOption[]; recommendedId: string; reason: string }` | 工具的参数；当 `status.type` 为 `"running"` 时，这些参数是部分解析结果。 |
+| `status` | `ToolCallMessagePartStatus` | 模型仍在发出 `args` 时为 `"running"`，调用完成后为 `"complete"`。请根据 `"complete"` 控制渲染，以避免显示未构建完成的卡片。 |
 
-### compare_options arguments
+### compare_options 参数
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `traitLabels` | `string[]` | The trait names shown for every option, in column order. |
-| `options[].id` | `string` | Matched against `recommendedId` to decide which card is highlighted. |
-| `options[].name` | `string` | The option's name. |
-| `options[].headline` | `string` | One line under the name. |
-| `options[].traits` | `(string \| false)[]` | Positional with `traitLabels`, `false` or a missing entry renders the trait as absent. |
-| `recommendedId` | `string` | The `id` of the option to highlight as the pick. |
-| `reason` | `string` | The sentence under the cards arguing the pick. |
+| `traitLabels` | `string[]` | 按列顺序显示在每个选项中的特征名称。 |
+| `options[].id` | `string` | 与 `recommendedId` 匹配，以决定高亮哪个卡片。 |
+| `options[].name` | `string` | 选项的名称。 |
+| `options[].headline` | `string` | 名称下方的一行文字。 |
+| `options[].traits` | `(string \| false)[]` | 与 `traitLabels` 按位置对应；`false` 或缺失的条目会将该特征渲染为不存在。 |
+| `recommendedId` | `string` | 要高亮为最终选择的选项的 `id`。 |
+| `reason` | `string` | 卡片下方用于说明选择理由的句子。 |
 
 </RuntimeMode>
 
@@ -264,23 +264,23 @@ Both lanes take `className` on the root. The "pick" label uses the shared `mono`
 
 ### ComparisonCard
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `traitLabels` | `readonly string[]` | required | The trait names shown for every option, in column order. |
-| `options` | `readonly ComparisonOption[]` | required | The options to compare, rendered in array order. |
-| `recommendedId` | `string` | required | The `id` of the option to highlight as the pick. |
-| `reason` | `string` | required | The sentence under the cards arguing the pick. |
-| `className` | `string` | | Merged onto the root. |
+| `traitLabels` | `readonly string[]` | 必填 | 按列顺序显示在每个选项中的特征名称。 |
+| `options` | `readonly ComparisonOption[]` | 必填 | 要比较的选项，按数组顺序渲染。 |
+| `recommendedId` | `string` | 必填 | 要高亮为最终选择的选项的 `id`。 |
+| `reason` | `string` | 必填 | 卡片下方用于说明选择理由的句子。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` 属性都会转发到根元素。
 
 ### ComparisonOption
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `id` | `string` | Matched against `recommendedId` to decide which card is highlighted. |
-| `name` | `string` | The option's name. |
-| `headline` | `string` | One line under the name. |
-| `traits` | `readonly (string \| false)[]` | Positional with `traitLabels`, `false` or a missing entry renders the trait as absent. |
+| `id` | `string` | 与 `recommendedId` 匹配，以决定高亮哪个卡片。 |
+| `name` | `string` | 选项的名称。 |
+| `headline` | `string` | 名称下方的一行文字。 |
+| `traits` | `readonly (string \| false)[]` | 与 `traitLabels` 按位置对应；`false` 或缺失的条目会将该特征渲染为不存在。 |
 
 </StandaloneMode>

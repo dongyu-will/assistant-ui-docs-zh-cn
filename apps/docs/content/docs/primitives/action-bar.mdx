@@ -1,13 +1,13 @@
 ---
 title: ActionBar
-description: Build message action buttons with auto-hide, copy state, and intelligent disabling.
+description: 构建支持自动隐藏、复制状态和智能禁用的消息操作按钮。
 platforms: ["react"]
 ---
 
 import { ActionBarPrimitiveSample } from "@/components/pages/docs/samples/action-bar-primitive";
 import { ActionBarPrimitive as ActionBarPrimitiveDocs } from "@/generated/primitiveDocs";
 
-The ActionBar primitive provides message actions: copy, reload, edit, feedback, speech, and export. It handles intelligent visibility with auto-hide on hover, automatic disabling based on message state, and floating behavior. You compose the buttons; the primitive handles action state and availability.
+ActionBar 原语提供消息操作：复制、重新加载、编辑、反馈、语音和导出。它支持悬停时自动隐藏、根据消息状态自动禁用，以及浮动行为，从而智能控制可见性。你负责组合按钮，原语负责处理操作状态和可用性。
 
 <Tabs items={["Preview", "Code"]}>
   <Tab>
@@ -48,9 +48,9 @@ function AssistantMessage() {
   </Tab>
 </Tabs>
 
-## Quick Start
+## 快速开始
 
-A minimal action bar with copy and reload:
+包含复制和重新加载功能的最小操作栏：
 
 ```tsx
 import { ActionBarPrimitive } from "@assistant-ui/react";
@@ -61,27 +61,27 @@ import { ActionBarPrimitive } from "@assistant-ui/react";
 </ActionBarPrimitive.Root>
 ```
 
-`Root` renders a `<div>`, action buttons render `<button>` elements. Each button auto-disables when its action isn't available (e.g., Copy is disabled when there's no content, Reload is disabled while the model is running).
+`Root` 会渲染一个 `<div>`，操作按钮会渲染为 `<button>` 元素。当操作不可用时，每个按钮都会自动禁用（例如，没有内容时 Copy 会被禁用，模型运行期间 Reload 会被禁用）。
 
 <Callout type="info">
-ActionBar must be placed inside a `MessagePrimitive.Root` because it reads message state from the nearest message context.
+ActionBar 必须放置在 `MessagePrimitive.Root` 内，因为它会从最近的消息上下文中读取消息状态。
 </Callout>
 
 <Callout type="info">
-Runtime setup: primitives require runtime context. Wrap your UI in `AssistantRuntimeProvider` with a runtime (for example `useLocalRuntime(...)`). See [Pick a Runtime](/docs/runtimes/pick-a-runtime).
+运行时设置：原语需要运行时上下文。将 UI 包裹在带有运行时的 `AssistantRuntimeProvider` 中（例如 `useLocalRuntime(...)`）。请参阅[选择运行时](/docs/runtimes/pick-a-runtime)。
 </Callout>
 
-## Core Concepts
+## 核心概念
 
-### Auto-Hide & Floating
+### 自动隐藏与浮动
 
-The `autohide` prop controls when the action bar is visible:
+`autohide` 属性控制操作栏的显示时机：
 
-- **`"never"`** (default): always visible
-- **`"not-last"`**: hidden on all messages except the last, shown on hover
-- **`"always"`**: hidden on all messages, shown on hover
+- **`"never"`**（默认）：始终显示
+- **`"not-last"`**：除最后一条消息外，对所有消息隐藏；悬停时显示
+- **`"always"`**：对所有消息隐藏；悬停时显示
 
-When `autohideFloat` is set, hidden action bars get the `data-floating` attribute instead of being removed from the DOM. This lets you animate them with CSS:
+设置 `autohideFloat` 后，隐藏的操作栏会获得 `data-floating` 属性，而不是从 DOM 中移除。这样你就可以使用 CSS 为其添加动画：
 
 ```tsx
 <ActionBarPrimitive.Root
@@ -93,20 +93,20 @@ When `autohideFloat` is set, hidden action bars get the `data-floating` attribut
 </ActionBarPrimitive.Root>
 ```
 
-The `"single-branch"` option for `autohideFloat` only floats when the message has a single branch (no alternatives).
+`autohideFloat` 的 `"single-branch"` 选项仅在消息只有一个分支（没有其他选项）时启用浮动。
 
-### Automatic Disabling
+### 自动禁用
 
-Action buttons automatically disable based on state, with no manual wiring needed:
+操作按钮会根据状态自动禁用，无需手动连接：
 
-- **Copy**: disabled when there's no copyable text content or an assistant message is still running
-- **Reload**: disabled when the thread is running or the message role isn't assistant
-- **Edit**: disabled when the message is already being edited
-- **Speak**: disabled when there's no speakable text or an assistant message is still running
+- **Copy**：没有可复制的文本内容，或助手消息仍在运行时禁用
+- **Reload**：线程正在运行，或消息角色不是 assistant 时禁用
+- **Edit**：消息已处于编辑状态时禁用
+- **Speak**：没有可朗读的文本，或助手消息仍在运行时禁用
 
-### Copy State
+### 复制状态
 
-After clicking Copy, the button gets a `data-copied` attribute for a configurable duration (default 3 seconds). Use this for visual feedback:
+点击 Copy 后，按钮会在可配置的时长内（默认为 3 秒）获得 `data-copied` 属性。可以使用该属性提供视觉反馈：
 
 ```tsx
 <ActionBarPrimitive.Copy copiedDuration={2000} className="group">
@@ -115,9 +115,9 @@ After clicking Copy, the button gets a `data-copied` attribute for a configurabl
 </ActionBarPrimitive.Copy>
 ```
 
-### Feedback Buttons
+### 反馈按钮
 
-Feedback buttons track submission state with `data-submitted`:
+反馈按钮通过 `data-submitted` 跟踪提交状态：
 
 ```tsx
 <ActionBarPrimitive.FeedbackPositive className="data-[submitted]:text-green-500">
@@ -128,11 +128,11 @@ Feedback buttons track submission state with `data-submitted`:
 </ActionBarPrimitive.FeedbackNegative>
 ```
 
-## Parts
+## 部件
 
 ### Root
 
-Container with auto-hide and floating behavior. Renders a `<div>` element unless `asChild` is set.
+支持自动隐藏和浮动行为的容器。除非设置 `asChild`，否则会渲染一个 `<div>` 元素。
 
 ```tsx
 <ActionBarPrimitive.Root
@@ -150,7 +150,7 @@ Container with auto-hide and floating behavior. Renders a `<div>` element unless
 
 ### Copy
 
-Copies message text to clipboard. Renders a `<button>` element unless `asChild` is set.
+将消息文本复制到剪贴板。除非设置 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ActionBarPrimitive.Copy copiedDuration={2000} className="group">
@@ -163,7 +163,7 @@ Copies message text to clipboard. Renders a `<button>` element unless `asChild` 
 
 ### Reload
 
-Reloads or regenerates the current assistant message. Renders a `<button>` element unless `asChild` is set.
+重新加载或重新生成当前助手消息。除非设置 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ActionBarPrimitive.Reload className="rounded-md px-2 py-1 text-sm hover:bg-muted">
@@ -173,7 +173,7 @@ Reloads or regenerates the current assistant message. Renders a `<button>` eleme
 
 ### Edit
 
-Enters edit mode for the current message. Renders a `<button>` element unless `asChild` is set.
+进入当前消息的编辑模式。除非设置 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ActionBarPrimitive.Edit className="rounded-md px-2 py-1 text-sm hover:bg-muted">
@@ -183,7 +183,7 @@ Enters edit mode for the current message. Renders a `<button>` element unless `a
 
 ### Speak
 
-Starts speech playback for the current message. Renders a `<button>` element unless `asChild` is set.
+开始播放当前消息的语音。除非设置 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ActionBarPrimitive.Speak className="rounded-md px-2 py-1 text-sm hover:bg-muted">
@@ -193,7 +193,7 @@ Starts speech playback for the current message. Renders a `<button>` element unl
 
 ### StopSpeaking
 
-Stops speech playback for the current message. Renders a `<button>` element unless `asChild` is set.
+停止播放当前消息的语音。除非设置 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ActionBarPrimitive.StopSpeaking className="rounded-md px-2 py-1 text-sm hover:bg-muted">
@@ -203,7 +203,7 @@ Stops speech playback for the current message. Renders a `<button>` element unle
 
 ### FeedbackPositive
 
-Submits positive feedback for the current message. Renders a `<button>` element unless `asChild` is set.
+提交对当前消息的正面反馈。除非设置 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ActionBarPrimitive.FeedbackPositive className="rounded-md px-2 py-1 text-sm hover:bg-muted">
@@ -213,7 +213,7 @@ Submits positive feedback for the current message. Renders a `<button>` element 
 
 ### FeedbackNegative
 
-Submits negative feedback for the current message. Renders a `<button>` element unless `asChild` is set.
+提交对当前消息的负面反馈。除非设置 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ActionBarPrimitive.FeedbackNegative className="rounded-md px-2 py-1 text-sm hover:bg-muted">
@@ -223,7 +223,7 @@ Submits negative feedback for the current message. Renders a `<button>` element 
 
 ### ExportMarkdown
 
-Downloads message as Markdown or calls custom handler. Renders a `<button>` element unless `asChild` is set.
+将消息下载为 Markdown，或调用自定义处理程序。除非设置 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <ActionBarPrimitive.ExportMarkdown
@@ -237,9 +237,9 @@ Downloads message as Markdown or calls custom handler. Renders a `<button>` elem
 
 <PrimitivesTypeTable type="ActionBarPrimitiveExportMarkdownProps" parameters={ActionBarPrimitiveDocs.ExportMarkdown.props.filter(p => p.name !== "asChild")} />
 
-## Patterns
+## 常见模式
 
-### Assistant Action Bar
+### 助手操作栏
 
 ```tsx
 <ActionBarPrimitive.Root
@@ -253,7 +253,7 @@ Downloads message as Markdown or calls custom handler. Renders a `<button>` elem
 </ActionBarPrimitive.Root>
 ```
 
-### User Action Bar
+### 用户操作栏
 
 ```tsx
 <ActionBarPrimitive.Root hideWhenRunning autohide="not-last">
@@ -261,7 +261,7 @@ Downloads message as Markdown or calls custom handler. Renders a `<button>` elem
 </ActionBarPrimitive.Root>
 ```
 
-### Speech Toggle
+### 语音切换
 
 ```tsx
 <AuiIf condition={(s) => !s.message.isSpeaking}>
@@ -273,10 +273,10 @@ Downloads message as Markdown or calls custom handler. Renders a `<button>` elem
 ```
 
 <Callout type="info">
-Speech requires a `SpeechSynthesisAdapter` configured in your runtime. See [Speech & Dictation](/docs/guides/speech) for setup.
+语音功能需要在运行时中配置 `SpeechSynthesisAdapter`。设置方法请参阅[语音与听写](/docs/guides/speech)。
 </Callout>
 
-### Export with Custom Handler
+### 使用自定义处理程序导出
 
 ```tsx
 <ActionBarPrimitive.ExportMarkdown
@@ -289,21 +289,21 @@ Speech requires a `SpeechSynthesisAdapter` configured in your runtime. See [Spee
 </ActionBarPrimitive.ExportMarkdown>
 ```
 
-## Overflow Menu (ActionBarMorePrimitive)
+## 溢出菜单（ActionBarMorePrimitive）
 
-`ActionBarMorePrimitive` is a Radix DropdownMenu for overflow actions, using the same pattern as `ThreadListItemMorePrimitive`. Use it to group secondary actions behind a "more" button.
+`ActionBarMorePrimitive` 是用于溢出操作的 Radix DropdownMenu，采用与 `ThreadListItemMorePrimitive` 相同的模式。可以使用它将次要操作收纳到“更多”按钮后面。
 
-`ActionBarMorePrimitive.Item` maps to Radix `DropdownMenu.Item`, so it preserves menu keyboard/focus semantics. Prefer `asChild` when composing an `ActionBarPrimitive` button into a menu item.
+`ActionBarMorePrimitive.Item` 对应 Radix `DropdownMenu.Item`，因此保留了菜单的键盘和焦点语义。在将 `ActionBarPrimitive` 按钮组合到菜单项中时，建议使用 `asChild`。
 
-`ActionBarMorePrimitive.Content` defaults to `sideOffset={4}` so the menu has a small gap from the trigger.
+`ActionBarMorePrimitive.Content` 默认为 `sideOffset={4}`，使菜单与触发器之间保持较小间距。
 
-| Part | Element | Purpose |
+| 部件 | 元素 | 用途 |
 |------|---------|---------|
-| `Root` | N/A | Radix DropdownMenu provider |
-| `Trigger` | `<button>` | Opens the dropdown |
-| `Content` | `<div>` (portal) | The dropdown panel |
-| `Item` | `<div>` | A menu item |
-| `Separator` | `<div>` | Visual separator between items |
+| `Root` | N/A | Radix DropdownMenu 提供程序 |
+| `Trigger` | `<button>` | 打开下拉菜单 |
+| `Content` | `<div>`（portal） | 下拉面板 |
+| `Item` | `<div>` | 菜单项 |
+| `Separator` | `<div>` | 项目之间的视觉分隔线 |
 
 ```tsx
 import {
@@ -336,17 +336,17 @@ import { MoreHorizontalIcon } from "lucide-react";
 </ActionBarPrimitive.Root>
 ```
 
-See the [ActionBarMorePrimitive API Reference](/docs/api-reference/primitives/action-bar-more) for full prop details.
+完整的属性详情请参阅 [ActionBarMorePrimitive API 参考](/docs/api-reference/primitives/action-bar-more)。
 
-## Relationship to Components
+## 与组件的关系
 
-The shadcn [Thread](/elements/thread) component uses `ActionBarPrimitive` inside its `AssistantMessage` (with Copy, Reload, and an export dropdown) and `UserMessage` (with Edit). If those defaults work, use the component. Reach for `ActionBarPrimitive` directly when you need different actions, custom layout, or actions outside the standard thread UI.
+shadcn 的 [Thread](/elements/thread) 组件在其 `AssistantMessage`（包含 Copy、Reload 和导出下拉菜单）和 `UserMessage`（包含 Edit）中使用 `ActionBarPrimitive`。如果这些默认设置满足需求，请使用该组件。当你需要不同的操作、自定义布局，或需要在标准线程 UI 之外使用操作时，可以直接使用 `ActionBarPrimitive`。
 
-ActionBar is commonly paired with [BranchPicker](/docs/primitives/branch-picker) for navigating between alternative responses on assistant messages.
+ActionBar 通常会与 [BranchPicker](/docs/primitives/branch-picker) 搭配使用，以便在助手消息的不同候选回复之间进行导航。
 
-## API Reference
+## API 参考
 
-For full prop details on every part, see the [ActionBarPrimitive API Reference](/docs/api-reference/primitives/action-bar).
+有关每个部件的完整属性详情，请参阅 [ActionBarPrimitive API 参考](/docs/api-reference/primitives/action-bar)。
 
-Related:
-- [ActionBarMorePrimitive API Reference](/docs/api-reference/primitives/action-bar-more)
+相关内容：
+- [ActionBarMorePrimitive API 参考](/docs/api-reference/primitives/action-bar-more)

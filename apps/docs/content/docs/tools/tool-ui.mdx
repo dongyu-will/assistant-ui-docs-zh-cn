@@ -1,6 +1,6 @@
 ---
-title: Tool UI
-description: Render AI tool calls as custom React components — show loading, result, and interactive states for each tool invocation in assistant-ui.
+title: 工具 UI
+description: 将 AI 工具调用渲染为自定义 React 组件——在 assistant-ui 中为每次工具调用显示加载、结果和交互状态。
 platforms: ["react"]
 ---
 
@@ -8,30 +8,30 @@ import { ToolUISample } from "@/components/pages/docs/samples/tool-ui";
 import { PreviewCode } from "@/components/pages/docs/preview-code.server";
 import { ToolUIRendererSample } from "@/components/pages/docs/samples/tool-ui/custom-renderer";
 
-Create custom UI components for AI tool calls, providing visual feedback and interactive experiences when tools are executed.
+为 AI 工具调用创建自定义 UI 组件，在工具执行时提供视觉反馈和交互体验。
 
 <ToolUISample />
 
-## Overview
+## 概览
 
-Tool UIs in assistant-ui allow you to create custom interfaces that appear when AI tools are called. These generative UI components enhance the user experience by:
+assistant-ui 中的工具 UI 允许你创建在调用 AI 工具时显示的自定义界面。这些生成式 UI 组件可以通过以下方式提升用户体验：
 
-- **Visualizing tool execution** with loading states and progress indicators
-- **Displaying results** in rich, formatted layouts
-- **Enabling user interaction** through forms and controls
-- **Providing error feedback** with helpful recovery options
+- **可视化工具执行过程**，显示加载状态和进度指示器
+- **显示结果**，使用丰富且格式化的布局
+- **支持用户交互**，提供表单和控件
+- **提供错误反馈**，包含有帮助的恢复选项
 
-This guide demonstrates building tool UIs with the **Vercel AI SDK**.
+本指南将演示如何使用 **Vercel AI SDK** 构建工具 UI。
 
-To let the model compose UI from a vocabulary instead of binding one component per tool, see [Generative UI](/docs/tools/generative-ui).
+如果你希望让模型从一组 UI 词汇中组合界面，而不是为每个工具绑定一个组件，请参阅[生成式 UI](/docs/tools/generative-ui)。
 
-## Creating Tool UIs
+## 创建工具 UI
 
-Tool UI is registered on toolkit entries. The same entry can define a browser-executed frontend tool, a human tool that completes through `addResult`, or a render-only backend tool whose schema and execution live on the server.
+工具 UI 注册在 toolkit 条目上。同一个条目可以定义由浏览器执行的前端工具、通过 `addResult` 完成的人机工具，或仅用于渲染的后端工具，其 schema 和执行逻辑位于服务器上。
 
-### 1. Client-Defined Tools
+### 1. 客户端定义的工具
 
-If you're creating tools on the client side, register them in a toolkit with `Tools({ toolkit })`.
+如果你要在客户端创建工具，请使用 `Tools({ toolkit })` 将其注册到 toolkit 中。
 
 ```tsx title="app/toolkit.tsx"
 "use generative";
@@ -85,18 +85,17 @@ function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-`useChatRuntime()` targets `/api/chat` by default. To point at a different endpoint or customize requests, see [Custom transport](/docs/runtimes/ai-sdk/v7#custom-transport).
+默认情况下，`useChatRuntime()` 以 `/api/chat` 为目标。如需指向其他端点或自定义请求，请参阅[自定义传输层](/docs/runtimes/ai-sdk/v7#custom-transport)。
 
 <Callout type="tip">
-  Frontend toolkit entries can be passed to your backend using the
-  `frontendTools` utility.
+  你可以使用 `frontendTools` 工具函数，将前端 toolkit 条目传递给后端。
 </Callout>
 
-Learn more about creating tools in the [Tools Guide](/docs/tools/defining-tools).
+如需进一步了解工具的创建方式，请参阅[工具指南](/docs/tools/defining-tools)。
 
-### 2. UI-Only for Existing Tools
+### 2. 为现有工具仅添加 UI
 
-If your tool is defined elsewhere (e.g., in your backend API, MCP server, or LangGraph), register a backend toolkit entry with just `render`:
+如果你的工具定义在其他位置（例如后端 API、MCP server 或 LangGraph 中），请仅使用 `render` 注册一个后端 toolkit 条目：
 
 ```tsx
 const toolkit = defineToolkit({
@@ -109,9 +108,9 @@ const toolkit = defineToolkit({
 });
 ```
 
-## Quick Start Example
+## 快速入门示例
 
-This example uses a backend toolkit entry for a tool that the server defines. The preview uses a shorter renderer than the steps below.
+本示例使用一个后端 toolkit 条目，该工具由服务器定义。预览使用的渲染器比下面步骤中的渲染器更简短。
 
 <PreviewCode
   file="components/pages/docs/samples/tool-ui/custom-renderer"
@@ -123,7 +122,7 @@ This example uses a backend toolkit entry for a tool that the server defines. Th
 <Steps>
   <Step>
 
-### Create a Tool UI Renderer
+### 创建工具 UI 渲染器
 
 ```tsx
 import type { ToolCallMessagePartComponent } from "@assistant-ui/react";
@@ -185,11 +184,11 @@ const WeatherToolUI: ToolCallMessagePartComponent<
   </Step>
   <Step>
 
-### Register the Tool UI
+### 注册工具 UI
 
-Put the renderer on the related backend toolkit entry.
+将渲染器添加到相关的后端 toolkit 条目上。
 
-Set `display` to `"standalone"` to keep the tool UI outside the collapsed tool group. A backend tool uses the inline display by default.
+将 `display` 设置为 `"standalone"`，使工具 UI 保持在折叠的工具组之外。后端工具默认使用内联显示。
 
 ```tsx
 const toolkit = defineToolkit({
@@ -213,9 +212,9 @@ function App({ runtime }: { runtime: AssistantRuntime }) {
   </Step>
   <Step>
 
-### Define the Backend Tool (Vercel AI SDK)
+### 定义后端工具（Vercel AI SDK）
 
-When using the Vercel AI SDK, define the corresponding tool in your API route:
+使用 Vercel AI SDK 时，请在 API 路由中定义对应的工具：
 
 ```tsx title="/app/api/chat/route.ts"
 import { streamText, tool, zodSchema } from "ai";
@@ -256,11 +255,11 @@ export async function POST(req: Request) {
   </Step>
 </Steps>
 
-## Tool UI Patterns
+## 工具 UI 模式
 
-### Component Pattern
+### 组件模式
 
-Create standalone tool UI components:
+创建独立的工具 UI 组件：
 
 ```tsx
 import type { ToolCallMessagePartComponent } from "@assistant-ui/react";
@@ -295,7 +294,7 @@ export const WebSearchToolUI: ToolCallMessagePartComponent<
 };
 ```
 
-Register it on the toolkit:
+将其注册到 toolkit 中：
 
 ```tsx
 const toolkit = defineToolkit({
@@ -306,9 +305,9 @@ const toolkit = defineToolkit({
 });
 ```
 
-### Dynamic Toolkit Pattern
+### 动态 Toolkit 模式
 
-Use a toolkit hook in its own file when the renderer needs component state:
+当渲染器需要组件状态时，可以在单独的文件中使用 toolkit hook：
 
 ```tsx title="analyze-data-toolkit.tsx"
 "use client";
@@ -359,14 +358,12 @@ function DynamicToolUI({ children }: { children: React.ReactNode }) {
 }
 ```
 
-### Inline Pattern
+### 内联模式
 
-For tools that need access to parent component props:
+对于需要访问父组件 props 的工具：
 
 <Callout type="tip">
-  **Why `useInlineRender`?** By default, a tool UI's `render` function is
-  static. Use `useInlineRender` when your UI needs access to dynamic component
-  props (for example, to pass in an `id` or other contextual data).
+  **为什么使用 `useInlineRender`？** 默认情况下，工具 UI 的 `render` 函数是静态的。当 UI 需要访问动态组件 props 时（例如传入 `id` 或其他上下文数据），请使用 `useInlineRender`。
 </Callout>
 
 ```tsx title="inventory-toolkit.tsx"
@@ -418,16 +415,14 @@ function ProductPage({ productId, productName }) {
 }
 ```
 
-## Interactive Tool UIs
+## 交互式工具 UI
 
-### User Input Collection
+### 收集用户输入
 
-Create tools that collect user input during execution:
+创建在执行过程中收集用户输入的工具：
 
 <Callout type="tip">
-  **Pro tip:** Call `addResult(...)` exactly once to complete the tool call.
-  After it's invoked, the assistant will resume the conversation with your
-  provided data.
+  **小贴士：**调用 `addResult(...)` 恰好一次，以完成工具调用。调用后，助手会使用你提供的数据继续对话。
 </Callout>
 
 ```tsx
@@ -460,9 +455,9 @@ const toolkit = defineToolkit({
 });
 ```
 
-### Multi-Step Interactions
+### 多步骤交互
 
-Build complex workflows with human-in-the-loop patterns for multi-step user interactions:
+使用人在回路（human in the loop）模式，为多步骤用户交互构建复杂工作流：
 
 ```tsx title="app/approval-toolkit.tsx"
 "use generative";
@@ -541,15 +536,12 @@ export default defineToolkit({
 ```
 
 <Callout type="tip">
-  Use tool human input (`human()` / `resume()`) for workflows that need to
-  pause tool execution and wait for user input. Use `addResult()` for "human
-  tools" where the AI requests a tool call but the entire execution happens
-  through user interaction.
+  对于需要暂停工具执行并等待用户输入的工作流，请使用工具人类输入（`human()` / `resume()`）。对于“人机工具”，即 AI 请求工具调用但整个执行过程通过用户交互完成的场景，请使用 `addResult()`。
 </Callout>
 
-### Server-side approval gates
+### 服务端审批门控
 
-Some runtimes (notably AI SDK v7's `toolApproval`-gated tools) pause on the server and emit an approval request that the client must acknowledge before the tool runs. assistant-ui surfaces this on the tool part as `approval` and exposes `respondToApproval({ approved, reason? })` on the renderer:
+某些运行时（尤其是 AI SDK v7 中受 `toolApproval` 门控的工具）会在服务器上暂停，并发出审批请求；客户端必须确认该请求后，工具才会运行。assistant-ui 会在工具部分中通过 `approval` 暴露此状态，并在渲染器上提供 `respondToApproval({ approved, reason? })`：
 
 ```tsx
 import { useState } from "react";
@@ -597,23 +589,23 @@ const toolkit = defineToolkit({
 });
 ```
 
-`approval.approved` is a three-state signal:
+`approval.approved` 是一个包含三种状态的信号：
 
-- `undefined`: gate is open, the renderer should ask the user. This is the only state in which `respondToApproval` is legal.
-- `true`: decision recorded as allow. The server is producing the result (or has produced one, available on `result`).
-- `false`: decision recorded as deny. The runtime records an error result (`isError`) and exposes `approval.reason`.
+- `undefined`：门控已打开，渲染器应向用户发起询问。只有在此状态下，`respondToApproval` 才是合法操作。
+- `true`：已记录允许决定。服务器正在生成结果（或已经生成结果，可通过 `result` 获取）。
+- `false`：已记录拒绝决定。运行时会记录错误结果（`isError`），并暴露 `approval.reason`。
 
-`approval.isAutomatic` is `true` when the runtime granted the decision from a server-side policy rather than the user; render a "auto-approved" badge instead of buttons in that case.
+当运行时根据服务端策略而非用户授予决定时，`approval.isAutomatic` 为 `true`；此时应渲染“自动批准”徽章，而不是显示按钮。
 
-`respondToApproval` returns a promise that resolves once the runtime has accepted the response and rejects when it could not be recorded, for example an expired gate or a provider that refuses the answer as given. Await it before disabling the controls, so a refused response leaves the request retryable rather than spending it.
+`respondToApproval` 返回一个 promise：运行时接受响应后，该 promise 将解析；如果响应无法记录（例如门控已过期，或提供方拒绝给定的答案），则会拒绝。请在禁用控件前等待该 promise，这样被拒绝的响应会使请求仍可重试，而不会消耗掉请求。
 
-Approval gates require a runtime that implements them: the AI SDK v7 runtime emits them for `toolApproval`-gated tools, and `LocalRuntime` supports gates emitted by your `ChatModelAdapter`; see [LocalRuntime approval gates](/docs/runtimes/custom/local-runtime#approval-gates). For tools where the user supplies the result itself, use `unstable_humanToolNames` with `addResult` instead; see [human-in-the-loop tools](/docs/runtimes/custom/local-runtime#human-in-the-loop-tools).
+审批门控要求运行时实现相应功能：AI SDK v7 运行时会为受 `toolApproval` 门控的工具发出审批门控，`LocalRuntime` 支持由你的 `ChatModelAdapter` 发出的门控；请参阅 [LocalRuntime 审批门控](/docs/runtimes/custom/local-runtime#approval-gates)。对于由用户自行提供结果的工具，请改用 `unstable_humanToolNames` 和 `addResult`；请参阅[人在回路工具](/docs/runtimes/custom/local-runtime#human-in-the-loop-tools)。
 
-For the wire-side setup (`needsApproval`, `sendAutomaticallyWhen`), see [AI SDK v7 server-side tool approval](/docs/runtimes/ai-sdk/v7#server-side-tool-approval).
+关于通信层设置（`needsApproval`、`sendAutomaticallyWhen`），请参阅 [AI SDK v7 服务端工具审批](/docs/runtimes/ai-sdk/v7#server-side-tool-approval)。
 
-### Approval options
+### 审批选项
 
-Beyond the plain allow / deny pair, the host can attach a list of decision options to an approval, for example "allow once", "allow for this session", and "always allow". Each option carries a machine-readable `kind` (`"allow-once"`, `"allow-always"`, `"reject-once"`, `"reject-always"`); scope semantics like session versus global belong to the option's `id` and `label`, which only the host interprets:
+除了简单的允许 / 拒绝选项外，宿主还可以为一次审批附加决策选项列表，例如“仅允许一次”“在本次会话中允许”和“始终允许”。每个选项都包含机器可读的 `kind`（`"allow-once"`、`"allow-always"`、`"reject-once"`、`"reject-always"`）；会话与全局等作用域语义属于选项的 `id` 和 `label`，只有宿主会解释这些语义：
 
 ```ts
 const approval = {
@@ -633,17 +625,17 @@ const approval = {
 };
 ```
 
-Renderers respond with the chosen option instead of a boolean; the option's kind resolves the decision:
+渲染器会返回选中的选项，而不是布尔值；选项的 kind 会解析出对应的决定：
 
 ```tsx
 respondToApproval({ optionId: "session" });
 ```
 
-The runtime receives `{ approvalId, approved, optionId, text?, reason? }`, so a host that persists "always allow" decisions can key its store off `optionId`. Persistence is entirely host-owned: assistant-ui never stores a decision and never auto-answers future approvals. `grants` lists the patterns an option would persist (shown to the user before they commit), and `confirm` opts the option into a confirmation step. Options with custom `_`-prefixed kinds must be answered with an explicit `approved` value, optionally alongside the `optionId` so the chosen option is still recorded. The default `ToolFallback` bar renders them next to the known kinds and sends `{ optionId, approved: true }` when one is chosen, since picking a declared option is an answer rather than a refusal; it also keeps a Deny control available whenever a decision request declares no reject-kind option.
+运行时会接收 `{ approvalId, approved, optionId, text?, reason? }`，因此，持久化“始终允许”决定的宿主可以使用 `optionId` 作为其存储键。持久化完全由宿主负责：assistant-ui 不会存储决定，也不会自动回答未来的审批。`grants` 列出选项将持久化的模式（在用户确认前显示给用户），`confirm` 则表示该选项需要经过确认步骤。带有自定义 `_` 前缀 kind 的选项必须通过显式的 `approved` 值进行回答，也可以同时提供 `optionId`，以便仍然记录所选选项。默认的 `ToolFallback` 栏会将这些选项与已知 kind 并列渲染，并在选中某个选项时发送 `{ optionId, approved: true }`，因为选择已声明的选项属于回答，而不是拒绝；当决策请求未声明 reject-kind 选项时，它也会继续提供 Deny 控件。
 
-### Approval questions
+### 审批问题
 
-An approval request can ask for something other than permission. `approval.prompt` carries the question, and `approval.display` says how to present it: `"decision"` (the default) for a yes / no gate, `"select"` when the answer is one of `approval.options`, and `"text"` when the user types it. `approval.allowFreeform` accepts a typed answer alongside the options.
+审批请求可以询问权限以外的其他内容。`approval.prompt` 携带问题，`approval.display` 指定展示方式：`"decision"`（默认值）用于是 / 否门控，`"select"` 用于答案是 `approval.options` 之一的场景，`"text"` 用于用户输入答案的场景。`approval.allowFreeform` 支持在选项之外附带文本答案。
 
 ```ts
 const approval = {
@@ -658,27 +650,27 @@ const approval = {
 };
 ```
 
-A renderer answers a free-form request with the answer itself:
+渲染器会直接使用答案本身回答自由格式请求：
 
 ```tsx
 respondToApproval({ text: "staging" });
 ```
 
-The runtime records that as `{ approvalId, approved: true, text }`, because answering a question is not refusing it. A `text` response to a request that declares neither `display: "text"` nor `allowFreeform` throws, so a host never receives an answer it has nowhere to record.
+运行时会将其记录为 `{ approvalId, approved: true, text }`，因为回答问题并不等同于拒绝问题。如果请求既未声明 `display: "text"`，也未声明 `allowFreeform`，则 `text` 响应会抛出异常，从而确保宿主不会收到无处记录的答案。
 
-An answer on its own resolves only a question. On a decision the approval is the authorization, so a bare `text` throws there and the answer must accompany an explicit decision (`{ approved, text }`) or a chosen option; otherwise a typed note would authorize the call. `allowFreeform` on a decision therefore annotates the decision rather than replacing it, which is why the default `ToolFallback` shows a text field beside Allow and Deny with no separate submit. A question has no meaningful refusal, so the default `ToolFallback` renders a text field for one and omits the Deny control it adds to a decision.
+单独的答案只能解决问题。对于决策，审批本身就是授权，因此在此场景下单独使用 `text` 会抛出异常；答案必须与显式决策（`{ approved, text }`）或所选选项一同提供，否则输入的文本备注将会授权该调用。因此，在决策中使用 `allowFreeform` 时，它会为决策添加注释，而不是替代决策；这也是默认的 `ToolFallback` 会在 Allow 和 Deny 旁显示文本字段、且不提供单独提交按钮的原因。问题没有实际意义上的拒绝操作，因此默认的 `ToolFallback` 会为问题渲染文本字段，并省略它在决策中添加的 Deny 控件。
 
-Not every runtime emits these fields. The Eve runtime projects its input requests onto them. The AI SDK v7 runtime's gates are boolean by construction, and the AG-UI runtime admits only gates whose response schema it can answer with a decision, so both keep sending plain decisions and carry only a `prompt` when the gate supplies one.
+并非所有运行时都会发出这些字段。Eve runtime 会将其输入请求映射到这些字段。AI SDK v7 runtime 的门控从设计上就是布尔值，而 AG-UI runtime 只接受其响应 schema 能够通过决策回答的门控，因此二者都会继续发送普通决策，并且仅在门控提供时携带 `prompt`。
 
-Approvals that end without a decision (a cancelled run or an expired request) are recorded by the host as `approval.resolution: "cancelled" | "expired"`, which closes the gate without recording a deny.
+以无决策结束的审批（例如运行被取消或请求已过期）会由宿主记录为 `approval.resolution: "cancelled" | "expired"`，这会关闭门控，但不会记录拒绝。
 
-The default `ToolFallback` component renders supplied options automatically, including the confirmation step.
+默认的 `ToolFallback` 组件会自动渲染所提供的选项，包括确认步骤。
 
-## Advanced Features
+## 高级功能
 
-### Tool Status Handling
+### 工具状态处理
 
-The `status` prop provides detailed execution state:
+`status` prop 提供详细的执行状态：
 
 ```tsx
 render: ({ status, args }) => {
@@ -704,17 +696,17 @@ render: ({ status, args }) => {
 };
 ```
 
-### Deferred Rendering
+### 延迟渲染
 
 <Callout type="info">
-This section applies when the model **drives** the component through a tool call (args arrive incrementally and you want to wait for the final shape). If your backend or orchestrator pushes the component instead, prefer [Data-Part Generative UI](#data-part-generative-ui) with `makeAssistantDataUI`. Data parts arrive as terminal events, so the renderer only fires once with the final data, no deferred rendering needed.
+本节适用于模型通过工具调用**驱动**组件的场景（参数会逐步到达，而你希望等待最终形状）。如果组件由后端或编排器推送，请优先使用带有 `makeAssistantDataUI` 的[数据部分生成式 UI](#data-part-generative-ui)。数据部分会作为终止事件到达，因此渲染器只会使用最终数据触发一次，无需延迟渲染。
 </Callout>
 
-Sometimes you want to capture a tool call's streaming arguments but only render the final UI once the call completes. This is useful when partial args would render misleading or jarring intermediate states (a chart that flashes through half-populated data), when the component is expensive to mount (heavy visualizations, embedded iframes, third-party widgets), or when the model controls *whether* the component appears at all.
+有时你需要捕获工具调用的流式参数，但只在调用完成后渲染最终 UI。当部分参数会渲染出具有误导性或令人不适的中间状态（例如图表不断闪过填充了一半的数据）、组件挂载成本较高（例如复杂可视化、嵌入式 iframe、第三方小部件），或模型控制组件是否显示时，这种方式非常有用。
 
-#### Inline at the end of streaming
+#### 在流式传输结束时内联显示
 
-Return `null` from the tool UI's `render` until `status.type === "complete"`. The streaming args still arrive in `args` as the model emits them, you just ignore them until the call is done:
+在工具 UI 的 `render` 中返回 `null`，直到 `status.type === "complete"`。模型发出参数时，流式参数仍会到达 `args`，但在调用完成前可以忽略这些参数：
 
 ```tsx
 const toolkit = defineToolkit({
@@ -728,13 +720,13 @@ const toolkit = defineToolkit({
 });
 ```
 
-The chart mounts once, with the final args, after streaming finishes. No re-renders during the stream.
+流式传输结束后，图表只会使用最终参数挂载一次。流式传输期间不会重新渲染。
 
-The same `render` shape works inside the [`Tools()`](/docs/tools/defining-tools) toolkit's `render` field and with `MessagePrimitive.Parts`'s inline `tools.by_name` overrides.
+相同的 `render` 结构也适用于 [`Tools()`](/docs/tools/defining-tools) toolkit 的 `render` 字段，以及 `MessagePrimitive.Parts` 的内联 `tools.by_name` 覆盖配置。
 
-#### Below the message body
+#### 位于消息正文下方
 
-If the component should sit *outside* the message parts (for example, a card attached under the avatar block rather than inline with text), gate at the message level with [`AuiIf`](/docs/api-reference/primitives/assistant-if) and read `s.message.status`:
+如果组件应位于消息部分*之外*（例如附加在头像区块下方、而不是与文本内联），请通过[`AuiIf`](/docs/api-reference/primitives/assistant-if)在消息级别进行门控，并读取 `s.message.status`：
 
 ```tsx
 import { MessagePrimitive, AuiIf, useAuiState } from "@assistant-ui/react";
@@ -762,13 +754,13 @@ function PostMessageCard() {
 </MessagePrimitive.Root>;
 ```
 
-The `AuiIf` predicate fires whenever the assistant state changes; children mount only when both checks pass. `PostMessageCard` then reads the captured tool-call part from `s.message.parts` and renders from its args.
+每当助手状态发生变化时，`AuiIf` 谓词都会触发；只有两个检查都通过时，子元素才会挂载。随后，`PostMessageCard` 会从 `s.message.parts` 读取捕获的工具调用部分，并根据其参数进行渲染。
 
-For the opposite pattern (showing partial data as it streams in), see [Field-Level Streaming State](#field-level-streaming-state) and [Partial Results & Streaming](#partial-results--streaming) below.
+关于相反的模式（在数据流式传输时显示部分数据），请参阅下方的[字段级流式状态](#field-level-streaming-state)和[部分结果与流式传输](#partial-results--streaming)。
 
-### Field-Level Streaming State
+### 字段级流式状态
 
-Use `useToolArgsStatus` to react to per-field streaming state. The hook returns a `propStatus` map where each top-level key in the args object resolves from `"streaming"` to `"complete"` as the partial JSON arrives. Call it inside a tool-call message part context:
+使用 `useToolArgsStatus` 响应每个字段的流式状态。该 hook 返回一个 `propStatus` 映射，其中 args 对象的每个顶级键都会随着部分 JSON 的到达，从 `"streaming"` 解析为 `"complete"`。请在工具调用消息部分的上下文中调用它：
 
 ```tsx
 import { useToolArgsStatus } from "@assistant-ui/react";
@@ -808,9 +800,9 @@ const toolkit = defineToolkit({
 });
 ```
 
-### Partial Results & Streaming
+### 部分结果与流式传输
 
-Display results as they stream in:
+在结果流式传输时显示结果：
 
 ```tsx
 const toolkit = defineToolkit({
@@ -851,13 +843,13 @@ const toolkit = defineToolkit({
 });
 ```
 
-### Custom Tool Fallback
+### 自定义工具回退
 
-For tools that have no dedicated UI, add the `ToolFallback` shadcn component to your project. See the [ToolFallback install guide](/elements/tool-fallback) for setup instructions and the [ToolGroup guide](/elements/tool-group) for grouping consecutive tool calls into a collapsible container.
+对于没有专用 UI 的工具，请将 `ToolFallback` shadcn 组件添加到项目中。有关设置说明，请参阅 [ToolFallback 安装指南](/elements/tool-fallback)；有关将连续的工具调用分组到可折叠容器中，请参阅 [ToolGroup 指南](/elements/tool-group)。
 
-## Execution Context
+## 执行上下文
 
-Generative UI components have access to execution context through props:
+生成式 UI 组件可以通过 props 访问执行上下文：
 
 ```tsx
 type ToolCallMessagePartProps<TArgs, TResult> = {
@@ -888,9 +880,9 @@ type ToolCallMessagePartProps<TArgs, TResult> = {
 };
 ```
 
-### Human Input Handling
+### 人类输入处理
 
-When a tool calls `human()` during execution, the payload becomes available in the render function as `interrupt.payload`:
+工具在执行过程中调用 `human()` 时，有效负载会以 `interrupt.payload` 的形式在渲染函数中可用：
 
 ```tsx
 const toolkit = defineToolkit({
@@ -919,13 +911,13 @@ const toolkit = defineToolkit({
 });
 ```
 
-Learn more about tool human input in the [Tools Guide](/docs/tools/defining-tools#human-tools).
+如需进一步了解工具人类输入，请参阅[工具指南](/docs/tools/defining-tools#human-tools)。
 
-## Best Practices
+## 最佳实践
 
-### 1. Handle All Status States
+### 1. 处理所有状态
 
-Always handle loading, error, and success states:
+始终处理加载、错误和成功状态：
 
 ```tsx
 render: ({ status, result, args }) => {
@@ -936,9 +928,9 @@ render: ({ status, result, args }) => {
 };
 ```
 
-### 2. Provide Visual Feedback
+### 2. 提供视觉反馈
 
-Use animations and transitions for better UX:
+使用动画和过渡效果，改善用户体验：
 
 ```tsx
 <div
@@ -952,9 +944,9 @@ Use animations and transitions for better UX:
 </div>
 ```
 
-### 3. Make UIs Accessible
+### 3. 确保 UI 可访问
 
-Ensure keyboard navigation and screen reader support:
+确保支持键盘导航和屏幕阅读器：
 
 ```tsx
 <button
@@ -966,9 +958,9 @@ Ensure keyboard navigation and screen reader support:
 </button>
 ```
 
-### 4. Optimize Performance
+### 4. 优化性能
 
-Use `useInlineRender` to prevent unnecessary re-renders:
+使用 `useInlineRender` 防止不必要的重新渲染：
 
 ```tsx title="heavy-computation-toolkit.tsx"
 "use client";
@@ -1013,24 +1005,21 @@ function HeavyComputationToolProvider({ children }: { children: ReactNode }) {
 ```
 
 <Callout>
-  Generative UI components are only displayed in the chat interface. The actual
-  tool execution happens on the backend. This separation allows you to create
-  rich, interactive experiences while keeping sensitive logic secure on the
-  server.
+  生成式 UI 组件只会显示在聊天界面中。实际的工具执行发生在后端。这种分离让你能够创建丰富的交互体验，同时确保敏感逻辑在服务器上保持安全。
 </Callout>
 
-## Data-Part Generative UI
+## 数据部分生成式 UI
 
-Alongside tool-call rendering, assistant-ui supports a second generative UI mechanism based on `DataMessagePart`. Instead of attaching UI to a tool invocation, the backend (or the LangGraph graph) emits named data events that are appended as `{ type: "data", name, data }` parts on the parent assistant message.
+除了工具调用渲染之外，assistant-ui 还支持另一种基于 `DataMessagePart` 的生成式 UI 机制。后端（或 LangGraph graph）不会将 UI 附加到工具调用上，而是发出命名的数据事件，并将其作为 `{ type: "data", name, data }` 部分追加到父级助手消息中。
 
-**When to choose which:**
+**如何选择：**
 
-- **Tool UI**: the **model** decides what to render by calling a tool whose args become the component's data. Register the renderer via the [`Tools()`](/docs/tools/defining-tools) toolkit's `render` field. Args stream incrementally, so you observe partial state via `status` / `useToolArgsStatus` and may need [Deferred Rendering](#deferred-rendering) for components that should only mount with final data.
-- **Data UI** (`makeAssistantDataUI`): the **backend or orchestrator** decides what to render and pushes a named data event onto the assistant message. Data parts arrive as terminal events with no streaming partials, so the renderer naturally fires once with the final data.
+- **工具 UI**：由**模型**通过调用工具决定渲染什么，工具参数会成为组件数据。通过 [`Tools()`](/docs/tools/defining-tools) toolkit 的 `render` 字段注册渲染器。参数会逐步进行流式传输，因此可以通过 `status` / `useToolArgsStatus` 观察部分状态；对于只能在最终数据到达后挂载的组件，可能需要使用[延迟渲染](#deferred-rendering)。
+- **数据 UI**（`makeAssistantDataUI`）：由**后端或编排器**决定渲染什么，并将命名的数据事件推送到助手消息中。数据部分会作为终止事件到达，不包含流式部分，因此渲染器自然只会使用最终数据触发一次。
 
-If you want a component to appear only after the message is complete and you control the backend, Data UI is usually the more direct fit; reach for Tool UI's deferred pattern when the model itself must drive the choice.
+如果你希望组件仅在消息完成后显示，并且能够控制后端，那么数据 UI 通常是更直接的选择；如果必须由模型本身决定是否显示组件，请使用工具 UI 的延迟渲染模式。
 
-Use `makeAssistantDataUI` to register a renderer for a named data part:
+使用 `makeAssistantDataUI` 为命名的数据部分注册渲染器：
 
 ```tsx
 import { makeAssistantDataUI } from "@assistant-ui/react";
@@ -1048,16 +1037,16 @@ export const ChartUI = makeAssistantDataUI<ChartProps>({
 });
 ```
 
-Mount `<ChartUI />` once inside the `AssistantRuntimeProvider` tree; it renders nothing itself and only registers the renderer.
+在 `AssistantRuntimeProvider` 树中挂载 `<ChartUI />` 一次；它本身不会渲染任何内容，只负责注册渲染器。
 
-For LangGraph-specific patterns (emitting UI from a Python/TypeScript graph node via `push_ui_message` / `typedUi`, dynamic loading with `LoadExternalComponent`, and the `useLangGraphUIMessages` escape hatch), see [LangGraph Generative UI](/docs/runtimes/langgraph/generative-ui).
+关于 LangGraph 特有的模式（通过 `push_ui_message` / `typedUi` 从 Python/TypeScript graph 节点发出 UI、使用 `LoadExternalComponent` 动态加载，以及 `useLangGraphUIMessages` 逃生舱），请参阅 [LangGraph 生成式 UI](/docs/runtimes/langgraph/generative-ui)。
 
-A fallback renderer for unmatched data parts is available internally but `setFallbackDataUI` is not yet a public API.
+内部提供了用于匹配不到的数据部分的回退渲染器，但 `setFallbackDataUI` 目前还不是公开 API。
 
-## Related Guides
+## 相关指南
 
-- [Tools Guide](/docs/tools/defining-tools) - Learn how to create and use tools with AI models
-- [Multi-Agent](/docs/tools/multi-agent) - Render sub-agent conversations inside tool call UIs
-- [Tool Fallback](/elements/tool-fallback) - Default UI for tools without custom components
-- [API Reference](/docs/api-reference/primitives/message-part) - Detailed type definitions and component APIs
-- [Message Primitive](/docs/api-reference/primitives/message) - Complete Message component documentation
+- [工具指南](/docs/tools/defining-tools) - 了解如何使用 AI 模型创建和使用工具
+- [多代理](/docs/tools/multi-agent) - 在工具调用 UI 中渲染子代理对话
+- [工具回退](/elements/tool-fallback) - 没有自定义组件时使用的默认 UI
+- [API 参考](/docs/api-reference/primitives/message-part) - 详细的类型定义和组件 API
+- [消息原语](/docs/api-reference/primitives/message) - 完整的 Message 组件文档

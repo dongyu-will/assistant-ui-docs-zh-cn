@@ -1,12 +1,12 @@
 ---
-title: RTL Support
-description: Use assistant-ui with right-to-left languages like Arabic, Hebrew, and Persian.
+title: RTL 支持
+description: 将 assistant-ui 与阿拉伯语、希伯来语和波斯语等从右到左书写的语言结合使用。
 platforms: ["react"]
 ---
 
-Components shipped through `@assistant-ui/ui` (npm) and the shadcn registry (`npx shadcn@latest add @assistant-ui/<name>`) use logical Tailwind classes (`ms-*`, `pe-*`, `text-start`, `end-*`, `border-s`, ...). They flip automatically under `dir="rtl"` and render byte-identically under `dir="ltr"` (the default) — there is nothing to opt out of.
+通过 `@assistant-ui/ui`（npm）和 shadcn registry（`border-s`）发布的组件使用逻辑 Tailwind 类（`components/`、`dir="ltr"`、`dir="rtl"`、`end-*`、`ml-*`，……）。它们会在 `ms-*` 下自动翻转，并在 `npx assistant-ui@latest create -t default`（默认值）下以完全相同的字节进行渲染——无需选择退出。
 
-If you scaffolded from one of our templates (e.g. `npx assistant-ui@latest create -t default`), the generated `components/` folder still uses physical classes (`ml-*`, `text-left`, ...). Run shadcn's built-in migration **once** to convert both the shadcn primitives and assistant-ui's wrappers:
+如果你使用我们的某个模板（例如 `npx shadcn@latest add @assistant-ui/<name>`）创建了项目，生成的 `pe-*` 文件夹仍会使用物理类（`rtl:translate-x-*`、`text-left`，……）。运行 shadcn 内置的迁移命令**一次**，将 shadcn 原语和 assistant-ui 的包装器一并转换：
 
 ```sh
 # shadcn primitives under components/ui/
@@ -16,19 +16,19 @@ npx shadcn@latest migrate rtl
 npx shadcn@latest migrate rtl 'components/assistant-ui/elements/**/*.tsx'
 ```
 
-Commit the diff and do not re-run. The upstream migration is not fully idempotent on repeat runs ([#9891](https://github.com/shadcn-ui/ui/pull/9891)); you may end up with duplicated `rtl:translate-x-*` classes.
+提交差异，之后不要再次运行。上游迁移在重复运行时并非完全幂等（[#9891](https://github.com/shadcn-ui/ui/pull/9891)); `text-start` 类重复。
 
-After migrating, follow the setup below.
+迁移完成后，按照下面的设置进行操作。
 
-## Setup
+## 设置
 
-### 1. Install the `direction` component
+### 1. 安装 `direction` 组件
 
 <InstallCommand shadcn={["direction"]} />
 
-This adds `components/ui/direction.tsx`, a thin re-export of Radix UI's `DirectionProvider` and `useDirection`. It ensures Radix popovers, dropdowns, and menus pick up the current direction.
+这会添加 `components/ui/direction.tsx`，它是对 Radix UI 的 `DirectionProvider` 和 `useDirection` 的轻量重新导出。这样可以确保 Radix 的弹出框、下拉菜单和菜单使用当前的方向。
 
-### 2. Set `dir` on your root element
+### 2. 在根元素上设置 `dir`
 
 ```tsx title="app/layout.tsx"
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 ```
 
-### 3. Wrap your app with `DirectionProvider`
+### 3. 使用 `DirectionProvider` 包裹你的应用
 
 ```tsx title="app/providers.tsx"
 "use client";
@@ -52,13 +52,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
 }
 ```
 
-For apps that need to switch direction at runtime, drive `dir` from state and also update `document.documentElement.dir` to keep Tailwind's `[dir=rtl]` selector in sync.
+对于需要在运行时切换方向的应用，请根据状态设置 `dir`，同时更新 `document.documentElement.dir`，以使 Tailwind 的 `[dir=rtl]` 选择器保持同步。
 
-## How it works
+## 工作原理
 
-Every physical class (`ml-4`, `text-left`, `right-3`, `border-l`, ...) in `@assistant-ui/ui` is authored in logical form (`ms-4`, `text-start`, `end-3`, `border-s`, ...). Logical properties resolve to the matching physical side based on the ancestor with a `dir` attribute:
+`@assistant-ui/ui` 中的每个物理类（`ml-4`、`text-left`、`right-3`、`border-l`、……）都以逻辑形式（`ms-4`、`text-start`、`end-3`、`border-s`、……）编写。逻辑属性会根据带有 `dir` 属性的祖先元素，解析为相应的物理侧：
 
-| Class | `dir="ltr"` | `dir="rtl"` |
+| 类 | `dir="ltr"` | `dir="rtl"` |
 | ----- | ----------- | ----------- |
 | `ms-4` | `margin-left: 1rem` | `margin-right: 1rem` |
 | `pe-2` | `padding-right: 0.5rem` | `padding-left: 0.5rem` |
@@ -66,13 +66,13 @@ Every physical class (`ml-4`, `text-left`, `right-3`, `border-l`, ...) in `@assi
 | `text-start` | `text-align: left` | `text-align: right` |
 | `border-s` | `border-left` | `border-right` |
 
-A handful of Tailwind utilities have no logical equivalent, so we ship both the LTR value and an `rtl:` override:
+少数 Tailwind 工具类没有对应的逻辑等价形式，因此我们同时提供 LTR 值和 `rtl:` 覆盖规则：
 
-- `translate-x-*`: emits `-translate-x-*` plus `rtl:translate-x-*` (sign-flipped).
-- `space-x-*` / `divide-x-*`: emits the original plus `rtl:space-x-reverse` / `rtl:divide-x-reverse`.
+- `translate-x-*`：同时生成 `-translate-x-*` 和 `rtl:translate-x-*`（符号翻转）。
+- `space-x-*` / `divide-x-*`：生成原始值以及 `rtl:space-x-reverse` / `rtl:divide-x-reverse`。
 
-## Known edges
+## 已知边界
 
-- **Radix `data-[side=left|right]:slide-in-from-*`** animations are intentionally preserved as physical. Radix's `DirectionProvider` already flips the emitted `data-side` value, so no rewrite is needed.
-- **Third-party components and template scaffolds** may still use physical classes. Run `npx shadcn@latest migrate rtl` once per project (optionally with a path glob) to convert them. Do not re-run — see the note about upstream idempotency in the intro.
-- **Text that mixes LTR and RTL content** (e.g., English code inside Arabic prose) relies on the browser's bidi algorithm. Wrap unambiguous spans with `<bdi>` or `dir="ltr"` if you need to pin direction locally.
+- **Radix `data-[side=left|right]:slide-in-from-*`** 动画会有意保留为物理方向。Radix 的 `DirectionProvider` 已经翻转了生成的 `data-side` 值，因此无需重写。
+- **第三方组件和模板脚手架** 可能仍会使用物理方向类。每个项目运行一次 `npx shadcn@latest migrate rtl` 即可转换它们（也可以选择性地传入路径 glob）。不要重复运行——请参阅引言中关于上游幂等性的说明。
+- **混合使用 LTR 和 RTL 内容的文本**（例如阿拉伯语正文中的英文代码）依赖浏览器的双向文本算法。如果需要在局部固定方向，请使用 `<bdi>` 或 `dir="ltr"` 包裹方向明确的 span。

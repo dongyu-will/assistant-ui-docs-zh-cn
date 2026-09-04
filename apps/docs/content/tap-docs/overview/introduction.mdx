@@ -1,43 +1,37 @@
 ---
-title: Introduction
-description: State management based on React Hooks.
+title: 简介
+description: 基于 React Hooks 的状态管理。
 ---
 
-**tap is a state management library based on React Hooks.**
+**tap 是一个基于 React Hooks 的状态管理库。**
 
-It lets you build and manage your application state with the APIs and mental
-model you already use in React, organized around one new primitive: the
-**Resource**.
+它让你能够使用已经熟悉的 React API 和心智模型来构建和管理应用状态，并围绕一个新的原语：**Resource** 组织这些状态。
 
-A Resource does for state what a component does for UI. It turns stateful
-behavior into a reusable, composable building block—but returns state and methods
-instead of JSX.
+Resource 对状态所做的事情，就像组件对 UI 所做的事情一样。它将有状态行为转换为可复用、可组合的构建块，但返回的是状态和方法，而不是 JSX。
 
-> **Resources organize like components, but execute like Hooks.**
+> **Resource 像组件一样组织，但像 Hooks 一样执行。**
 
-## Resources are the unit of state composition
+## Resource 是状态组合的基本单元
 
 <TapTutorialSlideshow />
 
-`resource()` turns a Hook into a Resource. Use
-[`useResource`](/tap/docs/tap/resources#hosting-a-resource) to compose one Resource
-or [`useResources`](/tap/docs/tap/composition#useresources) to compose a keyed
-collection.
+`resource()` 将 Hook 转换为 Resource。使用
+[`useResource`](/tap/docs/tap/resources#hosting-a-resource) 组合单个 Resource，
+或使用 [`useResources`](/tap/docs/tap/composition#useresources) 组合带键的集合。
 
-Nested Resources behave as if their Hook logic were inlined, so effects follow
-declaration order—not component-tree order. See
-[Differences from React](/tap/docs/tap/differences-from-react) for details.
+嵌套的 Resource 的行为就像其 Hook 逻辑被内联一样，因此副作用遵循声明顺序，而不是组件树顺序。详情请参阅
+[与 React 的差异](/tap/docs/tap/differences-from-react)。
 
-## Next steps
+## 后续步骤
 
 <Cards>
-  <Card title="Resources" href="/tap/docs/tap/resources">
-    Package Hooks into reusable, configurable state.
+  <Card title="Resource" href="/tap/docs/tap/resources">
+    将 Hooks 封装为可复用、可配置的状态。
   </Card>
-  <Card title="Composition" href="/tap/docs/tap/composition">
-    Build Resource graphs and dynamic keyed collections.
+  <Card title="组合" href="/tap/docs/tap/composition">
+    构建 Resource 图和动态的带键集合。
   </Card>
-  <Card title="API Reference" href="/tap/docs/tap/api-reference">
-    Every export, in one place.
+  <Card title="API 参考" href="/tap/docs/tap/api-reference">
+    集中查看所有导出内容。
   </Card>
 </Cards>

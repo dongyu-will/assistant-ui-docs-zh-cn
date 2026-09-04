@@ -1,11 +1,11 @@
 ---
 title: Hooks
-description: Tool confirmations, auth, input requests, artifacts, escalation, metadata, structured events.
+description: 工具确认、身份验证、输入请求、工件、升级、元数据和结构化事件。
 ---
 
-Reference for the runtime's React hooks. These expose ADK-specific state and HITL primitives. Start with [quickstart](/docs/runtimes/google-adk/quickstart) if you have not wired up a basic runtime yet.
+运行时 React Hooks 的参考文档。这些 Hooks 提供 ADK 特有的状态和 HITL（人在回路）原语。如果你还没有完成基本运行时的接入，请先从[快速入门](/docs/runtimes/google-adk/quickstart)开始。
 
-## Agent and session state
+## Agent 和会话状态
 
 ```ts
 import {
@@ -28,9 +28,9 @@ function MyComponent() {
 }
 ```
 
-## Tool confirmations
+## 工具确认
 
-When ADK's `SecurityPlugin` or tool callbacks request user confirmation before executing a tool, use `useAdkToolConfirmations` to read pending requests and `useAdkConfirmTool` to respond:
+当 ADK 的 `SecurityPlugin` 或工具回调在执行工具前请求用户确认时，使用 `useAdkToolConfirmations` 读取待处理的请求，并使用 `useAdkConfirmTool` 进行响应：
 
 <PlatformTabs>
 <Tab value="React">
@@ -132,9 +132,9 @@ function ToolConfirmationUI() {
 </Tab>
 </PlatformTabs>
 
-## Auth requests
+## 身份验证请求
 
-When a tool requires OAuth or other authentication, use `useAdkAuthRequests` to read pending requests and `useAdkSubmitAuth` to submit credentials:
+当工具需要 OAuth 或其他身份验证时，使用 `useAdkAuthRequests` 读取待处理的请求，并使用 `useAdkSubmitAuth` 提交凭据：
 
 <PlatformTabs>
 <Tab value="React">
@@ -247,11 +247,11 @@ function AuthUI() {
 </Tab>
 </PlatformTabs>
 
-`AdkAuthCredential` supports all ADK auth types: `apiKey`, `http`, `oauth2`, `openIdConnect`, `serviceAccount`.
+`AdkAuthCredential` 支持所有 ADK 身份验证类型：`apiKey`、`http`、`oauth2`、`openIdConnect` 和 `serviceAccount`。
 
-## Input requests
+## 输入请求
 
-When an ADK Python 2.0+ Workflow's `RequestInput` node pauses execution to ask the user a question, ADK emits an `adk_request_input` function call marked as long-running. Respond with `useAdkSubmitInput` inside a tool UI; the helper wraps the answer as `{ result }` to match ADK's `unwrap_response` contract, so the Workflow node resumes with the unwrapped value:
+当 ADK Python 2.0+ Workflow 的 `RequestInput` 节点暂停执行并向用户提问时，ADK 会发出标记为长时间运行的 `adk_request_input` 函数调用。在工具 UI 中使用 `useAdkSubmitInput` 进行响应；该辅助函数会将答案包装为 `{ result }`，以匹配 ADK 的 `unwrap_response` 契约，因此 Workflow 节点恢复执行时会获得未包装的值：
 
 <PlatformTabs>
 <Tab value="React">
@@ -381,7 +381,7 @@ export const RequestInputToolUI: ToolCallMessagePartComponent<
 </Tab>
 </PlatformTabs>
 
-Register the renderer with a backend toolkit entry inside `AssistantRuntimeProvider`:
+在 `AssistantRuntimeProvider` 中通过后端工具包条目注册渲染器：
 
 <PlatformTabs>
 <Tab value="React">
@@ -503,14 +503,14 @@ function App() {
 </PlatformTabs>
 
 <Callout type="info">
-`adk_request_input` is emitted only by ADK Python 2.0+ Workflow `RequestInput` nodes; ADK JS has no equivalent. Always respond via a tool UI with `useAdkSubmitInput`. HITL interrupts are automatically exempt from `autoCancelPendingToolCalls`, so typing a normal message in the composer will not overwrite the pending interrupt.
+`adk_request_input` 仅由 ADK Python 2.0+ Workflow 的 `RequestInput` 节点发出；ADK JS 没有对应功能。始终通过工具 UI 使用 `useAdkSubmitInput` 进行响应。HITL 中断会自动排除在 `autoCancelPendingToolCalls` 之外，因此在输入框中输入普通消息不会覆盖待处理的中断。
 </Callout>
 
-`useAdkSubmitInput` is sugar over the generic `addResult`. If you prefer, call `addResult({ result: value })` from inside the render function directly. The `{ result }` wrapper is required either way: the adapter JSON-stringifies the value before sending, and ADK's `unwrap_response` unwraps it on the backend before the Workflow node resumes.
+`useAdkSubmitInput` 是通用 `addResult` 的语法糖。如果你愿意，也可以直接在 render 函数内部调用 `addResult({ result: value })`。无论采用哪种方式，都必须使用 `{ result }` 包装器：适配器会先将值转换为 JSON 字符串再发送，而 ADK 的 `unwrap_response` 会在后端恢复 Workflow 节点执行前将其解包。
 
-## Artifacts
+## 工件
 
-Track file artifacts created or modified by the agent:
+跟踪助手创建或修改的文件工件：
 
 ```ts
 import { useAdkArtifacts } from "@assistant-ui/react-google-adk";
@@ -521,9 +521,9 @@ function ArtifactList() {
 }
 ```
 
-### Artifact fetching
+### 获取工件
 
-When using `createAdkSessionAdapter` (see [api reference](/docs/runtimes/google-adk/api#direct-adk-server-connection)), the returned `artifacts` object provides functions to fetch artifact content from the ADK server:
+使用 `createAdkSessionAdapter` 时（参见 [API 参考](/docs/runtimes/google-adk/api#direct-adk-server-connection)），返回的 `artifacts` 对象提供了从 ADK 服务器获取工件内容的函数：
 
 ```ts
 const { artifacts } = createAdkSessionAdapter({ apiUrl, appName, userId });
@@ -547,9 +547,9 @@ const versions = await artifacts.listVersions(sessionId, "document.pdf");
 await artifacts.delete(sessionId, "document.pdf");
 ```
 
-## Escalation
+## 升级
 
-Detect when an agent requests escalation to a human operator:
+检测助手请求升级给人工操作员的情况：
 
 <PlatformTabs>
 <Tab value="React">
@@ -595,9 +595,9 @@ function EscalationBanner() {
 </Tab>
 </PlatformTabs>
 
-## Long-running tools
+## 长时间运行的工具
 
-Track tools that are executing asynchronously and awaiting external input:
+跟踪正在异步执行并等待外部输入的工具：
 
 <PlatformTabs>
 <Tab value="React">
@@ -643,13 +643,13 @@ function PendingToolsIndicator() {
 </Tab>
 </PlatformTabs>
 
-This hook reports every tool call ADK marked via `long_running_tool_ids`, including HITL interrupts. To respond to a specific HITL type, see [tool confirmations](#tool-confirmations), [auth requests](#auth-requests), or [input requests](#input-requests).
+此 Hook 会报告 ADK 通过 `long_running_tool_ids` 标记的每个工具调用，包括 HITL 中断。若要响应特定的 HITL 类型，请参阅[工具确认](#tool-confirmations)、[身份验证请求](#auth-requests)或[输入请求](#input-requests)。
 
-That same set decides which tool calls the client owns. A registered frontend tool's `execute` runs only for a call ADK marked long-running, because ADK resolves every other call itself and yields the call to the client before its own response. Register a tool the client executes as a `LongRunningFunctionTool` on the agent.
+同一组标记还决定哪些工具调用由客户端负责。已注册前端工具的 `execute` 仅会在 ADK 将调用标记为长时间运行时执行，因为 ADK 会自行解析其他所有调用，并在生成自身响应前将调用交给客户端。将由客户端执行的工具注册为 agent 上的 `LongRunningFunctionTool`。
 
-## Per-message metadata
+## 每条消息的元数据
 
-Access grounding, citation, and token usage metadata per message:
+访问每条消息的 grounding、引用和令牌使用元数据：
 
 ```ts
 import { useAdkMessageMetadata } from "@assistant-ui/react-google-adk";
@@ -663,9 +663,9 @@ function MessageMetadata({ messageId }: { messageId: string }) {
 }
 ```
 
-## Session state by scope
+## 按范围划分的会话状态
 
-ADK uses key prefixes to scope state. These helpers filter and strip the prefix:
+ADK 使用键前缀来限定状态范围。这些辅助函数会过滤并移除前缀：
 
 ```ts
 import {
@@ -681,11 +681,11 @@ function StateDebug() {
 }
 ```
 
-Use `useAdkSessionState()` for the full unfiltered state delta.
+使用 `useAdkSessionState()` 获取完整且未经筛选的状态增量。
 
-## Structured events
+## 结构化事件
 
-Convert raw ADK events into typed, structured events for custom renderers:
+将原始 ADK 事件转换为类型化的结构化事件，以供自定义渲染器使用：
 
 ```ts
 import {
@@ -713,74 +713,74 @@ for (const e of structured) {
 }
 ```
 
-## Hooks reference
+## Hooks 参考
 
-| Hook | Description |
+| Hook | 描述 |
 | --- | --- |
-| `useAdkAgentInfo()` | Current agent name and branch path. |
-| `useAdkSessionState()` | Full accumulated session state delta. |
-| `useAdkAppState()` | App-level state (`app:*` prefix, stripped). |
-| `useAdkUserState()` | User-level state (`user:*` prefix, stripped). |
-| `useAdkTempState()` | Temp state (`temp:*` prefix, stripped, not persisted). |
-| `useAdkSend()` | Send raw ADK messages. |
-| `useAdkConfirmTool()` | Confirm or deny a pending tool confirmation. |
-| `useAdkSubmitAuth()` | Submit auth credentials for a pending auth request. |
-| `useAdkSubmitInput()` | Submit the user's answer for a pending `adk_request_input` HITL interrupt. |
-| `useAdkToolConfirmations()` | Pending tool confirmation requests. |
-| `useAdkAuthRequests()` | Pending auth credential requests. |
-| `useAdkLongRunningToolIds()` | IDs of long-running tools awaiting input. |
-| `useAdkArtifacts()` | Artifact delta (filename → version). |
-| `useAdkEscalation()` | Whether escalation was requested. |
-| `useAdkMessageMetadata()` | Per-message grounding, citation, and usage metadata. |
+| `useAdkAgentInfo()` | 当前 agent 名称和分支路径。 |
+| `useAdkSessionState()` | 累积的完整会话状态增量。 |
+| `useAdkAppState()` | 应用级状态（移除 `app:*` 前缀）。 |
+| `useAdkUserState()` | 用户级状态（移除 `user:*` 前缀）。 |
+| `useAdkTempState()` | 临时状态（移除 `temp:*` 前缀，不会持久化）。 |
+| `useAdkSend()` | 发送原始 ADK 消息。 |
+| `useAdkConfirmTool()` | 确认或拒绝待处理的工具确认。 |
+| `useAdkSubmitAuth()` | 为待处理的身份验证请求提交身份验证凭据。 |
+| `useAdkSubmitInput()` | 提交用户对待处理 `adk_request_input` HITL 中断的回答。 |
+| `useAdkToolConfirmations()` | 待处理的工具确认请求。 |
+| `useAdkAuthRequests()` | 待处理的身份验证凭据请求。 |
+| `useAdkLongRunningToolIds()` | 等待输入的长时间运行工具的 ID。 |
+| `useAdkArtifacts()` | 工件增量（文件名 → 版本）。 |
+| `useAdkEscalation()` | 是否请求了升级。 |
+| `useAdkMessageMetadata()` | 每条消息的 grounding、引用和使用元数据。 |
 
-## Feature support
+## 功能支持
 
-| Feature | Status |
+| 功能 | 状态 |
 | --- | --- |
-| Streaming text (SSE) | Supported |
-| Tool calls and results | Supported |
-| Tool confirmations (`useAdkConfirmTool`) | Supported |
-| Auth credential flow (`useAdkSubmitAuth`) | Supported |
-| Workflow input requests (`useAdkSubmitInput`, ADK Python 2.0+) | Supported |
-| Multi-agent (author and branch tracking) | Supported |
-| Agent transfer events | Supported |
-| Escalation detection | Supported |
-| Chain-of-thought / reasoning | Supported |
-| Code execution (executableCode + result) | Supported |
-| Inline images and file data | Supported |
-| Session state delta + scoped state | Supported |
-| Artifact delta tracking + fetching | Supported |
-| Long-running tools (HITL) | Supported |
-| Grounding / citation / usage metadata | Supported |
-| Structured events (`toAdkStructuredEvents`) | Supported |
-| Typed `AdkRunConfig` | Supported |
-| Client → server `stateDelta` | Supported |
-| `finishReason` mapping (17 values) | Supported |
-| `interrupted` event handling | Supported |
-| Snake_case events (Python ADK) | Supported |
-| Cloud thread persistence | Supported |
-| ADK session-backed thread persistence | Supported |
-| Direct ADK server connection (no proxy) | Supported |
-| One-liner API route (`createAdkApiRoute`) | Supported |
-| Message editing and regeneration | Supported |
-| Automatic tool invocations | Supported |
+| 流式文本（SSE） | 支持 |
+| 工具调用和结果 | 支持 |
+| 工具确认（`useAdkConfirmTool`） | 支持 |
+| 身份验证凭据流程（`useAdkSubmitAuth`） | 支持 |
+| Workflow 输入请求（`useAdkSubmitInput`，ADK Python 2.0+） | 支持 |
+| 多 agent（作者和分支跟踪） | 支持 |
+| Agent 转移事件 | 支持 |
+| 升级检测 | 支持 |
+| 思维链 / 推理 | 支持 |
+| 代码执行（executableCode + result） | 支持 |
+| 内联图像和文件数据 | 支持 |
+| 会话状态增量 + 分范围状态 | 支持 |
+| 工件增量跟踪 + 获取 | 支持 |
+| 长时间运行的工具（HITL） | 支持 |
+| grounding / 引用 / 使用元数据 | 支持 |
+| 结构化事件（`toAdkStructuredEvents`） | 支持 |
+| 类型化 `AdkRunConfig` | 支持 |
+| 客户端 → 服务器 `stateDelta` | 支持 |
+| `finishReason` 映射（17 个值） | 支持 |
+| `interrupted` 事件处理 | 支持 |
+| Snake_case 事件（Python ADK） | 支持 |
+| Cloud 线程持久化 | 支持 |
+| 基于 ADK 会话的线程持久化 | 支持 |
+| 直接连接 ADK 服务器（无需代理） | 支持 |
+| 单行 API 路由（`createAdkApiRoute`） | 支持 |
+| 消息编辑和重新生成 | 支持 |
+| 自动工具调用 | 支持 |
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
-    title="API reference"
-    description="createAdkStream, server helpers, session adapter, threads."
+    title="API 参考"
+    description="createAdkStream、服务器辅助函数、会话适配器和线程。"
     href="/docs/runtimes/google-adk/api"
   />
   <Card
-    title="Quickstart"
-    description="Minimal API route + client setup."
+    title="快速入门"
+    description="最小 API 路由 + 客户端设置。"
     href="/docs/runtimes/google-adk/quickstart"
   />
   <Card
-    title="Adapters"
-    description="Attachments, speech, feedback, history, threads."
+    title="适配器"
+    description="附件、语音、反馈、历史记录和线程。"
     href="/docs/runtimes/concepts/adapters"
   />
 </Cards>

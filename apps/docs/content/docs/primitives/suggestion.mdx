@@ -1,13 +1,13 @@
 ---
-title: Suggestion
-description: Suggested prompts that users can click to quickly send or populate the composer.
+title: 建议
+description: 用户可以点击以快速发送或填充输入框的建议提示。
 platforms: ["react"]
 ---
 
 import { SuggestionPrimitiveSample } from "@/components/pages/docs/samples/suggestion-primitive";
 import { SuggestionPrimitive as SuggestionPrimitiveDocs } from "@/generated/primitiveDocs";
 
-The Suggestion primitive renders suggested prompts as clickable pills that send a message or populate the composer. Use it for welcome screen suggestions, follow-up prompts, or quick actions. You provide the layout and styling.
+Suggestion 原语会将建议提示渲染为可点击的圆角按钮，用于发送消息或填充输入框。可将其用于欢迎屏幕建议、后续提示或快捷操作。布局和样式由你自行提供。
 
 <Tabs items={["Preview", "Code"]}>
   <Tab>
@@ -49,9 +49,9 @@ function SuggestionItem() {
   </Tab>
 </Tabs>
 
-## Quick Start
+## 快速开始
 
-A suggestion list using the iterator pattern:
+使用迭代器模式的建议列表：
 
 ```tsx
 import { ThreadPrimitive, SuggestionPrimitive } from "@assistant-ui/react";
@@ -69,17 +69,17 @@ function MySuggestionItem() {
 }
 ```
 
-`ThreadPrimitive.Suggestions` iterates over available suggestions and renders your component for each one. Inside the component, `SuggestionPrimitive` parts read from the suggestion context automatically.
+`ThreadPrimitive.Suggestions` 会遍历可用建议，并为每条建议渲染你的组件。在组件内部，`SuggestionPrimitive` 部件会自动从建议上下文中读取数据。
 
 <Callout type="info">
-Runtime setup: primitives require runtime context. Wrap your UI in `AssistantRuntimeProvider` with a runtime (for example `useLocalRuntime(...)`). See [Pick a Runtime](/docs/runtimes/pick-a-runtime).
+运行时设置：原语需要运行时上下文。将 UI 包裹在带有运行时的 `AssistantRuntimeProvider` 中（例如 `useLocalRuntime(...)`）。请参阅[选择运行时](/docs/runtimes/pick-a-runtime)。
 </Callout>
 
-## Core Concepts
+## 核心概念
 
-### Context-Based Rendering
+### 基于上下文的渲染
 
-SuggestionPrimitive parts read from a suggestion context. Use `ThreadPrimitive.Suggestions` to provide this context. It iterates over the thread's suggestions and renders your component for each one:
+SuggestionPrimitive 部件会从建议上下文中读取数据。使用 `ThreadPrimitive.Suggestions` 提供此上下文。它会遍历线程中的建议，并为每条建议渲染你的组件：
 
 ```tsx
 <ThreadPrimitive.Suggestions>
@@ -87,27 +87,27 @@ SuggestionPrimitive parts read from a suggestion context. Use `ThreadPrimitive.S
 </ThreadPrimitive.Suggestions>
 ```
 
-You can also use `ThreadPrimitive.SuggestionByIndex` to render a specific suggestion by index if you need more layout control.
+如果需要更灵活地控制布局，也可以使用 `ThreadPrimitive.SuggestionByIndex` 按索引渲染特定建议。
 
-### Title and Description
+### 标题和描述
 
-Suggestions support two text parts for structured display:
+建议支持两个用于结构化展示的文本部件：
 
-- **`Title`**: the primary text (e.g., "Write a blog post")
-- **`Description`**: secondary text — renders the `label` field from the suggestion config (e.g., `{ prompt: "...", label: "About React Server Components" }`)
+- **`Title`**：主要文本（例如“撰写一篇博客文章”）
+- **`Description`**：次要文本——渲染建议配置中的 `label` 字段（例如 `{ prompt: "...", label: "About React Server Components" }`）
 
-Both render a `<span>` and accept `children` to override the value from state:
+两者都会渲染一个 `<span>`，并接受 `children` 以覆盖状态中的值：
 
 ```tsx
 <SuggestionPrimitive.Title>Custom title</SuggestionPrimitive.Title>
 ```
 
-### Send vs Populate
+### 发送与填充
 
-`Trigger`'s `send` prop controls what happens on click:
+`Trigger` 的 `send` 属性控制点击后的行为：
 
-- **`send={true}`**: immediately sends the suggestion as a new message. While a run is in progress, the suggestion is queued on runtimes that support queueing (leaving the composer draft untouched); otherwise the trigger is disabled.
-- **`send={false}`** (default): populates the composer text so the user can edit before sending
+- **`send={true}`**：立即将建议作为新消息发送。运行正在进行时，在支持排队的运行时中，建议会进入队列（不会修改输入框草稿）；否则会禁用触发器。
+- **`send={false}`**（默认值）：填充输入框文本，以便用户在发送前进行编辑
 
 ```tsx
 // Send immediately
@@ -123,28 +123,28 @@ Both render a `<span>` and accept `children` to override the value from state:
 
 ### clearComposer
 
-When `send={false}`, the `clearComposer` prop controls whether the suggestion replaces or appends to existing composer text:
+当使用 `send={false}` 时，`clearComposer` 属性控制建议是替换还是追加到现有输入框文本：
 
-- **`clearComposer={true}`** (default): replaces the current composer text
-- **`clearComposer={false}`**: appends the suggestion to the existing text
+- **`clearComposer={true}`**（默认值）：替换当前输入框文本
+- **`clearComposer={false}`**：将建议追加到现有文本之后
 
-### Static configuration vs. runtime suggestions
+### 静态配置与运行时建议
 
-There are two data flows for suggestions:
+建议有两种数据流：
 
-- **Static configuration** flows through the `suggestions` scope. Pass an array to `Suggestions(...)` in your runtime provider; render it with `ThreadPrimitive.Suggestions`. Best for welcome screen prompts.
-- **Runtime / dynamic suggestions** flow through `thread.suggestions`. Populate it via `SuggestionAdapter` (local runtime) or the `suggestions` field on `useExternalStoreRuntime`; render it with the shadcn `ThreadFollowupSuggestions` component or your own component reading `useAuiState((s) => s.thread.suggestions)`. Best for follow up prompts after a turn.
+- **静态配置**通过 `suggestions` 作用域传递。在运行时提供程序中向 `Suggestions(...)` 传入数组，然后使用 `ThreadPrimitive.Suggestions` 进行渲染。适合欢迎屏幕提示。
+- **运行时/动态建议**通过 `thread.suggestions` 传递。可以通过 `SuggestionAdapter`（本地运行时）或 `useExternalStoreRuntime` 上的 `suggestions` 字段填充；使用 shadcn `ThreadFollowupSuggestions` 组件，或使用读取 `useAuiState((s) => s.thread.suggestions)` 的自定义组件进行渲染。适合某轮对话结束后的后续提示。
 
-When no static configuration is provided, the `suggestions` scope derives from `thread.suggestions`, so runtime suggestions also render through `ThreadPrimitive.Suggestions`. A static `Suggestions(...)` configuration takes precedence over the derived values.
+未提供静态配置时，`suggestions` 作用域会从 `thread.suggestions` 派生，因此运行时建议也会通过 `ThreadPrimitive.Suggestions` 渲染。静态的 `Suggestions(...)` 配置优先于派生值。
 
-See [Suggested Prompts](/docs/guides/suggestions) for end to end examples.
+请参阅[建议提示](/docs/guides/suggestions)了解端到端示例。
 
 ### ThreadPrimitive.Suggestion
 
-`ThreadPrimitive.Suggestion` is a self-contained button that takes its `prompt` as a prop instead of reading the `suggestions` scope. Both paths run the same trigger behavior, including the queueing and disabled handling described above, so the choice is about where the prompt comes from:
+`ThreadPrimitive.Suggestion` 是一个自包含按钮，通过属性接收 `prompt`，而不是从 `suggestions` 作用域中读取。两种方式都会执行相同的触发行为，包括上文所述的排队和禁用处理，因此选择哪种方式取决于提示的来源：
 
-- Rendering the `suggestions` scope: use `ThreadPrimitive.Suggestions` with the `SuggestionPrimitive` parts, which supply the title and description for you.
-- Rendering prompts from anywhere else: use `ThreadPrimitive.Suggestion` and pass the prompt directly.
+- 渲染 `suggestions` 作用域：使用带有 `SuggestionPrimitive` 部件的 `ThreadPrimitive.Suggestions`，它们会为你提供标题和描述。
+- 从其他位置渲染提示：使用 `ThreadPrimitive.Suggestion`，直接传入提示。
 
 ```tsx
 // Prompts from the suggestions scope
@@ -156,31 +156,31 @@ See [Suggested Prompts](/docs/guides/suggestions) for end to end examples.
 <ThreadPrimitive.Suggestion prompt="Write a blog post" />
 ```
 
-The second case is not a fallback. A component that renders `thread.suggestions` cannot read them through the `suggestions` scope once the app also configures static suggestions, because that configuration takes precedence over the derived values. The shadcn `ThreadFollowupSuggestions` component reads `thread.suggestions` and renders each entry with `ThreadPrimitive.Suggestion` for that reason.
+第二种情况不是备用方案。应用同时配置静态建议后，渲染 `thread.suggestions` 的组件无法再通过 `suggestions` 作用域读取这些建议，因为静态配置优先于派生值。shadcn `ThreadFollowupSuggestions` 组件会读取 `thread.suggestions`，并使用 `ThreadPrimitive.Suggestion` 渲染每个条目，原因正在于此。
 
-The `autoSend` and `method` props are deprecated; prefer `send` and `clearComposer`.
+`autoSend` 和 `method` 属性已弃用；请优先使用 `send` 和 `clearComposer`。
 
-## Parts
+## 部件
 
-### Title
+### 标题
 
-Renders the suggestion title. Renders a `<span>` element unless `asChild` is set.
+渲染建议标题。当未设置 `asChild` 时，会渲染一个 `<span>` 元素。
 
 ```tsx
 <SuggestionPrimitive.Title />
 ```
 
-### Description
+### 描述
 
-Renders the secondary suggestion description text. Renders a `<span>` element unless `asChild` is set.
+渲染建议的次要描述文本。当未设置 `asChild` 时，会渲染一个 `<span>` 元素。
 
 ```tsx
 <SuggestionPrimitive.Description />
 ```
 
-### Trigger
+### 触发器
 
-Clickable button that sends or populates the suggestion. Renders a `<button>` element unless `asChild` is set.
+用于发送或填充建议的可点击按钮。当未设置 `asChild` 时，会渲染一个 `<button>` 元素。
 
 ```tsx
 <SuggestionPrimitive.Trigger send className="rounded-lg border px-3 py-2 hover:bg-muted">
@@ -190,9 +190,9 @@ Clickable button that sends or populates the suggestion. Renders a `<button>` el
 
 <PrimitivesTypeTable type="SuggestionPrimitiveTriggerProps" parameters={SuggestionPrimitiveDocs.Trigger.props.filter(p => p.name !== "asChild")} />
 
-## Patterns
+## 模式
 
-### Welcome Screen Grid
+### 欢迎屏幕网格
 
 ```tsx
 function WelcomeSuggestions() {
@@ -227,7 +227,7 @@ function SuggestionCard() {
 }
 ```
 
-### Send-On-Click Suggestions
+### 点击发送建议
 
 ```tsx
 <SuggestionPrimitive.Trigger send className="rounded-full border px-4 py-2 hover:bg-muted">
@@ -235,7 +235,7 @@ function SuggestionCard() {
 </SuggestionPrimitive.Trigger>
 ```
 
-### Populate-Only Suggestions
+### 仅填充建议
 
 ```tsx
 <SuggestionPrimitive.Trigger
@@ -247,13 +247,13 @@ function SuggestionCard() {
 </SuggestionPrimitive.Trigger>
 ```
 
-## Relationship to Components
+## 与组件的关系
 
-The shadcn [Thread](/elements/thread) component includes suggestions in its welcome screen using `ThreadPrimitive.Suggestions` with `SuggestionPrimitive` parts in a responsive grid. Start there for a prebuilt welcome experience.
+shadcn [Thread](/elements/thread) 组件会在欢迎屏幕中使用带有 `SuggestionPrimitive` 部件的 `ThreadPrimitive.Suggestions`，以响应式网格的形式包含建议。若要使用预构建的欢迎体验，可以从这里开始。
 
-## API Reference
+## API 参考
 
-For full prop details on every part, see the [SuggestionPrimitive API Reference](/docs/api-reference/primitives/suggestion).
+如需查看每个部件的完整属性详情，请参阅 [SuggestionPrimitive API 参考](/docs/api-reference/primitives/suggestion)。
 
-Related:
-- [ThreadPrimitive API Reference](/docs/api-reference/primitives/thread)
+相关内容：
+- [ThreadPrimitive API 参考](/docs/api-reference/primitives/thread)

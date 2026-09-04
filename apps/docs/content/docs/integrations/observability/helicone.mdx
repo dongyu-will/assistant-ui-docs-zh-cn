@@ -1,31 +1,31 @@
 ---
 title: Helicone
-description: Log and monitor LLM calls by routing them through the Helicone proxy.
+description: 通过 Helicone 代理路由 LLM 调用，以记录和监控这些调用。
 ---
 
 import { VercelIcon } from "@/components/icons/vercel";
 
-[Helicone](https://www.helicone.ai/) is an LLM observability proxy. Point your provider client at Helicone's URL, add an auth header, and every request and response is recorded with cost, latency, and prompt-level diffs.
+[Helicone](https://www.helicone.ai/) 是一个 LLM 可观测性代理。将 provider 客户端指向 Helicone 的 URL，添加认证请求头，即可记录每个请求和响应，以及成本、延迟和提示词级别的差异。
 
-Helicone is independent of which assistant-ui runtime you use. It slots in at the LLM-client layer (OpenAI SDK, AI SDK provider, or any HTTP-based provider client) on the server, not at the assistant-ui client runtime layer. So it pairs with any backend: AI SDK, LangGraph, Mastra, custom.
+无论使用哪种 assistant-ui 运行时，Helicone 都与之无关。它位于服务端的 LLM 客户端层（OpenAI SDK、AI SDK provider 或任何基于 HTTP 的 provider 客户端），而不是 assistant-ui 客户端运行时层。因此，它可以与任何后端搭配使用：AI SDK、LangGraph、Mastra 或自定义后端。
 
-## How it works
+## 工作原理
 
 ```mermaid
 flowchart LR
     server["your server"] --> proxy["Helicone proxy<br/>(logs request, response, tokens, cost)"] --> provider["OpenAI / Anthropic / etc."]
 ```
 
-Calls pass through Helicone's edge before reaching the upstream provider. The proxy is transparent: response shape and streaming behavior are unchanged, you just gain a dashboard of every call.
+调用会先经过 Helicone 的边缘节点，然后再到达上游 provider。该代理是透明的：响应结构和流式传输行为都不会改变，只是额外提供了一个包含所有调用的仪表板。
 
-## Setup
+## 设置
 
 <Steps>
 <Step>
 
-### Get a Helicone API key
+### 获取 Helicone API 密钥
 
-Sign up at [helicone.ai](https://www.helicone.ai/) and copy the key from the dashboard. Add it to your environment alongside the provider key:
+在 [helicone.ai](https://www.helicone.ai/) 注册，然后从仪表板复制密钥。将其与 provider 密钥一起添加到环境变量中：
 
 ```sh title=".env.local"
 HELICONE_API_KEY=sk-helicone-...
@@ -35,9 +35,9 @@ OPENAI_API_KEY=sk-...
 </Step>
 <Step>
 
-### Point the provider client at the proxy
+### 将 provider 客户端指向代理
 
-Swap the provider's `baseURL` for Helicone's proxy URL and add the `Helicone-Auth` header.
+将 provider 的 `baseURL` 替换为 Helicone 的代理 URL，并添加 `Helicone-Auth` 请求头。
 
 <Tabs items={["AI SDK", "OpenAI SDK"]}>
 <Tab value="AI SDK">
@@ -88,7 +88,7 @@ export async function POST(req: Request) {
 }
 ```
 
-If you're calling the OpenAI SDK directly, you'll also need to adapt the response into a stream `useChatRuntime` understands. The AI SDK tab above handles this for you.
+如果直接调用 OpenAI SDK，还需要将响应适配为 `useChatRuntime` 能够理解的流。上方的 AI SDK 标签页会为你处理这一点。
 
 </Tab>
 </Tabs>
@@ -96,34 +96,34 @@ If you're calling the OpenAI SDK directly, you'll also need to adapt the respons
 </Step>
 <Step>
 
-### Verify in the dashboard
+### 在仪表板中验证
 
-Send a message through your assistant. The call should appear in the Helicone dashboard within a few seconds, with token counts, latency, and the full prompt and completion text.
+通过助手发送一条消息。几秒钟后，该调用应会出现在 Helicone 仪表板中，其中包含 token 数量、延迟以及完整的提示词和补全文本。
 
-If nothing appears, check the request in your network tab. The host should be `oai.helicone.ai`, not `api.openai.com`; the request should carry `Helicone-Auth` (added explicitly above) and `Authorization` (added automatically by the OpenAI client from `OPENAI_API_KEY`).
+如果没有显示，请在网络面板中检查请求。主机应为 `oai.helicone.ai`，而不是 `api.openai.com`；请求应携带 `Helicone-Auth`（上文显式添加）和 `Authorization`（OpenAI 客户端根据 `OPENAI_API_KEY` 自动添加）。
 
 </Step>
 </Steps>
 
-## Notes
+## 注意事项
 
-- **Server-side only.** Never set the Helicone key in client code; the proxy receives your provider key and must run server-side.
-- **Other providers.** For Anthropic, Gemini, and others, swap the base URL: see Helicone's [provider docs](https://docs.helicone.ai/getting-started/integration-method/gateway).
-- **Custom metadata.** Add `Helicone-User-Id`, `Helicone-Property-*`, or session headers per request to filter and aggregate in the dashboard. The headers are in the [request headers reference](https://docs.helicone.ai/helicone-headers/header-directory).
-- **Streaming, tools, attachments** all keep working unchanged because Helicone wraps the underlying provider transparently.
+- **仅限服务端。** 切勿在客户端代码中设置 Helicone 密钥；代理会接收你的 provider 密钥，因此必须在服务端运行。
+- **其他 provider。** 对于 Anthropic、Gemini 及其他 provider，请替换基础 URL：参阅 Helicone 的 [provider 文档](https://docs.helicone.ai/getting-started/integration-method/gateway).
+- **自定义元数据。** 可以在每个请求中添加 `Helicone-User-Id`、`Helicone-Property-*` 或会话请求头，以便在仪表板中进行筛选和聚合。请求头详见[请求头参考](https://docs.helicone.ai/helicone-headers/header-directory).
+- **流式传输、工具和附件**均可正常工作，因为 Helicone 会以透明方式封装底层 provider。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
-    title="Pick a runtime"
-    description="Choose a backend integration; Helicone pairs with any of them."
+    title="选择运行时"
+    description="选择一个后端集成；Helicone 可以与其中任何一个搭配使用。"
     href="/docs/runtimes/pick-a-runtime"
   />
   <Card
     icon={<VercelIcon width={20} height={20} />}
-    title="AI SDK runtime"
-    description="The most common pairing: AI SDK route handler proxied through Helicone."
+    title="AI SDK 运行时"
+    description="最常见的搭配方式：通过 Helicone 代理转发 AI SDK 路由处理程序。"
     href="/docs/runtimes/ai-sdk/v7"
   />
 </Cards>

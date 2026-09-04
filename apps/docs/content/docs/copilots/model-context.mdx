@@ -1,16 +1,16 @@
 ---
-title: Model Context
-description: Configure assistant behavior through system instructions, tools, and context providers.
+title: 模型上下文
+description: 通过系统指令、工具和上下文提供者配置助手行为。
 platforms: ["react"]
 ---
 
-Model Context is the foundation of intelligence in assistant-ui components. It provides configuration and capabilities to the assistant through a context provider system.
+模型上下文是 assistant-ui 组件智能的基础。它通过上下文提供者系统为助手提供配置和能力。
 
-## Core Concepts
+## 核心概念
 
-### System Instructions
+### 系统指令
 
-System instructions define the base behavior and knowledge available to the assistant. These can be provided in several ways:
+系统指令定义助手的基本行为和可用知识。可以通过多种方式提供：
 
 ```tsx
 import {
@@ -32,11 +32,11 @@ const ReadableComponent = makeAssistantVisible(MyComponent);
 // Automatically provides component HTML as system context
 ```
 
-`useAssistantInstructions` takes a static string that re-registers when changed. `useAssistantContext` takes a callback that is evaluated fresh each time the model context is read, making it ideal for injecting frequently-changing application state without triggering re-registrations.
+`useAssistantInstructions` 接受一个发生变化时会重新注册的静态字符串。`useAssistantContext` 接受一个回调，每次读取模型上下文时都会重新执行，因此非常适合注入频繁变化的应用状态，而不会触发重新注册。
 
-### Tools
+### 工具
 
-Tools are functions that the assistant can use to interact with your application. They can be provided through various mechanisms:
+工具是助手可以用来与应用交互的函数。可以通过多种机制提供：
 
 ```tsx title="app/form-toolkit.tsx"
 "use generative";
@@ -88,9 +88,9 @@ function Form() {
 }
 ```
 
-## Context Provider System
+## 上下文提供者系统
 
-The context provider system allows components to contribute to the model context. Here's a typical usage pattern:
+上下文提供者系统允许组件向模型上下文贡献内容。以下是一个典型的使用模式：
 
 ```tsx
 import { useAui, tool } from "@assistant-ui/react";
@@ -125,32 +125,32 @@ function MyComponent() {
 }
 ```
 
-### Provider Composition
+### 提供者组合
 
-Multiple providers can be registered, and their contexts will be composed:
+可以注册多个提供者，它们的上下文将被组合：
 
-- System instructions are concatenated
-- Tool sets are merged
-- Nested readable components only contribute their context at the outermost level
+- 系统指令会进行拼接
+- 工具集会进行合并
+- 嵌套的可读组件只会在最外层贡献其上下文
 
-## Best Practices
+## 最佳实践
 
-1. **System Instructions**
+1. **系统指令**
 
-   - Keep them focused and specific to the component's purpose
-   - Use useAssistantInstructions for explicit instructions
-   - Let makeAssistantVisible handle component structure
+   - 让指令聚焦于组件的用途，并保持具体明确
+   - 使用 useAssistantInstructions 提供显式指令
+   - 让 makeAssistantVisible 处理组件结构
 
-2. **Tools**
+2. **工具**
 
-   - Use toolkit entries to define tool schemas and behavior
-   - Prefer `Tools({ toolkit })` for reusable tools
-   - Handle errors gracefully
-   - Consider async operations and loading states
-   - Use the built-in click tool when possible
+   - 使用 toolkit 条目定义工具的 schema 和行为
+   - 对于可复用的工具，优先使用 `Tools({ toolkit })`
+   - 妥善处理错误
+   - 考虑异步操作和加载状态
+   - 尽可能使用内置的 click 工具
 
-3. **Context Management**
-   - Register providers in useEffect for proper cleanup
-   - Clean up providers when components unmount
-   - Avoid deeply nested readable components
-   - Consider performance implications of large HTML structures
+3. **上下文管理**
+   - 在 useEffect 中注册提供者，以便正确清理
+   - 组件卸载时清理提供者
+   - 避免深层嵌套的可读组件
+   - 考虑大型 HTML 结构对性能的影响

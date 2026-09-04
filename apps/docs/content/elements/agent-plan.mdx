@@ -1,22 +1,22 @@
 ---
-title: "Agent plan"
-description: "A checklist the agent works through, with progress you can glance."
+title: "助手计划"
+description: "助手逐步执行的检查清单，并显示一目了然的进度。"
 ---
 
-A checklist with a header count, a progress bar, and each step marked done, active, or still ahead. With a runtime the plan comes from a tool call the model drives; standalone you hold the step list and the active index yourself.
+一个带有标题计数、进度条的检查清单，其中每个步骤都会标记为已完成、进行中或尚未开始。在运行时中，计划来自模型驱动的工具调用；单独使用时，则由你自行维护步骤列表和当前步骤索引。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-A plan like this is a natural shape for a tool call: the model calls a tool with the full step list and the index of the step it is currently on.
+这样的计划非常适合作为工具调用的结构：模型调用工具，传入完整的步骤列表以及当前所在步骤的索引。
 
 <Steps>
   <Step>
 
-### Render the tool call
+### 渲染工具调用
 
-Register a toolkit entry whose `render` maps the call straight onto `AgentPlan`. Both fields come from `args`, so the card needs nothing beyond what the model already sent.
+注册一个 toolkit 条目，其 `render` 会将调用直接映射到 `AgentPlan`。这两个字段都来自 `args`，因此卡片无需额外信息，直接使用模型已发送的内容即可。
 
 ```tsx title="app/toolkit.tsx"
 "use client";
@@ -34,12 +34,12 @@ export const toolkit = defineToolkit({
 });
 ```
 
-The model calls `update_plan` again each time it checks a step off, so a plan reads down the transcript as a short sequence of cards rather than one card mutating in place. The schema and the tool that produces these calls live on your server; only the renderer is shown here.
+模型每次完成一个步骤后都会再次调用 `update_plan`，因此计划会在消息记录中呈现为一组简短的卡片，而不是让同一张卡片原地变更。用于生成这些调用的 schema 和工具位于你的服务器上；此处仅展示渲染器。
 
   </Step>
   <Step>
 
-### Register the toolkit
+### 注册 toolkit
 
 ```tsx title="app/MyRuntimeProvider.tsx"
 import { AssistantRuntimeProvider, AuiConfig, Tools } from "@assistant-ui/react";
@@ -56,7 +56,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-Every `update_plan` call now renders as an `AgentPlan` card wherever it lands in the message.
+现在，消息中出现的每个 `update_plan` 调用，都会在其所在位置渲染为 `AgentPlan` 卡片。
 
   </Step>
 </Steps>
@@ -65,12 +65,12 @@ Every `update_plan` call now renders as an `AgentPlan` card wherever it lands in
 
 <StandaloneMode>
 
-Standalone, the element is a controlled display: you own the step list and move `activeIndex` forward as work completes.
+单独使用时，该元素是一个受控显示组件：由你维护步骤列表，并在工作完成时推进 `activeIndex`。
 
 <Steps>
   <Step>
 
-### Hold the plan state
+### 保存计划状态
 
 ```tsx title="app/plan.tsx"
 "use client";
@@ -95,7 +95,7 @@ export function Plan() {
   </Step>
   <Step>
 
-### Advance it as work finishes
+### 随工作完成推进计划
 
 ```tsx
 function completeStep() {
@@ -103,14 +103,14 @@ function completeStep() {
 }
 ```
 
-Once `activeIndex` reaches `steps.length`, every step renders as done and the header reads `n of n`.
+当 `activeIndex` 达到 `steps.length` 后，所有步骤都会渲染为已完成，标题会显示 `n of n`。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="agent-plan">
@@ -128,23 +128,23 @@ Once `activeIndex` reaches `steps.length`, every step renders as done and the he
 </div>
 ```
 
-`activeIndex` is clamped into `0…steps.length` before anything is drawn from it, so an out-of-range value never breaks the layout: a value at or past `steps.length` marks every step done, and `NaN` falls back to `0`. A step is done when its index is before the clamped active index or every step is already done, active when it sits exactly at that index, and otherwise still ahead. With an empty `steps` array the header reads `0 of 0`, the bar sits at 0%, and the list renders nothing.
+在从 `activeIndex` 绘制任何内容之前，它会先被限制在 `0…steps.length` 范围内，因此超出范围的值不会破坏布局：等于或超过 `steps.length` 的值会将所有步骤标记为已完成，而 `NaN` 会回退到 `0`。当某个步骤的索引小于限制后的当前步骤索引，或所有步骤都已完成时，该步骤为已完成；当其索引恰好等于当前步骤索引时，该步骤为进行中；否则仍为尚未开始。对于空的 `steps` 数组，标题会显示 `0 of 0`，进度条停留在 0%，列表不会渲染任何内容。
 
-## Examples
+## 示例
 
-### Restyle the plan
+### 重新设置计划样式
 
-Both lanes take `className` on the root. The counter and the icon column share `mono` and `foreground` opacity tokens from `surfaces.tsx`, so a single palette change carries to every element built on those tokens.
+两条轨道的根元素都使用 `className`。计数器和图标列共享 `mono`，并使用来自 `surfaces.tsx` 的 `foreground` 透明度 token，因此只需修改一次调色板，就能应用到所有基于这些 token 构建的元素。
 
 ```tsx
 <AgentPlan className="max-w-md gap-4" steps={steps} activeIndex={activeIndex} />
 ```
 
-### Restarting a plan
+### 重启计划
 
 <RuntimeMode>
 
-A plan that needs to restart is just another `update_plan` call with `activeIndex` reset to `0`. There is no separate reset action; the next call is the reset.
+需要重启的计划，只需再次调用 `update_plan`，并将 `activeIndex` 重置为 `0`。不存在单独的重置操作；下一次调用就是重置。
 
 ```tsx
 render: ({ args }) => (
@@ -164,16 +164,16 @@ function restart() {
 
 </StandaloneMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Render props
+### 渲染属性
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `args.steps` | `string[]` | The plan's steps, in order. |
-| `args.activeIndex` | `number` | Index of the step currently in progress. |
+| `args.steps` | `string[]` | 按顺序排列的计划步骤。 |
+| `args.activeIndex` | `number` | 当前正在进行的步骤索引。 |
 
 </RuntimeMode>
 
@@ -181,12 +181,12 @@ function restart() {
 
 ### AgentPlan
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `steps` | `readonly string[]` | required | The plan's steps, in order. |
-| `activeIndex` | `number` | required | Index of the step in progress. Out-of-range values clamp; `NaN` falls back to `0`. |
-| `className` | `string` | | Merged onto the root. |
+| `steps` | `readonly string[]` | 必填 | 按顺序排列的计划步骤。 |
+| `activeIndex` | `number` | 必填 | 正在进行的步骤索引。超出范围的值会被限制；`NaN` 会回退到 `0`。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

@@ -1,20 +1,20 @@
 ---
-title: "Timestamps"
-description: "Chronology in a long thread: days marked, times on hover."
+title: "时间戳"
+description: "长线程中的时间顺序：标记日期，悬停显示时间。"
 ---
 
-DaySeparator lays a flat list of messages out as a transcript, inserting a day header whenever the day changes and revealing each message's time on hover. With a runtime you derive that list from the thread's own messages; standalone you already hold it.
+DaySeparator 将扁平的消息列表排列为文字记录，在日期发生变化时插入日期标题，并在悬停时显示每条消息的时间。使用运行时（runtime）时，你可以从线程自身的消息中派生出这个列表；独立使用时，你已经持有该列表。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-Every message carries a real `createdAt` (a `Date`) and `role`, and a thread's full message list is available as plain state, so building the day-grouped shape is formatting and text extraction, not new wiring.
+每条消息都包含真实的 `createdAt`（一个 `Date`）和 `role`，而线程的完整消息列表以普通状态提供，因此构建按日期分组的结构只涉及格式化和文本提取，不需要新增连接逻辑。
 
 <Steps>
   <Step>
 
-### Read the thread's messages
+### 读取线程的消息
 
 ```tsx title="components/assistant-ui/elements/thread-history.tsx"
 "use client";
@@ -45,14 +45,14 @@ export function ThreadHistory() {
 }
 ```
 
-`s.thread.messages` is the active branch only: reloading a message or editing an earlier one swaps which messages appear here, the same way it does everywhere else in the thread.
+`s.thread.messages` 仅包含当前分支：重新加载消息或编辑较早的消息时，这里显示的消息会随之切换，与线程中其他位置的行为一致。
 
   </Step>
   <Step>
 
-### Keep it to a preview, not the transcript
+### 将其作为预览，而不是消息记录
 
-Flattening to `text` drops tool calls, images, and reasoning, so this composition suits a compact history view rather than the live conversation. Render the thread itself with `ThreadPrimitive.Messages` and `MessagePrimitive.Parts`, the composition `Thread` already ships, so rich content still renders in full there.
+将内容扁平化为 `text` 会丢失工具调用、图片和推理，因此这种组合更适合紧凑的历史记录视图，而不是实时对话。使用 `ThreadPrimitive.Messages` 和 `MessagePrimitive.Parts` 渲染线程本身；组合 `Thread` 已经随附，这样丰富内容仍能在那里完整渲染。
 
   </Step>
 </Steps>
@@ -61,12 +61,12 @@ Flattening to `text` drops tool calls, images, and reasoning, so this compositio
 
 <StandaloneMode>
 
-Standalone, DaySeparator takes the whole list at once: you hold the array and append to it as the conversation grows.
+独立使用时，DaySeparator 一次接收完整列表：你持有这个数组，并在对话增长时向其中追加内容。
 
 <Steps>
   <Step>
 
-### Hold the message list
+### 持有消息列表
 
 ```tsx title="app/history.tsx"
 "use client";
@@ -88,7 +88,7 @@ export function History() {
   </Step>
   <Step>
 
-### Append as the conversation grows
+### 随对话增长进行追加
 
 ```tsx
 setMessages((prev) => [
@@ -97,14 +97,14 @@ setMessages((prev) => [
 ]);
 ```
 
-A day header appears automatically the moment an entry's `day` differs from the one before it; nothing else needs to change.
+当某条记录的 `day` 与前一条记录不同时，日期标题会自动出现；无需进行其他更改。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="day-separator">
@@ -113,43 +113,43 @@ A day header appears automatically the moment an entry's `day` differs from the 
 </div>
 ```
 
-The day comparison only looks at the immediately preceding entry, so the list must already be in chronological order; out-of-order entries repeat a header instead of merging into the last one. Each row's time is transparent by default and fades in only on hover of that row (`group-hover`), so the list stays quiet until you look for a timestamp.
+日期比较只会查看紧邻的前一条记录，因此列表必须已经按时间顺序排列；顺序错乱的记录会重复显示标题，而不会合并到上一个标题中。每一行的时间默认是透明的，仅在悬停该行时淡入（`group-hover`），因此在查找时间戳之前，列表始终保持简洁。
 
-## Examples
+## 示例
 
-### A compact history, not the live transcript
+### 紧凑的历史记录，而不是实时消息记录
 
 <RuntimeMode>
 
-Pair `ThreadHistory` alongside the real `Thread`, for example as a searchable sidebar or a "jump to" list, rather than in place of it. Selecting an entry there is a normal branch or thread switch, not something this component does on its own.
+将 `ThreadHistory` 与真实的 `Thread` 并列使用，例如将其作为可搜索的侧边栏或“跳转到”列表，而不是替代后者。用户在其中选择条目时，执行的是普通的分支或线程切换，而不是该组件自行完成的操作。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-The same shape works for a read-only transcript you did not stream yourself, for example one fetched whole from an API and rendered without any runtime attached.
+同样的结构也适用于只读消息记录，例如从 API 一次性获取完整内容，并在未连接任何运行时的情况下进行渲染。
 
 </StandaloneMode>
 
-### Restyle the rule and bubble
+### 重新设置分隔线和气泡的样式
 
-Both lanes take `className` on the root. The day label and hover time read the shared `mono` surface from `surfaces.tsx`.
+两条轨道的根元素都接收 `className`。日期标签和悬停显示的时间会从 `surfaces.tsx` 读取共享的 `mono` 表面样式。
 
 ```tsx
 <DaySeparator className="max-w-none gap-3" messages={messages} />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Thread state
+### 线程状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.thread.messages` | `readonly MessageState[]` | Every message on the thread's active branch, each with `id`, `role`, `createdAt`, and `content`. |
-| `message.createdAt` | `Date` | Used to derive `day` and `time`; formatting is your own choice, not something the runtime provides pre-formatted. |
-| `message.content` | `readonly ThreadAssistantMessagePart[] \| readonly ThreadUserMessagePart[]` | Filter for `type === "text"` parts to build a flat preview string. |
+| `s.thread.messages` | `readonly MessageState[]` | 线程当前分支中的每条消息，每条消息都包含 `id`、`role`、`createdAt` 和 `content`。 |
+| `message.createdAt` | `Date` | 用于派生 `day` 和 `time`；格式由你自行决定，运行时不会提供预先格式化的结果。 |
+| `message.content` | `readonly ThreadAssistantMessagePart[] \| readonly ThreadUserMessagePart[]` | 用于筛选 `type === "text"` 部分，以构建扁平的预览字符串。 |
 
 </RuntimeMode>
 
@@ -157,21 +157,21 @@ Both lanes take `className` on the root. The day label and hover time read the s
 
 ### DaySeparator
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `messages` | `readonly DatedMessage[]` | required | The full, ordered list to render. |
-| `className` | `string` | | Merged onto the root. |
+| `messages` | `readonly DatedMessage[]` | 必填 | 要渲染的完整有序列表。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### DatedMessage
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
 | `id` | `string` | |
-| `day` | `string` | Compared against the previous entry's `day` to decide whether a header renders. |
-| `time` | `string` | Shown on hover of the row. |
-| `role` | `"user" \| "assistant"` | Drives alignment and bubble styling. |
+| `day` | `string` | 与前一条记录的 `day` 比较，以决定是否渲染标题。 |
+| `time` | `string` | 在悬停该行时显示。 |
+| `role` | `"user" \| "assistant"` | 控制对齐方式和气泡样式。 |
 | `text` | `string` | |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

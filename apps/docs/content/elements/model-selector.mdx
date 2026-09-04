@@ -1,20 +1,20 @@
 ---
-title: "Model selector"
-description: "A searchable runtime model picker with grouped providers and reasoning effort controls."
+title: "模型选择器"
+description: "支持搜索的运行时模型选择器，按提供商分组，并提供推理强度控制。"
 ---
 
-Model selector is a popover that lists AI models and, for models that support it, a reasoning effort level: Low, Medium, High, or a custom set. With a runtime the selection registers with assistant-ui's `ModelContext` system automatically, so it reaches your backend on every request; standalone you hold the value and effort yourself. It comes in two designs: the runtime variant renders a popover of models with reasoning-effort controls, and the static variant, `ModelPicker`, renders a full-page list grouped by family with pricing and capability chips (see [The model-picker design](#the-model-picker-design)).
+模型选择器是一个弹出框，用于列出 AI 模型；对于支持该功能的模型，还会列出推理强度级别：Low、Medium、High 或自定义集合。在运行时中，选择会自动注册到 assistant-ui 的 `ModelContext` 系统，因此每次请求都会将其传递到后端；单独使用时，则由你自行保存模型值和推理强度。它有两种设计：运行时版本会渲染一个包含模型和推理强度控制的弹出框；静态版本 `ModelPicker` 则会渲染按系列分组的整页列表，并显示价格和能力标签（参见[模型选择器设计](#the-model-picker-design)）。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
 <Steps>
   <Step>
 
-### Add the picker
+### 添加选择器
 
-Each model needs an `id` and a display `name`; everything else is optional.
+每个模型都需要一个 `id` 和用于显示的 `name`；其他配置均为可选。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { ModelSelector } from "@/components/assistant-ui/elements/model-selector.aui";
@@ -38,9 +38,9 @@ function ComposerAction() {
   </Step>
   <Step>
 
-### Read the selection in your API route
+### 在 API 路由中读取选择结果
 
-The selected model's `id` arrives as `config.modelName`, and its effort level, when the model supports one, as `config.reasoningEffort`.
+所选模型的 `id` 会以 `config.modelName` 的形式传入；如果模型支持推理强度，其强度级别则会以 `config.reasoningEffort` 的形式传入。
 
 ```tsx title="app/api/chat/route.ts"
 export async function POST(req: Request) {
@@ -68,12 +68,12 @@ export async function POST(req: Request) {
 
 <StandaloneMode>
 
-Standalone, the same pieces render with no registration: you own the value, the effort, and what happens when they change.
+单独使用时，相同的组件无需注册即可渲染：模型值、推理强度以及它们发生变化时的处理逻辑都由你管理。
 
 <Steps>
   <Step>
 
-### Hold the value yourself
+### 自行保存值
 
 ```tsx title="app/chat.tsx"
 "use client";
@@ -114,7 +114,7 @@ export function ModelSelect() {
 
 </StandaloneMode>
 
-## Anatomy
+## 组成结构
 
 ```tsx
 <button role="combobox" aria-haspopup="listbox" data-slot="model-selector-trigger" />
@@ -131,13 +131,13 @@ export function ModelSelect() {
 </div>
 ```
 
-The Thinking row (`Effort`) mounts only while the selected model has `efforts` set; switching to a model without it hides the row without discarding your effort choice; switching back to a model that supports it restores whatever level was selected before, as long as that model also offers it. `Content` needs a focused input to drive the keyboard: with no custom `children` (or `searchable={false}`), it renders a visually hidden `FocusAnchor` automatically; a custom layout that omits both `Search` and `searchable={false}` has no anchor and needs one added by hand to stay keyboard-operable.
+Thinking 行（`Effort`）仅在所选模型设置了 `efforts` 时挂载；切换到不支持该功能的模型时，该行会隐藏，但不会丢弃你选择的推理强度；切换回支持该功能的模型时，只要该模型也提供之前选择的级别，就会恢复之前选择的级别。`Content` 需要一个获得焦点的输入框来驱动键盘操作：如果没有自定义的 `children`（或 `searchable={false}`），它会自动渲染一个视觉隐藏的 `FocusAnchor`；同时省略 `Search` 和 `searchable={false}` 的自定义布局没有锚点，需要手动添加一个，才能保持键盘可操作性。
 
-## Examples
+## 示例
 
-### Reasoning efforts
+### 推理强度
 
-A model that declares `efforts` shows the Thinking row. `efforts: true` enables the default Low / Medium / High levels; a list of `{ id, name }` objects defines a custom set instead, and omitting `efforts` hides the row entirely for that model.
+声明了 `efforts` 的模型会显示 Thinking 行。`efforts: true` 启用默认的 Low / Medium / High 级别；改为使用 `{ id, name }` 对象列表即可定义自定义集合，而省略 `efforts` 则会为该模型完全隐藏该行。
 
 ```tsx
 {
@@ -150,9 +150,9 @@ A model that declares `efforts` shows the Thinking row. `efforts: true` enables 
 }
 ```
 
-### Custom effort UI
+### 自定义推理强度 UI
 
-`Effort`'s default layout is horizontal segments, which overflows once a model offers more than a few levels. `useModelSelectorEfforts` exposes the selected model's levels and the active selection for any other layout, from inside `Content`:
+`Effort` 的默认布局是水平分段，当模型提供多个级别时就会溢出。`useModelSelectorEfforts` 会公开所选模型的级别和当前选择，便于在 `Content` 内部实现其他布局：
 
 ```tsx
 import { useModelSelectorEfforts } from "@/components/assistant-ui/elements/model-selector";
@@ -185,19 +185,19 @@ function EffortDropdown() {
 }
 ```
 
-Render it inside `Content` in place of `Effort`.
+将其渲染在 `Content` 中，替代 `Effort`。
 
-### Provider logos
+### 提供商图标
 
-Each model's `icon` accepts any `ReactNode` and renders in both the trigger and the dropdown item. [Model logos](/elements/logos) ships ready-made `OpenAILogo`, `ClaudeLogo`, and `GeminiLogo` marks for this.
+每个模型的 `icon` 接受任意 `ReactNode`，并会同时渲染在触发器和下拉菜单项中。[模型图标](/elements/logos)提供了可直接使用的 `OpenAILogo`、`ClaudeLogo` 和 `GeminiLogo` 标记。
 
 ```tsx
 { id: "claude-opus-4.5", name: "Claude Opus 4.5", icon: <ClaudeLogo /> }
 ```
 
-### Search
+### 搜索
 
-Search is opt-in: pass `searchable` to the connected `ModelSelector`, or to `ModelSelectorContent` directly when it renders its default children. Matching runs against each model's `id`, `name`, and `keywords`; add a provider name to `keywords` so typing it finds that provider's models.
+搜索默认关闭：将 `searchable` 传递给已连接的 `ModelSelector`；如果直接渲染其默认子元素，也可以将其传递给 `ModelSelectorContent`。匹配会针对每个模型的 `id`、`name` 和 `keywords` 执行；将提供商名称添加到 `keywords` 后，输入该名称即可找到该提供商的模型。
 
 ```tsx
 <ModelSelector models={models} searchable />
@@ -205,9 +205,9 @@ Search is opt-in: pass `searchable` to the connected `ModelSelector`, or to `Mod
 <ModelSelectorContent searchable />
 ```
 
-### Variants and sizes
+### 变体和尺寸
 
-`variant` and `size` live on the trigger: pass them to the connected `ModelSelector`, or to `ModelSelectorTrigger` directly in a standalone layout.
+`variant` 和 `size` 位于触发器上：将它们传递给已连接的 `ModelSelector`；在单独使用的布局中，也可以直接传递给 `ModelSelectorTrigger`。
 
 ```tsx
 <ModelSelector variant="ghost" size="lg" />
@@ -215,92 +215,92 @@ Search is opt-in: pass `searchable` to the connected `ModelSelector`, or to `Mod
 <ModelSelectorTrigger variant="ghost" size="lg" />
 ```
 
-| Variant | Description |
+| 变体 | 描述 |
 |---------|-------------|
-| `outline` | Border, transparent background (default) |
-| `ghost` | No background |
-| `muted` | Solid secondary background |
+| `outline` | 边框、透明背景（默认） |
+| `ghost` | 无背景 |
+| `muted` | 实色次要背景 |
 
-| Size | Description |
+| 尺寸 | 描述 |
 |------|-------------|
-| `sm` | Compact, `h-8` |
-| `default` | Standard, `h-9` |
-| `lg` | Larger, `h-10` |
+| `sm` | 紧凑，`h-8` |
+| `default` | 标准，`h-9` |
+| `lg` | 较大，`h-10` |
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### ModelSelector
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `models` | `ModelOption[]` | required | Models to display. |
-| `value` / `defaultValue` | `string` | first model | Controlled or initial selected model id. |
-| `onValueChange` | `(value: string) => void` | | Called when the selection changes. |
-| `effort` / `defaultEffort` | `string` | | Controlled or initial effort level id. |
-| `onEffortChange` | `(effort: string) => void` | | Called when the effort level changes. |
-| `searchable` | `boolean` | `false` | Renders a search input above the model list. |
-| `variant` | `"outline" \| "ghost" \| "muted"` | `"outline"` | Trigger style. |
-| `size` | `"sm" \| "default" \| "lg"` | `"default"` | Trigger size. |
-| `align` | `"start" \| "center" \| "end"` | `"start"` | Popover alignment relative to the trigger. |
-| `className` / `contentClassName` | `string` | | Merged onto the trigger / popover content. |
+| `models` | `ModelOption[]` | 必需 | 要显示的模型。 |
+| `value` / `defaultValue` | `string` | 第一个模型 | 受控的或初始选中的模型 id。 |
+| `onValueChange` | `(value: string) => void` | | 选择发生变化时调用。 |
+| `effort` / `defaultEffort` | `string` | | 受控的或初始的推理强度级别 id。 |
+| `onEffortChange` | `(effort: string) => void` | | 推理强度级别发生变化时调用。 |
+| `searchable` | `boolean` | `false` | 在模型列表上方渲染搜索输入框。 |
+| `variant` | `"outline" \| "ghost" \| "muted"` | `"outline"` | 触发器样式。 |
+| `size` | `"sm" \| "default" \| "lg"` | `"default"` | 触发器尺寸。 |
+| `align` | `"start" \| "center" \| "end"` | `"start"` | 弹出框相对于触发器的对齐方式。 |
+| `className` / `contentClassName` | `string` | | 合并到触发器 / 弹出框内容上。 |
 
-### How registration works
+### 注册机制
 
-1. `ModelSelector` calls `aui.modelContext.register()` with `config.modelName` set to the selected id, plus `config.reasoningEffort` whenever the selected model supports the chosen level.
-2. `AssistantChatTransport` (from `@assistant-ui/ai-sdk`) includes `config` in the body of every chat request.
-3. Your API route reads `config.modelName` and `config.reasoningEffort`.
+1. `ModelSelector` 使用选中的 id 作为 `config.modelName` 调用 `aui.modelContext.register()`；如果所选模型支持所选级别，还会传入 `config.reasoningEffort`。
+2. `AssistantChatTransport`（来自 `@assistant-ui/ai-sdk`）会将 `config` 包含在每个聊天请求的请求体中。
+3. API 路由读取 `config.modelName` 和 `config.reasoningEffort`。
 
-`ModelSelector.Root` (the same `ModelSelectorRoot` documented below) performs no registration on its own; it is purely presentational.
+`ModelSelector.Root`（即下文介绍的相同 `ModelSelectorRoot`）自身不会执行注册；它纯粹用于展示。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-### ModelSelectorRoot and sub-components
+### ModelSelectorRoot 和子组件
 
-| Export | Renders | Notes |
+| 导出 | 渲染内容 | 说明 |
 |--------|---------|-------|
-| `ModelSelectorRoot` | provider + Popover | Holds `models` and controlled/uncontrolled value, effort, and open state. No DOM of its own. |
-| `ModelSelectorTrigger` | `button` | `role="combobox"`; `ArrowDown`/`ArrowUp` open the popover when focused. |
-| `ModelSelectorValue` | `span` | Selected model's icon, name, and (if `showEffort`) effort name; a placeholder when nothing is selected. |
-| `ModelSelectorContent` | popover + `Command` | Wraps a cmdk `Command`; `searchable` and `side` are the notable props. |
-| `ModelSelectorSearch` | `input` (cmdk) | Filters `List` as you type. |
-| `ModelSelectorFocusAnchor` | visually hidden `input` | Anchors keyboard navigation when there is no visible search box. |
-| `ModelSelectorList` | cmdk list | Renders all models grouped under one `Group` by default. |
-| `ModelSelectorEmpty` | cmdk empty state | Shown when a search has no matches. |
-| `ModelSelectorGroup` | cmdk group | A labeled group of items, e.g. one per provider. |
-| `ModelSelectorSeparator` | cmdk separator | Divider between groups or items. |
-| `ModelSelectorItem` | cmdk item | One model; takes a `model: ModelOption` prop. |
-| `ModelSelectorEffort` | `div` + radiogroup | The Thinking row; renders `null` when the selected model has no `efforts`. |
+| `ModelSelectorRoot` | provider + Popover | 保存 `models` 以及受控/非受控的值、推理强度和打开状态。自身不产生 DOM。 |
+| `ModelSelectorTrigger` | `button` | `role="combobox"`；获得焦点时，`ArrowDown`/`ArrowUp` 会打开弹出框。 |
+| `ModelSelectorValue` | `span` | 所选模型的图标、名称，以及（如果有 `showEffort`）推理强度名称；未选择任何内容时显示占位符。 |
+| `ModelSelectorContent` | 弹出框 + `Command` | 包装 cmdk `Command`；`searchable` 和 `side` 是值得注意的属性。 |
+| `ModelSelectorSearch` | `input`（cmdk） | 根据输入内容筛选 `List`。 |
+| `ModelSelectorFocusAnchor` | 视觉隐藏的 `input` | 没有可见搜索框时，为键盘导航提供锚点。 |
+| `ModelSelectorList` | cmdk 列表 | 默认将所有模型渲染在一个 `Group` 下。 |
+| `ModelSelectorEmpty` | cmdk 空状态 | 搜索没有匹配项时显示。 |
+| `ModelSelectorGroup` | cmdk 分组 | 带标签的项目组，例如每个提供商一个分组。 |
+| `ModelSelectorSeparator` | cmdk 分隔符 | 分组或项目之间的分隔线。 |
+| `ModelSelectorItem` | cmdk 项目 | 一个模型；接受 `model: ModelOption` 属性。 |
+| `ModelSelectorEffort` | `div` + radiogroup | Thinking 行；所选模型没有 `efforts` 时渲染 `null`。 |
 
 ### ModelOption
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `id` | `string` | Sent to the backend as `modelName` by the connected `ModelSelector`; not read by `ModelSelectorRoot` itself. |
-| `name` | `string` | Shown in the trigger and the item. |
-| `description` | `string` | Optional subtitle under the name in the item. |
-| `icon` | `ReactNode` | Optional, shown before the name. |
-| `disabled` | `boolean` | Disables selecting this model. |
-| `keywords` | `string[]` | Extra terms `ModelSelectorSearch` matches, beyond `id` and `name`. |
-| `efforts` | `boolean \| { id: string; name: string }[]` | `true` for the default Low/Medium/High; a list for a custom set; omitted to hide the Thinking row for this model. |
+| `id` | `string` | 由已连接的 `ModelSelector` 作为 `modelName` 发送到后端；`ModelSelectorRoot` 自身不会读取该字段。 |
+| `name` | `string` | 显示在触发器和项目中。 |
+| `description` | `string` | 项目中名称下方的可选副标题。 |
+| `icon` | `ReactNode` | 可选，显示在名称前。 |
+| `disabled` | `boolean` | 禁止选择该模型。 |
+| `keywords` | `string[]` | 除 `id` 和 `name` 外，供 `ModelSelectorSearch` 匹配的其他词条。 |
+| `efforts` | `boolean \| { id: string; name: string }[]` | 对默认 Low/Medium/High 使用 `true`；自定义集合使用列表；省略则为该模型隐藏 Thinking 行。 |
 
-### Effort helpers
+### 推理强度辅助工具
 
-| Export | Type | Description |
+| 导出 | 类型 | 描述 |
 |--------|------|-------------|
-| `useModelSelectorEfforts()` | `() => { efforts, effort, setEffort }` | The selected model's effort levels and the active selection; must be called inside `ModelSelectorRoot`. |
-| `resolveModelEffort(models, modelId, effort)` | `(models, modelId, effort) => string \| undefined` | Returns `effort` when the given model supports it, otherwise `undefined`; the sticky-selection rule `ModelSelectorRoot` applies internally. |
-| `useModelSelectorContext()` | `() => ModelSelectorContextValue` | The raw context sub-components read from; throws outside `ModelSelectorRoot`. Not re-exported from the `.aui` path. |
+| `useModelSelectorEfforts()` | `() => { efforts, effort, setEffort }` | 所选模型的推理强度级别和当前选择；必须在 `ModelSelectorRoot` 内调用。 |
+| `resolveModelEffort(models, modelId, effort)` | `(models, modelId, effort) => string \| undefined` | 如果给定模型支持该功能，则返回 `effort`，否则返回 `undefined`；粘性选择规则 `ModelSelectorRoot` 在内部生效。 |
+| `useModelSelectorContext()` | `() => ModelSelectorContextValue` | 子组件读取的原始上下文；在 `ModelSelectorRoot` 外部调用会抛出异常。不会从 `.aui` 路径重新导出。 |
 
 </StandaloneMode>
 
 
-## The model-picker design
+## 模型选择器设计
 
-The Static variant in the rail is a second design for the same picker: `ModelPicker` renders every model in a full-page list grouped by family, each row carrying its context window, price, and capability chips, with the active model checked, instead of a searchable popover. It is a single props-driven component with no runtime dependency:
+侧栏中的 Static 变体是同一选择器的第二种设计：`ModelPicker` 会将所有模型渲染为按系列分组的整页列表，每行包含上下文窗口、价格和能力标签，并用勾选标记显示当前模型，而不是使用可搜索的弹出框。它是一个仅由 props 驱动、无运行时依赖的单一组件：
 
 ```sh
 npx shadcn@latest add "@assistant-ui/elements-model-picker"
@@ -308,7 +308,7 @@ npx shadcn@latest add "@assistant-ui/elements-model-picker"
 
 <RuntimeMode>
 
-With a runtime there is no catalog of available models to read: assistant-ui tracks the model configuration for the next call, not a directory of every model you could switch to. Unlike the popover, `ModelPicker` does no registration on its own, so register a provider that reports the selected id and seed the initial selection from whatever the model context already reports, for example a default set on the server.
+在运行时中，没有可供读取的可用模型目录：assistant-ui 会跟踪下一次调用的模型配置，而不是维护所有可切换模型的目录。与弹出框不同，`ModelPicker` 自身不会执行注册，因此应注册一个报告所选 id 的 provider，并根据模型上下文当前报告的内容设置初始选择，例如使用服务器上的默认值。
 
 ```tsx title="components/assistant-ui/elements/model-picker.tsx"
 "use client";
@@ -347,7 +347,7 @@ export function ModelPickerPanel({
 
 <StandaloneMode>
 
-Standalone, `ModelPicker` is a plain controlled list: it groups `models` by family, keeping each family's first-seen order, and reports a pick through `onSelect`.
+单独使用时，`ModelPicker` 是一个普通的受控列表：它按系列对 `models` 进行分组，保留每个系列首次出现的顺序，并通过 `onSelect` 报告所选模型。
 
 ```tsx title="app/model-picker-panel.tsx"
 "use client";
@@ -373,13 +373,13 @@ export function ModelPickerPanel() {
 
 </StandaloneMode>
 
-Families are derived from `models` with `[...new Set(models.map((m) => m.family))]`, so a family's position is set by the first model that names it, not alphabetically. Each row is a plain toggle button (`aria-pressed`, not a listbox option), so there is no arrow-key navigation built in; Tab moves between rows the same as any button list. The check mark's column keeps its width whether or not the row is selected, so rows never shift when the selection changes.
+系列根据带有 `[...new Set(models.map((m) => m.family))]` 的 `models` 派生，因此系列的位置由第一个命名该系列的模型决定，而不是按字母顺序排列。每一行都是普通的切换按钮（`aria-pressed`，而不是列表框选项），因此内置的键盘方向键导航；Tab 会像在任何按钮列表中一样在各行之间移动。无论该行是否被选中，勾选标记所在列都会保持宽度不变，因此选择变化时行不会发生偏移。
 
 ### ModelPicker
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `models` | `PickableModel[]` | required | `{ id, name, family, context, price, capabilities }[]`. Families keep first-seen order; `context` and `price` are pre-formatted strings (the element does no currency math), `capabilities` renders as chip labels. |
-| `selectedId` | `string` | required | Which model is active. |
-| `onSelect` | `(id: string) => void` | | Called when a model is picked. |
-| `className` | `string` | | Merged onto the root. |
+| `models` | `PickableModel[]` | 必需 | `{ id, name, family, context, price, capabilities }[]`。系列保留首次出现的顺序；`context` 和 `price` 是预先格式化的字符串（该元素不会执行货币计算），`capabilities` 会渲染为标签文字。 |
+| `selectedId` | `string` | 必需 | 当前激活的模型。 |
+| `onSelect` | `(id: string) => void` | | 选择模型时调用。 |
+| `className` | `string` | | 合并到根元素上。 |

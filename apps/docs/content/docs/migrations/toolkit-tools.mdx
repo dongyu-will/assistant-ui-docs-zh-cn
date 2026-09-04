@@ -1,18 +1,18 @@
 ---
-title: Migrating Tools to Toolkits
-description: Move makeAssistantTool, useAssistantTool, makeAssistantToolUI, and useAssistantToolUI registrations to the toolkit API.
+title: 将工具迁移到工具包
+description: 将 makeAssistantTool、useAssistantTool、makeAssistantToolUI 和 useAssistantToolUI 注册迁移到工具包 API。
 ---
 
-The component and hook based tool APIs are deprecated:
+基于组件和 Hook 的工具 API 已弃用：
 
 - `makeAssistantTool`
 - `useAssistantTool`
 - `makeAssistantToolUI`
 - `useAssistantToolUI`
 
-Use a toolkit registered with `Tools({ toolkit })` instead. Toolkits keep the model contract, browser execution, and tool-call rendering in one named map, which avoids duplicate registrations and makes the client/backend split explicit.
+请改用通过 `Tools({ toolkit })` 注册的工具包。工具包将模型契约、浏览器执行逻辑和工具调用渲染集中在一个命名映射中，从而避免重复注册，并明确客户端与后端的分工。
 
-## Before
+## 之前
 
 ```tsx
 import { AssistantRuntimeProvider, makeAssistantTool } from "@assistant-ui/react";
@@ -43,7 +43,7 @@ export function App() {
 }
 ```
 
-## After
+## 之后
 
 ```tsx title="app/toolkit.tsx"
 "use generative";
@@ -91,22 +91,21 @@ export function App() {
 }
 ```
 
-`useChatRuntime()` targets `/api/chat` by default. To point at a different endpoint or customize requests, see [Custom transport](/docs/runtimes/ai-sdk/v7#custom-transport).
+`useChatRuntime()` 默认指向 `/api/chat`。如需指向其他端点或自定义请求，请参阅[自定义传输层](/docs/runtimes/ai-sdk/v7#custom-transport)。
 
-## Mechanical Steps
+## 机械迁移步骤
 
-1. Create a `Toolkit` object.
-2. Move each `toolName` into the toolkit key.
-3. Move `description`, `parameters`, `execute`, `providerOptions`, `render`, `renderText`, and `display` onto the toolkit entry.
-4. Register the toolkit once with `config={config}` on your runtime provider, where `const config = AuiConfig({ tools: Tools({ toolkit }) })`.
-5. Remove `<Tool />`, `<ToolUI />`, `useAssistantTool(...)`, and `useAssistantToolUI(...)` registrations.
+1. 创建一个 `Toolkit` 对象。
+2. 将每个 `toolName` 移入工具包键。
+3. 将 `description`、`parameters`、`execute`、`providerOptions`、`render`、`renderText` 和 `display` 移到工具包条目中。
+4. 在运行时提供程序上使用 `config={config}` 注册一次工具包，其中 `const config = AuiConfig({ tools: Tools({ toolkit }) })`。
+5. 移除 `<Tool />`、`<ToolUI />`、`useAssistantTool(...)` 和 `useAssistantToolUI(...)` 注册。
 
-## UI-Only Tool Renderers
+## 仅限 UI 的工具渲染器
 
-If you used `makeAssistantToolUI` or `useAssistantToolUI` for a backend, MCP, or
-LangGraph tool, the tool executes elsewhere. Prefer a `"use generative"` toolkit
-with `execute: externalTool()` so the compiler omits the server entry, while the
-client keeps your renderer as `type: "backend"`:
+如果你曾使用 `makeAssistantToolUI` 或 `useAssistantToolUI` 来处理后端、MCP 或
+LangGraph 工具，则工具会在其他位置执行。建议使用带有 `execute: externalTool()` 的
+`"use generative"` 工具包，让编译器省略服务器条目，同时客户端仍将你的渲染器保留为 `type: "backend"`：
 
 ```tsx
 // app/toolkit.tsx
@@ -124,19 +123,20 @@ export default defineToolkit({
 });
 ```
 
-Register it like any toolkit: `config={config}` where `const config = AuiConfig({ tools: Tools({ toolkit }) })`.
-Render-only entries upload no schema and run no browser code — they only attach
-UI for matching tool-call message parts. For MCP server catalogs, spread
-`defineMcpToolkit({ ... })` in the same generative toolkit.
+像注册其他工具包一样注册它：`config={config}`，其中 `const config = AuiConfig({ tools: Tools({ toolkit }) })`。
+仅渲染条目不会上传架构，也不会运行浏览器代码——它们只会为匹配的工具调用消息部分附加
+UI。对于 MCP 服务器目录，请在同一个生成式工具包中展开
+`defineMcpToolkit({ ... })`。
 
-For a one-off renderer that should only affect a particular message surface, use `MessagePrimitive.Parts` inline tool render overrides instead of a global registration.
+如果只希望一次性渲染器影响特定的消息界面，请使用 `MessagePrimitive.Parts` 内联工具渲染覆盖，而不是进行全局注册。
 
-## Dynamic Tools
+## 动态工具
 
-If a tool needs component state or props, keep the toolkit contract in a `"use generative"` file and use `stubTool()` for the executor. The component that owns the state supplies the real executor with `useAuiToolOverrides(...)`:
+如果工具需要组件状态或 props，请将工具包契约保存在 `"use generative"` 文件中，并使用
+`stubTool()` 作为执行器。拥有该状态的组件通过 `useAuiToolOverrides(...)` 提供真正的执行器：
 
 <Callout type="warn">
-  `useAuiToolOverrides` is experimental and its API may change.
+  `useAuiToolOverrides` 为实验性 API，可能会发生变化。
 </Callout>
 
 ```tsx title="task-board-toolkit.tsx"
@@ -205,11 +205,11 @@ function TaskBoardToolOverrides({
 }
 ```
 
-This keeps the model-facing contract in the toolkit file while the component owns the stateful executor.
+这样，面向模型的契约会保留在工具包文件中，而组件负责管理有状态的执行器。
 
-## Generative Toolkits
+## 生成式工具包
 
-For tools authored in a `"use generative"` file, export a toolkit with `defineToolkit(...)`. The compiler splits backend, frontend, and human tools for you. This is the default shape to use for docs and copy-paste examples:
+对于在 `"use generative"` 文件中编写的工具，请使用 `defineToolkit(...)` 导出工具包。编译器会自动为你拆分后端、前端和人在回路工具。这是文档和复制粘贴示例应采用的默认形式：
 
 ```tsx
 "use generative";
@@ -233,4 +233,4 @@ export default defineToolkit({
 });
 ```
 
-Frontend and human tools produced by the generative compiler already have their schema defaults on the backend, so the client no longer re-uploads those schemas.
+生成式编译器生成的前端工具和人在回路工具已经在后端设置了架构默认值，因此客户端不再重复上传这些架构。

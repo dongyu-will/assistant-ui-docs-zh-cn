@@ -11,6 +11,9 @@
     "generate:source-snapshot": "tsx ./scripts/generate-source-snapshot.mts",
     "start": "next start",
     "test": "vitest run",
+    "test:translation": "node --test ./scripts/translation/*.test.mjs",
+    "translate:page": "node --env-file-if-exists=.env.translation.local ./scripts/translation/translate-page.mjs",
+    "translate:batch": "node --env-file-if-exists=.env.translation.local ./scripts/translation/translate-batch.mjs",
     "postinstall": "fumadocs-mdx"
   },
   "dependencies": {

@@ -1,32 +1,32 @@
 ---
 title: CLI
-description: Scaffold projects, add components, and manage updates from the command line.
+description: 从命令行搭建项目、添加组件并管理更新。
 platforms: ["react"]
 ---
 
-Use the `assistant-ui` CLI to quickly set up new projects and add components to existing ones.
+使用 `assistant-ui` CLI 快速设置新项目，并向现有项目添加组件。
 
 ## init
 
-Use the `init` command to initialize configuration and dependencies for a new project.
+使用 `init` 命令为新项目初始化配置和依赖项。
 
-The `init` command installs dependencies, adds components, and configures your project for assistant-ui.
+`init` 命令会安装依赖项、添加组件，并为 assistant-ui 配置项目。
 
 ```bash
 npx assistant-ui@latest init
 ```
 
-This will:
-- Detect if you have an existing project with a `package.json`
-- Use `shadcn add` to install the assistant-ui quick-start component
-- Add the default assistant-ui components (thread, composer, etc.) to your project
-- Configure TypeScript paths and imports
+此命令将：
+- 检测你是否已有包含 `package.json` 的项目
+- 使用 `shadcn add` 安装 assistant-ui 快速启动组件
+- 将默认的 assistant-ui 组件（thread、composer 等）添加到项目中
+- 配置 TypeScript 路径和导入
 
-**When to use:**
-- Adding assistant-ui to an **existing** Next.js project
-- First-time setup in a project with `package.json`
+**适用场景：**
+- 将 assistant-ui 添加到**现有的** Next.js 项目
+- 在包含 `package.json` 的项目中进行首次设置
 
-**Options**
+**选项**
 
 ```bash
 Usage: assistant-ui init [options]
@@ -40,57 +40,57 @@ Options:
 
 ## create
 
-Use the `create` command to scaffold a new Next.js project with assistant-ui pre-configured.
+使用 `create` 命令搭建一个预配置 assistant-ui 的新 Next.js 项目。
 
 ```bash
 npx assistant-ui@latest create [project-directory]
 ```
 
-This command scaffolds a project from assistant-ui starter templates or examples.
+此命令会基于 assistant-ui starter 模板或示例搭建项目。
 
-**Available Templates**
+**可用模板**
 
-| Template | Description | Command |
+| 模板 | 描述 | 命令 |
 |----------|-------------|---------|
-| `default` | Default template with Vercel AI SDK | `npx assistant-ui create` |
-| `minimal` | Bare-bones starting point | `npx assistant-ui create -t minimal` |
-| `cloud` | Cloud-backed persistence starter | `npx assistant-ui create -t cloud` |
-| `cloud-clerk` | Cloud-backed starter with Clerk auth | `npx assistant-ui create -t cloud-clerk` |
-| `langchain` | LangGraph starter with the react-langchain adapter | `npx assistant-ui create -t langchain` |
-| `mcp` | MCP tools + MCP Apps renderer starter | `npx assistant-ui create -t mcp` |
+| `default` | 包含 Vercel AI SDK 的默认模板 | `npx assistant-ui create` |
+| `minimal` | 精简的起始项目 | `npx assistant-ui create -t minimal` |
+| `cloud` | 云端持久化 starter | `npx assistant-ui create -t cloud` |
+| `cloud-clerk` | 带 Clerk 身份验证的云端 starter | `npx assistant-ui create -t cloud-clerk` |
+| `langchain` | 使用 react-langchain adapter 的 LangGraph starter | `npx assistant-ui create -t langchain` |
+| `mcp` | MCP 工具 + MCP Apps 渲染器 starter | `npx assistant-ui create -t mcp` |
 | `eve` | Eve agent + Next.js starter | `npx assistant-ui create -t eve` |
 
-**Available Examples**
+**可用示例**
 
-Use `--example` to create a project from one of the monorepo examples with full feature demonstrations:
+使用 `--example` 从 monorepo 示例中创建项目，这些示例包含完整的功能演示：
 
-| Example | Description | Command |
+| 示例 | 描述 | 命令 |
 |---------|-------------|---------|
-| `with-ai-sdk-v7` | Vercel AI SDK v7 integration | `npx assistant-ui create my-app -e with-ai-sdk-v7` |
-| `with-eve` | Eve agent integration | `npx assistant-ui create my-app -e with-eve` |
-| `with-artifacts` | HTML artifact rendering with live preview | `npx assistant-ui create my-app -e with-artifacts` |
-| `with-langgraph` | LangGraph agent with custom tools | `npx assistant-ui create my-app -e with-langgraph` |
-| `with-google-adk` | Google ADK agent integration | `npx assistant-ui create my-app -e with-google-adk` |
-| `with-cloud` | Assistant Cloud persistence | `npx assistant-ui create my-app -e with-cloud` |
-| `with-ag-ui` | [AG-UI protocol](/docs/runtimes/ag-ui/overview) integration | `npx assistant-ui create my-app -e with-ag-ui` |
-| `with-assistant-transport` | Custom backend via Assistant Transport | `npx assistant-ui create my-app -e with-assistant-transport` |
-| `with-resumable-stream` | Resumable LLM stream that survives reload mid-response | `npx assistant-ui create my-app -e with-resumable-stream` |
-| `with-chain-of-thought` | Chain-of-thought reasoning, tool calls, and source citations | `npx assistant-ui create my-app -e with-chain-of-thought` |
-| `with-external-store` | External message store | `npx assistant-ui create my-app -e with-external-store` |
-| `with-interactables` | AI-driven interactive UI components | `npx assistant-ui create my-app -e with-interactables` |
-| `with-openui` | [OpenUI](/docs/tools/openui) generative UI integration | `npx assistant-ui create my-app -e with-openui` |
-| `with-custom-thread-list` | Custom thread list UI | `npx assistant-ui create my-app -e with-custom-thread-list` |
-| `with-react-hook-form` | React Hook Form integration | `npx assistant-ui create my-app -e with-react-hook-form` |
-| `with-ffmpeg` | FFmpeg video processing tool | `npx assistant-ui create my-app -e with-ffmpeg` |
-| `with-elevenlabs-conversational` | Realtime voice with ElevenLabs | `npx assistant-ui create my-app -e with-elevenlabs-conversational` |
-| `with-livekit` | Realtime voice with LiveKit | `npx assistant-ui create my-app -e with-livekit` |
-| `with-elevenlabs-scribe` | ElevenLabs voice transcription | `npx assistant-ui create my-app -e with-elevenlabs-scribe` |
+| `with-ai-sdk-v7` | Vercel AI SDK v7 集成 | `npx assistant-ui create my-app -e with-ai-sdk-v7` |
+| `with-eve` | Eve agent 集成 | `npx assistant-ui create my-app -e with-eve` |
+| `with-artifacts` | 支持实时预览的 HTML artifact 渲染 | `npx assistant-ui create my-app -e with-artifacts` |
+| `with-langgraph` | 使用自定义工具的 LangGraph agent | `npx assistant-ui create my-app -e with-langgraph` |
+| `with-google-adk` | Google ADK agent 集成 | `npx assistant-ui create my-app -e with-google-adk` |
+| `with-cloud` | Assistant Cloud 持久化 | `npx assistant-ui create my-app -e with-cloud` |
+| `with-ag-ui` | [AG-UI protocol](/docs/runtimes/ag-ui/overview) 集成 | `npx assistant-ui create my-app -e with-ag-ui` |
+| `with-assistant-transport` | 通过 Assistant Transport 使用自定义后端 | `npx assistant-ui create my-app -e with-assistant-transport` |
+| `with-resumable-stream` | 可恢复的 LLM 流，即使在响应过程中重新加载页面也能继续 | `npx assistant-ui create my-app -e with-resumable-stream` |
+| `with-chain-of-thought` | 思维链推理、工具调用和来源引用 | `npx assistant-ui create my-app -e with-chain-of-thought` |
+| `with-external-store` | 外部消息存储 | `npx assistant-ui create my-app -e with-external-store` |
+| `with-interactables` | AI 驱动的交互式 UI 组件 | `npx assistant-ui create my-app -e with-interactables` |
+| `with-openui` | [OpenUI](/docs/tools/openui) 生成式 UI 集成 | `npx assistant-ui create my-app -e with-openui` |
+| `with-custom-thread-list` | 自定义 thread 列表 UI | `npx assistant-ui create my-app -e with-custom-thread-list` |
+| `with-react-hook-form` | React Hook Form 集成 | `npx assistant-ui create my-app -e with-react-hook-form` |
+| `with-ffmpeg` | FFmpeg 视频处理工具 | `npx assistant-ui create my-app -e with-ffmpeg` |
+| `with-elevenlabs-conversational` | 使用 ElevenLabs 的实时语音 | `npx assistant-ui create my-app -e with-elevenlabs-conversational` |
+| `with-livekit` | 使用 LiveKit 的实时语音 | `npx assistant-ui create my-app -e with-livekit` |
+| `with-elevenlabs-scribe` | ElevenLabs 语音转录 | `npx assistant-ui create my-app -e with-elevenlabs-scribe` |
 | `with-expo` | Expo / React Native | `npx assistant-ui create my-app -e with-expo` |
-| `with-react-ink` | Terminal UI chat | `npx assistant-ui create my-app -e with-react-ink` |
-| `with-react-router` | React Router v7 integration | `npx assistant-ui create my-app -e with-react-router` |
-| `with-tanstack` | TanStack Start integration | `npx assistant-ui create my-app -e with-tanstack` |
+| `with-react-ink` | 终端 UI 聊天 | `npx assistant-ui create my-app -e with-react-ink` |
+| `with-react-router` | React Router v7 集成 | `npx assistant-ui create my-app -e with-react-router` |
+| `with-tanstack` | TanStack Start 集成 | `npx assistant-ui create my-app -e with-tanstack` |
 
-**Examples**
+**示例**
 
 ```bash
 # Create with default template
@@ -112,7 +112,7 @@ npx assistant-ui@latest create my-app --use-pnpm
 npx assistant-ui@latest create my-app --skip-install
 ```
 
-**Options**
+**选项**
 
 ```bash
 Usage: assistant-ui create [project-directory] [options]
@@ -138,18 +138,18 @@ Options:
 
 ## add
 
-Use the `add` command to add individual components to your project.
+使用 `add` 命令向项目中添加单个组件。
 
 ```bash
 npx assistant-ui@latest add [component]
 ```
 
-The `add` command fetches components from the assistant-ui registry and adds them to your project. It automatically:
-- Installs required dependencies
-- Adds TypeScript types
-- Configures imports
+`add` 命令会从 assistant-ui registry 获取组件并将其添加到项目中。它会自动：
+- 安装所需的依赖项
+- 添加 TypeScript 类型
+- 配置导入
 
-**Popular Components**
+**常用组件**
 
 ```bash
 # Add the basic thread component
@@ -165,7 +165,7 @@ npx assistant-ui add assistant-modal
 npx assistant-ui add thread thread-list assistant-sidebar
 ```
 
-**Options**
+**选项**
 
 ```bash
 Usage: assistant-ui add [options] <components...>
@@ -185,18 +185,18 @@ Options:
 
 ## update
 
-Use the `update` command to update all `@assistant-ui/*` packages to their latest versions.
+使用 `update` 命令将所有 `@assistant-ui/*` packages 更新到最新版本。
 
 ```bash
 npx assistant-ui@latest update
 ```
 
-This command:
-- Scans your `package.json` for assistant-ui packages
-- Updates them to the latest versions using your package manager
-- Preserves other dependencies
+此命令将：
+- 扫描你的 `package.json`，查找 assistant-ui packages
+- 使用你的包管理器将它们更新到最新版本
+- 保留其他依赖项
 
-**Examples**
+**示例**
 
 ```bash
 # Update all assistant-ui packages
@@ -206,7 +206,7 @@ npx assistant-ui update
 npx assistant-ui update --dry
 ```
 
-**Options**
+**选项**
 
 ```bash
 Usage: assistant-ui update [options]
@@ -221,29 +221,29 @@ Options:
 
 ## upgrade
 
-Use the `upgrade` command to automatically migrate your codebase when there are breaking changes.
+使用 `upgrade` 命令，在出现破坏性变更时自动迁移代码库。
 
 ```bash
 npx assistant-ui@latest upgrade
 ```
 
-This command:
-- Runs codemods to transform your code
-- Updates import paths and API usage
-- Detects required dependency changes
-- Prompts to install new packages
+此命令将：
+- 运行 codemod 转换代码
+- 更新导入路径和 API 用法
+- 检测所需的依赖项变更
+- 提示安装新 packages
 
-**What it does:**
-- Applies the current bundled codemods sequentially
-- Shows progress bar with file count
-- Reports any transformation errors
-- Automatically detects and offers to install new dependencies
+**功能说明：**
+- 按顺序应用当前捆绑的 codemod
+- 显示包含文件数量的进度条
+- 报告转换错误
+- 自动检测并提供安装新依赖项的选项
 
-The latest upgrade excludes the historical v0.8 UI package split because its
-`@assistant-ui/react-ui` destination is incompatible with current runtime versions.
-Do not run `codemod v0-8/ui-package-split` as part of a v0.15 upgrade.
+最新的 upgrade 不包含历史上的 v0.8 UI package 拆分，因为其
+`@assistant-ui/react-ui` 目标与当前运行时版本不兼容。
+不要在 v0.15 upgrade 中运行 `codemod v0-8/ui-package-split`。
 
-**Example output:**
+**输出示例：**
 
 ```bash
 Starting upgrade...
@@ -253,7 +253,7 @@ Checking for package dependencies...
 ✅ Upgrade complete!
 ```
 
-**Options**
+**选项**
 
 ```bash
 Usage: assistant-ui upgrade [options]
@@ -270,15 +270,15 @@ Options:
 
 ## codemod
 
-Use the `codemod` command to run a specific codemod transformation.
+使用 `codemod` 命令运行特定的 codemod 转换。
 
 ```bash
 npx assistant-ui@latest codemod <codemod> <source>
 ```
 
-This is useful when you want to run a specific migration rather than all available upgrades.
+当你希望运行特定迁移，而不是所有可用的升级时，此命令非常有用。
 
-**Examples**
+**示例**
 
 ```bash
 # Run specific codemod on a directory
@@ -291,7 +291,7 @@ npx assistant-ui codemod v0-11/content-part-to-message-part ./src --dry
 npx assistant-ui codemod v0-11/content-part-to-message-part ./src --print
 ```
 
-**Options**
+**选项**
 
 ```bash
 Usage: assistant-ui codemod [options] <codemod> <source>
@@ -312,15 +312,15 @@ Options:
 
 ## mcp
 
-Use the `mcp` command to connect your IDE to the assistant-ui MCP server.
+使用 `mcp` 命令将 IDE 连接到 assistant-ui MCP server。
 
 ```bash
 npx assistant-ui@latest mcp
 ```
 
-The command registers the hosted [Model Context Protocol](/docs/llm#mcp) endpoint (`https://www.assistant-ui.com/mcp`) for Cursor, Windsurf, VSCode, and Claude Code. Zed and Claude Desktop only launch local stdio servers, so for those it configures the `@assistant-ui/mcp-docs-server` package instead.
+此命令会为 Cursor、Windsurf、VSCode 和 Claude Code 注册托管的 [Model Context Protocol](/docs/llm#mcp) endpoint（`https://www.assistant-ui.com/mcp`）。Zed 和 Claude Desktop 只能启动本地 stdio server，因此对于这两个工具，它会改为配置 `@assistant-ui/mcp-docs-server` package。
 
-**Examples**
+**示例**
 
 ```bash
 # Interactive - prompts to select IDE
@@ -335,7 +335,7 @@ npx assistant-ui mcp --claude-code
 npx assistant-ui mcp --claude-desktop
 ```
 
-**Options**
+**选项**
 
 ```bash
 Usage: assistant-ui mcp [options]
@@ -354,20 +354,20 @@ Options:
 
 ## info
 
-Use the `info` command to print your environment and package versions for bug reports.
+使用 `info` 命令输出环境和 package 版本信息，用于提交 bug report。
 
 ```bash
 npx assistant-ui@latest info
 ```
 
-This command collects and prints:
-- The running `assistant-ui` CLI version
-- OS, Node.js version, package manager, and framework
-- All installed `@assistant-ui/*` and `assistant-*` package versions
-- Key ecosystem dependency versions (React, Next.js, AI SDK, etc.)
-- Peer dependency warnings if any mismatches are detected
+此命令会收集并输出：
+- 当前运行的 `assistant-ui` CLI 版本
+- 操作系统、Node.js 版本、包管理器和框架
+- 所有已安装的 `@assistant-ui/*` 和 `assistant-*` package 版本
+- 关键生态依赖项的版本（React、Next.js、AI SDK 等）
+- 检测到版本不匹配时的 peer dependency 警告
 
-**Example output:**
+**输出示例：**
 
 ```
 Environment:
@@ -390,9 +390,9 @@ Ecosystem:
   ai         6.0.120
 ```
 
-The output includes a copy-pasteable markdown block that you can paste directly into a [bug report](https://github.com/assistant-ui/assistant-ui/issues/new?template=bug_report.yml).
+输出包含一个可直接复制粘贴的 markdown 代码块，你可以将其直接粘贴到 [bug report](https://github.com/assistant-ui/assistant-ui/issues/new?template=bug_report.yml).
 
-**Options**
+**选项**
 
 ```bash
 Usage: assistant-ui info [options]
@@ -404,9 +404,9 @@ Options:
   -h, --help       display help for command
 ```
 
-## Common Workflows
+## 常见工作流
 
-### Starting a new project
+### 创建新项目
 
 ```bash
 # Create a new project with the default template
@@ -419,7 +419,7 @@ cd my-chatbot
 npm run dev
 ```
 
-### Adding to existing project
+### 添加到现有项目
 
 ```bash
 # Initialize assistant-ui
@@ -432,7 +432,7 @@ npx assistant-ui@latest add thread-list assistant-modal
 npm run dev
 ```
 
-### Keeping up to date
+### 保持最新
 
 ```bash
 # Check for updates (dry run)
@@ -445,7 +445,7 @@ npx assistant-ui@latest update
 npx assistant-ui@latest upgrade
 ```
 
-### Migrating versions
+### 迁移版本
 
 ```bash
 # Run automated migration
@@ -458,11 +458,11 @@ npx assistant-ui@latest codemod v0-11/content-part-to-message-part ./src
 npx assistant-ui@latest update
 ```
 
-## Component Registry
+## 组件注册表
 
-The CLI pulls components from our public registry at [r.assistant-ui.com](https://r.assistant-ui.com).
+CLI 会从我们的公共 registry [r.assistant-ui.com](https://r.assistant-ui.com). 获取组件。
 
-Configure the style-aware URL in `components.json` so `@assistant-ui/*` installs match your shadcn style:
+在 `components.json` 中配置支持样式的 URL，使 `@assistant-ui/*` 安装的组件与您的 shadcn 样式保持一致：
 
 ```json title="components.json"
 {
@@ -472,49 +472,49 @@ Configure the style-aware URL in `components.json` so `@assistant-ui/*` installs
 }
 ```
 
-The `{style}` placeholder is filled from your `components.json` `style` field. Styles whose name starts with `base-` resolve to Base UI flavored components; every other style resolves to Radix. Existing Radix projects can keep `https://r.assistant-ui.com/{name}.json` as a fallback.
+`{style}` 占位符的值来自你的 `components.json` `style` 字段。名称以 `base-` 开头的样式会解析为 Base UI 风格的组件；其他所有样式都会解析为 Radix。现有 Radix 项目可以保留 `https://r.assistant-ui.com/{name}.json` 作为回退值。
 
-Each component includes:
-- Full TypeScript source code
-- All required dependencies
-- Tailwind CSS configuration
-- Usage examples
+每个组件都包含：
+- 完整的 TypeScript 源代码
+- 所有必需的依赖项
+- Tailwind CSS 配置
+- 使用示例
 
-Components are added directly to your project's source code, giving you full control to customize them.
+组件会直接添加到项目的源代码中，让你可以完全控制组件的自定义方式。
 
-## Troubleshooting
+## 故障排除
 
-### Command not found
+### 找不到命令
 
-If you get a "command not found" error, make sure you're using `npx`:
+如果收到“找不到命令”错误，请确保使用的是 `npx`：
 
 ```bash
 npx assistant-ui@latest init
 ```
 
-### Permission errors
+### 权限错误
 
-On Linux/macOS, if you encounter permission errors:
+在 Linux/macOS 上，如果遇到权限错误：
 
 ```bash
 sudo npx assistant-ui@latest init
 ```
 
-Or fix npm permissions: https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally
+或者修复 npm 权限：https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally
 
-### Diagnosing issues
+### 诊断问题
 
-When filing a bug report, run `npx assistant-ui info` to collect environment details:
+提交 bug report 时，运行 `npx assistant-ui info` 以收集环境详细信息：
 
 ```bash
 npx assistant-ui info
 ```
 
-Paste the output into the "Environment info" field of the [bug report template](https://github.com/assistant-ui/assistant-ui/issues/new?template=bug_report.yml).
+将输出粘贴到 [bug report 模板](https://github.com/assistant-ui/assistant-ui/issues/new?template=bug_report.yml). 的“Environment info”字段中。
 
-### Conflicting dependencies
+### 依赖项冲突
 
-If you see dependency conflicts:
+如果看到依赖项冲突：
 
 ```bash
 # Try with --force flag
@@ -524,19 +524,19 @@ npm install --force
 npm install --legacy-peer-deps
 ```
 
-### Component already exists
+### 组件已存在
 
-Use the `--overwrite` flag to replace existing components:
+使用 `--overwrite` flag 替换现有组件：
 
 ```bash
 npx assistant-ui@latest add thread --overwrite
 ```
 
-## Configuration
+## 配置
 
-The CLI respects your project's configuration:
+CLI 遵循项目的配置：
 
-- **Package Manager**: Automatically detects npm, pnpm, yarn, or bun
-- **TypeScript**: Works with your `tsconfig.json` paths
-- **Tailwind**: Uses your `tailwind.config.js` settings
-- **Import Aliases**: Respects `components.json` or `assistant-ui.json` configuration
+- **包管理器**：自动检测 npm、pnpm、yarn 或 bun
+- **TypeScript**：使用你的 `tsconfig.json` 路径
+- **Tailwind**：使用你的 `tailwind.config.js` 设置
+- **导入别名**：遵循 `components.json` 或 `assistant-ui.json` 配置

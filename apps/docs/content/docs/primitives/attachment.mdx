@@ -1,12 +1,12 @@
 ---
-title: Attachment
-description: File and image attachment rendering for the composer and messages.
+title: 附件
+description: 用于输入框和消息的文件与图片附件渲染。
 platforms: ["react"]
 ---
 
 import { AttachmentSample } from "@/components/pages/docs/samples/attachment";
 
-The Attachment primitive renders file and image attachments. It appears in two places: inside the composer for pending uploads (with a remove button), and inside messages for sent attachments (read-only). You provide the layout and styling.
+Attachment 原语用于渲染文件和图片附件。它会出现在两个位置：输入框中用于显示待上传的附件（带有移除按钮），以及消息中用于显示已发送的附件（只读）。布局和样式由你自行提供。
 
 <Tabs items={["Preview", "Code"]}>
   <Tab>
@@ -37,9 +37,9 @@ function ComposerAttachment() {
   </Tab>
 </Tabs>
 
-## Quick Start
+## 快速开始
 
-An attachment inside a composer:
+输入框中的附件：
 
 ```tsx
 import { AttachmentPrimitive, ComposerPrimitive } from "@assistant-ui/react";
@@ -53,26 +53,26 @@ import { AttachmentPrimitive, ComposerPrimitive } from "@assistant-ui/react";
 </ComposerPrimitive.Root>
 ```
 
-`Root` renders a `<div>`, `unstable_Thumb` renders a `<div>` showing the file extension with a leading dot (e.g., `.pdf`), or the attachment type (e.g., `image`) when the filename has no extension (including leading-dot names like `.env`), `Name` renders plain text, and `Remove` renders a `<button>`. If you pass `children` to `unstable_Thumb`, they override that text.
+`Root` 会渲染一个 `<div>`，`unstable_Thumb` 会渲染一个 `<div>`，显示带前导点的文件扩展名（例如 `.pdf`）；当文件名没有扩展名时（包括以点开头的名称，例如 `.env`），则显示附件类型（例如 `image`）。`Name` 会渲染纯文本，`Remove` 会渲染一个 `<button>`。如果将 `children` 传递给 `unstable_Thumb`，它们会覆盖该文本。
 
 <Callout type="info">
-Runtime setup: primitives require runtime context. Wrap your UI in `AssistantRuntimeProvider` with a runtime (for example `useLocalRuntime(...)`). See [Pick a Runtime](/docs/runtimes/pick-a-runtime).
+运行时设置：原语需要运行时上下文。请将 UI 包裹在带有运行时的 `AssistantRuntimeProvider` 中（例如 `useLocalRuntime(...)`）。请参阅[选择运行时](/docs/runtimes/pick-a-runtime)。
 </Callout>
 
-## Core Concepts
+## 核心概念
 
-### Two Contexts
+### 两种上下文
 
-Attachments appear in two different contexts:
+附件会出现在两种不同的上下文中：
 
-- **Composer**: via `ComposerPrimitive.Attachments`. These are pending uploads that can be removed before sending.
-- **Messages**: via `MessagePrimitive.Attachments`. These are sent attachments, displayed read-only (the iterator renders attachments for user messages).
+- **输入框**：通过 `ComposerPrimitive.Attachments` 使用。这些是发送前可以移除的待上传附件。
+- **消息**：通过 `MessagePrimitive.Attachments` 使用。这些是以只读方式显示的已发送附件（迭代器会为用户消息渲染附件）。
 
-The same `AttachmentPrimitive` parts work in both contexts. The difference is behavioral: `Remove` only works in the composer context.
+相同的 `AttachmentPrimitive` 部件可以在两种上下文中使用。区别在于行为：`Remove` 仅适用于输入框上下文。
 
-### Iterator Pattern
+### 迭代器模式
 
-You don't loop over attachments yourself. Instead, use the children render function:
+你无需自行遍历附件，而应使用 children 渲染函数：
 
 ```tsx
 // Composer attachments
@@ -94,15 +94,15 @@ You don't loop over attachments yourself. Instead, use the children render funct
 </MessagePrimitive.Attachments>
 ```
 
-Each component receives its attachment context automatically, with no props to pass. `components` is deprecated — use the `children` render function instead.
+每个组件都会自动接收其附件上下文，无需传递任何 props。`components` 已弃用，请改用 `children` 渲染函数。
 
-### Remove Button
+### 移除按钮
 
-`Remove` calls the attachment runtime remove action. In composer attachments it removes the attachment from the pending message. In message attachments, this action is not supported and clicking `Remove` will throw `"Message attachments cannot be removed"`. Only render `Remove` in composer UIs.
+`Remove` 会调用附件运行时的移除操作。在输入框附件中，它会从待发送消息中移除附件。在消息附件中不支持此操作，点击 `Remove` 会抛出 `"Message attachments cannot be removed"`。仅在输入框 UI 中渲染 `Remove`。
 
-### Name as Text
+### 将名称作为文本
 
-`Name` renders plain text with no wrapper element. Wrap it in a `<span>` or other element for styling:
+`Name` 会渲染不带包装元素的纯文本。请将它包裹在 `<span>` 或其他元素中，以便设置样式：
 
 ```tsx
 <span className="text-sm font-medium">
@@ -110,11 +110,11 @@ Each component receives its attachment context automatically, with no props to p
 </span>
 ```
 
-## Parts
+## 部件
 
 ### Root
 
-Container for a single attachment item. Renders a `<div>` element unless `asChild` is set.
+单个附件项目的容器。除非设置了 `asChild`，否则会渲染一个 `<div>` 元素。
 
 ```tsx
 <AttachmentPrimitive.Root className="flex items-center gap-2 rounded-lg border p-2">
@@ -124,7 +124,7 @@ Container for a single attachment item. Renders a `<div>` element unless `asChil
 
 ### unstable_Thumb
 
-Thumbnail slot for attachment previews. Renders a `<div>` element unless `asChild` is set. By default it shows the file extension with a leading dot (e.g., `.pdf`); if you pass `children`, they override the automatic text.
+用于附件预览的缩略图插槽。除非设置了 `asChild`，否则会渲染一个 `<div>` 元素。默认情况下，它会显示带前导点的文件扩展名（例如 `.pdf`）；如果传入 `children`，则会覆盖自动生成的文本。
 
 ```tsx
 <AttachmentPrimitive.unstable_Thumb className="flex size-10 items-center justify-center rounded bg-muted text-xs" />
@@ -132,7 +132,7 @@ Thumbnail slot for attachment previews. Renders a `<div>` element unless `asChil
 
 ### Name
 
-Renders the attachment filename text.
+渲染附件文件名文本。
 
 ```tsx
 <AttachmentPrimitive.Name />
@@ -140,7 +140,7 @@ Renders the attachment filename text.
 
 ### Remove
 
-Button that removes the current attachment when used in a removable attachment context. Renders a `<button>` element unless `asChild` is set.
+在可移除附件上下文中使用时，移除当前附件的按钮。除非设置了 `asChild`，否则会渲染一个 `<button>` 元素。
 
 ```tsx
 <AttachmentPrimitive.Remove className="rounded-full p-1 hover:bg-muted">
@@ -148,9 +148,9 @@ Button that removes the current attachment when used in a removable attachment c
 </AttachmentPrimitive.Remove>
 ```
 
-## Patterns
+## 使用模式
 
-### Composer Attachment with Remove
+### 带移除按钮的输入框附件
 
 ```tsx
 function ComposerAttachmentItem() {
@@ -176,7 +176,7 @@ function ComposerAttachmentItem() {
 </ComposerPrimitive.Root>
 ```
 
-### Message Attachment (Read-Only)
+### 消息附件（只读）
 
 ```tsx
 function MessageAttachment() {
@@ -191,7 +191,7 @@ function MessageAttachment() {
 }
 ```
 
-### Custom Layout with asChild
+### 使用 asChild 的自定义布局
 
 ```tsx
 <AttachmentPrimitive.Root asChild>
@@ -204,14 +204,14 @@ function MessageAttachment() {
 </AttachmentPrimitive.Root>
 ```
 
-## Relationship to Components
+## 与组件的关系
 
-The shadcn [Attachment](/elements/attachment) component wraps these primitives with styled thumbnails, tooltip filenames, remove buttons, and image preview dialogs. Start there for a prebuilt attachment UI.
+shadcn 的 [Attachment](/elements/attachment) 组件为这些原语封装了带样式的缩略图、文件名工具提示、移除按钮和图片预览对话框。如需预构建的附件 UI，请从这里开始。
 
-## API Reference
+## API 参考
 
-For full prop details on every part, see the [AttachmentPrimitive API Reference](/docs/api-reference/primitives/attachment).
+如需查看每个部件的完整 prop 详情，请参阅 [AttachmentPrimitive API 参考](/docs/api-reference/primitives/attachment)。
 
-Related:
-- [ComposerPrimitive API Reference](/docs/api-reference/primitives/composer)
-- [MessagePrimitive API Reference](/docs/api-reference/primitives/message)
+相关内容：
+- [ComposerPrimitive API 参考](/docs/api-reference/primitives/composer)
+- [MessagePrimitive API 参考](/docs/api-reference/primitives/message)

@@ -1,42 +1,42 @@
 ---
-title: Migration from Web
-description: Migrate an existing @assistant-ui/react app to React Native.
+title: 从 Web 迁移
+description: 将现有的 @assistant-ui/react 应用迁移到 React Native。
 ---
 
-If you already have an assistant-ui web app, most of your code transfers directly. The runtime core is shared between `@assistant-ui/react` and `@assistant-ui/react-native` via `@assistant-ui/core` — only the UI layer changes.
+如果你已经有一个 assistant-ui Web 应用，大部分代码都可以直接迁移。通过 `@assistant-ui/core`，`@assistant-ui/react` 和 `@assistant-ui/react-native` 共享运行时核心——只有 UI 层需要更改。
 
-## What stays the same
+## 保持不变的部分
 
-- **Runtime setup** — `useChatRuntime`, `useLocalRuntime`, `ChatModelAdapter`, and all runtime options work identically.
-- **AI SDK integration** — `@assistant-ui/ai-sdk` works with React Native. Your `useChatRuntime` + `AssistantChatTransport` setup transfers directly.
-- **Tool definitions** — `Tools({ toolkit })` and toolkit renderers use the same API.
-- **State hooks** — `useAuiState`, `useAui`, and selector patterns are the same.
-- **Backend code** — Your API routes, streaming endpoints, and server-side logic need zero changes.
+- **运行时设置**——`useChatRuntime`、`useLocalRuntime`、`ChatModelAdapter` 以及所有运行时选项的工作方式完全相同。
+- **AI SDK 集成**——`@assistant-ui/ai-sdk` 支持 React Native。你的 `useChatRuntime` + `AssistantChatTransport` 设置可以直接迁移。
+- **工具定义**——`Tools({ toolkit })` 和工具包渲染器使用相同的 API。
+- **状态 Hooks**——`useAuiState`、`useAui` 以及选择器模式保持不变。
+- **后端代码**——你的 API 路由、流式传输端点和服务端逻辑完全无需更改。
 
-## What changes
+## 需要更改的部分
 
-| Web (`@assistant-ui/react`) | React Native (`@assistant-ui/react-native`) |
+| Web（`@assistant-ui/react`） | React Native（`@assistant-ui/react-native`） |
 |---|---|
-| `AssistantRuntimeProvider` | `AssistantRuntimeProvider` (same name) |
-| DOM primitives (`div`, `button`, `input`) | Native primitives (`View`, `Pressable`, `TextInput`) |
-| CSS / Tailwind styling | React Native `StyleSheet` or inline styles |
-| `@assistant-ui/ui` (shadcn components) | Build your own native UI with primitives |
+| `AssistantRuntimeProvider` | `AssistantRuntimeProvider`（名称相同） |
+| DOM 原语（`div`、`button`、`input`） | Native 原语（`View`、`Pressable`、`TextInput`） |
+| CSS / Tailwind 样式 | React Native `StyleSheet` 或内联样式 |
+| `@assistant-ui/ui`（shadcn 组件） | 使用原语构建自己的 Native UI |
 
-## Step-by-step
+## 分步迁移
 
 <Steps>
   <Step>
 
-### Install the React Native package
+### 安装 React Native 包
 
 <InstallCommand expo={["@assistant-ui/react-native"]} />
 
   </Step>
   <Step>
 
-### Keep your runtime hook
+### 保留你的运行时 Hook
 
-Your `useChatRuntime` setup works as-is — no changes needed:
+你的 `useChatRuntime` 设置可以直接使用——无需任何更改：
 
 ```tsx title="hooks/use-app-runtime.ts"
 // This file is identical to your web version
@@ -52,13 +52,13 @@ export function useAppRuntime() {
 ```
 
 <Callout type="tip">
-  If you use a monorepo, you can share this file between web and native projects directly.
+  如果你使用 monorepo，可以直接在 Web 和 Native 项目之间共享此文件。
 </Callout>
 
   </Step>
   <Step>
 
-### Replace the provider
+### 替换 Provider
 
 ```tsx
 // Before (web)
@@ -80,9 +80,9 @@ export default function App() {
   </Step>
   <Step>
 
-### Rebuild the UI layer
+### 重建 UI 层
 
-This is the main migration effort. Web components (`Thread`, `ThreadList` from `@assistant-ui/ui`) don't render in React Native. Replace them with native primitives:
+这是迁移工作的主要部分。Web 组件（来自 `@assistant-ui/ui` 的 `Thread`、`ThreadList`）无法在 React Native 中渲染。请将它们替换为 Native 原语：
 
 ```tsx
 // Web — DOM-based
@@ -119,14 +119,14 @@ function ChatScreen() {
 }
 ```
 
-See the [Primitives reference](/docs/react-native/primitives) for the full list of available components.
+请参阅[原语参考](/docs/react-native/primitives)，查看所有可用组件的完整列表。
 
   </Step>
 </Steps>
 
-## Monorepo code sharing
+## Monorepo 代码共享
 
-In a monorepo, you can share everything except the UI layer:
+在 monorepo 中，除了 UI 层之外，你可以共享所有内容：
 
 ```
 packages/
@@ -139,4 +139,4 @@ packages/
     components/     ← React Native UI
 ```
 
-The runtime hook, tool definitions, and backend code are platform-agnostic. Only the UI components need separate implementations for web and native.
+运行时 Hook、工具定义和后端代码与平台无关。只有 UI 组件需要分别为 Web 和 Native 实现。

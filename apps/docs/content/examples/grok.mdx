@@ -1,32 +1,32 @@
 ---
-title: Grok Clone
-description: Open-source Grok clone in React — pill composer with paperclip, animated Mic↔Send, functional model picker dropdown, and message timing tooltip.
+title: Grok 克隆版
+description: 使用 React 构建的开源 Grok 克隆版——带有回形针的胶囊式输入框、Mic↔Send 动画切换、可用的模型选择下拉菜单，以及消息计时工具提示。
 ---
 
-## Overview
+## 概览
 
-The Grok Clone demonstrates how to customize assistant-ui to match xAI's Grok interface. The empty state centers the Grok wordmark above a pill composer with an animated trailing button that swaps between Mic, Send, and Cancel based on composer state. Models are picked from a real dropdown that animates open/collapse along with the composer.
+Grok 克隆版展示了如何自定义 assistant-ui，使其匹配 xAI 的 Grok 界面。空状态会将 Grok 字标置于胶囊式输入框上方，并根据输入框状态，在 Mic、Send 和 Cancel 之间切换带动画的尾部按钮。模型可从真实的下拉菜单中选择，该菜单会随输入框一起展开或收起。
 
-## Features
+## 功能
 
-- **Centered Grok Wordmark**: Empty state shows the SVG wordmark above the composer
-- **Pill Composer**: `rounded-4xl` with thin ring border, paperclip on the leading edge
-- **Functional Model Picker**: Fast / Grok 4.1 / Think dropdown with descriptions, plus "Subscribe to SuperGrok"
-- **Expand/Collapse Model Pill**: When the composer is empty the pill shows the model name; when typing it collapses to just the model icon
-- **Animated Send Slot**: Mic when empty, Send (white-on-dark) when typing, Cancel while running — all via `group-data-[empty]` / `group-data-[running]`
-- **Inverted Primary**: Dark button on light mode, light button on dark mode
-- **Message Timing**: Streaming responses show a hover tooltip with first-token, total time, tokens/sec, chunk count
-- **Hover-only Action Bars**: Edit/Copy on user messages, Reload/Copy/👍/👎 on assistant messages
+- **居中的 Grok 字标**：空状态会在输入框上方显示 SVG 字标
+- **胶囊式输入框**：`rounded-4xl`，带有细环边框，前端边缘设有回形针图标
+- **可用的模型选择器**：提供带描述的 Fast / Grok 4.1 / Think 下拉菜单，以及“订阅 SuperGrok”
+- **模型胶囊展开/收起**：输入框为空时，胶囊显示模型名称；输入时则收起为仅显示模型图标
+- **带动画的发送区域**：为空时显示 Mic，输入时显示 Send（深色背景上的白色图标），运行中显示 Cancel——全部通过 `group-data-[empty]` / `group-data-[running]` 实现
+- **反色主按钮**：浅色模式下使用深色按钮，深色模式下使用浅色按钮
+- **消息计时**：流式响应会显示悬停工具提示，其中包含首个 token 时间、总耗时、每秒 token 数和分块数量
+- **仅悬停时显示的操作栏**：用户消息提供编辑/复制，助手消息提供重新加载/复制/👍/👎
 
-## Quick Start
+## 快速开始
 
 ```bash
 npx assistant-ui add thread
 ```
 
-## Code
+## 代码
 
-The composer carries `data-empty` and `data-running` attributes so the trailing button transitions smoothly:
+输入框带有 `data-empty` 和 `data-running` 属性，使尾部按钮能够平滑过渡：
 
 ```tsx
 import {
@@ -75,7 +75,7 @@ const Composer = () => {
 };
 ```
 
-### Functional Model Picker
+### 可用的模型选择器
 
 ```tsx
 const MODELS = [
@@ -104,7 +104,7 @@ const MODELS = [
 </DropdownMenu>
 ```
 
-### Animated Send Slot
+### 带动画的发送区域
 
 ```tsx
 <div className="relative h-9 w-9 rounded-full bg-[#0d0d0d] dark:bg-white">
@@ -120,20 +120,20 @@ const MODELS = [
 </div>
 ```
 
-### Color Palette
+### 配色
 
-| Element | Light | Dark |
+| 元素 | 浅色 | 深色 |
 |---------|-------|------|
-| Background | `#fdfdfd` | `#141414` |
-| Composer surface | `#f8f8f8` | `#212121` |
-| Ring border | `#e5e5e5` | `#2a2a2a` |
-| Primary text | `#0d0d0d` | `white` |
-| Muted text | `#9a9a9a` | `#6b6b6b` |
-| Send button (inverted) | `#0d0d0d` | `white` |
+| 背景 | `#fdfdfd` | `#141414` |
+| 输入框表面 | `#f8f8f8` | `#212121` |
+| 环边框 | `#e5e5e5` | `#2a2a2a` |
+| 主要文本 | `#0d0d0d` | `white` |
+| 弱化文本 | `#9a9a9a` | `#6b6b6b` |
+| 发送按钮（反色） | `#0d0d0d` | `white` |
 
-### Animation Technique
+### 动画技术
 
-The composer uses `data-*` attributes for state-based animations:
+输入框使用 `data-*` 属性实现基于状态的动画：
 
 ```tsx
 <ComposerPrimitive.Root data-empty={isEmpty} data-running={isRunning}>
@@ -141,8 +141,8 @@ The composer uses `data-*` attributes for state-based animations:
 </ComposerPrimitive.Root>
 ```
 
-This drives the Mic↔Send transition and the model pill expand/collapse on the same gesture.
+这会通过同一手势驱动 Mic↔Send 切换，以及模型胶囊的展开/收起。
 
-## Source
+## 源码
 
 <SourceLink href="https://github.com/assistant-ui/assistant-ui/blob/main/apps/docs/components/pages/examples/grok.tsx" />

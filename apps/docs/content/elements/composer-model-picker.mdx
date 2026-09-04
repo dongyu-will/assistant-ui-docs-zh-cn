@@ -1,20 +1,20 @@
 ---
-title: "Models"
-description: "The model lives in the composer rail, one tap away with context at a glance."
+title: "模型"
+description: "模型位于输入框操作栏中，只需轻触一下即可查看上下文。"
 ---
 
-A small pill in the composer's action row names the active model and opens a short list to switch it, without leaving the message being written. With a runtime the choice is registered into assistant-ui's model context system so it actually reaches the next request; standalone you just hold the selection as state.
+输入框操作栏中的一个小胶囊按钮会显示当前模型，并打开一个简短列表供你切换模型，无需离开正在编写的消息。在运行时中，该选择会注册到 assistant-ui 的模型上下文系统，因此确实会传递到下一次请求；在独立模式下，你只需将选择保存为状态。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-There is no dedicated primitive for a model trigger, because "the active model" is not thread or message state the way branches or attachments are; it is whatever your app registers through the general-purpose model context system. Read the registered name to show it, and register a new one to change it.
+没有专门用于模型触发器的原语，因为“当前模型”并不像分支或附件那样属于线程或消息状态；它实际上是应用通过通用模型上下文系统注册的内容。读取已注册的名称即可显示它，注册新名称即可更改它。
 
 <Steps>
   <Step>
 
-### Read the active model
+### 读取当前模型
 
 ```tsx
 import { useAuiState } from "@assistant-ui/react";
@@ -22,12 +22,12 @@ import { useAuiState } from "@assistant-ui/react";
 const modelName = useAuiState((s) => s.modelContext.modelName);
 ```
 
-`s.modelContext.modelName` is derived from every provider currently registered via `aui.modelContext.register(...)`, merged by priority; with nothing registered it is `undefined`.
+`s.modelContext.modelName` 来源于当前通过 `aui.modelContext.register(...)` 注册的所有 provider，并按优先级合并；如果没有注册任何 provider，则为 `undefined`。
 
   </Step>
   <Step>
 
-### Register a change
+### 注册变更
 
 ```tsx title="components/assistant-ui/elements/composer-model-trigger.tsx"
 "use client";
@@ -73,7 +73,7 @@ export function ModelPicker() {
 }
 ```
 
-The effect re-registers on every change to `selected` and cleans up the previous registration automatically, since `register` returns an unsubscribe. This is the same pattern the [Model selector](/elements/model-selector) kit uses internally; install that element instead of building the effect yourself if you also want a searchable, provider-grouped list with reasoning-effort controls. For the full list rather than this compact trigger, see [the model-picker design](/elements/model-selector#the-model-picker-design).
+该 effect 会在 `selected` 每次变更时重新注册，并自动清理之前的注册，因为 `register` 会返回取消订阅函数。这与 [模型选择器](/elements/model-selector) kit 内部使用的模式相同；如果你还需要支持搜索、按 provider 分组以及推理力度控制的列表，可以直接安装该组件，而不必自行构建 effect。若要查看完整列表，而不是这个紧凑型触发器，请参阅[模型选择器设计](/elements/model-selector#the-model-picker-design)。
 
   </Step>
 </Steps>
@@ -82,12 +82,12 @@ The effect re-registers on every change to `selected` and cleans up the previous
 
 <StandaloneMode>
 
-Standalone, the trigger and menu are fully controlled: you hold which model is selected and whether the menu is open, and the two catalog pieces only render that state.
+在独立模式下，触发器和菜单完全受控：你需要保存当前选中的模型以及菜单是否打开，这两个目录组件只负责渲染该状态。
 
 <Steps>
   <Step>
 
-### Hold the selection
+### 保存选择
 
 ```tsx title="app/chat-box.tsx"
 "use client";
@@ -128,16 +128,16 @@ export function ModelPicker() {
   </Step>
   <Step>
 
-### Close it yourself
+### 自行关闭
 
-Neither `ComposerMenu` nor `ComposerModelTrigger` listens for an outside click or Escape; `open` only controls the animation and `pointer-events`. Close the menu from wherever you decide it should close, typically a click-outside handler or by closing it on selection, as above.
+`ComposerMenu` 和 `ComposerModelTrigger` 都不会监听外部点击或 Escape；`open` 只控制动画和 `pointer-events`。请在你决定的时机关闭菜单，通常是在点击外部时处理，或像上面那样在选择后关闭。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div>
@@ -152,15 +152,15 @@ Neither `ComposerMenu` nor `ComposerModelTrigger` listens for an outside click o
 </div>
 ```
 
-The trigger never disables itself and never manages its own open state; both are the caller's, in either lane.
+触发器不会自动禁用自身，也不会管理自己的打开状态；无论在哪种模式下，这两者都由调用方负责。
 
-## Examples
+## 示例
 
-### Reading and writing are two different calls
+### 读取和写入是两个不同的调用
 
 <RuntimeMode>
 
-`s.modelContext.modelName` only reflects what has been registered; setting it is always a `register` call, never a direct assignment. A component that only displays the name (say, in a header) needs just the selector; only the piece that owns the picker UI needs to call `register`.
+`s.modelContext.modelName` 只反映已注册的内容；设置它始终是一次 `register` 调用，而不是直接赋值。只显示名称的组件（例如页眉中的组件）只需要选择器；只有负责选择器 UI 的部分才需要调用 `register`。
 
 ```tsx
 const modelName = useAuiState((s) => s.modelContext.modelName); // read
@@ -169,27 +169,27 @@ aui.modelContext.register({ getModelContext: () => ({ config: { modelName: "Fron
 
 </RuntimeMode>
 
-### Restyle the trigger and menu
+### 重新设置触发器和菜单的样式
 
-Both lanes share `ComposerMenu` and `ComposerModelItem` with [Slash commands](/elements/composer-slash-commands) and [Mentions](/elements/composer-mentions); a restyle there restyles this menu too. The trigger itself is a standalone pill and takes its own `className`.
+两种模式都与 [斜杠命令](/elements/composer-slash-commands) 和 [提及](/elements/composer-mentions) 共享 `ComposerMenu` 和 `ComposerModelItem`；在那里重新设置样式也会同时影响此菜单。触发器本身是一个独立的胶囊按钮，并使用自己的 `className`。
 
 ```tsx
 <ComposerModelTrigger model={selected.name} open={open} className="text-foreground/80" />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Model context
+### 模型上下文
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.modelContext.modelName` | `string \| undefined` | The `config.modelName` of the highest-priority registered provider. |
-| `s.modelContext.toolNames` | `readonly string[]` | Names of every tool merged from registered providers. |
-| `aui.modelContext.register(provider)` | `(provider: ModelContextProvider) => Unsubscribe` | Registers `{ getModelContext: () => ({ config: { modelName } }) }`; call the returned function to unregister. |
+| `s.modelContext.modelName` | `string \| undefined` | 优先级最高的已注册 provider 的 `config.modelName`。 |
+| `s.modelContext.toolNames` | `readonly string[]` | 从已注册 provider 合并而来的所有工具名称。 |
+| `aui.modelContext.register(provider)` | `(provider: ModelContextProvider) => Unsubscribe` | 注册 `{ getModelContext: () => ({ config: { modelName } }) }`；调用返回的函数即可取消注册。 |
 
-Registration is additive and priority-ordered: several providers can be registered at once (from different components), and the one with the highest `priority` wins when they disagree on `modelName`.
+注册采用累加并按优先级排序：可以同时注册多个 provider（来自不同组件），当它们对 `modelName` 的定义不一致时，`priority` 最高的 provider 获胜。
 
 </RuntimeMode>
 
@@ -197,24 +197,24 @@ Registration is additive and priority-ordered: several providers can be register
 
 ### ComposerModel
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `name` | `string` | Shown as the row's label. |
-| `meta` | `string` | Shown right-aligned, e.g. a price. |
+| `name` | `string` | 显示为该行的标签。 |
+| `meta` | `string` | 右对齐显示，例如价格。 |
 
 ### ComposerModelTrigger
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `model` | `string` | required | The name shown before the chevron. |
-| `open` | `boolean` | required | Sets `aria-expanded`; does not control any menu by itself. |
-| `className` | `string` | | Merged onto the root. |
+| `model` | `string` | 必填 | 显示在箭头前的名称。 |
+| `open` | `boolean` | 必填 | 设置 `aria-expanded`；不会自行控制任何菜单。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### ComposerModelItem
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `entry` | `ComposerModel` | required | The row to render. |
-| `selected` | `boolean` | required | Shows the animated check mark. |
+| `entry` | `ComposerModel` | 必填 | 要渲染的行。 |
+| `selected` | `boolean` | 必填 | 显示动画复选标记。 |
 
 </StandaloneMode>

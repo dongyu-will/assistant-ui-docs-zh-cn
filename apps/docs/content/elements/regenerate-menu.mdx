@@ -1,20 +1,20 @@
 ---
-title: "Regenerate with"
-description: "Fork the same turn to a different model instead of rolling the same dice."
+title: "使用以下模型重新生成"
+description: "将同一轮分叉到其他模型，而不是重复投掷同一枚骰子。"
 ---
 
-RegenerateMenu turns the regenerate action into a small picker: open it, see the alternatives with the current one marked, and pick one to try again. With a runtime picking an option starts a new run carrying your choice; standalone you own the open state and the pick.
+RegenerateMenu 将重新生成操作变成一个小型选择器：打开它，查看标记了当前选项的备选项，然后选择一个再次尝试。在运行时中，选择一个选项会携带你的选择启动一次新的运行；单独使用时，菜单的打开状态和选择操作都由你控制。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-`aui.message.reload(config)` starts a new run for the current turn, and `config.runConfig.custom` reaches your model adapter untouched. assistant-ui itself has no built-in "model" field on a run; on a `useLocalRuntime` plus `ChatModelAdapter` runtime, this is exactly what `ChatModelAdapter.run(options)` receives as `options.runConfig`, so a custom adapter reads the pick back out for that one run only, without changing what later turns use.
+`aui.message.reload(config)` 会为当前轮次启动一次新的运行，而 `config.runConfig.custom` 会原样传递给你的模型适配器。assistant-ui 本身不会在运行中内置 "model" 字段；在同时使用 `useLocalRuntime` 和 `ChatModelAdapter` 的运行时中，这正是 `ChatModelAdapter.run(options)` 以 `options.runConfig` 接收到的内容，因此自定义适配器只需从这一次运行中读取选择，而不会改变后续轮次所使用的内容。
 
 <Steps>
   <Step>
 
-### Wire picks to reload
+### 将选择连接到重新加载
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 "use client";
@@ -51,7 +51,7 @@ function RegenerateWith({ currentModel }: { currentModel: string }) {
   </Step>
   <Step>
 
-### Read the pick on the model side
+### 在模型侧读取选择
 
 ```tsx title="lib/model-adapter.ts"
 import type { ChatModelAdapter } from "@assistant-ui/react";
@@ -71,12 +71,12 @@ export const adapter: ChatModelAdapter = {
 
 <StandaloneMode>
 
-Standalone, the menu is fully controlled: open state, the current pick, and what happens on a pick are all yours.
+单独使用时，菜单完全由你控制：打开状态、当前选择以及选择发生时的行为都由你决定。
 
 <Steps>
   <Step>
 
-### Hold the open and current state
+### 保存打开状态和当前选择
 
 ```tsx title="app/answer.tsx"
 "use client";
@@ -112,16 +112,16 @@ export function Answer() {
   </Step>
   <Step>
 
-### Handle outside interaction yourself
+### 自行处理外部交互
 
-The component has no built-in outside-click or Escape handling; it is a bare conditional render behind `open`. Wrap it in your own popover primitive, or listen for outside clicks yourself, if you need the menu to close on its own.
+该组件没有内置的点击外部区域或 Escape 处理逻辑；它只是由 `open` 控制的简单条件渲染。如果需要菜单自行关闭，请将它包装在你自己的弹出层原语中，或自行监听外部点击。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="regenerate-menu">
@@ -134,15 +134,15 @@ The component has no built-in outside-click or Escape handling; it is a bare con
 </div>
 ```
 
-No outside-click, Escape, or keyboard roving is built in; every row is a plain button. The active option (`option.id === currentId`) shows the literal text "current" in place of its own `detail`, so a `detail` string that happens to read "current" is indistinguishable from the real thing.
+组件没有内置点击外部区域、Escape 或键盘循环导航功能；每一行都只是一个普通按钮。当前选项（`option.id === currentId`）会用字面文本 "current" 替代自身的 `detail`，因此，如果某个 `detail` 字符串恰好也是 "current"，它将无法与真正的当前标记区分开来。
 
-## Examples
+## 示例
 
-### Regenerating with the same model
+### 使用相同模型重新生成
 
 <RuntimeMode>
 
-`reload()` with no config just retries the current turn as-is; the override in `runConfig.custom` is only needed when you actually want a different model:
+不带配置的 `reload()` 只会原样重试当前轮次；只有在确实想使用其他模型时，才需要 `runConfig.custom` 中的覆盖配置：
 
 ```tsx
 <button onClick={() => aui.message.reload()}>Try again</button>
@@ -152,7 +152,7 @@ No outside-click, Escape, or keyboard roving is built in; every row is a plain b
 
 <StandaloneMode>
 
-Nothing requires the menu to be open for a pick to happen; call `onPick` directly, for example from a keyboard shortcut bound to the current model's id.
+选择不要求菜单处于打开状态；例如，可以直接调用 `onPick`，也可以从绑定到当前模型 id 的键盘快捷键中调用。
 
 ```tsx
 onPick(currentId);
@@ -160,24 +160,24 @@ onPick(currentId);
 
 </StandaloneMode>
 
-### Restyle the trigger and menu
+### 重新设置触发器和菜单的样式
 
-Both lanes take `className` on the root. The dropdown reads the shared `floating` surface from `surfaces.tsx`, the same token popovers and tooltips use elsewhere.
+两种方式都会在根元素上接收 `className`。下拉菜单会从 `surfaces.tsx` 读取共享的 `floating` 表面，这是其他弹出层和工具提示所使用的同一个令牌。
 
 ```tsx
 <RegenerateMenu className="gap-1" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Message state
+### 消息状态
 
-| Selector / method | Type | Description |
+| 选择器 / 方法 | 类型 | 描述 |
 |--------------------|------|-------------|
-| `aui.message.reload(config?)` | `(config?: { runConfig?: RunConfig }) => void` | Starts a new run for this turn. `runConfig.custom` reaches your `ChatModelAdapter` as `options.runConfig.custom`, untouched. |
-| `RunConfig` | `{ custom?: Record<string, unknown> }` | The shape `reload`'s `runConfig` accepts. assistant-ui has no built-in model field; the key you read back is your own convention. |
+| `aui.message.reload(config?)` | `(config?: { runConfig?: RunConfig }) => void` | 为此轮次启动一次新的运行。`runConfig.custom` 会将内容原样传递给你的 `ChatModelAdapter`，作为 `options.runConfig.custom`。 |
+| `RunConfig` | `{ custom?: Record<string, unknown> }` | `reload` 的 `runConfig` 所接受的数据结构。assistant-ui 没有内置的 model 字段；你读取回来的键由你自行约定。 |
 
 </RuntimeMode>
 
@@ -185,23 +185,23 @@ Both lanes take `className` on the root. The dropdown reads the shared `floating
 
 ### RegenerateMenu
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `options` | `readonly RegenerateOption[]` | required | The alternatives offered. |
-| `open` | `boolean` | required | Whether the dropdown is shown. |
-| `currentId` | `string` | required | Id shown as "current". A non-matching id marks no row current. |
-| `onOpenChange` | `(open: boolean) => void` | | Called when the trigger is pressed, with the next open value. |
-| `onPick` | `(id: string) => void` | | Called when a row is pressed. Does not close the menu itself. |
-| `className` | `string` | | Merged onto the root. |
+| `options` | `readonly RegenerateOption[]` | 必填 | 提供的备选项。 |
+| `open` | `boolean` | 必填 | 是否显示下拉菜单。 |
+| `currentId` | `string` | 必填 | 显示为 "current" 的 id。不匹配的 id 不会将任何行标记为当前项。 |
+| `onOpenChange` | `(open: boolean) => void` | | 按下触发器时调用，并传入下一个打开状态值。 |
+| `onPick` | `(id: string) => void` | | 按下某一行时调用。不会自行关闭菜单。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### RegenerateOption
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
 | `id` | `string` | |
 | `label` | `string` | |
-| `detail` | `string` | Shown for every option except the current one. |
+| `detail` | `string` | 对除当前选项之外的每个选项显示。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

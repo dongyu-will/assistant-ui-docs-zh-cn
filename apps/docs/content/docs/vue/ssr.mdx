@@ -1,11 +1,11 @@
 ---
-title: Server rendering
-description: Keep Vue assistant state in a client-only Nuxt component and stream from Nitro.
+title: 服务端渲染
+description: 将 Vue 助手状态保存在仅客户端运行的 Nuxt 组件中，并通过 Nitro 进行流式传输。
 ---
 
-Place the `AuiProvider` and its runtime in a `.client.vue` component. This is required even when the surrounding Nuxt page is server-rendered.
+将 `AuiProvider` 及其运行时放在 `.client.vue` 组件中。即使外层 Nuxt 页面采用服务端渲染，这也是必需的。
 
-An assistant runtime owns a client tree and reactive scopes. If it renders on the server, each request creates a client tree that Vue SSR never disposes. That leaks one assistant tree per request. The `.client.vue` boundary prevents the provider, its runtime, and its scopes from being created during server rendering.
+助手运行时拥有一个客户端树和响应式作用域。如果它在服务端渲染，每个请求都会创建一个 Vue SSR 永不释放的客户端树。这样每个请求都会泄漏一个助手树。`.client.vue` 边界可以防止提供者、其运行时及其作用域在服务端渲染期间被创建。
 
 ```vue title="app/components/Assistant.client.vue"
 <script setup lang="ts">
@@ -25,9 +25,9 @@ const config = AuiConfig({
 </template>
 ```
 
-## What belongs on the server
+## 哪些内容属于服务端
 
-Keep provider credentials, `streamText`, and the streaming response in a Nitro route. Nitro runs `server/api/chat.post.ts` on the server, while the browser receives only the UI message stream.
+将提供者凭据、`streamText` 和流式响应保存在 Nitro 路由中。Nitro 在服务端运行 `server/api/chat.post.ts`，而浏览器只接收 UI 消息流。
 
 ```ts title="server/api/chat.post.ts"
 import { openai } from "@ai-sdk/openai";
@@ -49,9 +49,9 @@ export default defineEventHandler(async (event) => {
 });
 ```
 
-## Nuxt wiring
+## Nuxt 接入
 
-Server-rendered pages can include the client component normally. Nuxt resolves the `.client.vue` suffix and mounts it after hydration.
+服务端渲染的页面可以正常包含客户端组件。Nuxt 会解析 `.client.vue` 后缀，并在 hydration（水合）后挂载该组件。
 
 ```vue title="app/pages/index.vue"
 <template>
@@ -61,4 +61,4 @@ Server-rendered pages can include the client component normally. Nuxt resolves t
 </template>
 ```
 
-Keep only page data and ordinary server-renderable UI outside the boundary. Do not create `AuiConfig`, `AISDKChat`, `AISDKThreads`, or an `AuiProvider` in `app.vue`, a page setup block that runs during SSR, or a Nitro route.
+边界之外只保留页面数据和普通的、可由服务端渲染的 UI。不要在 `app.vue`、SSR 期间运行的页面 setup 代码块或 Nitro 路由中创建 `AuiConfig`、`AISDKChat`、`AISDKThreads` 或 `AuiProvider`。

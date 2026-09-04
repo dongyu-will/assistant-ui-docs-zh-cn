@@ -1,20 +1,20 @@
 ---
-title: "Activity graph"
-description: "A half-year of runs as a calendar of cells, dense where the work was."
+title: "活动图"
+description: "将半年的运行记录展示为日历单元格，工作越多的日期颜色越深。"
 ---
 
-Activity graph is a calendar of cells, tinted darker on days with more work, wrapping the `heat-graph` package's grid with a title, a total, and its own five-step tint scale. With a runtime the day counts come from a tool's result; standalone you pass the same data in directly.
+活动图是一个由单元格组成的日历，工作越多的日期颜色越深。它在 `heat-graph` 包的网格基础上，增加了标题、总数以及自身的五级颜色深浅刻度。在运行时中，每天的计数来自工具的结果；单独使用时，则直接传入相同的数据。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-With a runtime, `data` is exactly the shape a tool would return: one count per day over some window. Register a tool that reports it and the graph needs nothing else.
+在运行时中，`data` 的形状正是工具会返回的形状：在某个时间范围内每天一个计数。注册一个报告这些数据的工具后，活动图无需其他配置。
 
 <Steps>
   <Step>
 
-### Render the tool call
+### 渲染工具调用
 
 ```tsx title="components/assistant-ui/elements/run-activity-tool-ui.tsx"
 "use client";
@@ -52,7 +52,7 @@ export const RunActivityToolUI: ToolCallMessagePartComponent<
   </Step>
   <Step>
 
-### Register the tool
+### 注册工具
 
 ```tsx title="app/toolkit.ts"
 import { defineToolkit } from "@assistant-ui/react";
@@ -86,7 +86,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-See [Tool UI](/docs/tools/tool-ui) for backend-defined tools and approval gates.
+有关后端定义的工具和审批关卡，请参阅 [工具 UI](/docs/tools/tool-ui)。
 
   </Step>
 </Steps>
@@ -95,12 +95,12 @@ See [Tool UI](/docs/tools/tool-ui) for backend-defined tools and approval gates.
 
 <StandaloneMode>
 
-Standalone, hold the same `data`, `start`, and `end` yourself; the element does the grid layout, the tinting, and the legend.
+单独使用时，需要自行保存相同的 `data`、`start` 和 `end`；该元素负责网格布局、颜色深浅处理和图例。
 
 <Steps>
   <Step>
 
-### Hold the data
+### 保存数据
 
 ```tsx title="app/agent-activity.tsx"
 "use client";
@@ -137,9 +137,9 @@ export function AgentActivity() {
   </Step>
   <Step>
 
-### Refresh the window
+### 刷新时间范围
 
-There is no live update inside the element: move `start` and `end` and hand it a freshly computed `data` array whenever the window changes.
+该元素内部不会实时更新：每当时间范围发生变化时，调整 `start` 和 `end`，并将重新计算的 `data` 数组传给它。
 
 ```tsx
 const [days, setDays] = useState(182);
@@ -153,7 +153,7 @@ const data = useRunHistory(start, end);
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="activity-graph">
@@ -162,43 +162,43 @@ const data = useRunHistory(start, end);
 </div>
 ```
 
-Each cell's shade comes from `heat-graph`'s own `level` classification (0 through 4) for that `DataPoint`, mapped here onto a five-step blue tint; a level outside that range falls back to the lightest tint. Day labels only print on odd grid rows, one every other week, so the left edge does not crowd. The week always starts on Monday; that choice is fixed by this element and is not exposed as a prop.
+每个单元格的颜色深浅来自 `heat-graph` 自身针对该 `DataPoint` 的 `level` 分类（0 到 4），并在此映射为五级蓝色色阶；超出该范围的级别会回退到最浅的颜色。日期标签只显示在奇数网格行中，每隔一周显示一个，这样左侧边缘不会过于拥挤。每周始终从星期一开始；此选择由该元素固定，不作为 prop 暴露。
 
-## Examples
+## 示例
 
-### Choosing the date range
+### 选择日期范围
 
-`start` and `end` bound the grid; `heat-graph` fills in every day between them from `data`, including days with no matching point, which render at the lowest tint.
+`start` 和 `end` 界定网格范围；`heat-graph` 会根据 `data` 填充两者之间的每一天，包括没有匹配数据点的日期，这些日期会以最低级别的颜色显示。
 
 ```tsx
 <ActivityGraph data={data} start={sixMonthsAgo} end={today} title="Agent runs" total={total} />
 ```
 
-### Restyle the graph
+### 重新设置活动图样式
 
-Both lanes take `className` on the root. The title reads plain text and the total reads the shared `mono` token from `surfaces.tsx`. The tint scale itself is a fixed array inside `activity-graph.tsx`, so recoloring the cells means editing that file directly.
+两条轨道都会在根元素上接收 `className`。标题显示为纯文本，总数则读取 `surfaces.tsx` 中共享的 `mono` token。颜色深浅刻度本身是 `activity-graph.tsx` 内的固定数组，因此要重新设置单元格颜色，需要直接编辑该文件。
 
 ```tsx
 <ActivityGraph className="max-w-none" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool-call render props
+### 工具调用渲染 props
 
-| Prop | Type | Description |
+| Prop | 类型 | 描述 |
 |------|------|-------------|
-| `args` | `TArgs` | Parsed arguments. Partial while the model is still streaming them. |
-| `argsText` | `string` | Raw JSON argument text streamed by the model. |
-| `result` | `TResult \| undefined` | The tool's return value once it completes. `undefined` while running. |
-| `status` | `ToolCallMessagePartStatus` | `status.type` is `"running"`, `"requires-action"`, `"complete"`, or `"incomplete"`. |
-| `toolName` | `string` | Name of the tool the model called. |
-| `toolCallId` | `string` | Stable id for this invocation. |
-| `isError` | `boolean \| undefined` | Whether `result` represents a tool execution error. |
+| `args` | `TArgs` | 解析后的参数。模型仍在流式传输参数时，该值可能不完整。 |
+| `argsText` | `string` | 模型流式传输的原始 JSON 参数文本。 |
+| `result` | `TResult \| undefined` | 工具完成后的返回值。运行时为 `undefined`。 |
+| `status` | `ToolCallMessagePartStatus` | `status.type` 为 `"running"`、`"requires-action"`、`"complete"` 或 `"incomplete"`。 |
+| `toolName` | `string` | 模型调用的工具名称。 |
+| `toolCallId` | `string` | 此次调用的稳定 ID。 |
+| `isError` | `boolean \| undefined` | `result` 是否表示工具执行错误。 |
 
-Register the renderer on a toolkit entry's `render` field and attach the toolkit with `Tools({ toolkit })`. See [Tool UI](/docs/tools/tool-ui) for the full render-prop surface, including `addResult`, human tools, and approval gates.
+在工具包条目的 `render` 字段上注册渲染器，并使用 `Tools({ toolkit })` 附加工具包。有关完整的渲染 props 接口（包括 `addResult`、人工工具和审批关卡），请参阅[工具 UI](/docs/tools/tool-ui)。
 
 </RuntimeMode>
 
@@ -206,15 +206,15 @@ Register the renderer on a toolkit entry's `render` field and attach the toolkit
 
 ### ActivityGraph
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `data` | `readonly DataPoint[]` | required | One count per day. |
-| `start` | `string \| Date` | required | Start of the plotted window. |
-| `end` | `string \| Date` | required | End of the plotted window. |
-| `title` | `string` | required | Heading above the grid. |
-| `total` | `string` | required | Summary text, already formatted, shown opposite the title. |
-| `className` | `string` | | Merged onto the root. |
+| `data` | `readonly DataPoint[]` | 必填 | 每天一个计数。 |
+| `start` | `string \| Date` | 必填 | 绘制时间范围的开始日期。 |
+| `end` | `string \| Date` | 必填 | 绘制时间范围的结束日期。 |
+| `title` | `string` | 必填 | 网格上方的标题。 |
+| `total` | `string` | 必填 | 已格式化的摘要文本，显示在标题对面。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-`DataPoint`, from the `heat-graph` package, is `{ date: string | Date; count: number }`. All other `div` props are forwarded to the root.
+来自 `heat-graph` 包的 `DataPoint` 是 `{ date: string | Date; count: number }`。所有其他 `div` props 都会转发到根元素。
 
 </StandaloneMode>

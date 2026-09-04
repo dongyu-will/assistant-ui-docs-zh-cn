@@ -1,42 +1,42 @@
 ---
-title: Deprecation Policy
-description: Stability guarantees and deprecation timelines for assistant-ui features.
+title: 弃用政策
+description: assistant-ui 功能的稳定性保证和弃用时间表。
 ---
 
-assistant-ui is committed to providing a stable API, so you can spend your time building amazing things on top of it.
+assistant-ui 致力于提供稳定的 API，让你可以将时间投入到构建出色的应用上。
 
-Rarely, we need to deprecate a feature we've already shipped, because it is causing performance, usability, or security issues.
-In such cases, we will communicate the intent to unship as soon as possible by marking the feature as `@deprecated` and publishing a notice in the documentation.
+我们很少需要弃用已经发布的功能，因为这通常意味着该功能存在性能、可用性或安全问题。
+在这种情况下，我们会尽快通过将该功能标记为 `@deprecated` 并在文档中发布通知，传达移除该功能的意图。
 
-Deprecations and breaking changes primarily affect new features released. The longer an API has been in the library, the less likely it is to be deprecated.
-For features that have long existed in the library, we will provide a longer deprecation notice period (as described below).
+弃用和破坏性变更主要会影响新发布的功能。某个 API 在库中存在的时间越长，被弃用的可能性就越低。
+对于已经在库中存在较长时间的功能，我们会提供更长的弃用通知期（如下所述）。
 
-Below is a list of features considered stable and those considered experimental.
+下面列出了被视为稳定和实验性的功能。
 
-## Experimental Features
+## 实验性功能
 
-These features may be removed at any time without notice.
+这些功能可能会在不另行通知的情况下随时被移除。
 
-- Anything marked as `unstable_`, `experimental_`, or `internal`
-- The `RuntimeCore` API (considered internal)
+- 任何标记为 `unstable_`、`experimental_` 或 `internal` 的内容
+- `RuntimeCore` API（被视为内部 API）
 
-## Beta Features
+## Beta 功能
 
-A deprecation of these features will undergo a short (&lt;1) month deprecation notice period.
+弃用这些功能时，将经过较短的弃用通知期（&lt;1 个月）。
 
-- TailwindCSS Plugins (e.g. `tw-shimmer`, `tw-glass`)
+- TailwindCSS 插件（例如 `tw-shimmer`、`tw-glass`）
 - Context API
 - Runtime API
-- Message types
-- Styled UI components
-- Primitive Hooks (e.g. useBranchPickerNext)
-- Attachment APIs
-- shadcn/ui styles
+- 消息类型
+- 样式化 UI 组件
+- 原语 Hooks（例如 useBranchPickerNext）
+- 附件 API
+- shadcn/ui 样式
 
-## Stable Features
+## 稳定功能
 
-A deprecation of these features will undergo a long (&gt;3 month) deprecation notice period.
+弃用这些功能时，将经过较长的弃用通知期（&gt;3 个月）。
 
-The following features are considered stable:
+以下功能被视为稳定：
 
-- Primitives (except for `AttachmentPrimitive`)
+- 原语（`AttachmentPrimitive` 除外）

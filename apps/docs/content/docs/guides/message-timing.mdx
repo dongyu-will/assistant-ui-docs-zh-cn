@@ -1,22 +1,22 @@
 ---
-title: Message Timing & Token Stats
-description: Display stream metadata in AI chat — generation duration, tokens per second, and time to first token, rendered via assistant-ui's React components.
+title: 消息计时与 Token 统计
+description: 在 AI 聊天中显示流元数据——生成时长、每秒 Token 数和首个 Token 的耗时，并通过 assistant-ui 的 React 组件进行渲染。
 platforms: ["react"]
 ---
 
-Display stream performance metrics — duration, tokens per second, TTFT — on assistant messages.
+在助手消息上显示流性能指标——时长、每秒 Token 数和 TTFT（首个 Token 的耗时）。
 
 <Callout type="warn">
-  This feature is experimental. The `useMessageTiming()` API and the set of tracked fields may change in future versions.
+  此功能为实验性功能。`useMessageTiming()` API 以及跟踪字段集合未来版本可能会发生变化。
 </Callout>
 
 <Callout type="info">
-  The [`MessageTiming`](/elements/message-timing) registry component provides a ready-made badge + popover UI. This guide covers the underlying `useMessageTiming()` hook for custom implementations and runtime-specific setup.
+  [`MessageTiming`](/elements/message-timing) 注册表组件提供了开箱即用的徽章 + 弹出层 UI。本指南介绍底层的 `useMessageTiming()` hook，用于自定义实现和特定运行时的配置。
 </Callout>
 
-## Reading Timing Data
+## 读取计时数据
 
-Use `useMessageTiming()` inside a message component to access timing data:
+在消息组件中使用 `useMessageTiming()` 访问计时数据：
 
 ```tsx
 import type { FC } from "react";
@@ -39,7 +39,7 @@ const MessageTimingDisplay: FC = () => {
 };
 ```
 
-Place it inside `MessagePrimitive.Root`, typically near the action bar:
+将其放在 `MessagePrimitive.Root` 内，通常位于操作栏附近：
 
 ```tsx {8}
 const AssistantMessage: FC = () => {
@@ -56,33 +56,33 @@ const AssistantMessage: FC = () => {
 };
 ```
 
-### `useMessageTiming()` Return Fields
+### `useMessageTiming()` 返回字段
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `streamStartTime` | `number` | Unix timestamp when stream started |
-| `firstTokenTime` | `number?` | Time to first text token (ms) |
-| `totalStreamTime` | `number?` | Total stream duration (ms) |
-| `tokenCount` | `number?` | Output token count from message metadata usage |
-| `tokensPerSecond` | `number?` | Throughput (tokens/sec), when token usage is available |
-| `totalChunks` | `number` | Total stream chunks received |
-| `toolCallCount` | `number` | Number of tool calls |
+| `streamStartTime` | `number` | 流开始时的 Unix 时间戳 |
+| `firstTokenTime` | `number?` | 首个文本 Token 的耗时（毫秒） |
+| `totalStreamTime` | `number?` | 流的总时长（毫秒） |
+| `tokenCount` | `number?` | 从消息元数据 usage 中获取的输出 Token 数 |
+| `tokensPerSecond` | `number?` | 吞吐量（Token/秒），在 Token 使用量可用时提供 |
+| `totalChunks` | `number` | 接收到的流区块总数 |
+| `toolCallCount` | `number` | 工具调用次数 |
 
-## Runtime Support
+## 运行时支持
 
-| Runtime | Supported | Notes |
+| 运行时 | 支持 | 说明 |
 |---------|:-:|-------|
-| [Data Stream](/docs/runtimes/custom/data-stream) | Yes | Automatic via `AssistantMessageAccumulator` |
-| AI SDK (`useChatRuntime`) | Yes | Automatic via client-side tracking |
-| Local (`useLocalRuntime`) | Yes | Pass timing in `ChatModelRunResult.metadata` |
-| ExternalStore | Yes | Pass timing in `ThreadMessageLike.metadata` |
-| LangGraph | Yes | Automatic via client-side tracking |
-| AG-UI | Yes | Automatic via client-side tracking |
-| OpenCode | Yes | Automatic via client-side tracking |
+| [数据流](/docs/runtimes/custom/data-stream) | 是 | 通过 `AssistantMessageAccumulator` 自动处理 |
+| AI SDK（`useChatRuntime`） | 是 | 通过客户端跟踪自动处理 |
+| 本地（`useLocalRuntime`） | 是 | 在 `ChatModelRunResult.metadata` 中传入计时数据 |
+| ExternalStore | 是 | 在 `ThreadMessageLike.metadata` 中传入计时数据 |
+| LangGraph | 是 | 通过客户端跟踪自动处理 |
+| AG-UI | 是 | 通过客户端跟踪自动处理 |
+| OpenCode | 是 | 通过客户端跟踪自动处理 |
 
-### Data Stream
+### 数据流
 
-Timing is tracked automatically inside `AssistantMessageAccumulator`. No setup required.
+`AssistantMessageAccumulator` 内部会自动跟踪计时数据。无需配置。
 
 ```tsx
 import { useDataStreamRuntime } from "@assistant-ui/react-data-stream";
@@ -91,12 +91,12 @@ const runtime = useDataStreamRuntime({ api: "/api/chat" });
 // useMessageTiming() works out of the box
 ```
 
-### AI SDK (`useChatRuntime`)
+### AI SDK（`useChatRuntime`）
 
-Timing is tracked automatically on the client side by observing streaming state transitions and content changes. Timing is finalized when each stream completes.
+客户端会通过观察流式状态转换和内容变化自动跟踪计时数据。每个流完成时，计时数据会最终确定。
 
 <Callout type="warn">
-  `tokenCount` and `tokensPerSecond` require usage metadata from `finish` or `finish-step` in your AI SDK route. If usage metadata is not emitted, duration and TTFT metrics still work, but token-based metrics are omitted.
+  `tokenCount` 和 `tokensPerSecond` 需要在 AI SDK 路由中从 `finish` 或 `finish-step` 获取 usage 元数据。如果未发出 usage 元数据，时长和 TTFT 指标仍然有效，但会省略基于 Token 的指标。
 </Callout>
 
 ```tsx
@@ -106,9 +106,9 @@ const runtime = useChatRuntime();
 // useMessageTiming() works out of the box
 ```
 
-### Local (`useLocalRuntime`)
+### 本地（`useLocalRuntime`）
 
-Pass timing in the `metadata` field of your `ChatModelRunResult`:
+在 `ChatModelRunResult` 的 `metadata` 字段中传入计时数据：
 
 ```tsx
 import type { ChatModelAdapter } from "@assistant-ui/react";
@@ -139,9 +139,9 @@ const myAdapter: ChatModelAdapter = {
 };
 ```
 
-### ExternalStore (`useExternalStoreRuntime`)
+### ExternalStore（`useExternalStoreRuntime`）
 
-Pass timing in the `metadata.timing` field of your `ThreadMessageLike` messages:
+在 `ThreadMessageLike` 消息的 `metadata.timing` 字段中传入计时数据：
 
 ```tsx
 import type { ThreadMessageLike } from "@assistant-ui/react";
@@ -163,9 +163,9 @@ const message: ThreadMessageLike = {
 };
 ```
 
-### LangGraph (`useLangGraphRuntime`)
+### LangGraph（`useLangGraphRuntime`）
 
-Timing is tracked automatically on the client side by observing streaming state transitions and `LangChainMessage` content changes. No setup required.
+客户端会通过观察流式状态转换和 `LangChainMessage` 内容变化自动跟踪计时数据。无需配置。
 
 ```tsx
 import { useLangGraphRuntime } from "@assistant-ui/react-langgraph";
@@ -174,9 +174,9 @@ const runtime = useLangGraphRuntime({ stream: myStream });
 // useMessageTiming() works out of the box
 ```
 
-### AG-UI (`useAgUiRuntime`)
+### AG-UI（`useAgUiRuntime`）
 
-Timing is tracked automatically on the client side by the AG-UI run aggregator. Each emitted message includes timing metadata computed from stream chunk observations.
+AG-UI 运行聚合器会在客户端自动跟踪计时数据。每条发出的消息都包含根据流区块观察结果计算出的计时元数据。
 
 ```tsx
 import { useMemo } from "react";
@@ -191,9 +191,9 @@ const runtime = useAgUiRuntime({ agent });
 // useMessageTiming() works out of the box
 ```
 
-### OpenCode (`useOpenCodeRuntime`)
+### OpenCode（`useOpenCodeRuntime`）
 
-Timing is tracked automatically on the client side by observing `OpenCodeThreadState` transitions and assistant message content deltas. No setup required.
+客户端会通过观察 `OpenCodeThreadState` 转换和助手消息内容增量自动跟踪计时数据。无需配置。
 
 ```tsx
 import { useOpenCodeRuntime } from "@assistant-ui/react-opencode";
@@ -202,7 +202,7 @@ const runtime = useOpenCodeRuntime();
 // useMessageTiming() works out of the box
 ```
 
-## API Reference
+## API 参考
 
 ### `useMessageTiming()`
 
@@ -210,6 +210,6 @@ const runtime = useOpenCodeRuntime();
 const timing: MessageTiming | undefined = useMessageTiming();
 ```
 
-Returns timing metadata for the current assistant message, or `undefined` for non-assistant messages or when no timing data is available.
+返回当前助手消息的计时元数据；对于非助手消息或没有可用计时数据的情况，返回 `undefined`。
 
-Must be used inside a `MessagePrimitive.Root` context.
+必须在 `MessagePrimitive.Root` 上下文中使用。

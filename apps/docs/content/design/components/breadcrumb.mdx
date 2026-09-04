@@ -1,8 +1,8 @@
 ---
-title: "Breadcrumb"
-description: "Where you are, as a path you can walk back up."
+title: "面包屑"
+description: "显示你所在的位置，并提供一条可返回上级的路径。"
 links:
-  - label: Source
+  - label: 官方原文
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/breadcrumb.tsx
 ---
 
@@ -21,11 +21,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.BreadcrumbSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="breadcrumb" />
 
-## Usage
+## 用法
 
 ```tsx
 import {
@@ -54,26 +54,26 @@ export function Example() {
 }
 ```
 
-## Examples
+## 示例
 
-### Collapsed
+### 折叠
 
-`BreadcrumbEllipsis` stands in for levels that do not need to be spelled out.
+`BreadcrumbEllipsis` 代表无需详细列出的层级。
 
 <PreviewCode file="components/pages/design/specimens" name="BreadcrumbEllipsisSpecimen" base={<BreadcrumbEllipsisSpecimen />}>
   <RadixSpecimens.BreadcrumbEllipsisSpecimen />
 </PreviewCode>
 
-## API Reference
+## API 参考
 
-### Parts
+### 部件
 
-| Part | Description |
+| 部件 | 描述 |
 |------|-------------|
-| `Breadcrumb` | The `nav` landmark. |
-| `BreadcrumbList` | The ordered list of levels. |
-| `BreadcrumbItem` | One level. |
-| `BreadcrumbLink` | A navigable level; compose with `render` for router links. |
-| `BreadcrumbPage` | The current page, not a link. |
-| `BreadcrumbSeparator` | The divider glyph between levels. |
-| `BreadcrumbEllipsis` | Placeholder for collapsed levels. |
+| `Breadcrumb` | `nav` 地标。 |
+| `BreadcrumbList` | 层级的有序列表。 |
+| `BreadcrumbItem` | 一个层级。 |
+| `BreadcrumbLink` | 可导航的层级；与 `render` 组合使用以创建路由链接。 |
+| `BreadcrumbPage` | 当前页面，而不是链接。 |
+| `BreadcrumbSeparator` | 层级之间的分隔符图形。 |
+| `BreadcrumbEllipsis` | 折叠层级的占位符。 |

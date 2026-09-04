@@ -1,8 +1,8 @@
 ---
 title: "Toast"
-description: "A passing message for outcomes: success, error, and undo."
+description: "用于展示成功、错误和撤销等结果的短暂消息。"
 links:
-  - label: Source
+  - label: 来源
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/sonner.tsx
   - label: Sonner
     url: https://sonner.emilkowal.ski
@@ -23,15 +23,15 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.ToastSpecimen />
 </PreviewCode>
 
-The wrapper restyles [Sonner](https://sonner.emilkowal.ski) and is identical in both flavors. Typed toasts carry one hue across the ring, the faint fill, and the icon, while the message itself stays in ink. The card keeps the overlay radius: a toast floats above the page, so it rounds like every lifted surface in the kit.
+该包装器会重新设置 [Sonner](https://sonner.emilkowal.ski) 的样式，并且在两种风格中保持一致。带类型的 toast 在边框、淡色填充和图标上使用同一种色调，而消息本身保持墨色。卡片使用浮层圆角：toast 会悬浮在页面上方，因此和套件中所有浮起的表面一样采用圆角。
 
-## Installation
+## 安装
 
 <KitInstall name="sonner" />
 
-## Usage
+## 用法
 
-Mount one `Toaster` at the root, then call `toast` from anywhere. This site mounts it in the root provider.
+在根部挂载一个 `Toaster`，然后从任意位置调用 `toast`。本网站会在根提供程序中挂载它。
 
 ```tsx
 import { Toaster } from "@/components/ui/sonner";
@@ -56,21 +56,21 @@ toast("Thread archived", {
 });
 ```
 
-## Examples
+## 示例
 
-### Types and promises
+### 类型和 Promise
 
-`info` and `warning` follow the callout hues. `toast.promise` renders the loading state with the kit's one sanctioned spinner, then settles into success or error.
+`info` 和 `warning` 遵循提示框的色调。`toast.promise` 使用套件中唯一获准的加载指示器渲染加载状态，然后进入成功或错误状态。
 
 <PreviewCode file="components/pages/design/specimens" name="ToastTypesSpecimen" base={<ToastTypesSpecimen />}>
   <RadixSpecimens.ToastTypesSpecimen />
 </PreviewCode>
 
-## API Reference
+## API 参考
 
 ### Toaster
 
-Wraps Sonner's `Toaster` and accepts all of its props; the wrapper only sets the house styling through `toastOptions.classNames` and reads the theme from `next-themes`.
+包装 Sonner 的 `Toaster`，并接受其全部 props；该包装器仅通过 `toastOptions.classNames` 设置统一样式，并从 `next-themes` 读取主题。
 
 <ParametersTable
   type="ToasterProps"
@@ -79,23 +79,23 @@ Wraps Sonner's `Toaster` and accepts all of its props; the wrapper only sets the
       name: "position",
       type: '"top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right"',
       default: '"bottom-right"',
-      description: "Where the stack lives. This site uses top-center.",
+      description: "堆叠显示的位置。本网站使用 top-center。",
     },
     {
       name: "toastOptions",
       type: "ToastOptions",
       description:
-        "Per-toast defaults. Class overrides merge after the house styles.",
+        "每个 toast 的默认值。类名覆盖会在统一样式之后合并。",
     },
     {
       name: "closeButton",
       type: "boolean",
       default: "false",
-      description: "Adds a dismiss button to every toast.",
+      description: "为每个 toast 添加关闭按钮。",
     },
   ]}
 />
 
 ### toast
 
-Import `toast` from `sonner` directly: `toast(title, options)`, `toast.success`, `toast.error`, `toast.info`, `toast.warning`, and `toast.promise` are the calls this kit styles.
+直接从 `sonner` 导入 `toast`：`toast(title, options)`、`toast.success`、`toast.error`、`toast.info`、`toast.warning` 和 `toast.promise` 是该套件设置样式的调用。

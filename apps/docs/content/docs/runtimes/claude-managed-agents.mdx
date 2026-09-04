@@ -1,41 +1,41 @@
 ---
-title: Claude Managed Agents
-description: Connect Anthropic's Managed Agents sessions to assistant-ui with the external store runtime, folding the session event log into messages, rendering approval gates, and using sessions as the thread list.
+title: Claude 托管式代理
+description: 使用外部状态存储运行时将 Anthropic 的 Managed Agents 会话连接到 assistant-ui，将会话事件日志整合为消息，渲染审批关卡，并使用会话作为线程列表。
 ---
 
-[Claude Managed Agents](https://platform.claude.com/docs/en/managed-agents/overview) is Anthropic's hosted agent platform: Anthropic runs the agent loop and provisions a sandboxed container per session, and your client drives the session over an event stream. A session holds the entire conversation server-side as a durable event log, streams every step (text, tool calls, approval stops, status) as typed events, and accepts user messages and tool confirmations back.
+[Claude Managed Agents](https://platform.claude.com/docs/en/managed-agents/overview) 是 Anthropic 提供的托管式代理平台：Anthropic 运行代理循环，并为每个会话配置一个沙盒容器；你的客户端则通过事件流驱动会话。会话会在服务端以持久化事件日志的形式保存完整对话，按类型化事件流式传输每一步操作（文本、工具调用、审批停止、状态），并接收用户消息和工具确认。
 
-That shape maps directly onto two assistant-ui primitives, with no adapter package in between:
+这种结构可以直接映射到 assistant-ui 的两个原语，中间无需适配器包：
 
-- [`useExternalStoreRuntime`](/docs/runtimes/custom/external-store) renders messages you derive from the session's event log. The log is the single source of truth, so replaying a stored session and tailing a live one run through the same pure function and can never disagree.
-- [`useRemoteThreadListRuntime`](/docs/api-reference/hooks/runtimes#useremotethreadlistruntime) turns the session list into the thread sidebar. A thread is a session; there is no conversations table anywhere in the app.
+- [`useExternalStoreRuntime`](/docs/runtimes/custom/external-store) 渲染从会话事件日志中派生的消息。日志是唯一事实来源，因此，重放已存储的会话和跟踪实时会话都会经过同一个纯函数，结果绝不会不一致。
+- [`useRemoteThreadListRuntime`](/docs/api-reference/hooks/runtimes#useremotethreadlistruntime) 将会话列表转换为线程侧边栏。一个线程就是一个会话；应用中完全不需要 conversations 表。
 
-Anthropic ships an official reference implementation of this integration: the [Claude Managed Agents quickstart](https://github.com/anthropics/claude-quickstarts/tree/main/managed-agents/assistant-ui) is a complete Next.js app (composer, thread, sidebar, tool cards, approval gate) built exactly this way. This page teaches the pattern; the quickstart is the runnable proof.
+Anthropic 提供了这一集成的官方参考实现：[Claude Managed Agents 快速入门](https://github.com/anthropics/claude-quickstarts/tree/main/managed-agents/assistant-ui) 是一个完整的 Next.js 应用（输入框、线程、侧边栏、工具卡片、审批关卡），完全按照这种方式构建。本页面介绍这一模式；快速入门则是可运行的示例。
 
 <Callout type="info">
-Managed Agents is a beta API (`managed-agents-2026-04-01`; the SDK sets the header automatically). The quickstart declares `@anthropic-ai/sdk` `^0.113.0` (the session event helpers and token previews need 0.109.0 or later), and `@assistant-ui/react` 0.14.27 or later for the toolkit API and the approval gate on the external store runtime.
+Managed Agents 是一个 Beta API（`managed-agents-2026-04-01`；SDK 会自动设置该请求头）。快速入门声明 `@anthropic-ai/sdk` `^0.113.0`（会话事件辅助工具和令牌预览需要 0.109.0 或更高版本），并声明 `@assistant-ui/react` 0.14.27 或更高版本，以使用外部状态存储运行时的工具包 API 和审批关卡。
 </Callout>
 
-## The event-to-message mapping
+## 事件到消息的映射
 
-Everything the session emits arrives as a typed event. The integration is one pure fold from the event array to assistant-ui's message model:
+会话发出的所有内容都会作为带类型的事件到达。该集成将事件数组纯粹折叠（fold）为 assistant-ui 的消息模型：
 
-| Managed Agents event | assistant-ui |
+| Managed Agents 事件 | assistant-ui |
 | --- | --- |
-| `user.message` | A user message |
-| `agent.message` | Assistant text (buffered, authoritative) |
-| `event_start` / `event_delta` | The same text, streamed early as token previews |
-| `agent.thinking` | A reasoning part (progress signal only; the API sends no reasoning text) |
-| `agent.tool_use` / `agent.mcp_tool_use` / `agent.custom_tool_use` | A tool-call part; the `toolCallId` is the event id |
-| `agent.tool_result` (and mcp / custom variants) | That part's result |
-| `session.status_idle` with `stop_reason: requires_action` | `requires-action` message status, plus an approval on each blocked tool part |
-| `user.tool_confirmation` | The approval, settled (allowed or denied) |
-| `session.status_running` / `status_idle` | Whether the turn is live (`isRunning`) |
-| `session.error` | An error status on the message, or a retry banner |
+| `user.message` | 一条用户消息 |
+| `agent.message` | 助手文本（已缓冲，具有权威性） |
+| `event_start` / `event_delta` | 相同的文本，作为令牌预览提前流式传输 |
+| `agent.thinking` | 一个推理部分（仅用于进度信号；API 不会发送推理文本） |
+| `agent.tool_use` / `agent.mcp_tool_use` / `agent.custom_tool_use` | 一个工具调用部分；`toolCallId` 是事件 ID |
+| `agent.tool_result`（以及 mcp / 自定义变体） | 该部分的结果 |
+| `session.status_idle` 与 `stop_reason: requires_action` | `requires-action` 消息状态，以及每个被阻塞工具部分上的批准请求 |
+| `user.tool_confirmation` | 已完成结算的批准（允许或拒绝） |
+| `session.status_running` / `status_idle` | 该轮是否处于实时状态（`isRunning`） |
+| `session.error` | 消息上的错误状态，或重试提示 |
 
-Because the fold is pure, opening an old chat replays `sessions.events.list()` through it, and a live chat feeds the SSE tail through it, and the two paths cannot render differently. Approvals, denials, and charts all come back after a reload because they are in the log, not in browser state.
+由于折叠过程是纯函数，打开旧聊天时会将 `sessions.events.list()` 重放到其中，实时聊天则会将 SSE 尾部数据输入其中，因此这两条路径不可能渲染出不同的结果。重新加载后，批准、拒绝和图表仍会恢复，因为它们记录在日志中，而不是浏览器状态中。
 
-The runtime wiring is a structural subset of `ThreadMessageLike`, handed to the external store as-is:
+运行时连接是 `ThreadMessageLike` 的结构子集，并按原样交给外部状态存储：
 
 ```tsx
 const runtime = useExternalStoreRuntime<ThreadMessageLike>({
@@ -59,52 +59,52 @@ const runtime = useExternalStoreRuntime<ThreadMessageLike>({
 });
 ```
 
-## Sessions are the thread list
+## 会话就是线程列表
 
-The sidebar is a `RemoteThreadListAdapter` over the Managed Agents session API. Thread id and session id are the same string, so nothing maps between the two worlds:
+侧边栏是基于 Managed Agents 会话 API 的 `RemoteThreadListAdapter`。线程 ID 和会话 ID 是同一个字符串，因此两者之间无需进行映射：
 
-| Adapter method | Managed Agents call |
+| 适配器方法 | Managed Agents 调用 |
 | --- | --- |
-| `list` | `sessions.list()`, filtered to the sessions this app created (a `metadata` tag) |
-| `initialize` | `sessions.create()`, invoked by assistant-ui on the first message of a new chat |
+| `list` | `sessions.list()`，仅筛选此应用创建的会话（带有 `metadata` 标签） |
+| `initialize` | `sessions.create()`，由 assistant-ui 在新聊天的第一条消息上调用 |
 | `rename` | `sessions.update({ title })` |
 | `archive` | `sessions.archive()` |
-| `unarchive` | Throws. Managed Agents sessions cannot be unarchived, and switching to an archived thread auto-unarchives by default, so do not render archived sessions as switchable (the quickstart's ownership gate rejects archived ids outright) |
+| `unarchive` | 抛出异常。Managed Agents 会话无法取消归档，而切换到已归档线程默认会自动取消归档，因此不要将已归档会话渲染为可切换项（quickstart 的所有权门禁会直接拒绝已归档的 ID） |
 | `delete` | `sessions.delete()` |
 | `fetch` | `sessions.retrieve()` |
-| `generateTitle` | Reads the title back after the server retitles the session from the first message, so the sidebar row updates without a second model call |
+| `generateTitle` | 在服务器根据第一条消息重新设置会话标题后读取标题，因此侧边栏行无需再次调用模型即可更新 |
 
-A brand-new chat has no session until the first send: the composer works immediately, and `initialize()` creates the session lazily when the first message (or first attachment upload) needs one. Kill the server, restart, reload, and every conversation comes back, because none of it ever lived in the app.
+全新的聊天在首次发送前没有会话：输入框可以立即使用，而 `initialize()` 会在第一条消息（或首次附件上传）需要会话时延迟创建会话。停止服务器、重启、重新加载，所有对话都会恢复，因为它们从未存储在应用中。
 
-## The approval gate
+## 审批闸门
 
-Managed Agents supports per-tool [permission policies](https://platform.claude.com/docs/en/managed-agents/permission-policies). A tool configured as `always_ask` (the quickstart gates `bash` this way) does not run when the agent reaches for it. The session emits the `agent.tool_use` event, then parks:
+Managed Agents 支持针对每个工具配置[权限策略](https://platform.claude.com/docs/en/managed-agents/permission-policies). `always_ask` 的工具（quickstart 以这种方式对 `bash` 设置闸门）不会在助手调用它时执行。会话会发出 `agent.tool_use` 事件，然后暂停：
 
 ```json
 { "type": "session.status_idle", "stop_reason": { "type": "requires_action", "event_ids": ["sevt_..."] } }
 ```
 
-The fold stamps an approval onto that tool part and sets the message status to `requires-action`, which is everything assistant-ui needs to render Allow and Deny on the tool card. The click flows back through `onRespondToToolApproval` as a `user.tool_confirmation` event:
+fold 会在该工具部分写入审批信息，并将消息状态设置为 `requires-action`；assistant-ui 据此即可在工具卡片上渲染“允许”和“拒绝”按钮。点击操作会通过 `onRespondToToolApproval` 以 `user.tool_confirmation` 事件的形式传回：
 
 ```json
 { "type": "user.tool_confirmation", "tool_use_id": "sevt_...", "result": "deny", "deny_message": "Not on this box." }
 ```
 
-Two wire details matter. The `tool_use_id` is the tool-use event id, not an Anthropic `toolu_` id. And a denial reaches the agent as the tool's result, so it adjusts course instead of retrying the same command.
+有两个传输层细节需要注意。`tool_use_id` 是工具调用事件 ID，而不是 Anthropic 的 `toolu_` ID。拒绝操作会作为该工具的结果传回助手，因此助手会调整执行方向，而不是重试相同的命令。
 
-Custom client-executed tools ride the same `requires_action` stop but take a `user.custom_tool_result` instead of a confirmation; sending a confirmation for one is a 400. The quickstart's inline chart tool is the worked example: the session parks, the card renders the chart from the tool's input, and the client answers so the agent continues.
+自定义的客户端执行工具也会使用相同的 `requires_action` 停止机制，但接收的是 `user.custom_tool_result`，而不是确认；为这类工具发送确认会导致 400 错误。quickstart 中的内联图表工具就是一个完整示例：会话暂停后，卡片根据工具输入渲染图表，客户端返回结果，助手即可继续执行。
 
-## Token streaming
+## Token 流式传输
 
-By default assistant text arrives as whole `agent.message` events when a model request finishes. Opting the stream into `event_deltas: ["agent.message", "agent.thinking"]` adds token previews: an `event_start` announces the upcoming event, `event_delta` fragments stream the text, and the buffered event lands last as the authoritative record. Concatenating a preview's deltas in arrival order yields a prefix of the final text, but under load the server may shed the remaining deltas for an event, so the prefix is not necessarily the whole message. The fold therefore appends fragments for display and discards the accumulated preview when the buffered event arrives; never treat a preview as final. When a turn errors or is interrupted, the buffered event may never arrive at all, but `span.model_request_end` still does, so close any unreconciled preview when you see it.
+默认情况下，助手文本会在模型请求完成时，以完整的 `agent.message` 事件到达。将流式传输配置为 `event_deltas: ["agent.message", "agent.thinking"]` 后，便会额外获得令牌预览：`event_start` 会预告即将到来的事件，`event_delta` 片段会以流式方式传输文本，最后到达的缓冲事件则是权威记录。按照到达顺序拼接预览的增量内容，可以得到最终文本的前缀；但在负载较高时，服务器可能会丢弃某个事件剩余的增量内容，因此该前缀不一定是完整消息。相应的折叠逻辑会追加片段以供显示，并在缓冲事件到达时丢弃累积的预览；切勿将预览视为最终结果。当某一轮请求出错或被中断时，缓冲事件可能完全不会到达，但 `span.model_request_end` 仍会到达，因此看到它时，应关闭所有尚未对账的预览。
 
-Previews are best-effort and gated per organization. Build against the buffered events and treat deltas as an enhancement: an org without the streaming gate runs the identical code path with replies arriving whole.
+预览采用尽力而为的方式，并按组织单独启用。请基于缓冲事件构建逻辑，并将增量内容视为增强功能：未启用流式传输权限的组织仍会运行完全相同的代码路径，只是回复会以完整消息到达。
 
-## Security boundary
+## 安全边界
 
-The Anthropic API key stays server-side; the browser talks only to your own route handlers, which relay to Managed Agents. Because a session id arrives from the browser and becomes an API path parameter, validate ownership on every route: the id must resolve, belong to your agent, and carry your app's metadata tag before any read or write. The API key can see the whole workspace; that gate is what keeps a guessed id from reading it. The quickstart's [`ownedSession()`](https://github.com/anthropics/claude-quickstarts/blob/main/managed-agents/assistant-ui/lib/owned-session.ts) is the reference shape.
+Anthropic API 密钥始终保留在服务器端；浏览器只与您自己的路由处理器通信，再由路由处理器转发请求到 Managed Agents。由于会话 ID 来自浏览器，并会成为 API 路径参数，因此必须在每个路由上验证其归属：在执行任何读取或写入操作之前，该 ID 必须能够解析、属于您的代理，并带有您应用的元数据标签。API 密钥可以访问整个工作区；正是这一道校验阻止了攻击者通过猜测 ID 读取工作区。快速入门中的 [`ownedSession()`](https://github.com/anthropics/claude-quickstarts/blob/main/managed-agents/assistant-ui/lib/owned-session.ts) 是参考实现形态。
 
-## Run the reference
+## 运行参考实现
 
 ```bash
 git clone https://github.com/anthropics/claude-quickstarts
@@ -115,4 +115,4 @@ npm run setup          # one-time: creates the agent + environment, paste the ID
 npm run dev            # drop sample_data/sales.csv into the chat
 ```
 
-The quickstart's [README](https://github.com/anthropics/claude-quickstarts/tree/main/managed-agents/assistant-ui#readme) walks through every file: the reducer, the session controller, the thread list adapter, the tool cards, and the attachment adapter that uploads composer files into the session sandbox. For the platform itself, start with Anthropic's [Managed Agents overview](https://platform.claude.com/docs/en/managed-agents/overview) and [events reference](https://platform.claude.com/docs/en/managed-agents/events-and-streaming).
+quickstart 的 [README](https://github.com/anthropics/claude-quickstarts/tree/main/managed-agents/assistant-ui#readme) 详细介绍了每个文件：归约器、会话控制器、线程列表适配器、工具卡片，以及用于将输入框组件文件上传到会话沙盒的附件适配器。关于平台本身，请先阅读 Anthropic 的 [Managed Agents 概览](https://platform.claude.com/docs/en/managed-agents/overview) 和[事件参考](https://platform.claude.com/docs/en/managed-agents/events-and-streaming).

@@ -1,20 +1,20 @@
 ---
-title: "Job progress"
-description: "Work measured in minutes: weighted stages, an ETA, and a way out."
+title: "作业进度"
+description: "以分钟衡量的工作：加权阶段、预计剩余时间，以及取消方式。"
 ---
 
-A single long-running job: a title, a weighted sequence of stages, and one overall bar that fills as the current stage advances toward the end of the list. With a runtime the stage sequence comes from a tool call and its outcome from that call's result; standalone you drive `stageIndex` and `stageProgress` yourself, live, for as long as the job runs.
+一个单独的长时间运行作业：包含标题、一组加权阶段，以及一条总进度条。随着当前阶段向列表末尾推进，总进度条也会逐渐填充。在运行时中，阶段序列来自工具调用，其结果来自该调用的返回值；单独使用时，则需要在作业运行期间实时自行驱动 `stageIndex` 和 `stageProgress`。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-This element has no assistant-ui primitive of its own, so the runtime wiring is a tool renderer rather than a primitive composition. A tool call's result is a one-shot value: setting it settles the call, so there is no channel for a backend to keep pushing new stage numbers into an already-open call. What the result can honestly report is where the job landed by the time the call finished, whether that is every stage or only the one it stopped at, and the card's own checkmark still depends only on whether that final `stageIndex` reached the end of `stages`.
+此元素本身没有专属的 assistant-ui 原语，因此运行时连接使用的是工具渲染器，而不是原语组合。工具调用的结果是一次性值：设置结果后调用就会完成，因此后端无法通过某个通道持续向已经打开的调用推送新的阶段编号。结果能够如实报告的，是作业在调用完成时进行到了哪一步，无论是完成了所有阶段，还是只进行到中途停止的阶段；卡片自身是否显示勾选标记，仍然只取决于最终的 `stageIndex` 是否到达 `stages` 的末尾。
 
 <Steps>
   <Step>
 
-### Register the render function
+### 注册渲染函数
 
 ```tsx title="app/toolkit.tsx"
 "use client";
@@ -54,12 +54,12 @@ export const toolkit = defineToolkit({
 });
 ```
 
-`args.stages` is what the model declares up front when it starts the job, so it is already available before any result exists, which is what lets the loading branch render a real `JobProgress` instead of a bare placeholder. `stageIndex`, `stageProgress`, and `eta` live only on `result`, and since setting a result settles the call, `onCancel` only makes sense in the branch where `result` is still undefined; once a result exists there is nothing left to cancel. A terminal result can still report a `stageIndex` short of `stages.length`, for a job that failed or was cancelled partway, and the card keeps its in-progress spinner styling rather than a checkmark, because "finished" is purely a function of the numbers you pass it, not of whether the tool call itself has settled.
+`args.stages` 是模型启动作业时预先声明的内容，因此在任何结果存在之前就已经可用，这使加载分支能够渲染真正的 `JobProgress`，而不是一个空占位符。`stageIndex`、`stageProgress` 和 `eta` 仅存在于 `result` 上；由于设置结果会完成调用，`onCancel` 只适用于 `result` 仍为 undefined 的分支。一旦结果存在，就没有需要取消的内容了。终止结果仍然可以报告尚未达到 `stages.length` 的 `stageIndex`，表示作业中途失败或被取消；此时卡片会保留进行中的加载旋转样式，而不是显示勾选标记，因为“完成”完全取决于传入的数值，而不是工具调用本身是否已经完成。
 
   </Step>
   <Step>
 
-### Let the message list render it
+### 让消息列表渲染它
 
 ```tsx title="app/MyRuntimeProvider.tsx"
 import {
@@ -85,7 +85,7 @@ export function MyRuntimeProvider({
 }
 ```
 
-Once the toolkit is registered, `Thread` and any custom message list built on assistant-ui's message part primitives (`MessagePrimitive.Parts` or `MessagePrimitive.GroupedParts`) render the registered UI automatically wherever the `run_ci_job` call appears in the message, so nothing needs to be placed by hand.
+注册工具包后，`Thread` 以及任何基于 assistant-ui 消息部分原语构建的自定义消息列表（`MessagePrimitive.Parts` 或 `MessagePrimitive.GroupedParts`），都会在消息中出现 `run_ci_job` 调用的位置自动渲染已注册的 UI，因此无需手动放置。
 
   </Step>
 </Steps>
@@ -94,12 +94,12 @@ Once the toolkit is registered, `Thread` and any custom message list built on as
 
 <StandaloneMode>
 
-Standalone, the element is a controlled component: you own `stageIndex` and `stageProgress`, and it draws whatever snapshot you hand it.
+单独使用时，此元素是一个受控组件：由你管理 `stageIndex` 和 `stageProgress`，它会绘制你传入的任意快照。
 
 <Steps>
   <Step>
 
-### Pass a fixed snapshot straight through
+### 直接传入固定快照
 
 ```tsx title="app/ci-job.tsx"
 "use client";
@@ -132,9 +132,9 @@ export function CiJob() {
   </Step>
   <Step>
 
-### Advance it as the job actually runs
+### 随作业实际运行推进进度
 
-Poll or subscribe to whatever is running the job and write its progress into state, then wire `onCancel` to something that actually stops the work, such as an `AbortController` your fetch call listens to.
+轮询或订阅负责运行作业的服务，将其进度写入状态；然后将 `onCancel` 连接到真正能够停止工作的对象，例如让 fetch 调用监听的 `AbortController`。
 
 ```tsx
 "use client";
@@ -172,7 +172,7 @@ export function CiJob({ jobId }: { jobId: string }) {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="job-progress">
@@ -191,13 +191,13 @@ export function CiJob({ jobId }: { jobId: string }) {
 </div>
 ```
 
-`stageIndex` is floored and clamped into `0…stages.length` rather than `0…stages.length − 1`, so reaching `stages.length` itself, one past the last stage's own index, is what "finished" means. That is when the checkmark, the "done" label, and the filled green bar appear, and the cancel button disappears. `stageProgress` clamps into `0…1` and only scales the current stage's own contribution to the overall bar; every stage already passed counts its full `weight` regardless of `stageProgress`. The stages' weights are summed once and that total falls back to `1` when it would otherwise be `0`, so an all-zero or empty `stages` array never divides by zero; it just never fills. Stage name labels dim by position: already passed stages read faintly, the current stage reads bright, stages still ahead read faintest of all.
+`stageIndex` 会向下取整，并限制在 `0…stages.length` 中，而不是 `0…stages.length − 1` 中。因此，达到 `stages.length`（即超过最后一个阶段自身索引的位置）才表示“完成”。此时会显示勾选标记、“已完成”标签和填满的绿色进度条，同时取消按钮会消失。`stageProgress` 会被限制在 `0…1` 中，并且只会缩放当前阶段对总进度条的贡献；无论 `stageProgress` 如何，已经完成的阶段都会计入其完整的 `weight`。阶段权重只会求和一次；如果总和原本会是 `0`，则回退到 `1`。因此，全为零或为空的 `stages` 数组不会发生除零，只是永远不会填充。阶段名称标签会根据位置调整明暗：已完成的阶段显示为较浅的颜色，当前阶段显示为明亮颜色，尚未开始的阶段显示为最浅的颜色。
 
-## Examples
+## 示例
 
-### The finished state
+### 完成状态
 
-Set `stageIndex` to `stages.length`, not to the last stage's own index, to show a job as done. `stageProgress` stops mattering once you cross that line.
+将 `stageIndex` 设置为 `stages.length`，而不是最后一个阶段自身的索引，即可将作业显示为已完成。`stageProgress` 一旦越过这一界限就不再重要。
 
 ```tsx
 <JobProgress
@@ -209,11 +209,11 @@ Set `stageIndex` to `stages.length`, not to the last stage's own index, to show 
 />
 ```
 
-### Where the progress comes from
+### 进度来源
 
 <RuntimeMode>
 
-The backend entry only needs to resolve once, however long the job actually takes; there is no interim update to send back over the tool-call channel itself. If the job fails or gets cancelled partway, resolve with wherever it stopped rather than throwing, so the finished card can still say where things stood.
+无论作业实际运行多久，后端入口只需要解析一次；工具调用通道本身不会发送中途更新。如果作业中途失败或被取消，应解析为它停止时所在的位置，而不是抛出错误，这样完成后的卡片仍然可以显示作业进行到了哪里。
 
 ```ts title="app/api/chat/route.ts"
 run_ci_job: tool({
@@ -230,7 +230,7 @@ run_ci_job: tool({
 
 <StandaloneMode>
 
-`subscribeToJob` in the previous step stands in for whatever transport you already use. A `WebSocket`, server-sent events, and plain polling on an interval all reduce to the same shape: write `{ stageIndex, stageProgress }` into state whenever a new update arrives.
+上一步中的 `subscribeToJob` 代表你已经使用的任意传输方式。`WebSocket`、服务器发送事件以及按固定时间间隔进行的普通轮询，最终都可以归结为相同的形式：每当收到新更新时，就将 `{ stageIndex, stageProgress }` 写入状态。
 
 ```tsx
 function pollJob(jobId: string, onUpdate: (u: JobUpdate) => void) {
@@ -243,41 +243,41 @@ function pollJob(jobId: string, onUpdate: (u: JobUpdate) => void) {
 
 </StandaloneMode>
 
-### Restyle the bar
+### 重新设置进度条样式
 
-Both lanes take `className` on the root. The ETA text and stage labels use the shared `mono` surface, and the cancel button uses the shared `ghostButton` surface, both from `surfaces.tsx`, so restyling those tokens restyles every element that uses them.
+两条轨道都会在根元素上接收 `className`。预计剩余时间文本和阶段标签使用共享的 `mono` 表面，取消按钮使用共享的 `ghostButton` 表面；二者都来自 `surfaces.tsx`，因此重新设置这些令牌的样式后，所有使用它们的元素都会同步更新。
 
 ```tsx
 <JobProgress className="max-w-none gap-4" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Render props
+### 渲染 props
 
-| Prop | Type | Description |
+| Prop | 类型 | 描述 |
 |------|------|-------------|
-| `args` | `{ target: string; stages: { name: string; weight: number }[] }` | The tool's arguments; `stages` is what the loading branch renders even before a result exists. |
-| `result` | `{ stageIndex: number; stageProgress: number; eta: string } \| undefined` | The call's one-shot outcome, undefined until the executor resolves; once set, the call is already complete. |
-| `addResult` | `(result: TResult) => void` | Supplies a result from the renderer itself, used here to settle the call early when the user cancels before `result` exists. |
+| `args` | `{ target: string; stages: { name: string; weight: number }[] }` | 工具的参数；即使结果尚不存在，加载分支也会渲染 `stages`。 |
+| `result` | `{ stageIndex: number; stageProgress: number; eta: string } \| undefined` | 调用的一次性结果，在执行器解析之前为 undefined；设置后，调用就已经完成。 |
+| `addResult` | `(result: TResult) => void` | 从渲染器本身提供结果；此处用于在 `result` 存在之前用户取消时提前完成调用。 |
 
-### run_ci_job arguments
+### run_ci_job 参数
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `target` | `string` | What is being verified, shown as the job's title. |
-| `stages[].name` | `string` | Stage label, shown in monospace. |
-| `stages[].weight` | `number` | Relative share of the overall bar this stage accounts for. |
+| `target` | `string` | 要验证的内容，会显示为作业标题。 |
+| `stages[].name` | `string` | 阶段标签，以等宽字体显示。 |
+| `stages[].weight` | `number` | 此阶段占总进度条的相对比例。 |
 
-### run_ci_job result
+### run_ci_job 结果
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `stageIndex` | `number` | How far the job got; `stages.length` means every stage finished. |
-| `stageProgress` | `number` | Progress through that stage, `0…1`. |
-| `eta` | `string` | Shown in place of "done" while `stageIndex` is short of `stages.length`. |
+| `stageIndex` | `number` | 作业进行到的阶段；`stages.length` 表示所有阶段均已完成。 |
+| `stageProgress` | `number` | 该阶段的进度，`0…1`。 |
+| `eta` | `string` | 当 `stageIndex` 尚未达到 `stages.length` 时，替代“已完成”显示。 |
 
 </RuntimeMode>
 
@@ -285,23 +285,23 @@ Both lanes take `className` on the root. The ETA text and stage labels use the s
 
 ### JobProgress
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `title` | `string` | required | The job's title. |
-| `stages` | `readonly JobStage[]` | required | The weighted stage sequence. |
-| `stageIndex` | `number` | required | Index of the current stage, floored and clamped into `0…stages.length`. |
-| `stageProgress` | `number` | required | Progress through the current stage, clamped into `0…1`. |
-| `eta` | `string` | required | Shown in place of "done" while the job is running. |
-| `onCancel` | `() => void` | | Called when the cancel button is pressed. The button's own visibility depends only on `stageIndex`, not on whether this is supplied. |
-| `className` | `string` | | Merged onto the root. |
+| `title` | `string` | 必填 | 作业标题。 |
+| `stages` | `readonly JobStage[]` | 必填 | 加权阶段序列。 |
+| `stageIndex` | `number` | 必填 | 当前阶段的索引，会向下取整并限制在 `0…stages.length` 中。 |
+| `stageProgress` | `number` | 必填 | 当前阶段的进度，会限制在 `0…1` 中。 |
+| `eta` | `string` | 必填 | 作业运行期间替代“已完成”显示。 |
+| `onCancel` | `() => void` | | 按下取消按钮时调用。按钮自身是否显示只取决于 `stageIndex`，与是否提供此属性无关。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` props 都会转发到根元素。
 
 ### JobStage
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `name` | `string` | Stage label, shown in monospace. |
-| `weight` | `number` | Relative share of the overall bar this stage accounts for. |
+| `name` | `string` | 阶段标签，以等宽字体显示。 |
+| `weight` | `number` | 此阶段占总进度条的相对比例。 |
 
 </StandaloneMode>

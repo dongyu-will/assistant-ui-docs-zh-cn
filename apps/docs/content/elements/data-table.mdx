@@ -1,20 +1,20 @@
 ---
-title: "Data table"
-description: "A small comparison table the model can answer with directly."
+title: "数据表"
+description: "一个模型可以直接回答的小型比较表。"
 ---
 
-A data table lists a handful of rows the model wants in front of you, each one settling in with a short stagger. With a runtime the rows come from a tool's result; standalone you pass them in directly.
+数据表列出模型希望展示在你面前的几行数据，每一行都会以短暂的交错动画逐一出现。在运行时中，这些行来自工具的结果；单独使用时，则由你直接传入。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-A data table is the render for a tool call whose result is already row-shaped. Register it once and every matching call gets the same table.
+数据表用于渲染结果已经呈现为行数据的工具调用。注册一次后，所有匹配的调用都会使用同一个表格。
 
 <Steps>
   <Step>
 
-### Render the tool call
+### 渲染工具调用
 
 ```tsx title="components/assistant-ui/elements/compare-models-tool-ui.tsx"
 "use client";
@@ -43,7 +43,7 @@ export const CompareModelsToolUI: ToolCallMessagePartComponent<
   </Step>
   <Step>
 
-### Register the tool
+### 注册工具
 
 ```tsx title="app/toolkit.ts"
 import { defineToolkit } from "@assistant-ui/react";
@@ -77,7 +77,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-See [Tool UI](/docs/tools/tool-ui) for backend-defined tools and approval gates.
+有关后端定义的工具和审批门禁，请参阅[工具 UI](/docs/tools/tool-ui)。
 
   </Step>
 </Steps>
@@ -86,12 +86,12 @@ See [Tool UI](/docs/tools/tool-ui) for backend-defined tools and approval gates.
 
 <StandaloneMode>
 
-Standalone, the element is fully controlled: you own the row array and the replay key.
+单独使用时，该元素完全受控：行数组和重播键都由你管理。
 
 <Steps>
   <Step>
 
-### Hold the rows
+### 保存行数据
 
 ```tsx title="app/comparison.tsx"
 "use client";
@@ -112,9 +112,9 @@ export function Comparison() {
   </Step>
   <Step>
 
-### Replay the stagger when rows change
+### 行数据变化时重播交错动画
 
-`cycle` is a remount key, not a count. Bump it whenever the rows change so the new set fades in from the top instead of popping in place.
+`cycle` 是重新挂载键，而不是计数值。每当行数据发生变化时都将其递增，这样新数据集就会从顶部淡入，而不是在原位置突然出现。
 
 ```tsx
 const [rows, setRows] = useState(MODEL_USAGE);
@@ -131,7 +131,7 @@ async function refresh(models: readonly string[]) {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="data-table">
@@ -143,21 +143,21 @@ async function refresh(models: readonly string[]) {
 </div>
 ```
 
-The row list is keyed on `cycle`, so changing it remounts every row and replays the 80ms-per-row stagger from the top. An empty `rows` array renders only the header, with no placeholder row and no empty-state message.
+行列表以 `cycle` 作为键，因此更改它会重新挂载每一行，并从顶部重新播放每行 80ms 的交错动画。空的 `rows` 数组只会渲染表头，不会显示占位行或空状态消息。
 
-## Examples
+## 示例
 
-### Restyle the table
+### 重新设置表格样式
 
-Both lanes take `className` on the root. Labels, the row avatar, and the numeric columns read from the shared `mono` and `paper` tokens in `surfaces.tsx`, so retheming those tokens restyles every table at once.
+两条通道都会在根元素上接收 `className`。标签、行头像和数字列都从 `surfaces.tsx` 中共享的 `mono` 和 `paper` 令牌读取，因此重新设置这些令牌的主题即可一次性调整所有表格的样式。
 
 ```tsx
 <DataTable className="max-w-none" /* ... */ />
 ```
 
-### Comparing fewer models
+### 比较更少的模型
 
-The header always shows all three columns; `rows` decides how many data rows appear underneath, down to zero.
+表头始终显示全部三列；`rows` 决定下方显示多少行数据，最少可以为零行。
 
 ```tsx
 <DataTable
@@ -166,23 +166,23 @@ The header always shows all three columns; `rows` decides how many data rows app
 />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool-call render props
+### 工具调用渲染属性
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `args` | `TArgs` | Parsed arguments. Partial while the model is still streaming them. |
-| `argsText` | `string` | Raw JSON argument text streamed by the model. |
-| `result` | `TResult \| undefined` | The tool's return value once it completes. `undefined` while running. |
-| `status` | `ToolCallMessagePartStatus` | `status.type` is `"running"`, `"requires-action"`, `"complete"`, or `"incomplete"`. |
-| `toolName` | `string` | Name of the tool the model called. |
-| `toolCallId` | `string` | Stable id for this invocation. |
-| `isError` | `boolean \| undefined` | Whether `result` represents a tool execution error. |
+| `args` | `TArgs` | 解析后的参数。模型仍在流式传输参数时，该值可能不完整。 |
+| `argsText` | `string` | 模型流式传输的原始 JSON 参数文本。 |
+| `result` | `TResult \| undefined` | 工具完成后返回的值。运行期间为 `undefined`。 |
+| `status` | `ToolCallMessagePartStatus` | `status.type` 为 `"running"`、`"requires-action"`、`"complete"` 或 `"incomplete"`。 |
+| `toolName` | `string` | 模型调用的工具名称。 |
+| `toolCallId` | `string` | 此次调用的稳定 ID。 |
+| `isError` | `boolean \| undefined` | `result` 是否表示工具执行错误。 |
 
-Register the renderer on a toolkit entry's `render` field and attach the toolkit with `Tools({ toolkit })`. See [Tool UI](/docs/tools/tool-ui) for the full render-prop surface, including `addResult`, human tools, and approval gates.
+在工具包条目的 `render` 字段上注册渲染器，并使用 `Tools({ toolkit })` 附加工具包。有关完整的渲染属性集合，请参阅[工具 UI](/docs/tools/tool-ui)，其中包括 `addResult`、人工工具和审批门禁。
 
 </RuntimeMode>
 
@@ -190,12 +190,12 @@ Register the renderer on a toolkit entry's `render` field and attach the toolkit
 
 ### DataTable
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `rows` | `readonly ModelUsage[]` | required | The rows to render, in order. |
-| `cycle` | `number` | required | Remount key for the row list; changing it replays the stagger-in animation. |
-| `className` | `string` | | Merged onto the root. |
+| `rows` | `readonly ModelUsage[]` | 必填 | 要按顺序渲染的行。 |
+| `cycle` | `number` | 必填 | 行列表的重新挂载键；更改它会重新播放交错进入动画。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-`ModelUsage` is `{ name: string; context: string; cost: string }`. All other `div` props are forwarded to the root.
+`ModelUsage` 是 `{ name: string; context: string; cost: string }`。其他所有 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

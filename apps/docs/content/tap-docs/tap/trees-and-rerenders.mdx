@@ -1,11 +1,11 @@
 ---
-title: Trees & Re-renders
-description: How resource trees re-render and where scheduling boundaries form.
+title: 树与重新渲染
+description: 资源树如何重新渲染，以及调度边界在哪里形成。
 ---
 
-## Resource trees
+## 资源树
 
-Resources composed with `useResource` or `useResources` form a tree:
+使用 `useResource` 或 `useResources` 组合的资源会形成一棵树：
 
 ```
 createTapRoot(function AppRoot() { return useResource(App()); })  <- tree root
@@ -16,22 +16,18 @@ createTapRoot(function AppRoot() { return useResource(App()); })  <- tree root
        └─ useResources([...Items])
 ```
 
-## Re-renders
+## 重新渲染
 
-In React, a state change re-renders the component that owns it and its children.
-Parents are unaffected.
+在 React 中，状态变化会重新渲染拥有该状态的组件及其子组件。
+父组件不会受到影响。
 
-In tap, the parent reads a resource's return value directly. When a child
-changes, its parent must render to receive the new value. That continues up the
-tree, so **the entire resource tree re-renders from its root**.
+在 tap 中，父资源会直接读取资源的返回值。当子资源发生变化时，其父资源必须重新渲染才能接收新值。这个过程会沿着资源树向上继续，因此**整个资源树都会从根节点开始重新渲染**。
 
-`useResource` and `useResources` compose children into that existing tree. They
-do not create a scheduling boundary.
+`useResource` 和 `useResources` 会将子资源组合到现有树中。它们不会创建调度边界。
 
-## Separate scheduling with useTapRoot
+## 使用 useTapRoot 分离调度
 
-`useTapRoot` does not compose another child into the current tree. It creates a
-new resource root with its own tap scheduler:
+`useTapRoot` 不会将另一个子资源组合到当前树中，而是创建一个拥有独立 tap 调度器的新资源根：
 
 ```ts
 import { useResource, useTapRoot } from "@assistant-ui/tap";
@@ -42,20 +38,16 @@ const useCounterRoot = () =>
   });
 ```
 
-Updates inside `CounterRoot` schedule only that root. The outer tree does not
-re-render. Because the caller no longer receives updates through rendering,
-`useTapRoot` returns a stable `{ getValue, subscribe }` handle instead of the
-render value.
+`CounterRoot` 内部的更新只会调度该根节点。外部树不会重新渲染。由于调用方不再通过渲染接收更新，`useTapRoot` 会返回一个稳定的 `{ getValue, subscribe }` 句柄，而不是渲染值。
 
 | | `useResource` / `useResources` | `useTapRoot` |
 | --- | --- | --- |
-| Tree | Adds children to the current tree | Starts a new tree |
-| Scheduler | Inherits the current root's scheduler | Creates a tap scheduler |
-| On update | The current tree re-renders | Only the new root re-renders |
-| Result | The child's current value | A stable `{ getValue, subscribe }` handle |
+| 树 | 将子资源添加到当前树 | 启动一棵新树 |
+| 调度器 | 继承当前根节点的调度器 | 创建一个 tap 调度器 |
+| 更新时 | 当前树重新渲染 | 只有新的根节点重新渲染 |
+| 结果 | 子资源的当前值 | 一个稳定的 `{ getValue, subscribe }` 句柄 |
 
-Read the latest committed value with `getValue()` and observe changes with
-`subscribe()`:
+使用 `getValue()` 读取最新的已提交值，并使用 `subscribe()` 观察变化：
 
 ```ts
 const counter = useCounterRoot();
@@ -67,8 +59,7 @@ const unsubscribe = counter.subscribe(() => {
 });
 ```
 
-Creating a root does not subscribe the component that created it. A React
-component can render the root's value with `useSyncExternalStore`:
+创建根节点不会让创建它的组件订阅该根节点。React 组件可以使用 `useSyncExternalStore` 渲染根节点的值：
 
 ```tsx
 import { useSyncExternalStore } from "react";
@@ -85,24 +76,23 @@ function CounterView() {
 }
 ```
 
-The root remains owned by the component or resource that called `useTapRoot`
-and unmounts with that owner.
+该根节点仍归调用 `useTapRoot` 的组件或资源所有，并会随所有者一起卸载。
 
-## Tree roots and scheduling
+## 树根与调度
 
-Every tree has a root that determines how updates are scheduled and delivered:
+每棵树都有一个根节点，用于决定更新的调度和传递方式：
 
-| API | New scheduler? | Updates delivered through |
+| API | 新建调度器？ | 更新通过何种方式传递 |
 | --- | --- | --- |
-| `useResource` / `useResources` | No | The current root's render |
-| `useTapRoot` | Yes, a tap scheduler | `subscribe()` |
-| `createTapRoot` | Yes, a tap scheduler | `subscribe()` |
+| `useResource` / `useResources` | 否 | 当前根节点的渲染 |
+| `useTapRoot` | 是，一个 tap 调度器 | `subscribe()` |
+| `createTapRoot` | 是，一个 tap 调度器 | `subscribe()` |
 
-A tap scheduler batches multiple state changes before rendering its root.
+tap 调度器会在渲染其根节点之前，将多个状态变化批量处理。
 
 ### flushTapSync
 
-`flushTapSync` lets you flush pending tap scheduler updates synchronously.
+`flushTapSync` 允许你同步刷新待处理的 tap 调度器更新。
 
 ```ts
 import { flushTapSync } from "@assistant-ui/tap";
@@ -115,5 +105,5 @@ flushTapSync(() => {
 console.log(handle.getValue().count);
 ```
 
-This applies to tap-scheduled roots created by `createTapRoot` or `useTapRoot`.
-For a tree scheduled by React, use `flushSync` from `react-dom`.
+这适用于由 `createTapRoot` 或 `useTapRoot` 创建的 tap 调度根节点。
+对于由 React 调度的树，请使用 `flushSync`（来自 `react-dom`）。

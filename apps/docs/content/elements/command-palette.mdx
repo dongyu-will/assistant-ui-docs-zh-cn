@@ -1,22 +1,22 @@
 ---
-title: "Command palette"
-description: "Everything the app can do, one keystroke away and grouped by where it acts."
+title: "命令面板"
+description: "应用可以执行的所有操作，按作用范围分组，一次按键即可访问。"
 ---
 
-A searchable, keyboard-driven list of app actions grouped by where each one acts, with the highlighted row auto-scrolled into view as arrow keys move it. With a runtime the palette's own list, search, and keyboard handling stay application state, and only what each command actually does reaches into the runtime; standalone every command and its handler are yours.
+一个可搜索、由键盘驱动的应用操作列表，按每个操作的作用范围分组；使用箭头键移动时，高亮行会自动滚动到可视区域。在运行时模式下，面板自身的列表、搜索和键盘处理都保留在应用状态中，只有每个命令实际执行的操作才会访问运行时；在独立模式下，每个命令及其处理程序都由你负责。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-With a runtime, there is no registry of "everything the app can do" to read: assistant-ui exposes actions on the scopes you already work with (a thread, a message, the thread list), not a flat catalog of commands. Build the list yourself, grouped however your app is organized, and give each entry an id you can route in `onRun`.
+使用运行时时，无需读取一个包含“应用可以执行的所有操作”的注册表：assistant-ui 会在你已经使用的作用域（会话线程、消息、线程列表）上公开操作，而不是提供一个扁平的命令目录。自行构建列表，并按照应用的组织方式进行分组，为每个条目提供一个 id，以便在 `onRun` 中进行路由。
 
 <Steps>
   <Step>
 
-### Route commands to real actions
+### 将命令路由到实际操作
 
-`onRun` receives the id of the chosen command; look it up and call whatever it should do. Actions on the current thread, the thread list, and the active thread's list item are all real, callable runtime methods.
+`onRun` 接收所选命令的 id；查找该 id，然后调用它应执行的操作。当前会话线程、线程列表以及活动线程的列表项上的操作，都是可以实际调用的运行时方法。
 
 ```tsx title="components/assistant-ui/elements/app-command-palette.tsx"
 "use client";
@@ -65,12 +65,12 @@ export function AppCommandPalette() {
 
 <StandaloneMode>
 
-Standalone, `CommandPalette` filters, groups, and handles its own arrow-key and Enter navigation; you hold the command list, the query, and the active id, and decide what each id does when `onRun` fires.
+在独立模式下，`CommandPalette` 会过滤、分组并自行处理箭头键和 Enter 导航；你需要保存命令列表、查询文本和活动 id，并在 `onRun` 触发时决定每个 id 执行什么操作。
 
 <Steps>
   <Step>
 
-### Hold the list, the query, and the active id
+### 保存列表、查询文本和活动 id
 
 ```tsx title="app/command-palette.tsx"
 "use client";
@@ -109,7 +109,7 @@ export function AppCommandPalette({
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="command-palette">
@@ -125,39 +125,39 @@ export function AppCommandPalette({
 </div>
 ```
 
-Matching filters `commands` against `query` by substring on `label`, case-insensitively; groups are then derived from the surviving matches and keep their first-seen order, which can differ from the order matches were filtered in. Arrow keys move `activeId` within that grouped, filtered order, wrapping at both ends; Enter runs whichever command is active. Every time `activeId` changes, the active row is scrolled into view with `{ block: "nearest" }`, since `aria-activedescendant` moves the visual highlight without moving keyboard focus and so does not scroll on its own. `PromptLibrary` shares the filter-and-navigate pattern but does not do this autoscroll.
+匹配过程会在 `label` 上通过不区分大小写的子字符串匹配，将 `commands` 与 `query` 进行匹配；随后根据保留下来的匹配项生成分组，并保持它们首次出现的顺序，该顺序可能不同于匹配项被过滤时的顺序。箭头键会在经过分组和过滤的顺序中移动 `activeId`，并在两端循环；Enter 会运行当前活动的命令。每当 `activeId` 发生变化时，活动行都会通过 `{ block: "nearest" }` 滚动到可视区域，因为 `aria-activedescendant` 只会移动视觉高亮而不会移动键盘焦点，因此不会自行滚动。`PromptLibrary` 也采用相同的过滤和导航模式，但不会执行此自动滚动。
 
-## Examples
+## 示例
 
-### Grouping and filter order
+### 分组与过滤顺序
 
-A command whose group has no other surviving match still gets its own heading; groups never merge or disappear, they just shrink to one row.
+即使某个分组中没有其他仍然匹配的命令，该命令仍会拥有自己的标题；分组不会合并或消失，只会缩减为一行。
 
 ```tsx
 { id: "archive", label: "Archive this thread", group: "Thread", keys: ["⌘", "⇧", "A"] }
 ```
 
-### Restyle rows and the esc chip
+### 重新设置行样式和 esc 标签
 
-The esc hint and every shortcut key chip share the `field` and `mono` surfaces from `surfaces.tsx`.
+esc 提示和每个快捷键标签都共享 `surfaces.tsx` 中的 `field` 和 `mono` 表面。
 
 ```tsx
 <CommandPalette className="max-w-lg" commands={commands} query={query} activeId={activeId} onQueryChange={setQuery} onActiveChange={setActiveId} onRun={onRun} />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Example actions
+### 操作示例
 
-| Call | Type | Description |
+| 调用 | 类型 | 描述 |
 |------|------|-------------|
-| `aui.threads.switchToNewThread()` | `() => Promise<void>` | Starts a new thread. A natural target for a "New thread" command. |
-| `aui.thread.cancelRun()` | `() => void` | Cancels the run in progress on the active thread. |
-| `aui.threadListItem.archive()` | `() => void` | Archives the active thread's list entry. |
+| `aui.threads.switchToNewThread()` | `() => Promise<void>` | 开始新的会话线程，是“新建线程”命令的自然目标。 |
+| `aui.thread.cancelRun()` | `() => void` | 取消活动线程中正在进行的运行。 |
+| `aui.threadListItem.archive()` | `() => void` | 将活动线程的列表项归档。 |
 
-These are examples, not the component's own contract: `CommandPalette` never calls into the runtime itself, only whatever `onRun` does with the id it receives. There is no selector for a command catalog.
+这些只是示例，并非组件自身的契约：`CommandPalette` 本身不会调用运行时，只会调用 `onRun` 根据接收到的 id 执行的操作。不存在用于获取命令目录的选择器。
 
 </RuntimeMode>
 
@@ -165,25 +165,25 @@ These are examples, not the component's own contract: `CommandPalette` never cal
 
 ### CommandPalette
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `commands` | `readonly PaletteCommand[]` | required | Everything runnable. Groups are derived from the entries and keep first-seen order. |
-| `query` | `string` | required | Current filter text. |
-| `activeId` | `string` | required | Which row is highlighted. Arrow keys move it and Enter runs it, both handled by the element; it reports the move through `onActiveChange`. |
-| `onQueryChange` | `(query: string) => void` | | Called as the filter is typed. |
-| `onActiveChange` | `(id: string) => void` | | Called as the arrow keys walk the list. The element owns the key handling and reports where it landed, so `activeId` stays yours to hold. |
-| `onRun` | `(id: string) => void` | | Called when a command is chosen. |
-| `className` | `string` | | Merged onto the root. |
+| `commands` | `readonly PaletteCommand[]` | 必填 | 所有可运行的操作。分组根据条目生成，并保持首次出现的顺序。 |
+| `query` | `string` | 必填 | 当前的过滤文本。 |
+| `activeId` | `string` | 必填 | 当前高亮的行。箭头键会移动高亮行，Enter 会运行该行，两者都由元素处理；元素通过 `onActiveChange` 报告移动结果。 |
+| `onQueryChange` | `(query: string) => void` | | 输入过滤文本时调用。 |
+| `onActiveChange` | `(id: string) => void` | | 使用箭头键浏览列表时调用。元素负责键盘处理并报告最终位置，因此 `activeId` 仍由你保存。 |
+| `onRun` | `(id: string) => void` | | 选择命令时调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### PaletteCommand
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `id` | `string` | required | Stable identity, compared against `activeId` and reported by `onRun`. |
-| `label` | `string` | required | Command text, and the field the query filters on. |
-| `group` | `string` | required | Heading the command sits under. |
-| `keys` | `readonly string[]` | required | Shortcut, one chip per key. |
+| `id` | `string` | 必填 | 稳定标识，会与 `activeId` 进行比较，并由 `onRun` 报告。 |
+| `label` | `string` | 必填 | 命令文本，也是查询进行过滤时使用的字段。 |
+| `group` | `string` | 必填 | 命令所属的标题。 |
+| `keys` | `readonly string[]` | 必填 | 快捷键，每个按键对应一个标签。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

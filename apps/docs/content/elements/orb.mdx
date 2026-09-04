@@ -1,20 +1,20 @@
 ---
 title: "Orb"
-description: "The realtime voice orb, with connection, mute, and speaking state controls."
+description: "支持连接、静音和说话状态控制的实时语音 Orb。"
 ---
 
-Orb is the realtime voice surface: an animated indicator plus connect, mute, and disconnect actions. With a runtime it reads a live `RealtimeVoiceAdapter` session directly; standalone you drive the same orb and buttons from state and callbacks you own.
+Orb 是实时语音界面：一个动画指示器，以及连接、静音和断开连接操作。在运行时中，它会直接读取实时的 `RealtimeVoiceAdapter` 会话；单独使用时，则由你自行管理的状态和回调来驱动相同的 Orb 和按钮。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-A voice session needs a `RealtimeVoiceAdapter` on the runtime before any of this renders. See the [Realtime Voice guide](/docs/guides/voice) for adapter setup.
+语音会话需要在运行时上配置 `RealtimeVoiceAdapter`，之后这些内容才能渲染。有关适配器设置，请参阅 [实时语音指南](/docs/guides/voice)。
 
 <Steps>
   <Step>
 
-### Configure a voice adapter
+### 配置语音适配器
 
 ```tsx
 import { useChatRuntime } from "@assistant-ui/ai-sdk";
@@ -29,7 +29,7 @@ const runtime = useChatRuntime({
   </Step>
   <Step>
 
-### Render the orb and control bar
+### 渲染 Orb 和控制栏
 
 ```tsx title="app/page.tsx"
 import { Thread } from "@/components/assistant-ui/elements/thread.aui";
@@ -56,7 +56,7 @@ export default function Chat() {
 }
 ```
 
-`VoiceOrb` takes no required props here: it reads the session state and live audio level itself. `VoiceControl` is the compact status dot plus connect/mute/disconnect bar; place it wherever a call toolbar belongs, independent of the orb's own position.
+`VoiceOrb` 在这里不需要任何必填属性：它会自行读取会话状态和实时音频电平。`VoiceControl` 是紧凑的状态点以及连接/静音/断开连接栏；可以将其放置在通话工具栏应处的位置，不受 Orb 自身位置影响。
 
   </Step>
 </Steps>
@@ -65,12 +65,12 @@ export default function Chat() {
 
 <StandaloneMode>
 
-Standalone, `VoiceOrb` is an uncontrolled visual: you own the state and the volume, it owns the WebGL animation.
+单独使用时，`VoiceOrb` 是一个非受控视觉组件：状态和音量由你管理，而 WebGL 动画由它负责。
 
 <Steps>
   <Step>
 
-### Render the orb
+### 渲染 Orb
 
 ```tsx title="app/call.tsx"
 "use client";
@@ -90,20 +90,20 @@ export function Call() {
   </Step>
   <Step>
 
-### Feed it a live audio level
+### 提供实时音频电平
 
 ```tsx
 <VoiceOrb state={state} volume={micLevel} />
 ```
 
-`volume` (0 to 1) modulates the orb's speed, distortion, and glow on top of whatever `state` already sets, so the surface keeps reacting mid-utterance instead of holding one static look.
+`volume`（0 到 1）会在 `state` 已设置的效果之上调节 Orb 的速度、扭曲和光晕，使界面在说话过程中持续响应，而不是保持单一的静态外观。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <canvas className="aui-voice-orb" data-state={/* idle | connecting | listening | speaking | muted */} />
@@ -120,15 +120,15 @@ export function Call() {
 </div>
 ```
 
-The orb's five states resolve in a fixed order: no session at all, or a session whose status is `"ended"`, is `idle`; a session whose status is `"starting"` is `connecting`, regardless of mute; otherwise a muted session is `muted`, even while the model is talking; otherwise the session's `mode` decides `speaking` or `listening`. `VoiceControl` follows a simpler split: no session or an ended one shows the connect button, a starting session shows only the "Connecting..." text, and a running session shows mute and disconnect. The status dot is grey while idle, a pulsing amber while connecting, green while listening or speaking, and red while muted.
+Orb 的五种状态按固定顺序解析：完全没有会话，或会话状态为 `"ended"` 时，状态为 `idle`；会话状态为 `"starting"` 时，无论是否静音，状态都为 `connecting`；否则，静音会话为 `muted`，即使模型正在说话也是如此；在其他情况下，会话的 `mode` 决定其为 `speaking` 还是 `listening`。`VoiceControl` 遵循更简单的划分：没有会话或会话已结束时显示连接按钮，正在启动的会话只显示“正在连接...”文本，运行中的会话显示静音和断开连接按钮。状态点在空闲时为灰色，连接时为脉动的琥珀色，聆听或说话时为绿色，静音时为红色。
 
-## Examples
+## 示例
 
-### States
+### 状态
 
 <RuntimeMode>
 
-The runtime `VoiceOrb` accepts an explicit `state`, which overrides whatever it would otherwise derive from the live session, useful for a state gallery even inside a connected app:
+运行时 `VoiceOrb` 接受显式的 `state`，它会覆盖原本根据实时会话派生的状态；即使在已连接的应用中，也可以利用这一点展示状态图库：
 
 ```tsx
 {(["idle", "connecting", "listening", "speaking", "muted"] as const).map(
@@ -138,7 +138,7 @@ The runtime `VoiceOrb` accepts an explicit `state`, which overrides whatever it 
 )}
 ```
 
-It still needs a runtime ancestor: the override only replaces the derived `state`, and the component reads the session hooks regardless.
+它仍然需要运行时祖先：覆盖项只会替换派生的 `state`，而组件无论如何都会读取会话钩子。
 
 </RuntimeMode>
 
@@ -156,19 +156,19 @@ import { VoiceOrb } from "@/components/assistant-ui/elements/voice";
 
 </StandaloneMode>
 
-### Palettes
+### 调色板
 
-Both lanes take a `variant`, a color axis independent of `state`: `default` (grey), `blue`, `violet`, or `emerald`.
+两条轨道都接受 `variant`，这是一个独立于 `state` 的颜色轴：`default`（灰色）、`blue`、`violet` 或 `emerald`。
 
 ```tsx
 <VoiceOrb variant="violet" />
 ```
 
-### Where sessions come from
+### 会话的来源
 
 <RuntimeMode>
 
-Connect, mute, and disconnect all go through `useVoiceControls()`. A compact toggle for the composer needs only its `status.type` and the two calls:
+连接、静音和断开连接都会通过 `useVoiceControls()` 完成。输入框的紧凑切换按钮只需要它的 `status.type` 和以下两个调用：
 
 ```tsx
 function ComposerVoiceToggle() {
@@ -196,7 +196,7 @@ function ComposerVoiceToggle() {
 
 <StandaloneMode>
 
-Standalone, you own the session lifecycle end to end: wire your own connect, mute, and disconnect handlers, and update `state` and `volume` as your session reports them.
+单独使用时，你需要端到端管理会话生命周期：接入自己的连接、静音和断开连接处理器，并根据会话报告的结果更新 `state` 和 `volume`。
 
 ```tsx
 <VoiceOrb
@@ -207,35 +207,35 @@ Standalone, you own the session lifecycle end to end: wire your own connect, mut
 
 </StandaloneMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Sub-components
+### 子组件
 
-| Export | Description |
+| 导出项 | 描述 |
 |--------|-------------|
-| `VoiceOrb` | Animated orb. Derives `state` and `volume` from the session unless you pass them; `state` alone can be overridden while `volume` still tracks live audio. |
-| `VoiceControl` | Status dot plus connect, "Connecting...", mute, and disconnect, switched by session status. |
-| `VoiceStatusDot` | The colored status dot on its own. |
-| `VoiceConnectButton` | Calls `connect()`. |
-| `VoiceMuteButton` | Toggles `mute()` / `unmute()`, labeled from the current `isMuted`. |
-| `VoiceDisconnectButton` | Calls `disconnect()`. |
-| `deriveVoiceOrbState(voiceState)` | The idle/connecting/muted/speaking/listening resolution from Anatomy, exported so custom indicators can reuse it. |
+| `VoiceOrb` | 动画 Orb。除非你传入 `state` 和 `volume`，否则会从会话中派生它们；只有 `state` 可以被覆盖，而 `volume` 仍会跟踪实时音频。 |
+| `VoiceControl` | 状态点，以及连接、“正在连接...”、静音和断开连接按钮，根据会话状态切换。 |
+| `VoiceStatusDot` | 单独的彩色状态点。 |
+| `VoiceConnectButton` | 调用 `connect()`。 |
+| `VoiceMuteButton` | 在 `mute()` / `unmute()` 之间切换，并根据当前的 `isMuted` 设置标签。 |
+| `VoiceDisconnectButton` | 调用 `disconnect()`。 |
+| `deriveVoiceOrbState(voiceState)` | Anatomy 中的空闲/连接中/静音/说话/聆听状态解析结果，导出后可供自定义指示器复用。 |
 
-All sub-components are exported and usable independently for a custom layout.
+所有子组件都会导出，可独立使用来创建自定义布局。
 
-### Voice state
+### 语音状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.thread.capabilities.voice` | `boolean` | Whether a voice adapter is configured. |
-| `s.thread.voice` | `VoiceSessionState \| undefined` | `undefined` when no session exists. |
-| `s.thread.voice?.status.type` | `"starting" \| "running" \| "ended"` | Session phase; an ended session also carries `reason` (`"finished" \| "cancelled" \| "error"`). |
-| `s.thread.voice?.isMuted` | `boolean` | Microphone muted state. |
-| `s.thread.voice?.mode` | `"listening" \| "speaking"` | Who is currently active. |
-| `useVoiceVolume()` | `number` | Live audio level (0 to 1), read outside the main state subscription to avoid re-rendering on every sample. |
-| `useVoiceControls()` | `{ connect, disconnect, mute, unmute }` | Each a `() => void` that calls the matching runtime method. |
+| `s.thread.capabilities.voice` | `boolean` | 是否配置了语音适配器。 |
+| `s.thread.voice` | `VoiceSessionState \| undefined` | 不存在会话时为 `undefined`。 |
+| `s.thread.voice?.status.type` | `"starting" \| "running" \| "ended"` | 会话阶段；已结束的会话还会携带 `reason`（`"finished" \| "cancelled" \| "error"`）。 |
+| `s.thread.voice?.isMuted` | `boolean` | 麦克风静音状态。 |
+| `s.thread.voice?.mode` | `"listening" \| "speaking"` | 当前处于活动状态的一方。 |
+| `useVoiceVolume()` | `number` | 实时音频电平（0 到 1），在主状态订阅之外读取，以避免每个采样都触发重新渲染。 |
+| `useVoiceControls()` | `{ connect, disconnect, mute, unmute }` | 每个都是一个 `() => void`，会调用匹配的运行时方法。 |
 
 </RuntimeMode>
 
@@ -243,11 +243,11 @@ All sub-components are exported and usable independently for a custom layout.
 
 ### VoiceOrb
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `state` | `"idle" \| "connecting" \| "listening" \| "speaking" \| "muted"` | `"idle"` | Which animation preset to render. |
-| `volume` | `number` | `0` | 0 to 1; adds to the state's speed, distortion, and glow. |
-| `variant` | `"default" \| "blue" \| "violet" \| "emerald"` | `"default"` | Color palette. |
-| `className` | `string` | | Merged onto the canvas. |
+| `state` | `"idle" \| "connecting" \| "listening" \| "speaking" \| "muted"` | `"idle"` | 要渲染的动画预设。 |
+| `volume` | `number` | `0` | 0 到 1；叠加到状态的速度、扭曲和光晕之上。 |
+| `variant` | `"default" \| "blue" \| "violet" \| "emerald"` | `"default"` | 调色板。 |
+| `className` | `string` | | 合并到画布上。 |
 
 </StandaloneMode>

@@ -1,13 +1,13 @@
 ---
-title: Threads
-description: Basic thread support, AssistantCloud, and custom thread list adapter.
+title: 线程
+description: 基本线程支持、AssistantCloud 和自定义线程列表适配器。
 ---
 
-`useLangGraphRuntime` supports the same three-path thread model documented in [threads](/docs/runtimes/concepts/threads), tailored for LangGraph thread ids. This page covers the LangGraph-specific wiring.
+`useLangGraphRuntime` 支持 [threads](/docs/runtimes/concepts/threads) 中所记录的同一三路径线程模型，并针对 LangGraph 线程 ID 进行了调整。本页面介绍 LangGraph 特有的连接配置。
 
-## Basic thread support
+## 基本线程支持
 
-`useLangGraphRuntime` includes built-in thread management:
+`useLangGraphRuntime` 内置了线程管理功能：
 
 ```ts
 const runtime = useLangGraphRuntime({
@@ -33,9 +33,9 @@ const runtime = useLangGraphRuntime({
 });
 ```
 
-## Cloud persistence
+## 云端持久化
 
-For managed multi-thread support, persistence, sync, and titles, pass an `AssistantCloud` instance:
+如需托管多线程支持、持久化、同步和标题，请传入一个 `AssistantCloud` 实例：
 
 ```ts
 const runtime = useLangGraphRuntime({
@@ -44,11 +44,11 @@ const runtime = useLangGraphRuntime({
 });
 ```
 
-See the [cloud persistence guide](/docs/cloud/langgraph) for setup details.
+有关设置详情，请参阅[云端持久化指南](/docs/cloud/langgraph)。
 
-## Custom thread list
+## 自定义线程列表
 
-To surface pre-existing LangGraph `thread_id`s in the thread picker without running assistant-cloud, pass a `RemoteThreadListAdapter` via `unstable_threadListAdapter`. A common implementation backs `list()` with `client.threads.search()` and `initialize()` with `client.threads.create()`.
+如果不运行 assistant-cloud，但希望在​​线程选择器中显示已有的 LangGraph `thread_id`，请通过 `unstable_threadListAdapter` 传入一个 `RemoteThreadListAdapter`。一种常见的实现方式是使用 `client.threads.search()` 支持 `list()`，并使用 `client.threads.create()` 支持 `initialize()`。
 
 ```ts
 import type { RemoteThreadListAdapter } from "@assistant-ui/react";
@@ -91,23 +91,23 @@ const runtime = useLangGraphRuntime({
 });
 ```
 
-Setting `remoteId === externalId` keeps the ids assistant-ui stores aligned with the LangGraph thread ids your `load` and `stream` callbacks receive. See [threads](/docs/runtimes/concepts/threads) for the full adapter contract.
+设置 `remoteId === externalId` 可使 assistant-ui 存储的 ID 与 LangGraph 线程 ID 保持一致，而你的 `load` 和 `stream` 回调会接收这些线程 ID。有关完整的适配器约定，请参阅 [threads](/docs/runtimes/concepts/threads)。
 
 <Callout type="info">
-When `unstable_threadListAdapter` is provided, the `cloud`, `create`, and `delete` options are ignored; the adapter owns the full thread-list lifecycle.
+提供 `unstable_threadListAdapter` 后，`cloud`、`create` 和 `delete` 选项将被忽略；适配器负责完整的线程列表生命周期。
 </Callout>
 
-## Next
+## 下一步
 
 <Cards>
   <Card
-    title="Streaming"
-    description="Event handlers, message metadata, generative UI."
+    title="流式传输"
+    description="事件处理器、消息元数据、生成式 UI。"
     href="/docs/runtimes/langgraph/streaming"
   />
   <Card
-    title="Threads (concept)"
-    description="General multi-thread model across runtimes."
+    title="线程（概念）"
+    description="跨运行时的通用多线程模型。"
     href="/docs/runtimes/concepts/threads"
   />
 </Cards>

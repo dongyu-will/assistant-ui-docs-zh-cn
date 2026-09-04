@@ -1,20 +1,20 @@
 ---
-title: "Image generation"
-description: "A dot grid holds the frame while the image resolves out of a blur."
+title: "图像生成"
+description: "点阵在图像从模糊中逐渐清晰时固定画面。"
 ---
 
-Image generation holds the frame for an image that has not arrived yet: a pulsing dot grid over a blurred gradient while generating, settling into a sharp gradient once done. With a runtime it tracks a tool call's status; standalone you drive `prompt` and `generating` yourself.
+图像生成会为尚未到达的图像固定画面：生成过程中显示覆盖在模糊渐变上的脉动点阵，完成后则稳定为清晰渐变。使用运行时（runtime）时，它会跟踪工具调用（tool call）的状态；独立使用时，则由你自行驱动 `prompt` 和 `generating`。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-An image tool renders through that tool's own toolkit entry: the model's prompt arrives as `args`, and the call's lifecycle as `status`.
+图像工具通过其自身的工具包条目进行渲染：模型的提示词作为 `args` 传入，调用的生命周期则作为 `status` 传入。
 
 <Steps>
   <Step>
 
-### Define the image toolkit
+### 定义图像工具包
 
 ```tsx title="app/toolkit.tsx"
 "use generative";
@@ -35,12 +35,12 @@ export default defineToolkit({
 });
 ```
 
-`execute: externalTool()` marks a tool a backend route or image provider runs, not the browser: the compiler drops it from the client bundle and keeps only `render`.
+`execute: externalTool()` 标记由后端路由或图像提供商运行的工具，而不是由浏览器运行的工具：编译器会将其从客户端 bundle 中移除，只保留 `render`。
 
   </Step>
   <Step>
 
-### Register the toolkit
+### 注册工具包
 
 ```tsx title="app/MyRuntimeProvider.tsx"
 "use client";
@@ -62,7 +62,7 @@ export function App() {
 }
 ```
 
-Every `generate_image` tool call in the thread now renders as this element, wherever `MessagePrimitive.Parts` places it in the assistant's reply.
+线程中的每个 `generate_image` 工具调用现在都会渲染为此元素，无论 `MessagePrimitive.Parts` 将其放置在助手回复中的什么位置。
 
   </Step>
 </Steps>
@@ -71,12 +71,12 @@ Every `generate_image` tool call in the thread now renders as this element, wher
 
 <StandaloneMode>
 
-Standalone, `ImageGeneration` is fully controlled: you hold the prompt and whether generation is in flight.
+独立使用时，`ImageGeneration` 完全由你控制：提示词以及生成是否正在进行都由你管理。
 
 <Steps>
   <Step>
 
-### Hold the generation state
+### 保存生成状态
 
 ```tsx title="app/answer.tsx"
 "use client";
@@ -99,9 +99,9 @@ export function Generation() {
   </Step>
   <Step>
 
-### Flip it off once generation finishes
+### 生成完成后将其关闭
 
-`ImageGeneration` never receives the resulting URL, so hold it separately and swap in a real image renderer once it arrives:
+`ImageGeneration` 永远不会接收生成结果的 URL，因此请单独保存该 URL，并在其到达后替换为真正的图像渲染器：
 
 ```tsx
 const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -123,7 +123,7 @@ return imageUrl ? <img src={imageUrl} alt={prompt} /> : (
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="image-generation">
@@ -138,13 +138,13 @@ return imageUrl ? <img src={imageUrl} alt={prompt} /> : (
 </div>
 ```
 
-The frame never renders an actual generated image: the gradient behind the dot grid is a fixed decorative graphic in the source, present in both states and only changing its blur and opacity as `generating` flips. Nothing in this element accepts an image URL. Once a tool call resolves with a real one, hand it to a renderer that does; see the [Image](/elements/image) element. The dot grid's 64 dots pulse with a staggered delay while `generating` is true and fade to fully transparent once it is false. The regenerate button fades out and stops receiving pointer events while generating, but has no `onClick` in the source: wire one by editing the installed file directly, the way you would any other owned-source element.
+该画面永远不会渲染实际生成的图像：点阵背后的渐变是源代码中的固定装饰图形，在两种状态下都会显示，并且只会随着 `generating` 切换而改变模糊度和不透明度。此元素中的任何内容都不接受图像 URL。工具调用解析出真实 URL 后，请将其交给能够接受 URL 的渲染器；参见 [Image](/elements/image) 元素。当 `generating` 为 true 时，点阵中的 64 个点会以交错延迟脉动；变为 false 后，它们会淡出至完全透明。生成过程中，重新生成按钮会淡出并停止接收指针事件，但源代码中没有 `onClick`：直接编辑已安装的文件为其接入处理器，方式与其他由你维护源码的元素相同。
 
-## Examples
+## 示例
 
-### Wiring the regenerate button
+### 为重新生成按钮接入处理器
 
-The button exists in the DOM but the source has no handler for it. Add one where you install the element:
+该按钮存在于 DOM 中，但源代码没有为它设置处理器。安装元素时，在相应位置添加处理器：
 
 ```tsx
 <button
@@ -157,26 +157,26 @@ The button exists in the DOM but the source has no handler for it. Add one where
 </button>
 ```
 
-### Restyle the frame
+### 重新设置画面样式
 
-Both lanes take `className` on the root. The "1024 × 1024" label and the prompt row use `mono` and `ShimmerLabel` from `surfaces.tsx`.
+两条布局轨道都会在根元素上接收 `className`。“1024 × 1024”标签和提示词行使用来自 `surfaces.tsx` 的 `mono` 和 `ShimmerLabel`。
 
 ```tsx
 <ImageGeneration className="w-64" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool render props
+### 工具渲染属性
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `args` | `{ prompt?: string }` | Model-supplied arguments. Partial while streaming. |
-| `status.type` | `"running" \| "complete" \| "incomplete" \| "requires-action"` | Lifecycle of the call. `"running"` is the only state that should show the generating dots. |
+| `args` | `{ prompt?: string }` | 模型提供的参数。流式传输期间可能不完整。 |
+| `status.type` | `"running" \| "complete" \| "incomplete" \| "requires-action"` | 调用的生命周期。只有 `"running"` 状态应显示生成中的点阵。 |
 
-See [Tool UI](/docs/tools/tool-ui) for the full tool-call part shape.
+有关完整的工具调用部分结构，请参见 [工具 UI](/docs/tools/tool-ui)。
 
 </RuntimeMode>
 
@@ -184,12 +184,12 @@ See [Tool UI](/docs/tools/tool-ui) for the full tool-call part shape.
 
 ### ImageGeneration
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `prompt` | `string` | required | Shown below the frame once generation finishes. |
-| `generating` | `boolean` | required | Shows the pulsing dot grid, the blurred gradient, and the shimmering prompt label while true. |
-| `className` | `string` | | Merged onto the root. |
+| `prompt` | `string` | 必填 | 生成完成后显示在画面下方。 |
+| `generating` | `boolean` | 必填 | 为 true 时显示脉动点阵、模糊渐变和闪烁的提示词标签。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

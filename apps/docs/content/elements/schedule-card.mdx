@@ -1,18 +1,18 @@
 ---
-title: "Schedule"
-description: "A run that repeats on its own, with its cadence and how it has been doing."
+title: "计划任务"
+description: "一种会自动重复运行的任务，包含其执行周期和运行情况。"
 ---
 
-A schedule card shows a run that repeats on its own: its cadence, when it runs next, and whether recent runs succeeded. It is a plain display; the schedule itself, and what pausing actually does, live in your own backend.
+计划任务卡片展示一个会自动重复运行的任务：其执行周期、下一次运行时间，以及最近的运行是否成功。它只是一个展示组件；计划任务本身以及暂停操作的实际行为，都由你自己的后端负责。
 
-## Getting started
+## 入门
 
 <StandaloneMode>
 
 <Steps>
   <Step>
 
-### Render a schedule
+### 渲染计划任务
 
 ```tsx title="app/schedule.tsx"
 "use client";
@@ -41,9 +41,9 @@ export function NightlyReport() {
   </Step>
   <Step>
 
-### Wire the toggle
+### 接入切换开关
 
-`onToggle` only reports the click; `enabled` keeps driving the switch, so your handler owns flipping it (typically after the pause/resume request succeeds).
+`onToggle` 只报告点击操作；`enabled` 持续驱动开关，因此由你的处理函数负责切换它（通常在暂停/恢复请求成功后进行）。
 
 ```tsx
 "use client";
@@ -74,7 +74,7 @@ export function NightlyReport() {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="schedule-card">
@@ -100,19 +100,19 @@ export function NightlyReport() {
 </div>
 ```
 
-The "next" row always renders. While `enabled` is true it shows `nextRun`; while false it shows the literal text "paused" and the whole row dims. The switch is a controlled visual: its track color and thumb position come entirely from `enabled`, and clicking it only fires `onToggle`, so nothing moves until your handler updates the prop. An empty `history` array renders the "recent runs" label with no rows below it.
+“下一次”这一行始终会渲染。当 `enabled` 为 true 时，它会显示 `nextRun`；为 false 时则显示字面文本 “paused”，并使整行变暗。开关是一个受控的视觉元素：其轨道颜色和滑块位置完全来自 `enabled`，点击开关只会触发 `onToggle`，因此在你的处理函数更新该属性之前，开关不会移动。空的 `history` 数组会渲染“最近运行”标签，但其下方不会显示任何行。
 
-## Examples
+## 示例
 
-### A paused schedule
+### 已暂停的计划任务
 
 ```tsx
 <ScheduleCard name="Nightly report" cadence="Daily at 06:00" nextRun="Tomorrow 06:00" enabled={false} history={history} />
 ```
 
-### Reading run history
+### 读取运行历史
 
-Each entry is independent of the others; a mix of successes and failures renders in the order you pass:
+每条记录彼此独立；成功和失败记录的组合会按照你传入的顺序渲染：
 
 ```tsx
 <ScheduleCard
@@ -124,38 +124,38 @@ Each entry is independent of the others; a mix of successes and failures renders
 />
 ```
 
-### Restyle the card
+### 重新设置卡片样式
 
-The root uses the shared `paper` surface; the cadence, "next", and "recent runs" labels use `mono`, and the "next" row sits in a `field` pill.
+根元素使用共享的 `paper` 表面；执行周期、“下一次”和“最近运行”标签使用 `mono`，而“下一次”这一行位于 `field` 胶囊中。
 
 ```tsx
 <ScheduleCard className="max-w-md rounded-3xl" {...rest} />
 ```
 
-## API reference
+## API 参考
 
 <StandaloneMode>
 
 ### ScheduleCard
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `name` | `string` | required | Truncated title. |
-| `cadence` | `string` | required | Shown under the name. |
-| `nextRun` | `string` | required | Shown in the "next" row while `enabled` is true. |
-| `enabled` | `boolean` | required | Drives the switch and whether `nextRun` or "paused" shows. |
-| `history` | `readonly ScheduleRun[]` | required | Recent runs, in the order you pass. |
-| `onToggle` | `() => void` | | Called when the switch is clicked. Does not itself change `enabled`. |
-| `className` | `string` | | Merged onto the root. |
+| `name` | `string` | 必填 | 截断后的标题。 |
+| `cadence` | `string` | 必填 | 显示在名称下方。 |
+| `nextRun` | `string` | 必填 | 当 `enabled` 为 true 时，显示在“下一次”这一行中。 |
+| `enabled` | `boolean` | 必填 | 驱动开关，并决定显示 `nextRun` 还是 “paused”。 |
+| `history` | `readonly ScheduleRun[]` | 必填 | 最近的运行记录，顺序与传入顺序一致。 |
+| `onToggle` | `() => void` | | 点击开关时调用。它本身不会改变 `enabled`。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### ScheduleRun
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `id` | `string` | Row key. |
-| `at` | `string` | Row label; any format you choose. |
-| `ok` | `boolean` | Selects the check/cross icon and the "ok"/"failed" label. |
+| `id` | `string` | 行键。 |
+| `at` | `string` | 行标签；格式由你自行决定。 |
+| `ok` | `boolean` | 选择勾号/叉号图标以及 “ok”/“failed” 标签。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

@@ -1,19 +1,19 @@
 ---
-title: Child Scopes
-description: Derive scopes from parent data with Derived, useClientResource, and useClientLookup.
+title: 子作用域
+description: 使用 Derived、useClientResource 和 useClientLookup 从父级数据派生作用域。
 ---
 
-So far, every scope has been an independent unit of state — you create it, provide it, and consume it. But what happens when you have a list of items that each need their own scope?
+到目前为止，每个作用域都是独立的状态单元——创建它、提供它，然后使用它。但当你有一个列表，其中每个项目都需要自己的作用域时，该怎么办？
 
-A chat app doesn't have one message — it has dozens. A todo app doesn't have one todo — it has a dynamic list. You can't register a separate scope for each item in `ScopeRegistry`. Instead, a **parent scope** manages the collection, and **child scopes** point to individual items within it.
+聊天应用不只有一条消息——而是几十条。待办事项应用不只有一个待办事项——而是一个动态列表。你无法在 `ScopeRegistry` 中为每个项目注册单独的作用域。相反，**父作用域**管理整个集合，而**子作用域**指向其中的单个项目。
 
-## The pattern
+## 模式
 
-A parent scope exposes a list of items. A child scope points to one item from that list. The wiring looks like this:
+父作用域暴露一个项目列表。子作用域指向列表中的某个项目。连接方式如下：
 
-1. The parent resource uses `useClientLookup` to manage a collection of child clients
-2. The parent returns a method to access a child by index or key
-3. A `Derived` scope calls that method to resolve a specific child
+1. 父级 resource 使用 `useClientLookup` 管理子 client 的集合
+2. 父级返回一个可通过索引或键访问子项的方法
+3. `Derived` 作用域调用该方法来解析特定的子项
 
 ```
 todoList scope (parent)
@@ -24,9 +24,9 @@ todo scope (child, via Derived)
   └ points to one specific todo from the parent
 ```
 
-## Step by step
+## 分步说明
 
-### 1. Register both scopes
+### 1. 注册两个作用域
 
 ```ts title="lib/store/todo-scope.ts"
 import type { ClientOutput } from "@assistant-ui/store";
@@ -52,11 +52,11 @@ declare module "@assistant-ui/store" {
 }
 ```
 
-The `todo` scope declares `meta: { source: "todoList"; query: { index: number } }` — this tells TypeScript that `todo` is derived from `todoList` and is looked up by index.
+`todo` 作用域声明 `meta: { source: "todoList"; query: { index: number } }`——这会告知 TypeScript，`todo` 派生自 `todoList`，并通过索引进行查找。
 
-### 2. Build the parent resource with useClientLookup
+### 2. 使用 useClientLookup 构建父级 resource
 
-`useClientLookup` wraps a list of resource elements into clients that can be accessed by index or key:
+`useClientLookup` 会将 resource 元素列表包装为可通过索引或键访问的 client：
 
 ```ts title="lib/store/todo-list-resource.ts"
 import { resource, withKey } from "@assistant-ui/tap";
@@ -112,15 +112,15 @@ const useTodoListResource = (): ClientOutput<"todoList"> => {
 const TodoListResource = resource(useTodoListResource);
 ```
 
-`useClientLookup` returns `{ state, get }`:
-- `state` — an array of each child's `getState()` result
-- `get({ index })` or `get({ key })` — resolves a specific child's methods
+`useClientLookup` 返回 `{ state, get }`：
+- `state`——每个子项的 `getState()` 结果组成的数组
+- `get({ index })` 或 `get({ key })`——解析特定子项的方法
 
-Each element must have a key via `withKey`. Keys let Store track identity across re-renders.
+每个元素都必须通过 `withKey` 设置键。键可以让 Store 在重新渲染期间跟踪元素身份。
 
-### 3. Use Derived to create the child scope
+### 3. 使用 Derived 创建子作用域
 
-`Derived` creates a scope that points to one item from the parent:
+`Derived` 会创建一个指向父级中某个项目的作用域：
 
 ```tsx title="app/TodoApp.tsx"
 import { AuiConfig, AuiProvider, useAui, useAuiState, Derived } from "@assistant-ui/store";
@@ -162,14 +162,14 @@ const TodoItem = ({ index }: { index: number }) => {
 };
 ```
 
-`Derived` takes three fields:
-- `source` — the parent scope name
-- `query` — the lookup parameters (passed to meta, used for debugging and event scoping)
-- `get` — a function that resolves the child's methods from the parent. It receives the current `aui` store and must return the result of calling a parent method
+`Derived` 接受三个字段：
+- `source`——父作用域名称
+- `query`——查找参数（传递给 meta，用于调试和事件作用域划分）
+- `get`——从父级解析子项方法的函数。它接收当前的 `aui` store，并且必须返回调用父级方法的结果
 
-### 4. Consume the child scope
+### 4. 使用子作用域
 
-Components inside the `AuiProvider` can now use the `todo` scope like any other:
+`AuiProvider` 内的组件现在可以像使用其他作用域一样使用 `todo` 作用域：
 
 ```tsx title="app/TodoDisplay.tsx"
 const TodoDisplay = () => {
@@ -189,11 +189,11 @@ const TodoDisplay = () => {
 };
 ```
 
-`TodoDisplay` doesn't know or care that `todo` is derived — it uses `useAuiState` and `useAui` the same way it would for any scope.
+`TodoDisplay` 不需要知道或关心 `todo` 是派生作用域——它使用 `useAuiState` 和 `useAui` 的方式与使用其他作用域完全相同。
 
 ## useClientResource
 
-If your parent only needs to expose a single child (not a list), use `useClientResource` directly:
+如果你的父级只需要暴露一个子项（而不是列表），可以直接使用 `useClientResource`：
 
 ```ts
 import { useClientResource } from "@assistant-ui/store";
@@ -210,11 +210,11 @@ const useThreadResource = (): ClientOutput<"thread"> => {
 const ThreadResource = resource(useThreadResource);
 ```
 
-`useClientResource` wraps a single resource element and returns `{ state, methods, key }`. It's what `useClientLookup` uses internally for each element.
+`useClientResource` 会包装单个 resource 元素，并返回 `{ state, methods, key }`。`useClientLookup` 正是对每个元素在内部使用的方式。
 
 ## useClientList
 
-For dynamic lists where users can add and remove items, use `useClientList`:
+对于用户可以添加和删除项目的动态列表，请使用 `useClientList`：
 
 ```ts
 import { useClientList } from "@assistant-ui/store";
@@ -255,8 +255,8 @@ const useTodoListResource = (): ClientOutput<"todoList"> => {
 const TodoListResource = resource(useTodoListResource);
 ```
 
-`useClientList` extends `useClientLookup` with mutation:
-- `add(data)` — adds a new item to the list
-- Each child resource receives `{ key, getInitialData, remove }` as props
-- `getInitialData()` returns the item data (called once on mount)
-- `remove()` removes the item from the list
+`useClientList` 在 `useClientLookup` 的基础上扩展了变更功能：
+- `add(data)`——向列表中添加新项目
+- 每个子 resource 都会将 `{ key, getInitialData, remove }` 作为 props 接收
+- `getInitialData()` 返回项目数据（在挂载时调用一次）
+- `remove()` 从列表中移除项目

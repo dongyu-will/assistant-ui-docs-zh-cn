@@ -1,17 +1,17 @@
 ---
 title: Vercel AI SDK
-description: Wire the Vercel AI SDK into a React chat UI with assistant-ui — useChat, streaming, tools, attachments, multi-step agents, and persistence covered end-to-end.
+description: 将 Vercel AI SDK 接入使用 assistant-ui 构建的 React 聊天 UI——端到端涵盖 useChat、流式输出、工具、附件、多步骤代理和持久化。
 ---
 
 import { VercelIcon } from "@/components/icons/vercel";
 
-[Vercel AI SDK](https://ai-sdk.dev/) is the most common framework people pair with assistant-ui. The full setup, attachments, persistence, tool-call patterns, and version notes are documented under [runtimes/ai-sdk](/docs/runtimes/ai-sdk/overview); this page is the entry point in the integrations tree for discoverability and architecture context.
+[Vercel AI SDK](https://ai-sdk.dev/) 是最常与 assistant-ui 搭配使用的框架。完整的设置、附件、持久化、工具调用模式和版本说明都记录在 [runtimes/ai-sdk](/docs/runtimes/ai-sdk/overview) 下；本页面是 integrations 树中的入口，方便查找并了解架构背景。
 
 <Callout type="info">
-If you arrived here looking to wire up your first chat: jump to [AI SDK v7 quickstart](/docs/runtimes/ai-sdk/v7). This page is a high-level pointer.
+如果你来到这里是为了接入第一个聊天应用，请直接前往 [AI SDK v7 快速入门](/docs/runtimes/ai-sdk/v7)。本页面仅提供高层级指引。
 </Callout>
 
-## Where it slots in
+## 它在架构中的位置
 
 ```mermaid
 flowchart LR
@@ -23,66 +23,66 @@ flowchart LR
     client --> runtime --> api --> provider
 ```
 
-`@assistant-ui/ai-sdk` wraps the AI SDK's `useChat` hook and exposes it as an assistant-ui runtime. The runtime owns conversation state on the client; your `/api/chat` route returns a UI message stream from `streamText`. Everything else (tools, attachments, observability, gateways, custom persistence) layers on top of this base.
+`@assistant-ui/ai-sdk`封装了 AI SDK 的 `useChat` hook，并将其作为 assistant-ui 运行时暴露出来。该运行时在客户端管理会话状态；你的 `/api/chat` 路由从 `streamText` 返回 UI 消息流。其他所有功能（工具、附件、可观测性、网关、自定义持久化）都构建在此基础之上。
 
-## Pick a version
+## 选择版本
 
-Four versions of `ai` are supported. New projects should pick **v7**; v6, v5, and v4 are documented for migration and existing apps that haven't upgraded.
+`ai` 支持四个版本。新项目应选择 **v7**；v6、v5 和 v4 版本面向迁移，以及尚未升级的现有应用提供文档。
 
 <Cards>
   <Card
     icon={<VercelIcon width={20} height={20} />}
-    title="AI SDK v7 (current)"
-    description="Requires ai@^7 and @ai-sdk/react@^4. Async convertToModelMessages, tool inputSchema, toUIMessageStreamResponse."
+    title="AI SDK v7（当前版本）"
+    description="需要 ai@^7 和 @ai-sdk/react@^4。异步 convertToModelMessages、工具 inputSchema、toUIMessageStreamResponse。"
     href="/docs/runtimes/ai-sdk/v7"
   />
   <Card
     icon={<VercelIcon width={20} height={20} />}
-    title="AI SDK v6 (legacy)"
-    description="Requires ai@^6 and @ai-sdk/react@^3. Async convertToModelMessages, tool inputSchema, toUIMessageStreamResponse."
+    title="AI SDK v6（旧版）"
+    description="需要 ai@^6 和 @ai-sdk/react@^3。异步 convertToModelMessages、工具 inputSchema、toUIMessageStreamResponse。"
     href="/docs/runtimes/ai-sdk/v6-legacy"
   />
   <Card
     icon={<VercelIcon width={20} height={20} />}
-    title="AI SDK v5 (legacy)"
-    description="Requires ai@^5 and @ai-sdk/react@^2. Synchronous convertToModelMessages, transitional API."
+    title="AI SDK v5（旧版）"
+    description="需要 ai@^5 和 @ai-sdk/react@^2。同步 convertToModelMessages，过渡性 API。"
     href="/docs/runtimes/ai-sdk/v5-legacy"
   />
   <Card
     icon={<VercelIcon width={20} height={20} />}
-    title="AI SDK v4 (legacy)"
-    description="The original useChat-based path. Maintained for migration only."
+    title="AI SDK v4（旧版）"
+    description="最初基于 useChat 的路径。仅为迁移而维护。"
     href="/docs/runtimes/ai-sdk/v4-legacy"
   />
 </Cards>
 
-## When to pick AI SDK
+## 何时选择 AI SDK
 
-AI SDK is the default choice for new projects on Next.js, Remix, or any framework with a Node-compatible API route. Pick it when:
+对于使用 Next.js、Remix 或任何具有兼容 Node 的 API 路由的框架的新项目，AI SDK 是默认选择。在以下情况下可以选择它：
 
-- You want a single direct path from the chat UI to your model with the smallest possible code surface.
-- You will compose with a framework like [Mastra](/docs/integrations/frameworks/mastra/overview), an [observability tool](/docs/integrations/observability/helicone), an [LLM gateway](/docs/integrations/gateways), or [tools through MCP](/docs/tools/mcp), all of which assume an AI SDK route.
-- You want first-party `frontendTools`, attachments, multi-step tool calls, token-usage metadata, and persisted history via `withFormat`.
+- 你希望以尽可能少的代码，从聊天 UI 直接连接到模型。
+- 你将与 [Mastra](/docs/integrations/frameworks/mastra/overview) 之类的框架、[可观测性工具](/docs/integrations/observability/helicone)、[LLM 网关](/docs/integrations/gateways) 或[通过 MCP 使用的工具](/docs/tools/mcp)进行组合，而这些方案都以 AI SDK 路由为前提。
+- 你希望获得原生支持的 `frontendTools`、附件、多步骤工具调用、令牌使用量元数据，以及通过 `withFormat` 持久化的历史记录。
 
-If you need streaming agent state (subgraph events, generative UI messages), look at [LangGraph](/docs/runtimes/langgraph/overview) instead. If you have a different protocol-shaped backend (A2A, AG-UI, OpenCode), see [pick a runtime](/docs/runtimes/pick-a-runtime).
+如果你需要流式传输的代理状态（子图事件、生成式 UI 消息），请改为查看 [LangGraph](/docs/runtimes/langgraph/overview)。如果你使用的是其他具有协议结构的后端（A2A、AG-UI、OpenCode），请参阅[选择运行时](/docs/runtimes/pick-a-runtime)。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     icon={<VercelIcon width={20} height={20} />}
-    title="AI SDK runtime overview"
-    description="The full runtime documentation and version selector."
+    title="AI SDK 运行时概览"
+    description="完整的运行时文档和版本选择器。"
     href="/docs/runtimes/ai-sdk/overview"
   />
   <Card
-    title="Pick a runtime"
-    description="Decision guide if you're not sure AI SDK is the right runtime."
+    title="选择运行时"
+    description="如果你不确定 AI SDK 是否适合自己的运行时，可参考此决策指南。"
     href="/docs/runtimes/pick-a-runtime"
   />
   <Card
     title="Mastra"
-    description="The other framework integration in this section. Wired through AI SDK."
+    description="本节中的另一个框架集成，通过 AI SDK 接入。"
     href="/docs/integrations/frameworks/mastra/overview"
   />
 </Cards>

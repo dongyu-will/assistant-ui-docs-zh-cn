@@ -1,22 +1,22 @@
 ---
-title: "Tool group"
-description: "A collapsible runtime wrapper around consecutive tool calls in one assistant turn."
+title: "工具组"
+description: "在一次助手响应中包裹连续工具调用的可折司运行时包装器。"
 ---
 
-Tool group collapses a run of consecutive tool calls behind a single row: a count, a status icon while any of them are still running, and a chevron that expands into every call underneath. With a runtime, `Thread` decides which tool calls are adjacent and feeds the group a live count and status; there is no standalone form of this exact wrapper, since grouping only exists across a run's own tool calls. It comes in two designs: the runtime variant groups a message's own tool-call parts automatically, and the static variant, `ToolGroup`, takes the calls as an explicit array and lets you group and control them yourself (see [The parallel-tools design](#the-parallel-tools-design)).
+工具组会将一串连续的工具调用折叠到单行中：显示调用数量、任一调用仍在运行时显示状态图标，以及一个可展开查看下方每次调用的箭头。使用运行时时，`Thread` 会决定哪些工具调用彼此相邻，并为工具组提供实时数量和状态；不存在此包装器的独立形式，因为分组只存在于一串自身的工具调用中。它有两种设计：运行时变体会自动将消息自身的工具调用部分分组，而静态变体 `ToolGroup` 接收一个显式数组中的调用，让你自行分组和控制（参见[并行工具设计](#the-parallel-tools-design)）。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-`Thread` already wires this in for you.
+`Thread` 已经为你接入了此功能。
 
 <Steps>
   <Step>
 
-### It's already the default
+### 默认已启用
 
-`Thread` groups adjacent tool-call parts with `MessagePrimitive.GroupedParts`, and renders each group with exactly the pieces below.
+`Thread` 会使用 `MessagePrimitive.GroupedParts` 将相邻的工具调用部分分组，并严格使用下面的组成部分渲染每个组。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { groupPartByType, MessagePrimitive } from "@assistant-ui/react";
@@ -52,9 +52,9 @@ import {
   </Step>
   <Step>
 
-### Override it for every group
+### 为每个组覆盖默认实现
 
-Pass `components.ToolGroup` to `Thread` to replace this composition everywhere a group of tool calls appears. Your component receives the same `group` (with `status` and `indices`) and pre-rendered `children` that the default composition above receives.
+将 `components.ToolGroup` 传递给 `Thread`，即可替换所有工具调用组出现位置的这一组合方式。你的组件会接收与上述默认组合相同的 `group`（包含 `status` 和 `indices`）以及预渲染的 `children`。
 
 ```tsx
 <Thread
@@ -75,11 +75,11 @@ Pass `components.ToolGroup` to `Thread` to replace this composition everywhere a
 
 <StandaloneMode>
 
-Standalone, there's no run to group calls from. See [The parallel-tools design](#the-parallel-tools-design) below for the props-driven version you group and control yourself.
+在独立使用时，没有可用于分组调用的调用序列。请参见下方的[并行工具设计](#the-parallel-tools-design)，了解可以自行分组和控制的 props 驱动版本。
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 <RuntimeMode>
 
@@ -96,17 +96,17 @@ Standalone, there's no run to group calls from. See [The parallel-tools design](
 </div>
 ```
 
-The trigger's label always reads the plural "tool calls" except for a group of exactly one, which reads "1 tool call". The content's children fade and slide in with a small stagger, each child's delay increasing up to the fifth; beyond that every remaining child shares the same delay. Collapsing or expanding briefly locks the page's scroll position so the height change doesn't jump the viewport.
+触发器的标签始终使用复数形式“工具调用”，但恰好包含一个调用的组会显示“1 个工具调用”。内容中的子项会以轻微的交错效果淡入并滑入，每个子项的延迟最多递增到第五项；超过第五项后，其余所有子项共享相同的延迟。折叠或展开时，页面滚动位置会被短暂锁定，从而避免高度变化导致视口跳动。
 
 </RuntimeMode>
 
-## Examples
+## 示例
 
 <RuntimeMode>
 
-### Variants
+### 变体
 
-`variant` changes the group's chrome: `"outline"` (the default) draws a bordered card with padding; `"ghost"` (what `Thread` actually uses) has no border or background at all; `"muted"` draws a bordered card with a muted background.
+`variant` 会改变工具组的外观：`"outline"`（默认值）会绘制带边框和内边距的卡片；`"ghost"`（`Thread` 实际使用的变体）完全没有边框或背景；`"muted"` 会绘制带边框和弱化背景的卡片。
 
 ```tsx
 <ToolGroupRoot variant="outline">{/* ... */}</ToolGroupRoot>
@@ -114,9 +114,9 @@ The trigger's label always reads the plural "tool calls" except for a group of e
 <ToolGroupRoot variant="muted">{/* ... */}</ToolGroupRoot>
 ```
 
-### Controlled open state
+### 受控打开状态
 
-`ToolGroupRoot` is uncontrolled by default (`defaultOpen={false}`); pass `open` and `onOpenChange` to drive it yourself, for example to expand every group at once.
+`ToolGroupRoot` 默认是非受控的（`defaultOpen={false}`）；传入 `open` 和 `onOpenChange` 即可自行控制，例如一次展开所有组。
 
 ```tsx
 <ToolGroupRoot open={expanded} onOpenChange={setExpanded}>
@@ -126,47 +126,47 @@ The trigger's label always reads the plural "tool calls" except for a group of e
 
 </RuntimeMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Parts
+### 部件
 
-| Part | Renders | Notes |
-|------|---------|-------|
-| `ToolGroupRoot` | `div` | Collapsible container. Accepts `variant`, `open`, `onOpenChange`, `defaultOpen`. |
-| `ToolGroupTrigger` | `button` | Takes `count` and `active`; toggles the group. |
-| `ToolGroupContent` | `div` | The collapsible panel; renders `children` when open. |
+| 部件 | 渲染内容 | 说明 |
+|------|---------|------|
+| `ToolGroupRoot` | `div` | 可折叠容器。接受 `variant`、`open`、`onOpenChange` 和 `defaultOpen`。 |
+| `ToolGroupTrigger` | `button` | 接收 `count` 和 `active`；用于切换工具组。 |
+| `ToolGroupContent` | `div` | 可折叠面板；打开时渲染 `children`。 |
 
 ### ToolGroupRoot props
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `variant` | `"outline" \| "ghost" \| "muted"` | `"outline"` | Visual chrome. |
-| `open` | `boolean` | | Controlled open state. |
-| `onOpenChange` | `(open: boolean) => void` | | Called on toggle. |
-| `defaultOpen` | `boolean` | `false` | Initial state when uncontrolled. |
+| `variant` | `"outline" \| "ghost" \| "muted"` | `"outline"` | 视觉外观。 |
+| `open` | `boolean` | | 受控的打开状态。 |
+| `onOpenChange` | `(open: boolean) => void` | | 切换时调用。 |
+| `defaultOpen` | `boolean` | `false` | 非受控时的初始状态。 |
 
 ### ToolGroupTrigger props
 
-| Prop | Type | Description |
+| Prop | 类型 | 描述 |
 |------|------|-------------|
-| `count` | `number` | Number of tool calls in the group; drives the label text. |
-| `active` | `boolean` | Shows a spinner and a shimmering label while `true`. |
+| `count` | `number` | 工具组中的工具调用数量；用于生成标签文本。 |
+| `active` | `boolean` | 在 `true` 时显示加载指示器和闪烁标签。 |
 
-### Composition
+### 组合
 
-| Part | Type | Description |
+| 部件 | 类型 | 描述 |
 |------|------|-------------|
-| `group.status` | `MessagePartStatus \| ToolCallMessagePartStatus` | Running when any contained call runs, otherwise mirrors the last one. |
-| `group.indices` | `readonly number[]` | Indices of the message parts in this group; its length is the tool count. |
-| `components.ToolGroup` | `ComponentType<PropsWithChildren<{ group }>>` | `Thread` prop that overrides the default composition for every `"group-tool"` node. |
+| `group.status` | `MessagePartStatus \| ToolCallMessagePartStatus` | 任一包含的调用运行时显示运行中，否则反映最后一个调用的状态。 |
+| `group.indices` | `readonly number[]` | 此组中消息部分的索引；其长度就是工具调用数量。 |
+| `components.ToolGroup` | `ComponentType<PropsWithChildren<{ group }>>` | `Thread` prop，用于覆盖每个 `"group-tool"` 节点的默认组合。 |
 
 </RuntimeMode>
 
-## The parallel-tools design
+## 并行工具设计
 
-The Static variant in the rail is a second design for the same collapse: `ToolGroup` takes the calls as an explicit `tools` array instead of reading a message's grouped parts, and computes its own summary (progress, a failure count, or a done count) from each call's `state` rather than the `count` and `active` props the kit's trigger takes. It is a single props-driven component with no runtime dependency:
+侧栏中的 Static 变体是相同折叠功能的第二种设计：`ToolGroup` 接收显式的 `tools` 数组中的调用，而不是读取消息的分组部分；它会根据每个调用的 `state` 计算自己的摘要（进度、失败数量或完成数量），而不是使用该工具包触发器所接收的 `count` 和 `active` props。它是一个不依赖运行时的单一 props 驱动组件：
 
 ```sh
 npx shadcn@latest add "@assistant-ui/elements-tool-group"
@@ -174,7 +174,7 @@ npx shadcn@latest add "@assistant-ui/elements-tool-group"
 
 <RuntimeMode>
 
-Wire it by mapping a message's `tool-call` parts into `GroupedTool` records. `s.message.parts` is the store's own array, so selecting it directly is cheap; deriving `tools` still needs `useMemo`, since mapping to a fresh array on every call would re-render the group on every store update.
+将消息的 `tool-call` 部分映射为 `GroupedTool` 记录即可完成接入。`s.message.parts` 是存储自身的数组，因此直接选取它开销很小；派生 `tools` 仍然需要 `useMemo`，因为每次调用都映射出新数组会导致工具组在每次存储更新时重新渲染。
 
 ```tsx title="components/assistant-ui/elements/tool-group-live.tsx"
 "use client";
@@ -230,13 +230,13 @@ function AssistantToolGroup() {
 }
 ```
 
-`state` collapses the part's own status into the three values `ToolGroup` expects, treating anything short of `"complete"` as `"failed"` once a call stops `"running"`. Unlike the kit's `ToolGroupTrigger`, `ToolGroup` does not pluralize `label` for you, so the caller composes that string itself.
+`state` 会将部分自身的状态折叠为 `ToolGroup` 所需的三个值：调用停止 `"running"` 后，任何不是 `"complete"` 的状态都会被视为 `"failed"`。与工具包的 `ToolGroupTrigger` 不同，`ToolGroup` 不会为你将 `label` 变为复数，因此调用方需要自行拼接该字符串。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-Standalone you hold the array of calls yourself and flip `open` on click; the trigger recomputes from `tools` on every render, so updating one call's `state` moves the whole group from running to done with no extra plumbing.
+在独立使用时，由你自行保存调用数组，并在点击时切换 `open`；触发器会在每次渲染时根据 `tools` 重新计算，因此更新某个调用的 `state` 后，整个工具组就会从运行中变为已完成，无需额外接线。
 
 ```tsx title="app/turn.tsx"
 "use client";
@@ -260,26 +260,26 @@ export function Turn() {
 
 </StandaloneMode>
 
-The trigger's trailing text and icon come from `tools`, not from a prop: while any call is `"running"` it reads `done/total` with a spinner, a settled group with a nonzero failed count reads `n failed` with a red X, and a fully settled group with none reads `n done` with a green check.
+触发器末尾的文本和图标来自 `tools`，而不是某个 prop：当任一调用处于 `"running"` 状态时，它会显示 `done/total` 和加载指示器；已完成且失败数量不为零的工具组会显示 `n failed` 和红色 X；完全完成且没有失败的工具组会显示 `n done` 和绿色勾号。
 
 ### ToolGroup
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `label` | `string` | required | Text shown next to the chevron. |
-| `tools` | `readonly GroupedTool[]` | required | The calls in this group, in order. |
-| `open` | `boolean` | required | Whether the list is expanded. |
-| `onOpenChange` | `(open: boolean) => void` | | Called when the trigger is clicked. |
-| `className` | `string` | | Merged onto the root. |
+| `label` | `string` | 必填 | 显示在箭头旁边的文本。 |
+| `tools` | `readonly GroupedTool[]` | 必填 | 此工具组中的调用，按顺序排列。 |
+| `open` | `boolean` | 必填 | 列表是否展开。 |
+| `onOpenChange` | `(open: boolean) => void` | | 点击触发器时调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### GroupedTool
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `id` | `string` | React key. |
-| `name` | `string` | Tool name, shown in monospace. |
-| `target` | `string` | What the call acted on. |
-| `state` | `"running" \| "done" \| "failed"` | Drives the row's icon and the trigger's summary. |
-| `durationMs` | `number` | Optional; shown at the end of the row when present. |
+| `id` | `string` | React key。 |
+| `name` | `string` | 工具名称，以等宽字体显示。 |
+| `target` | `string` | 调用所操作的对象。 |
+| `state` | `"running" \| "done" \| "failed"` | 控制行图标和触发器摘要。 |
+| `durationMs` | `number` | 可选；存在时显示在行末尾。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` props 都会转发到根元素。

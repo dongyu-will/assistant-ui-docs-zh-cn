@@ -1,20 +1,20 @@
 ---
-title: "Background runs"
-description: "Work still going somewhere else, and the results waiting to be collected."
+title: "后台运行"
+description: "工作仍在其他地方继续，结果等待收集。"
 ---
 
-A background inbox lists work that kept going after you looked away: still running, or finished and waiting to be opened. With a runtime the rows come from your own thread list; standalone you hold the array yourself.
+后台收件箱会列出你移开视线后仍在继续的工作：仍在运行，或已经完成并等待打开的工作。使用运行时时，行项目来自你自己的线程列表；独立使用时，则由你自行持有这个数组。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-Every assistant-ui thread can keep running after you switch away from it. The thread list already tracks which ones are still active, so the inbox is a small projection of that state rather than a separate subsystem.
+每个 assistant-ui 线程都可以在你切换离开后继续运行。线程列表已经记录了哪些线程仍处于活动状态，因此收件箱只是对这些状态的小型投影，而不是一个独立的子系统。
 
 <Steps>
   <Step>
 
-### Build the run list from thread state
+### 根据线程状态构建运行列表
 
 ```tsx title="components/assistant-ui/elements/running-elsewhere.tsx"
 "use client";
@@ -47,7 +47,7 @@ function useBackgroundRuns(): BackgroundRun[] {
   </Step>
   <Step>
 
-### Render it and wire collection to switching threads
+### 渲染列表，并将收集操作连接到线程切换
 
 ```tsx
 import { BackgroundInbox } from "@/components/assistant-ui/elements/background-inbox";
@@ -65,7 +65,7 @@ export function RunningElsewhere() {
 }
 ```
 
-`ThreadListItemState.isRunning` only tells you whether a run is still in progress, so this mapping can only ever produce `"running"` or `"ready"`. It has no signal for a run that ended in an error, so a `"failed"` row needs its own bookkeeping on top of the thread list.
+`ThreadListItemState.isRunning` 只能告诉你某次运行是否仍在进行，因此此映射最多只能生成 `"running"` 或 `"ready"`。它无法提供运行因错误结束的信号，因此 `"failed"` 行需要在线程列表之上自行维护状态。
 
   </Step>
 </Steps>
@@ -74,12 +74,12 @@ export function RunningElsewhere() {
 
 <StandaloneMode>
 
-Standalone, the element is fully controlled: you hold the array of runs and update entries as their state changes elsewhere in your app.
+独立使用时，该元素完全受控：你持有运行列表数组，并在应用的其他位置更新运行状态时同步更新其中的条目。
 
 <Steps>
   <Step>
 
-### Hold the run list
+### 持有运行列表
 
 ```tsx title="app/inbox.tsx"
 "use client";
@@ -101,7 +101,7 @@ export function Inbox() {
   </Step>
   <Step>
 
-### Update a run when it settles
+### 运行结束时更新运行状态
 
 ```tsx
 function settle(id: string, ok: boolean) {
@@ -118,7 +118,7 @@ function settle(id: string, ok: boolean) {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="background-inbox">
@@ -136,11 +136,11 @@ function settle(id: string, ok: boolean) {
 </div>
 ```
 
-The header summary only ever counts `ready` and `running` rows: it reads `"{ready} ready"` whenever at least one run is ready, otherwise `"{running} in flight"`. A `failed` run counts toward neither number, so an inbox holding only failed runs reads `"0 in flight"`. Each row is a button: disabled and unclickable while `running`, clickable for both `ready` and `failed` (so a failed run can still be opened, not just dismissed). `summary` is optional per row and only renders when present. With an empty `runs` array the header still renders with `"0 in flight"` and no rows follow; there is no placeholder message.
+标题摘要只统计 `ready` 和 `running` 行：只要至少有一次运行准备就绪，就显示 `"{ready} ready"`；否则显示 `"{running} in flight"`。`failed` 运行不会计入其中任何一个数字，因此只包含失败运行的收件箱会显示 `"0 in flight"`。每一行都是一个按钮：在 `running` 时处于禁用状态且不可点击；对于 `ready` 和 `failed` 都可以点击（因此失败的运行仍然可以打开，而不只是被关闭）。`summary` 对每一行都是可选的，仅在存在时渲染。`runs` 数组为空时，标题仍会显示 `"0 in flight"`，但后面不会有任何行；不会显示占位消息。
 
-## Examples
+## 示例
 
-### All three states
+### 全部三种状态
 
 ```tsx
 <BackgroundInbox
@@ -152,11 +152,11 @@ The header summary only ever counts `ready` and `running` rows: it reads `"{read
 />
 ```
 
-### Collecting into an archived thread
+### 收集到已归档线程
 
 <RuntimeMode>
 
-`switchTo` accepts `{ unarchive: true }`, so a background run that finished on an archived thread can still be collected without a separate unarchive step:
+`switchTo` 接受 `{ unarchive: true }`，因此在已归档线程上完成的后台运行仍然可以被收集，而无需单独执行取消归档步骤：
 
 ```tsx
 onCollect={(id) => aui.threads.item({ id }).switchTo({ unarchive: true })}
@@ -164,31 +164,31 @@ onCollect={(id) => aui.threads.item({ id }).switchTo({ unarchive: true })}
 
 </RuntimeMode>
 
-### Restyle the inbox
+### 重新设置收件箱样式
 
-The root uses the shared `paper` surface; the summary count, per-run summary, and elapsed time use `mono`.
+根元素使用共享的 `paper` 表面；摘要计数、每次运行的摘要和经过时间使用 `mono`。
 
 ```tsx
 <BackgroundInbox className="max-w-md rounded-3xl" runs={runs} onCollect={onCollect} />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Thread list state
+### 线程列表状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.threads.threadIds` | `readonly string[]` | Ids of every open (non-archived) thread. |
-| `aui.threads.item({ index }).getState()` | `ThreadListItemState` | Full state for the thread at that index, including `title`, `lastMessageAt`, and `isRunning`. |
-| `.isRunning` | `boolean` | Whether that thread has a run in progress, including one that continues after you switch away from it. |
+| `s.threads.threadIds` | `readonly string[]` | 所有开放（未归档）线程的 ID。 |
+| `aui.threads.item({ index }).getState()` | `ThreadListItemState` | 对应索引处线程的完整状态，包括 `title`、`lastMessageAt` 和 `isRunning`。 |
+| `.isRunning` | `boolean` | 该线程是否有正在进行的运行，包括在你切换离开后仍继续运行的情况。 |
 
-### Client calls
+### 客户端调用
 
-| Call | Description |
+| 调用 | 描述 |
 |------|-------------|
-| `aui.threads.item({ id }).switchTo(options?)` | Makes that thread the active one. `{ unarchive: true }` also unarchives it. |
+| `aui.threads.item({ id }).switchTo(options?)` | 将该线程设为活动线程。`{ unarchive: true }` 还会取消归档该线程。 |
 
 </RuntimeMode>
 
@@ -196,22 +196,22 @@ The root uses the shared `paper` surface; the summary count, per-run summary, an
 
 ### BackgroundInbox
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `runs` | `readonly BackgroundRun[]` | required | The rows to render, in order. |
-| `onCollect` | `(id: string) => void` | | Called when a `ready` or `failed` row is clicked. Not called for `running` rows. |
-| `className` | `string` | | Merged onto the root. |
+| `runs` | `readonly BackgroundRun[]` | 必填 | 要按顺序渲染的行。 |
+| `onCollect` | `(id: string) => void` | | 点击 `ready` 或 `failed` 行时调用。对于 `running` 行不会调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### BackgroundRun
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `id` | `string` | Row key, passed back to `onCollect`. |
-| `title` | `string` | Truncated row label. |
-| `state` | `"running" \| "ready" \| "failed"` | Drives the icon and whether the row is clickable. |
-| `elapsed` | `string` | Right-aligned time label; any format you choose. |
-| `summary` | `string` | Optional second line shown under the title. |
+| `id` | `string` | 行的键，会传回 `onCollect`。 |
+| `title` | `string` | 截断后的行标签。 |
+| `state` | `"running" \| "ready" \| "failed"` | 决定图标以及该行是否可点击。 |
+| `elapsed` | `string` | 右对齐的时间标签；格式由你自行决定。 |
+| `summary` | `string` | 可选的第二行文本，显示在标题下方。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

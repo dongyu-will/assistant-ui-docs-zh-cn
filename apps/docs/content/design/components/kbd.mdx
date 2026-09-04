@@ -1,8 +1,8 @@
 ---
 title: "Kbd"
-description: "Keyboard keys as printed caps, for shortcuts and hints."
+description: "以印刷大写样式显示的键盘按键，用于快捷键和提示。"
 links:
-  - label: Source
+  - label: 来源
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/kbd.tsx
 ---
 
@@ -20,11 +20,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.KbdSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="kbd" />
 
-## Usage
+## 用法
 
 ```tsx
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
@@ -39,11 +39,11 @@ export function Example() {
 }
 ```
 
-## API Reference
+## API 参考
 
 ### Kbd
 
-Renders a native `kbd` element and accepts its props.
+渲染原生 `kbd` 元素，并接受其 props。
 
 <ParametersTable
   type="KbdProps"
@@ -51,14 +51,14 @@ Renders a native `kbd` element and accepts its props.
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes.",
+      description: "其他 CSS 类。",
     },
   ]}
 />
 
 ### KbdGroup
 
-Lays out a chord of keys with even spacing.
+以均匀间距排列一组组合按键。
 
 <ParametersTable
   type="KbdGroupProps"
@@ -66,7 +66,7 @@ Lays out a chord of keys with even spacing.
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes.",
+      description: "其他 CSS 类。",
     },
   ]}
 />

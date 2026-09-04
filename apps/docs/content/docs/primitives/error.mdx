@@ -1,12 +1,12 @@
 ---
-title: Error
-description: Accessible error display for messages with automatic error text extraction.
+title: 错误
+description: 为消息提供可访问的错误显示，并自动提取错误文本。
 platforms: ["react"]
 ---
 
 import { ErrorPrimitiveSample } from "@/components/pages/docs/samples/error-primitive";
 
-The Error primitive renders error states on messages using an accessible `role="alert"` container with automatic error text extraction. `Root` always renders its container; `Message` only renders when the message has an error. Wrap in `MessagePrimitive.Error` if you need the entire block to be conditional.
+Error 原语使用可访问的 `role="alert"` 容器在消息上呈现错误状态，并自动提取错误文本。`Root` 始终渲染其容器；`Message` 仅在消息存在错误时渲染。如果需要让整个区块按条件渲染，请将其包裹在 `MessagePrimitive.Error` 中。
 
 <Tabs items={["Preview", "Code"]}>
   <Tab>
@@ -30,9 +30,9 @@ function AssistantMessage() {
   </Tab>
 </Tabs>
 
-## Quick Start
+## 快速开始
 
-A minimal error display below a message:
+在消息下方显示错误的最简示例：
 
 ```tsx
 import { ErrorPrimitive, MessagePrimitive } from "@assistant-ui/react";
@@ -45,25 +45,25 @@ import { ErrorPrimitive, MessagePrimitive } from "@assistant-ui/react";
 </MessagePrimitive.Root>
 ```
 
-`Root` renders a `<div>` with `role="alert"` for screen reader accessibility. `Message` renders a `<span>` that auto-reads the error text from message state, and it returns `null` when there is no error. `Root` itself always renders. Wrap in `<MessagePrimitive.Error>` if you want the entire block (including `Root`) to be conditional.
+`Root` 会渲染一个带有 `role="alert"` 的 `<div>`，以确保屏幕阅读器可访问。`Message` 会渲染一个 `<span>`，自动从消息状态中读取错误文本；没有错误时，它会返回 `null`。`Root` 本身始终会渲染。如果希望整个区块（包括 `Root`）按条件渲染，请将其包裹在 `<MessagePrimitive.Error>` 中。
 
 <Callout type="info">
-ErrorPrimitive must be placed inside a `MessagePrimitive.Root` because it reads the error state from the nearest message context.
+ErrorPrimitive 必须放置在 `MessagePrimitive.Root` 内，因为它会从最近的消息上下文中读取错误状态。
 </Callout>
 
 <Callout type="info">
-Runtime setup: primitives require runtime context. Wrap your UI in `AssistantRuntimeProvider` with a runtime (for example `useLocalRuntime(...)`). See [Pick a Runtime](/docs/runtimes/pick-a-runtime).
+运行时设置：原语需要运行时上下文。请将 UI 包裹在带有运行时的 `AssistantRuntimeProvider` 中（例如 `useLocalRuntime(...)`）。请参阅[选择运行时](/docs/runtimes/pick-a-runtime)。
 </Callout>
 
-## Core Concepts
+## 核心概念
 
-### Auto-Rendering on Error
+### 出错时自动渲染
 
-`Message` checks the message status and only renders when `status.type === "incomplete"` and `status.reason === "error"`. `Root` always renders its `<div role="alert">` container. For fully conditional rendering, wrap in `<MessagePrimitive.Error>`.
+`Message` 会检查消息状态，并且仅在 `status.type === "incomplete"` 和 `status.reason === "error"` 时渲染。`Root` 始终会渲染其 `<div role="alert">` 容器。如需完全按条件渲染，请将其包裹在 `<MessagePrimitive.Error>` 中。
 
-### Automatic Error Text
+### 自动提取错误文本
 
-`ErrorPrimitive.Message` reads the error object from message state and converts it to a string. If you pass `children`, they override the automatic text:
+`ErrorPrimitive.Message` 会从消息状态中读取错误对象，并将其转换为字符串。如果传入 `children`，它们会覆盖自动提取的文本：
 
 ```tsx
 // Auto-reads error text from state
@@ -75,9 +75,9 @@ Runtime setup: primitives require runtime context. Wrap your UI in `AssistantRun
 </ErrorPrimitive.Message>
 ```
 
-### ErrorPrimitive vs MessagePrimitive.Error
+### ErrorPrimitive 与 MessagePrimitive.Error 的区别
 
-`MessagePrimitive.Error` is a simpler alternative. It renders its children when the message has an error but does not provide `role="alert"` or auto-extract the error text. Use `ErrorPrimitive` when you want accessible error rendering with automatic text.
+`MessagePrimitive.Error` 是一个更简单的替代方案。当消息存在错误时，它会渲染其子元素，但不提供 `role="alert"`，也不会自动提取错误文本。如果需要以可访问的方式渲染错误并自动提取文本，请使用 `ErrorPrimitive`。
 
 ```tsx
 // ErrorPrimitive: accessible, auto-reads error text
@@ -91,11 +91,11 @@ Runtime setup: primitives require runtime context. Wrap your UI in `AssistantRun
 </MessagePrimitive.Error>
 ```
 
-## Parts
+## 部件
 
-### Root
+### 根部件
 
-Container for an error message block. Renders a `<div>` element unless `asChild` is set.
+错误消息区块的容器。除非设置了 `asChild`，否则会渲染一个 `<div>` 元素。
 
 ```tsx
 <ErrorPrimitive.Root className="rounded-md border border-destructive/20 bg-destructive/5 p-3">
@@ -103,17 +103,17 @@ Container for an error message block. Renders a `<div>` element unless `asChild`
 </ErrorPrimitive.Root>
 ```
 
-### Message
+### 消息
 
-Renders the current error text for the active message.
+渲染当前活动消息的错误文本。
 
 ```tsx
 <ErrorPrimitive.Message className="text-destructive text-sm" />
 ```
 
-## Patterns
+## 模式
 
-### Styled Error Alert
+### 样式化错误警告
 
 ```tsx
 <ErrorPrimitive.Root className="mt-2 flex items-center gap-2 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -121,7 +121,7 @@ Renders the current error text for the active message.
 </ErrorPrimitive.Root>
 ```
 
-### Custom Error Content
+### 自定义错误内容
 
 ```tsx
 <ErrorPrimitive.Root className="mt-2 rounded-md border border-destructive/20 bg-destructive/5 p-3">
@@ -130,13 +130,13 @@ Renders the current error text for the active message.
 </ErrorPrimitive.Root>
 ```
 
-## Relationship to Components
+## 与组件的关系
 
-The shadcn [Thread](/elements/thread) component uses `ErrorPrimitive` inside its `AssistantMessage` to display errors below the message content. If you need a pre-built error display, start there.
+shadcn 的 [Thread](/elements/thread) 组件会在其 `AssistantMessage` 内使用 `ErrorPrimitive`，以在消息内容下方显示错误。如果需要预构建的错误显示组件，可以从这里开始。
 
-## API Reference
+## API 参考
 
-For full prop details on every part, see the [ErrorPrimitive API Reference](/docs/api-reference/primitives/error).
+如需查看每个部件的完整属性详情，请参阅 [ErrorPrimitive API 参考](/docs/api-reference/primitives/error)。
 
-Related:
-- [MessagePrimitive API Reference](/docs/api-reference/primitives/message)
+相关内容：
+- [MessagePrimitive API 参考](/docs/api-reference/primitives/message)

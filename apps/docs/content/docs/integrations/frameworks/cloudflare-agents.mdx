@@ -1,60 +1,60 @@
 ---
 title: Cloudflare Agents
-description: Wire Cloudflare's stateful agent framework into a React chat UI with assistant-ui via the standard AI SDK runtime. WebSocket transport, server-side persistence, tool calling, all preserved.
+description: 通过标准 AI SDK 运行时，将 Cloudflare 的有状态助手框架接入基于 React 的聊天 UI，并与 assistant-ui 集成。完整保留 WebSocket 传输、服务端持久化和工具调用。
 platforms: ["react"]
 ---
 
 import { CloudflareIcon } from "@/components/icons/cloudflare";
 import { VercelIcon } from "@/components/icons/vercel";
 
-[Cloudflare Agents](https://developers.cloudflare.com/agents/) is Cloudflare's framework for stateful AI agents that run on Durable Objects at the edge. Each agent owns its own SQLite-backed message history, exposes a WebSocket channel for low-latency streaming, and can call tools (server-side or client-side).
+[Cloudflare Agents](https://developers.cloudflare.com/agents/) 是 Cloudflare 用于构建有状态 AI 助手的框架，这些助手运行在边缘的 Durable Objects 上。每个助手都拥有自己的 SQLite 消息历史记录，提供用于低延迟流式传输的 WebSocket 通道，并且可以调用工具（服务端或客户端工具）。
 
 <Callout type="info">
-This is an integration guide, not a runtime adapter. assistant-ui does not ship a `@assistant-ui/react-cloudflare-agents` package. `@cloudflare/ai-chat`'s `useAgentChat` returns a structural extension of the AI SDK's `useChat`, so the existing [AI SDK runtime](/docs/runtimes/ai-sdk/v7) consumes it directly.
+这是一份集成指南，而不是运行时适配器。assistant-ui 不提供 `@assistant-ui/react-cloudflare-agents` 包。`@cloudflare/ai-chat` 的 `useAgentChat` 返回 AI SDK 的 `useChat` 的结构化扩展，因此现有的 [AI SDK 运行时](/docs/runtimes/ai-sdk/v7) 可以直接使用它。
 </Callout>
 
-## Architecture
+## 架构
 
-Cloudflare Agents handles the server half: a Durable Object subclasses `AIChatAgent` from `@cloudflare/ai-chat`, owns the message history, and streams responses back over a WebSocket. `@cloudflare/ai-chat/react`'s `useAgentChat` hook wraps that WebSocket and exposes the same `messages`, `sendMessage`, `regenerate`, `status`, `stop`, `setMessages`, `addToolOutput` surface that the AI SDK's `useChat` does, plus a few Cloudflare-specific extras (`clearHistory`, `isServerStreaming`, `isToolContinuation`).
+Cloudflare Agents 负责服务端部分：一个 Durable Object 从 `@cloudflare/ai-chat` 中继承 `AIChatAgent`，管理消息历史记录，并通过 WebSocket 将响应以流式方式传回。`@cloudflare/ai-chat/react` 的 `useAgentChat` hook 封装了这个 WebSocket，并公开与 AI SDK 的 `useChat` 相同的 `messages`、`sendMessage`、`regenerate`、`status`、`stop`、`setMessages`、`addToolOutput` 接口，此外还提供一些 Cloudflare 特有的扩展（`clearHistory`、`isServerStreaming`、`isToolContinuation`）。
 
-assistant-ui handles the client half. `useAISDKRuntime` from [`@assistant-ui/ai-sdk`](/docs/runtimes/ai-sdk/v7) reads exactly those AI SDK methods off whatever you pass in, so feeding it `useAgentChat`'s return value yields a fully-featured runtime: streaming, tool calling, edit, reload, history import and export, attachments, suggestions.
+assistant-ui 负责客户端部分。来自 [`@assistant-ui/ai-sdk`](/docs/runtimes/ai-sdk/v7) 的 `useAISDKRuntime` 会从你传入的对象中读取这些 AI SDK 方法，因此将 `useAgentChat` 的返回值传给它，就能得到功能完整的运行时：流式传输、工具调用、编辑、重新加载、历史记录导入和导出、附件以及建议。
 
-Shared adapters (attachments, speech, feedback, history) work the same way as described in [adapters](/docs/runtimes/concepts/adapters). Multi-thread support needs a [custom thread list](/docs/runtimes/concepts/threads) wired around `useAISDKRuntime`; [AssistantCloud](/docs/cloud) integrates via `useChatRuntime` (which constructs its own `useChat` internally) and is not compatible with the `useAgentChat` wiring shown here.
+共享适配器（附件、语音、反馈、历史记录）的工作方式与 [适配器](/docs/runtimes/concepts/adapters) 中的说明相同。多线程支持需要围绕 `useAISDKRuntime` 接入[自定义线程列表](/docs/runtimes/concepts/threads)；[AssistantCloud](/docs/cloud) 通过 `useChatRuntime` 集成（它会在内部构造自己的 `useChat`），因此不兼容此处展示的 `useAgentChat` 接线方式。
 
-## Requirements
+## 要求
 
-- A Cloudflare account with Workers enabled and `wrangler` installed.
-- A frontend project (Next.js or any other AI-SDK-compatible React app).
-- Model API keys (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc.) configured as Worker secrets.
+- 一个已启用 Workers 且安装了 `wrangler` 的 Cloudflare 账户。
+- 一个前端项目（Next.js 或其他兼容 AI SDK 的 React 应用）。
+- 已配置为 Worker 密钥的模型 API 密钥（`OPENAI_API_KEY`、`ANTHROPIC_API_KEY` 等）。
 
-## Setup
+## 设置
 
-The setup has two halves. Steps 1 to 4 happen in the **Worker** project (Cloudflare side); steps 5 to 7 happen in a **separate assistant-ui frontend**. You'll have two dev processes running by the end: `wrangler dev` for the Worker, and your frontend's dev server.
+设置分为两部分。第 1 步到第 4 步在 **Worker** 项目（Cloudflare 侧）中完成；第 5 步到第 7 步在**独立的 assistant-ui 前端**中完成。最终你会运行两个开发进程：Worker 使用的 `wrangler dev`，以及前端的开发服务器。
 
 <Steps>
 
 <Step>
 
-### Scaffold the Worker project
+### 搭建 Worker 项目
 
 ```sh
 npm create cloudflare@latest my-agent -- --type=hello-world --ts
 cd my-agent
 ```
 
-Add the Cloudflare Agents packages and the AI SDK:
+添加 Cloudflare Agents 包和 AI SDK：
 
 <InstallCommand npm={["agents@0.12.4", "@cloudflare/ai-chat@0.7.0", "ai@latest", "@ai-sdk/openai@latest"]} />
 
-The two Cloudflare packages above are pinned to exact versions because `agents` and `@cloudflare/ai-chat` are pre-1.0 and ship breaking changes between minor releases. See [version stability](#version-stability) below before bumping them.
+上面的两个 Cloudflare 包固定使用精确版本，因为 `agents` 和 `@cloudflare/ai-chat` 尚未达到 1.0 版本，在次版本之间可能包含破坏性变更。升级它们之前，请先参阅下面的[版本稳定性](#version-stability)。
 
 </Step>
 
 <Step>
 
-### Define the agent
+### 定义助手
 
-`AIChatAgent` already implements message persistence, streaming protocol, and WebSocket plumbing. Override `onChatMessage` to plug in your model and tools.
+`AIChatAgent` 已经实现了消息持久化、流式传输协议和 WebSocket 接线。重写 `onChatMessage`，以接入你的模型和工具。
 
 ```ts title="src/chat.ts"
 import { AIChatAgent } from "@cloudflare/ai-chat";
@@ -77,15 +77,15 @@ export class Chat extends AIChatAgent<Env> {
 }
 ```
 
-`Env` is exported alongside `Chat` so the Worker entry point can reuse the same type. The `Chat: DurableObjectNamespace<Chat>` field mirrors the binding declared in `wrangler.jsonc` (next step) and is what `routeAgentRequest` looks up to resolve the agent. `DurableObjectNamespace` is a global from `@cloudflare/workers-types`, which the `npm create cloudflare` scaffold sets up by default.
+`Env` 会与 `Chat` 一起导出，这样 Worker 入口点就可以复用同一个类型。`Chat: DurableObjectNamespace<Chat>` 字段对应于 `wrangler.jsonc` 中声明的绑定（下一步），`routeAgentRequest` 会通过它查找并解析助手。`DurableObjectNamespace` 是 `@cloudflare/workers-types` 提供的全局变量，`npm create cloudflare` 搭建的项目默认会进行设置。
 
-`this.messages` is the persisted history for this Durable Object instance. Each unique agent `name` you connect with from the client (step 7) gets its own instance and its own message log.
+`this.messages` 是此 Durable Object 实例的持久化历史记录。你从客户端连接时（第 7 步）使用的每个唯一助手 `name` 都会获得独立的实例和独立的消息日志。
 
 </Step>
 
 <Step>
 
-### Register the Durable Object and route requests
+### 注册 Durable Object 并路由请求
 
 ```ts title="src/index.ts"
 import { routeAgentRequest } from "agents";
@@ -114,9 +114,9 @@ export default {
 } satisfies ExportedHandler<Env>;
 ```
 
-`routeAgentRequest` handles WebSocket upgrades, agent lookup by URL path, and the `/get-messages` HTTP endpoint that the frontend uses for history rehydration. The `cors` helper reflects the request origin so the frontend can talk to the Worker across ports during local development. WebSocket upgrades bypass CORS in the browser, but the `/get-messages` HTTP fetch and any custom routes need these headers. For production, replace the wildcard fallback with an explicit allowlist.
+`routeAgentRequest` 负责处理 WebSocket 升级、根据 URL 路径查找助手，以及前端用于恢复历史记录的 `/get-messages` HTTP 端点。`cors` 辅助函数会反映请求来源，这样前端就能在本地开发期间跨端口与 Worker 通信。浏览器中的 WebSocket 升级会绕过 CORS，但 `/get-messages` HTTP 请求和任何自定义路由都需要这些请求头。在生产环境中，请将通配符回退替换为明确的允许列表。
 
-Wire the Durable Object binding in `wrangler.jsonc`:
+在 `wrangler.jsonc` 中接入 Durable Object 绑定：
 
 ```jsonc title="wrangler.jsonc"
 {
@@ -133,15 +133,15 @@ Wire the Durable Object binding in `wrangler.jsonc`:
 }
 ```
 
-The binding `name` and `class_name` must match the exported class. `new_sqlite_classes` is required so the Durable Object can use SQLite for message storage.
+绑定 `name` 和 `class_name` 必须与导出的类匹配。必须设置 `new_sqlite_classes`，这样 Durable Object 才能使用 SQLite 存储消息。
 
 </Step>
 
 <Step>
 
-### Run the Worker locally
+### 在本地运行 Worker
 
-Local `wrangler dev` reads environment variables from a `.dev.vars` file in the project root (not from the remote secret store):
+本地 `wrangler dev` 会从项目根目录中的 `.dev.vars` 文件读取环境变量（而不是从远程密钥存储中读取）：
 
 ```sh title=".dev.vars"
 OPENAI_API_KEY=sk-...
@@ -151,21 +151,21 @@ OPENAI_API_KEY=sk-...
 wrangler dev
 ```
 
-For production, upload the same key as a deployed Worker secret before `wrangler deploy`:
+在生产环境中，请先将同一个密钥上传为已部署 Worker 的密钥，然后再执行 `wrangler deploy`：
 
 ```sh
 wrangler secret put OPENAI_API_KEY
 ```
 
-The Worker boots on `http://localhost:8787`. Leave it running.
+Worker 会在 `http://localhost:8787` 上启动。请保持其运行。
 
 </Step>
 
 <Step>
 
-### Initialize the assistant-ui frontend
+### 初始化 assistant-ui 前端
 
-In a different directory:
+在另一个目录中：
 
 ```sh title="New project"
 npx assistant-ui@latest create
@@ -175,15 +175,15 @@ npx assistant-ui@latest create
 npx assistant-ui@latest init
 ```
 
-This creates a default chat page and a local API route at `app/api/chat/route.ts`. You won't use the local route, since the agent runs on the Worker; delete it once the next step is wired.
+这会创建一个默认聊天页面，并在 `app/api/chat/route.ts` 创建本地 API 路由。由于助手运行在 Worker 上，因此不会使用这个本地路由；完成下一步接线后即可将其删除。
 
 </Step>
 
 <Step>
 
-### Install the Cloudflare client packages
+### 安装 Cloudflare 客户端包
 
-In the frontend project:
+在前端项目中：
 
 <InstallCommand npm={["agents@0.12.4", "@cloudflare/ai-chat@0.7.0"]} />
 
@@ -191,7 +191,7 @@ In the frontend project:
 
 <Step>
 
-### Wire the runtime
+### 接入运行时
 
 ```tsx title="app/assistant.tsx"
 "use client";
@@ -219,65 +219,65 @@ export const Assistant = () => {
 };
 ```
 
-Set the Worker URL in your frontend environment:
+在前端环境中设置 Worker URL：
 
 ```sh title=".env.local"
 NEXT_PUBLIC_AGENT_HOST=http://localhost:8787
 ```
 
-`NEXT_PUBLIC_*` exposes the value to the browser. In production, point this at your deployed Worker (e.g. `https://my-agent.example.workers.dev`).
+`NEXT_PUBLIC_*` 会将该值暴露给浏览器。在生产环境中，请将其指向已部署的 Worker（例如 `https://my-agent.example.workers.dev`）。
 
-`name: "default"` is the Durable Object instance key. Pass a per-user value (a user ID, session ID, or chat ID) to give each user their own persisted history. Switching `name` from the client opens a new WebSocket connection to a different Durable Object instance.
+`name: "default"` 是 Durable Object 实例的键。传入每个用户对应的值（用户 ID、会话 ID 或聊天 ID），即可为每个用户提供独立的持久化历史记录。从客户端切换 `name` 会打开到另一个 Durable Object 实例的新 WebSocket 连接。
 
 </Step>
 
 </Steps>
 
-## Notes
+## 注意事项
 
-### Type compatibility with `useChat`
+### 与 `useChat` 的类型兼容性
 
-`useAgentChat`'s return type is `Omit<ReturnType<typeof useChat>, "addToolOutput"> & { ... }`. The `addToolOutput` option shape differs slightly between the two: `useChat` accepts `{ state, tool, toolCallId, ... }`; `useAgentChat` accepts `{ state, toolCallId, toolName?, ... }`. At runtime the call paths converge through `useAISDKRuntime` without issue (verified against `@cloudflare/ai-chat@0.7.0`). If the TypeScript compiler flags the call, cast at the call site: `useAISDKRuntime(chat as Parameters<typeof useAISDKRuntime>[0])`, or `chat as unknown as Parameters<typeof useAISDKRuntime>[0]` if TypeScript still refuses the direct cast. (`satisfies` does not help here; it validates assignability without changing the inferred type, so it surfaces the same error.)
+`useAgentChat` 的返回类型是 `Omit<ReturnType<typeof useChat>, "addToolOutput"> & { ... }`。两者的 `addToolOutput` 选项形状略有不同：`useChat` 接受 `{ state, tool, toolCallId, ... }`；`useAgentChat` 接受 `{ state, toolCallId, toolName?, ... }`。在运行时，调用路径会通过 `useAISDKRuntime` 汇合，不会出现问题（已针对 `@cloudflare/ai-chat@0.7.0` 验证）。如果 TypeScript 编译器标记了该调用，请在调用位置进行类型转换：`useAISDKRuntime(chat as Parameters<typeof useAISDKRuntime>[0])`；如果 TypeScript 仍拒绝直接转换，则使用 `chat as unknown as Parameters<typeof useAISDKRuntime>[0]`。（`satisfies` 在这里没有帮助；它只会验证可赋值性，不会更改推断出的类型，因此仍会显示相同的错误。）
 
-### Cloudflare-specific extras
+### Cloudflare 特有的扩展
 
-`useAgentChat` exposes three values that `useChat` does not:
+`useAgentChat` 会公开三个 `useChat` 没有的值：
 
-- `clearHistory()` sends a `cf_agent_chat_clear` frame and wipes the Durable Object's SQLite store. Bind it to a "Clear chat" button if you need server-side history reset; `setMessages([])` alone only clears the client view.
-- `isServerStreaming` is `true` while the server is pushing tokens, independent of client-initiated request state. Use it for a universal streaming indicator.
-- `isToolContinuation` distinguishes "server auto-continuing after a tool result" from "user just sent a new message". Useful for typing-indicator gating.
+- `clearHistory()` 会发送一个 `cf_agent_chat_clear` 帧，并清空 Durable Object 的 SQLite 存储。如果需要重置服务端历史记录，可以将它绑定到“清除聊天”按钮；单独使用 `setMessages([])` 只会清除客户端视图。
+- `isServerStreaming` 在服务端推送 token 期间为 `true`，与客户端发起的请求状态无关。可以使用它实现通用的流式传输指示器。
+- `isToolContinuation` 可以区分“服务端在工具结果后自动继续”和“用户刚刚发送了新消息”。这对控制输入状态指示器很有用。
 
-Destructure these alongside `chat` and pass them into your UI directly; they don't need to flow through the runtime.
+将这些值与 `chat` 一起解构，并直接传入 UI；它们不需要经过运行时。
 
-### `setMessages` round-trips through the Durable Object
+### `setMessages` 会经由 Durable Object 往返同步
 
-`useAgentChat` overrides `setMessages` to broadcast the new list over the WebSocket so the Durable Object's SQLite history stays in sync. This means assistant-ui's `onImport`, `onEdit`, `onReload`, and pending-tool cancellation paths all persist server-side automatically. The tradeoff is one extra WebSocket round-trip per mutation, which can race if the connection is lagging; assume eventual consistency, not transactional.
+`useAgentChat` 会重写 `setMessages`，通过 WebSocket 广播新列表，从而让 Durable Object 的 SQLite 历史记录保持同步。这意味着 assistant-ui 的 `onImport`、`onEdit`、`onReload` 以及待处理工具取消路径，都会自动持久化到服务端。代价是每次变更都会额外产生一次 WebSocket 往返；如果连接延迟较高，可能会发生竞争，因此应假设最终一致性，而不是事务一致性。
 
-### Authenticate the Worker before going to production
+### 上线前验证 Worker 身份
 
-`routeAgentRequest` accepts any client that knows the agent class and `name`. If you derive `name` from a user ID (as recommended for per-user history), any client that knows or guesses another user's ID can connect to that Durable Object and read its full message log. Before deploying:
+`routeAgentRequest` 会接受任何知道助手类和 `name` 的客户端。如果你根据用户 ID 派生 `name`（这是实现按用户保存历史记录的推荐方式），那么任何知道或猜到其他用户 ID 的客户端都可以连接到该 Durable Object，并读取其完整消息日志。部署前：
 
-- Gate the fetch handler with a header or cookie check (e.g. a JWT issued by your auth backend), and only call `routeAgentRequest` after the request is authenticated.
-- Pass the same credential from the frontend via `useAgent`'s `headers` or `query` options so the WebSocket upgrade carries it.
-- Tighten the CORS `Access-Control-Allow-Origin` to an explicit allowlist; the wildcard in the example above is for local development only.
+- 使用请求头或 Cookie 检查保护 fetch 处理程序（例如检查由身份验证后端签发的 JWT），并且仅在请求通过身份验证后调用 `routeAgentRequest`。
+- 通过 `useAgent` 的 `headers` 或 `query` 选项从前端传入相同的凭据，使 WebSocket 升级请求携带该凭据。
+- 将 CORS `Access-Control-Allow-Origin` 收紧为明确的允许列表；上面示例中的通配符仅用于本地开发。
 
-### Version stability
+### 版本稳定性
 
-`agents` and `@cloudflare/ai-chat` are pre-1.0 and ship breaking changes between minor versions. Pin both to exact versions in `package.json` and read the Cloudflare changelog before bumping. The `useAgentChat` return shape has been additive since 0.3.0, so the integration above should keep working across patch releases.
+`agents` 和 `@cloudflare/ai-chat` 尚未达到 1.0 版本，在次版本之间可能包含破坏性变更。在 `package.json` 中将两者都固定为精确版本，并在升级前阅读 Cloudflare 的变更日志。`useAgentChat` 的返回结构自 0.3.0 起一直采用增量扩展方式，因此上面的集成应当能在补丁版本之间继续工作。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     icon={<CloudflareIcon width={20} height={20} />}
-    title="Cloudflare Agents docs"
-    description="Cloudflare's official guide: Durable Object lifecycle, WebSocket protocol, tool patterns, multi-agent routing."
+    title="Cloudflare Agents 文档"
+    description="Cloudflare 官方指南：Durable Object 生命周期、WebSocket 协议、工具模式和多助手路由。"
     href="https://developers.cloudflare.com/agents/"
   />
   <Card
     icon={<VercelIcon width={20} height={20} />}
-    title="AI SDK runtime"
-    description="The runtime that handles the client side of this integration."
+    title="AI SDK 运行时"
+    description="负责处理此集成客户端部分的运行时。"
     href="/docs/runtimes/ai-sdk/v7"
   />
 </Cards>

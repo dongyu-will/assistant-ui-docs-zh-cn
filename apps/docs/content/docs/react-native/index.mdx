@@ -1,16 +1,16 @@
 ---
-title: React Native AI Chat
-description: Build AI chat for iOS and Android with @assistant-ui/react-native — streaming, tools, attachments, and platform-native components from the same primitives as the web SDK.
+title: React Native AI 聊天
+description: 使用 @assistant-ui/react-native 为 iOS 和 Android 构建 AI 聊天：支持流式输出、工具、附件，以及基于与 Web SDK 相同原语构建的平台原生组件。
 ---
 
-## Quick Start
+## 快速开始
 
-The fastest way to get started with assistant-ui for React Native.
+使用 assistant-ui 在 React Native 中开始开发的最快方式。
 
 <Steps>
   <Step>
 
-### Create a new project
+### 创建新项目
 
 ```sh
 npx assistant-ui@latest create --example with-expo my-chat-app
@@ -20,9 +20,9 @@ cd my-chat-app
   </Step>
   <Step>
 
-### Configure API endpoint
+### 配置 API 端点
 
-Create a `.env` file pointing to your chat API:
+创建一个 `.env` 文件，并指向你的聊天 API：
 
 ```
 EXPO_PUBLIC_CHAT_ENDPOINT_URL="http://localhost:3000/api/chat"
@@ -31,7 +31,7 @@ EXPO_PUBLIC_CHAT_ENDPOINT_URL="http://localhost:3000/api/chat"
   </Step>
   <Step>
 
-### Start the app
+### 启动应用
 
 ```sh
 npx expo start
@@ -40,23 +40,23 @@ npx expo start
   </Step>
 </Steps>
 
-## Manual Setup
+## 手动设置
 
-If you prefer to add assistant-ui to an existing Expo project, follow these steps.
+如果你更愿意将 assistant-ui 添加到现有的 Expo 项目中，请按照以下步骤操作。
 
 <Steps>
   <Step>
 
-### Install dependencies
+### 安装依赖
 
 <InstallCommand expo={["@assistant-ui/react-native", "@assistant-ui/ai-sdk"]} />
 
   </Step>
   <Step>
 
-### Setup Backend Endpoint
+### 设置后端端点
 
-Create a backend API route using the Vercel AI SDK. This is the same endpoint you'd use with `@assistant-ui/react` on the web:
+使用 Vercel AI SDK 创建后端 API 路由。这与 Web 端配合 `@assistant-ui/react` 使用的端点相同：
 
 <Tabs groupId="provider" items={["OpenAI", "Anthropic", "Google"]}>
 
@@ -111,13 +111,13 @@ export async function POST(req: Request) {
 </Tabs>
 
 <Callout type="info">
-  This is the same backend you'd use with `@assistant-ui/react` on the web. If you already have an API route, you can reuse it as-is.
+  这是与 Web 端配合 `@assistant-ui/react` 使用的同一个后端。如果你已经有 API 路由，可以直接复用，无需修改。
 </Callout>
 
   </Step>
   <Step>
 
-### Set up the runtime
+### 设置运行时
 
 ```tsx title="hooks/use-app-runtime.ts"
 import { useChatRuntime, AssistantChatTransport } from "@assistant-ui/ai-sdk";
@@ -136,9 +136,9 @@ export function useAppRuntime() {
   </Step>
   <Step>
 
-### Use it in your app
+### 在应用中使用
 
-Wrap your app with `AssistantRuntimeProvider` and build your chat UI:
+使用 `AssistantRuntimeProvider` 包裹你的应用，并构建聊天 UI：
 
 ```tsx title="app/index.tsx"
 import {
@@ -263,27 +263,27 @@ export default function App() {
   </Step>
 </Steps>
 
-## What's Next?
+## 接下来做什么？
 
 <Cards>
   <Card
-    title="Migration from Web"
-    description="Already using assistant-ui? Migrate your web app to React Native."
+    title="从 Web 迁移"
+    description="已经在使用 assistant-ui？将你的 Web 应用迁移到 React Native。"
     href="/docs/react-native/migration"
   />
   <Card
-    title="Custom Backend"
-    description="Connect to your own backend API or manage threads server-side."
+    title="自定义后端"
+    description="连接到你自己的后端 API，或在服务端管理线程。"
     href="/docs/react-native/custom-backend"
   />
   <Card
-    title="Primitives"
-    description="Composable native UI components for building chat interfaces."
+    title="原语"
+    description="用于构建聊天界面的可组合原生 UI 组件。"
     href="/docs/react-native/primitives"
   />
   <Card
-    title="Example App"
-    description="Full Expo example with drawer navigation, thread list, and styled UI."
+    title="示例应用"
+    description="完整的 Expo 示例，包含抽屉导航、线程列表和经过样式设计的 UI。"
     href="https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-expo"
   />
 </Cards>

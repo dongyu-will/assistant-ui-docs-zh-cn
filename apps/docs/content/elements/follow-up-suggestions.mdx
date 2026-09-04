@@ -1,22 +1,22 @@
 ---
-title: "Follow-up suggestions"
-description: "Prompt chips populated from the runtime's generated follow-up suggestions."
+title: "后续建议"
+description: "由运行时生成的后续建议填充的提示词芯片。"
 ---
 
-Follow-up suggestions renders the thread's own suggested next prompts as a row of chips beneath the latest reply, ready to send with one tap. With a runtime the chips come from the runtime's `suggestions`; there is no standalone form of this exact row, since the whole point is following a runtime's own generated list. It comes in two designs: the runtime variant renders a horizontally scrolling, fade-masked row, and the static variant, `Suggestions`, renders a staggered row of pills or a list (see [The paper-pill design](#the-paper-pill-design)).
+Follow-up suggestions 会将线程自身建议的下一步提示词渲染为最新回复下方的一行芯片，用户只需轻点一下即可发送。在运行时中，芯片来自运行时的 `suggestions`；不存在这一精确行布局的独立形式，因为它的核心用途就是跟随运行时自行生成的列表。它有两种设计：运行时变体会渲染一行可水平滚动、带渐隐遮罩的芯片；静态变体 `Suggestions` 则渲染交错排列的药丸按钮或列表（参见[纸张药丸设计](#the-paper-pill-design)）。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-`Thread` already renders this in its viewport footer; use it directly only if you're composing your own layout.
+`Thread` 已经在其视口页脚中渲染了此组件；只有在自行组合布局时，才需要直接使用它。
 
 <Steps>
   <Step>
 
-### Give your runtime suggestions
+### 为运行时提供建议
 
-Any runtime built on the external-store adapter, including `useExternalStoreRuntime` and the AI SDK integration, accepts a static `suggestions` list.
+任何基于 external-store adapter（外部状态存储适配器）构建的运行时，包括 `useExternalStoreRuntime` 和 AI SDK 集成，都接受静态的 `suggestions` 列表。
 
 ```tsx title="app/assistant.tsx" {6-9}
 const runtime = useExternalStoreRuntime({
@@ -32,14 +32,14 @@ const runtime = useExternalStoreRuntime({
 });
 ```
 
-The AI SDK integration can generate this list instead of taking a static one: pass `adapters: { suggestion: createSuggestionAdapter({ complete }) }` to `useAISDKRuntime`, and it re-generates suggestions from the recent transcript after every reply.
+AI SDK 集成也可以生成此列表，而不是接收静态列表：将 `adapters: { suggestion: createSuggestionAdapter({ complete }) }` 传递给 `useAISDKRuntime`，它会在每次回复后根据最近的对话记录重新生成建议。
 
   </Step>
   <Step>
 
-### Render it after the messages
+### 在消息之后渲染
 
-Place `ThreadFollowupSuggestions` after the message list and before the composer.
+将 `ThreadFollowupSuggestions` 放置在消息列表之后、输入框之前。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { ThreadPrimitive } from "@assistant-ui/react";
@@ -62,11 +62,11 @@ function ThreadViewportFooter() {
 
 <StandaloneMode>
 
-Standalone, there is no runtime to generate a list from. Render your own chip row with the static `Suggestions` component instead (see [The paper-pill design](#the-paper-pill-design)).
+单独使用时，没有运行时可以生成列表。此时应改用静态的 `Suggestions` 组件渲染自定义芯片行（参见[纸张药丸设计](#the-paper-pill-design)）。
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 <RuntimeMode>
 
@@ -77,17 +77,17 @@ Standalone, there is no runtime to generate a list from. Render your own chip ro
 </div>
 ```
 
-The whole row renders only while the thread is not empty, not currently running, and has at least one suggestion. Any one of those failing hides the row entirely rather than showing it empty. Chips stay on a single line; when they overflow, the row scrolls horizontally and each clipped edge fades out, so no fade shows on the leading edge until you've actually scrolled past it.
+只有在线程不为空、当前未运行且至少有一条建议时，才会渲染整行内容。任一条件不满足时，整行都会隐藏，而不是显示为空。芯片始终保持在同一行；溢出时，该行可以水平滚动，并且每个被裁切的边缘都会渐隐，因此在实际滚动过去之前，起始边缘不会显示渐隐效果。
 
 </RuntimeMode>
 
-## Examples
+## 示例
 
 <RuntimeMode>
 
-### Title, label, and prompt
+### 标题、标签和提示词
 
-A chip shows `title` when set, falling back to `prompt`; `label` renders as trailing muted text. The full `prompt` is always what gets sent, even when the chip displays a shorter title.
+设置后，芯片会显示 `title`；未设置时则回退到 `prompt`；`label` 会以末尾的弱化文本渲染。无论芯片显示的标题是否更短，实际发送的始终是完整的 `prompt`。
 
 ```tsx
 suggestions: [
@@ -96,39 +96,39 @@ suggestions: [
 ]
 ```
 
-The first chip reads "Weather" with "in SF" trailing it, but sends the full weather prompt; the second reads "Summarize this" plainly, since it has no `title`.
+第一个芯片显示为“Weather”，末尾附带“in SF”，但发送的是完整的天气提示词；第二个芯片直接显示“Summarize this”，因为它没有 `title`。
 
-### How a suggestion sends
+### 建议的发送方式
 
-Each chip uses `ThreadPrimitive.Suggestion` with `send`, so clicking one sends the suggestion's prompt immediately and clears the composer, with no confirmation step.
+每个芯片都会使用带有 `send` 的 `ThreadPrimitive.Suggestion`，因此点击芯片后会立即发送建议的提示词并清空输入框，无需确认。
 
 </RuntimeMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-`ThreadFollowupSuggestions` takes no props.
+`ThreadFollowupSuggestions` 不接受任何 props。
 
-### Thread state
+### 线程状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.thread.suggestions` | `readonly ThreadSuggestion[]` | `{ prompt: string; title?: string; label?: string }[]`, from the runtime's `suggestions` option. |
-| `s.thread.isEmpty` | `boolean` | The row hides while the thread has no messages yet. |
-| `s.thread.isRunning` | `boolean` | The row hides while a run is in progress. |
+| `s.thread.suggestions` | `readonly ThreadSuggestion[]` | `{ prompt: string; title?: string; label?: string }[]`，来自运行时的 `suggestions` 选项。 |
+| `s.thread.isEmpty` | `boolean` | 线程尚无消息时，该行会隐藏。 |
+| `s.thread.isRunning` | `boolean` | 运行正在进行时，该行会隐藏。 |
 
-### Primitive composed
+### 组合的原语
 
-| Part | Notes |
+| 部件 | 说明 |
 |------|-------|
-| `ThreadPrimitive.Suggestion` | One chip. Takes `prompt` and `send`. |
+| `ThreadPrimitive.Suggestion` | 一个芯片。接受 `prompt` 和 `send`。 |
 
 </RuntimeMode>
 
-## The paper-pill design
+## 纸张药丸设计
 
-The Static variant in the rail is a second design for the same follow-up row: `Suggestions` renders a staggered row of rounded pills, or a left-aligned list, from a plain list of strings you hold yourself, instead of the horizontally scrolling row driven by a runtime's own `suggestions`. It is a single props-driven component with no runtime dependency:
+Rail 中的 Static 变体是同一后续建议行的第二种设计：`Suggestions` 会根据你自行维护的纯字符串列表，渲染交错排列的圆角药丸按钮或左对齐列表，而不是由运行时自身的 `suggestions` 驱动的水平滚动行。它是一个由 props 驱动且不依赖运行时的单一组件：
 
 ```sh
 npx shadcn@latest add "@assistant-ui/elements-suggestions"
@@ -136,7 +136,7 @@ npx shadcn@latest add "@assistant-ui/elements-suggestions"
 
 <RuntimeMode>
 
-A runtime tracks the active thread's follow-ups as `s.thread.suggestions`; `ThreadPrimitive.Suggestion` turns one into a clickable prompt. Style it to match the paper-pill look instead of driving `Suggestions` itself, since a runtime suggestion sends immediately and the row unmounts rather than holding a selection:
+运行时会将活动线程的后续建议记录为 `s.thread.suggestions`；`ThreadPrimitive.Suggestion` 会将其中一项转换为可点击的提示词。应对其进行样式设置以匹配纸张药丸的外观，而不是自行驱动 `Suggestions`，因为运行时建议会立即发送，并且该行会卸载，而不会保留选中状态：
 
 ```tsx title="components/assistant-ui/elements/suggestions.tsx"
 "use client";
@@ -169,13 +169,13 @@ function SuggestionRow() {
 }
 ```
 
-`send` submits the prompt immediately; omit it to load the prompt into the composer instead, ready for the user to edit before sending (add `clearComposer={false}` to append rather than replace what's already typed there).
+`send` 会立即提交提示词；省略它则会将提示词载入输入框，供用户在发送前编辑（添加 `clearComposer={false}` 可将其追加到输入框中已有的内容，而不是替换已有内容）。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-Standalone, `Suggestions` renders the list you pass it and reports which one was pressed; nothing about sending or composer state is built in.
+单独使用时，`Suggestions` 会渲染传入的列表，并报告用户按下了其中哪一项；发送和输入框状态均不是其内置功能。
 
 ```tsx title="app/next-turn.tsx"
 "use client";
@@ -202,21 +202,21 @@ export function NextTurn() {
 }
 ```
 
-`cycle` is used as the root's React `key`; bump it whenever you swap in a fresh batch of suggestions to replay the fade-and-slide entrance.
+`cycle` 用作根元素的 React `key`；每当替换为新一批建议时，都应递增它，以重新播放渐隐和滑入动画。
 
 </StandaloneMode>
 
-Each button fades and slides in with `index * 70ms` of delay, so the row reads left to right, or top to bottom in `list`. A suggestion matching `selectedSuggestion` inverts to a solid foreground-on-background fill and stays that way until the prop changes, with `aria-pressed` reflecting the same match; `variant="list"` stacks the buttons full width with start-aligned text instead of wrapping them into a centered row of pills.
+每个按钮都会以 `index * 70ms` 的延迟渐隐并滑入，因此在 `list` 中，整行会从左到右或从上到下依次显示。与 `selectedSuggestion` 匹配的建议会反转为纯色的前景色-背景色填充，并持续保持该状态，直到 prop 发生变化；`aria-pressed` 也会反映相同的匹配状态；`variant="list"` 会让按钮以全宽堆叠、文本起始对齐，而不是将其排列为居中的药丸按钮行。
 
-### Suggestions
+### 建议
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `suggestions` | `readonly string[]` | required | The prompts to show. |
-| `selectedSuggestion` | `string \| null` | required | Which suggestion, if any, renders as selected. |
-| `cycle` | `number` | required | Used as the root's `key`; increment it to replay the entrance animation. |
-| `onSuggestion` | `(suggestion: string) => void` | required | Called with the pressed suggestion's text. |
-| `variant` | `"pills" \| "list"` | `"pills"` | The row's layout. |
-| `className` | `string` | | Merged onto the root. |
+| `suggestions` | `readonly string[]` | 必填 | 要显示的提示词。 |
+| `selectedSuggestion` | `string \| null` | 必填 | 要渲染为选中状态的建议（如果有）。 |
+| `cycle` | `number` | 必填 | 用作根元素的 `key`；递增它可重新播放进入动画。 |
+| `onSuggestion` | `(suggestion: string) => void` | 必填 | 使用按下的建议文本进行调用。 |
+| `variant` | `"pills" \| "list"` | `"pills"` | 该行的布局。 |
+| `className` | `string` | | 合并到根元素。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` props 都会转发到根元素。

@@ -1,20 +1,20 @@
 ---
-title: "Thread search"
-description: "History you can actually get back into: pinned first, then grouped by when."
+title: "线程搜索"
+description: "真正可以重新进入的历史记录：置顶线程优先，然后按时间分组。"
 ---
 
-A jump list for past conversations: type to filter, pinned threads stay first, and the rest fall into the groups you hand it. With a runtime the list comes from the thread list; standalone you supply the threads and the groups yourself.
+用于跳转到过去会话的列表：输入文字进行筛选，置顶线程始终排在前面，其余线程则归入你提供的分组中。使用运行时时，列表来自线程列表；独立使用时，则由你自行提供线程和分组。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-A runtime keeps every thread's title, id, and recency in `s.threads.threadItems`. Mapping that into `SearchableThread[]` and selecting on it is the whole integration; there is no dedicated search primitive to compose.
+运行时会在 `s.threads.threadItems` 中保存每个线程的标题、ID 和最近使用时间。将其映射到 `SearchableThread[]` 并基于它进行选择，就是完整的集成过程；没有专门的搜索原语可供组合。
 
 <Steps>
   <Step>
 
-### Map thread state into the list
+### 将线程状态映射到列表
 
 ```tsx title="components/assistant-ui/elements/thread-search-panel.tsx"
 "use client";
@@ -66,7 +66,7 @@ export function ThreadSearchPanel() {
 }
 ```
 
-`status === "regular"` excludes archived, deleted, and the placeholder `"new"` entry a fresh thread starts as, so the list matches what a user would call their history.
+`status === "regular"` 会排除已归档、已删除的线程，以及新线程初始状态下的占位 `"new"` 条目，因此列表与用户所理解的历史记录一致。
 
   </Step>
 </Steps>
@@ -75,12 +75,12 @@ export function ThreadSearchPanel() {
 
 <StandaloneMode>
 
-Standalone, filtering, pinning, and grouping are computed for you from whatever `threads` array you pass; only the state (the query and which thread is active) is yours to hold.
+独立使用时，系统会根据你传入的 `threads` 数组为你完成筛选、置顶和分组；你只需要自行保存状态（查询内容和当前活动线程）。
 
 <Steps>
   <Step>
 
-### Hold the search state
+### 保存搜索状态
 
 ```tsx title="app/history.tsx"
 "use client";
@@ -115,7 +115,7 @@ export function History() {
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="thread-search">
@@ -132,15 +132,15 @@ export function History() {
 </div>
 ```
 
-Matching runs `${title} ${preview}` against the query, case-insensitively, so an empty query matches every thread. Pinned matches always render first as their own block; the rest are split into groups in the order their first match appears, not alphabetically or by recency. Arrow Down and Arrow Up in the search input move the active selection through pinned-then-grouped order and wrap around at both ends; IME composition is ignored so composing a query never steals the keys. There is no visible "no threads at all" state distinct from "no matches": an empty `threads` array renders the same empty message as a query with zero hits.
+匹配会对照查询内容检查 `${title} ${preview}`，且不区分大小写，因此空查询会匹配所有线程。匹配到的置顶线程始终作为单独区块优先渲染；其余线程则按照首次匹配出现的顺序分组，而不是按字母顺序或最近使用时间排序。在搜索输入框中按 Arrow Down 和 Arrow Up，会按照置顶后分组的顺序移动当前选择，并在两端循环；输入法编辑期间会忽略这些按键，因此组合查询时不会抢占按键。不存在区别于“没有匹配结果”的可见“完全没有线程”状态：空的 `threads` 数组与查询没有命中结果时会渲染相同的空状态消息。
 
-## Examples
+## 示例
 
-### Where threads come from
+### 线程的来源
 
 <RuntimeMode>
 
-`group` and `pinned` are not runtime concepts. The date-bucketed grouping above matches what the installed thread list uses internally; build your own buckets (by project, by tag) the same way, from whatever field your app tracks. Pinning has to live somewhere too, and `custom` is exactly the place: it is a free-form bag every thread list item carries, read with `item.custom?.pinned` and written with `aui.threads.item({ id }).updateCustom(...)`. `updateCustom` replaces the whole bag rather than merging, so spread the existing value when flipping one field:
+`group` 和 `pinned` 不是运行时概念。上面的按日期分组方式与已安装的线程列表内部使用的方式一致；你也可以根据应用所跟踪的任意字段，以相同方式创建自己的分组（例如按项目或标签分组）。置顶状态也需要存放在某处，而 `custom` 正是合适的位置：它是每个线程列表项都携带的自由格式数据包，可通过 `item.custom?.pinned` 读取，并通过 `aui.threads.item({ id }).updateCustom(...)` 写入。`updateCustom` 会替换整个数据包，而不是进行合并，因此切换单个字段时要展开现有值：
 
 ```tsx
 function togglePinned(id: string) {
@@ -153,32 +153,32 @@ function togglePinned(id: string) {
 
 <StandaloneMode>
 
-Standalone, `group` and `pinned` are just fields on the objects you pass, so pinning is exactly whatever `setThreads` you write when a pin control fires. Nothing about the element inspects how those threads were produced.
+独立使用时，`group` 和 `pinned` 只是你传入对象上的字段，因此当置顶控件触发时，置顶状态就是你写入 `setThreads` 的内容。该元素不会检查这些线程是如何生成的。
 
 </StandaloneMode>
 
-### Restyle the list
+### 重新设置列表样式
 
-Both lanes take `className` on the root. Row and field surfaces come from the same `paper`, `field`, and `mono` tokens used across the catalog, so retheming those tokens covers the search box, the row hover state, and the section labels together.
+两个区域的根元素都接收 `className`。行和字段的表面样式来自整个组件目录中通用的 `paper`、`field` 和 `mono` 令牌，因此重新设置这些令牌的主题即可同时覆盖搜索框、行悬停状态和分区标签。
 
 ```tsx
 <ThreadSearch className="max-w-xs" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-This element has no dedicated primitive: it is fed from `useAuiState` selectors, as in Getting started.
+此元素没有专用原语：它的内容来自 `useAuiState` 选择器，与“入门”中的方式相同。
 
-### Threads state
+### 线程状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.threads.threadItems` | `readonly ThreadListItemState[]` | Every known thread list item, each with `id`, `title`, `lastMessageAt`, `status`, `custom`, and `isRunning`. |
-| `s.threads.mainThreadId` | `string` | Id of the currently open thread. |
-| `aui.threads.item({ id }).switchTo(options)` | `{ unarchive?: boolean }` | Makes the given thread the open one. |
-| `aui.threads.item({ id }).updateCustom(custom)` | `Record<string, unknown> \| undefined` | Replaces the item's free-form metadata bag, such as a `pinned` flag. |
+| `s.threads.threadItems` | `readonly ThreadListItemState[]` | 每个已知的线程列表项，每项都包含 `id`、`title`、`lastMessageAt`、`status`、`custom` 和 `isRunning`。 |
+| `s.threads.mainThreadId` | `string` | 当前打开线程的 ID。 |
+| `aui.threads.item({ id }).switchTo(options)` | `{ unarchive?: boolean }` | 将指定线程设为打开状态。 |
+| `aui.threads.item({ id }).updateCustom(custom)` | `Record<string, unknown> \| undefined` | 替换条目的自由格式元数据包，例如 `pinned` 标志。 |
 
 </RuntimeMode>
 
@@ -186,25 +186,25 @@ This element has no dedicated primitive: it is fed from `useAuiState` selectors,
 
 ### ThreadSearch
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `threads` | `readonly SearchableThread[]` | required | The full list to search and group. |
-| `query` | `string` | required | The current search text. |
-| `activeId` | `string` | required | Id of the highlighted thread. |
-| `onQueryChange` | `(query: string) => void` | | Called as the user types. |
-| `onSelect` | `(id: string) => void` | | Called with a thread's id when its row is clicked, and immediately on every Arrow Down or Arrow Up press in the search input; there is no separate highlight step, so moving is selecting. |
-| `className` | `string` | | Merged onto the root. |
+| `threads` | `readonly SearchableThread[]` | 必填 | 用于搜索和分组的完整列表。 |
+| `query` | `string` | 必填 | 当前搜索文本。 |
+| `activeId` | `string` | 必填 | 高亮线程的 ID。 |
+| `onQueryChange` | `(query: string) => void` | | 用户输入时调用。 |
+| `onSelect` | `(id: string) => void` | | 用户点击线程行时传入线程 ID 调用；在搜索输入框中每次按下 Arrow Down 或 Arrow Up 时也会立即调用。不存在单独的高亮步骤，因此移动即代表选择。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` 属性都会转发到根元素。
 
 ### SearchableThread
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `id` | `string` | Unique identifier, also the value passed to `onSelect`. |
-| `title` | `string` | Row title. |
-| `group` | `string` | Section label for unpinned rows. Free text; the element does not interpret it. |
-| `preview` | `string` | Secondary line shown under the title. |
-| `pinned` | `boolean` | Optional. When true, the row renders in the pinned block instead of its group. |
+| `id` | `string` | 唯一标识符，同时也是传递给 `onSelect` 的值。 |
+| `title` | `string` | 行标题。 |
+| `group` | `string` | 未置顶行的分区标签。自由格式文本；该元素不会解析其内容。 |
+| `preview` | `string` | 显示在标题下方的辅助文本行。 |
+| `pinned` | `boolean` | 可选。当值为 true 时，该行会渲染在置顶区块中，而不是所属分组中。 |
 
 </StandaloneMode>

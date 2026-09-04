@@ -1,20 +1,20 @@
 ---
-title: Dynamic Tools
-description: Tools whose executor closes over React state — declare the contract with stubTool() in a "use generative" file and supply the executor with useAuiToolOverrides.
+title: 动态工具
+description: 执行器闭包捕获 React 状态的工具——在“use generative”文件中使用 stubTool() 声明契约，并通过 useAuiToolOverrides 提供执行器。
 platforms: ["react"]
 ---
 
-Most tools are static: their executor is fixed at build time. But some tools need to read or write **component state** — adding to a list the user can also edit, mutating a canvas, pre-filling a form. The executor for those has to close over a React setter, which can't live in a build-split `"use generative"` file.
+大多数工具都是静态的：它们的执行器在构建时便已固定。但有些工具需要读取或写入**组件状态**——向用户也可以编辑的列表中添加内容、修改画布、预填表单。此类工具的执行器必须闭包捕获 React setter，而这无法放在构建拆分的 `"use generative"` 文件中。
 
-The pattern: declare the model-facing **contract** in the toolkit with `execute: stubTool()`, and supply the **real executor** at runtime in the component that owns the state with `useAuiToolOverrides`.
+具体模式是：使用 `execute: stubTool()` 在工具包中声明面向模型的**契约**，并在拥有该状态的组件中通过 `useAuiToolOverrides` 在运行时提供**实际执行器**。
 
 <Callout type="warn">
-  `useAuiToolOverrides` is experimental and its API may change.
+  `useAuiToolOverrides` 目前处于实验阶段，其 API 可能会发生变化。
 </Callout>
 
-## 1. Declare the contract with `stubTool()`
+## 1. 使用 `stubTool()` 声明契约
 
-In your `"use generative"` file, give the tool its description, parameters, and renderer, and mark the executor as a stub. The compiler ships the schema to the backend and strips the stub — the model can call the tool, but nothing executes until the component supplies the real implementation. Keeping schemas in a separate non-directive module lets the component import the arg types too:
+在你的 `"use generative"` 文件中，为工具提供描述、参数和渲染器，并将执行器标记为存根。编译器会将 schema 发送到后端并移除存根——模型可以调用该工具，但在组件提供实际实现之前不会执行任何操作。将 schema 保存在单独的非指令模块中，还可以让组件导入参数类型：
 
 ```tsx title="app/task-board-toolkit.tsx"
 "use generative";
@@ -37,9 +37,9 @@ export default defineToolkit({
 });
 ```
 
-## 2. Supply the executor with `useAuiToolOverrides`
+## 2. 使用 `useAuiToolOverrides` 提供执行器
 
-The component that owns the state registers the toolkit, then renders a small null-returning child that provides the executor closing over its `setState`:
+拥有该状态的组件注册工具包，然后渲染一个返回 null 的小型子组件，由它提供闭包捕获其 `setState` 的执行器：
 
 ```tsx title="app/TaskBoard.tsx"
 import {
@@ -98,15 +98,14 @@ function TaskBoardToolOverrides({
 }
 ```
 
-The override supplies **only** the `execute`; the description, parameters, and `renderText` stay in the toolkit file. An override registers above toolkit defaults, so it wins for that tool name — return a useful payload (e.g. a new item's `id`) and the model picks it up on the next turn.
+覆盖配置**仅**提供 `execute`；描述、参数和 `renderText` 仍保留在工具包文件中。覆盖配置的注册优先级高于工具包默认值，因此对于相应的工具名称，它会优先生效——返回有用的载荷（例如新项目的 `id`），模型便会在下一轮中获取该载荷。
 
 <Callout type="info">
-  Keep the override keys stable after mount, and let only one mounted provider
-  define a given tool name at a time. The null-returning overrides component
-  re-binds the executor whenever the setter changes, without remounting the
-  provider.
+  挂载后保持覆盖配置的键稳定，并确保同一时间只有一个已挂载的 provider
+  定义给定的工具名称。返回 null 的 overrides 组件会在 setter 发生变化时重新绑定执行器，
+  而不会重新挂载 provider。
 </Callout>
 
-## When to reach for this vs. Interactables
+## 何时使用它，而不是 Interactables
 
-If you mainly want the model to update a piece of component state with a partial-update tool generated for you, [Interactables](/docs/tools/interactables) does that out of the box — no `stubTool` needed. Use dynamic tools when you want full control over the tool's name, schema, executor logic, and return value. The two compose: the [with-interactables example](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-interactables) uses both side by side.
+如果你主要希望模型通过自动为你生成的部分更新工具来更新一部分组件状态，那么 [Interactables](/docs/tools/interactables) 开箱即用地支持这一点——无需 `stubTool`。当你希望完全控制工具的名称、schema、执行器逻辑和返回值时，请使用动态工具。两者可以组合使用：[with-interactables 示例](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-interactables) 同时展示了二者的用法。

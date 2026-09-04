@@ -1,12 +1,12 @@
 ---
 title: makeAssistantVisible
-description: Make React components visible and interactive to assistants via higher-order component wrapping.
+description: 通过高阶组件包装，使 React 组件对助手可见且可交互。
 platforms: ["react"]
 ---
 
-`makeAssistantVisible` is a higher-order component (HOC) that makes React components "visible" by the assistant, allowing it to understand and interact with the component's HTML structure.
+`makeAssistantVisible` 是一个高阶组件（HOC），可以让 React 组件对助手“可见”，使助手能够理解并与组件的 HTML 结构进行交互。
 
-## Usage
+## 用法
 
 ```tsx
 import { makeAssistantVisible } from "@assistant-ui/react";
@@ -29,26 +29,26 @@ const EditableInput = makeAssistantVisible(Input, {
 });
 ```
 
-## API Reference
+## API 参考
 
-### Parameters
+### 参数
 
-- `Component`: The base React component to enhance
-- `config`: Optional configuration object
-  - `clickable`: When true, enables the assistant to programmatically click the component
-  - `editable`: When true, enables the assistant to programmatically set the value of an input or textarea within the component
+- `Component`：要增强的基础 React 组件
+- `config`：可选配置对象
+  - `clickable`：为 true 时，允许助手以编程方式点击组件
+  - `editable`：为 true 时，允许助手以编程方式设置组件内输入框或文本区域的值
 
-### Behavior
+### 行为
 
-The HOC will:
+该 HOC 将：
 
-1. Make the component's HTML structure available to the assistant via the system context
-2. Optionally provide a `click` tool if `clickable` is true
-3. Optionally provide an `edit` tool if `editable` is true, which sets the value of an `<input>` or `<textarea>` inside the component
-4. Handle nested readable components (only the outermost component's HTML is provided)
-5. Forward refs and maintain component props
+1. 通过系统上下文向助手提供组件的 HTML 结构
+2. 当 `clickable` 为 true 时，可选提供一个 `click` 工具
+3. 当 `editable` 为 true 时，可选提供一个 `edit` 工具，用于设置组件内 `<input>` 或 `<textarea>` 的值
+4. 处理嵌套的可读取组件（只提供最外层组件的 HTML）
+5. 转发 ref 并保留组件 props
 
-## Example
+## 示例
 
 ```tsx
 // Create a readable form input that the assistant can also edit
@@ -69,14 +69,14 @@ function Form() {
 }
 ```
 
-## Technical Details
+## 技术细节
 
-When a component is made readable:
+当组件变为可读取时：
 
-- It's wrapped in a `ReadableContext.Provider` to handle nesting
-- The component's `outerHTML` is provided as system context
-- If `clickable` is true, a unique `data-click-id` is added and a `click` tool is provided
-- The click tool uses `querySelector` and simulates a click event
-- If `editable` is true, a unique `data-edit-id` is added and an `edit` tool is provided
-- The edit tool uses `querySelector` to find an `<input>` or `<textarea>` and sets its value, dispatching `input` and `change` events
-- All props and refs are properly forwarded to maintain component functionality
+- 组件会被包装在 `ReadableContext.Provider` 中，以处理嵌套
+- 组件的 `outerHTML` 会作为系统上下文提供
+- 如果 `clickable` 为 true，则会添加唯一的 `data-click-id`，并提供一个 `click` 工具
+- 点击工具使用 `querySelector` 并模拟点击事件
+- 如果 `editable` 为 true，则会添加唯一的 `data-edit-id`，并提供一个 `edit` 工具
+- 编辑工具使用 `querySelector` 查找 `<input>` 或 `<textarea>`，设置其值，并分发 `input` 和 `change` 事件
+- 所有 props 和 ref 都会正确转发，以保持组件功能不变

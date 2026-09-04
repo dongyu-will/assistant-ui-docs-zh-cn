@@ -1,13 +1,13 @@
 ---
-title: Runtimes
-description: Choose a single AI SDK chat, a multi-thread AI SDK chat, or a custom external store.
+title: 运行时
+description: 选择单个 AI SDK 聊天、多线程 AI SDK 聊天或自定义外部状态存储。
 ---
 
-A runtime connects Vue primitives to message state and actions. Put the runtime in an `AuiConfig` that is provided by a client-only `AuiProvider`.
+运行时（runtime）将 Vue 原语连接到消息状态和操作。将运行时放入由仅客户端 `AuiProvider` 提供的 `AuiConfig` 中。
 
 ## AISDKChat
 
-`AISDKChat` is the smallest setup. It owns one client-side thread and uses `AssistantChatTransport` by default to call `/api/chat`.
+`AISDKChat` 是最简配置。它拥有一个客户端线程，默认使用 `AssistantChatTransport` 调用 `/api/chat`。
 
 ```vue title="app/components/Assistant.client.vue"
 <script setup lang="ts">
@@ -26,11 +26,11 @@ const config = AuiConfig({
 </template>
 ```
 
-Pass `AISDKChat({ transport })` when the endpoint or transport behavior differs. The chat id is captured when the resource first mounts, so remount the provider when a different id must create a different chat.
+当端点或传输层行为不同时，传入 `AISDKChat({ transport })`。聊天 ID 会在资源首次挂载时捕获，因此当不同的 ID 必须创建不同的聊天时，请重新挂载 Provider。
 
 ## AISDKThreads
 
-`AISDKThreads` creates a thread list and one AI SDK chat per thread. Without a cloud option, threads and their histories stay in memory for the lifetime of the assistant client.
+`AISDKThreads` 会创建线程列表，并为每个线程创建一个 AI SDK 聊天。不使用云端选项时，线程及其历史记录会在助手客户端的生命周期内保存在内存中。
 
 ```ts title="app/components/Assistant.client.vue"
 import { AuiConfig } from "@assistant-ui/vue";
@@ -41,17 +41,17 @@ const config = AuiConfig({
 });
 ```
 
-With a cloud-backed list, `AISDKThreads` opts into `backgroundThreads`. Every visited thread stays mounted with its own history, a run continues after a thread switch, each thread list item's `isRunning` state remains live, and a new thread title is generated after its initialize operation settles. This continuity uses memory proportional to the number of visited threads. Deleting a thread stops its run.
+使用云端支持的列表时，`AISDKThreads` 会选择加入 `backgroundThreads`。每个访问过的线程都会连同自己的历史记录保持挂载，切换线程后运行仍会继续，每个线程列表项的 `isRunning` 状态也会保持活动，并且会在线程的初始化操作完成后生成新的线程标题。这种连续性所使用的内存与访问过的线程数量成正比。删除线程会停止其运行。
 
-Each thread captures its AI SDK options when it first mounts. Changing the `transport`, initial messages, or other per-thread options later does not reconfigure an existing chat. Create a new thread or remount the assistant client when those options need to change.
+每个线程会在首次挂载时捕获其 AI SDK 选项。之后更改 `transport`、初始消息或其他线程级选项，不会重新配置现有聊天。当这些选项需要更改时，请创建新线程或重新挂载助手客户端。
 
-For an in-memory list, assistant-ui retains each chat and its history across switches, while the currently visible thread is the mounted UI. For server-backed history, configure the cloud-backed path or own persistence in an external store. In both cases, keep this client state behind the [Nuxt client boundary](/docs/vue/ssr).
+对于内存中的列表，assistant-ui 会在切换过程中保留每个聊天及其历史记录，而当前可见的线程则是已挂载的 UI。对于服务器支持的历史记录，请配置云端支持的路径，或在外部状态存储中自行持久化。在这两种情况下，都应将此客户端状态置于 [Nuxt 客户端边界](/docs/vue/ssr)之后。
 
-## External store
+## 外部状态存储
 
-Use `RuntimeAdapter` and `ExternalStoreRuntimeCore` when another client store owns messages, streaming status, or thread state. The Vue echo example follows this shape: create an external-store adapter, update it whenever the store changes, then expose its runtime through `AuiConfig`.
+当其他客户端状态存储负责管理消息、流式传输状态或线程状态时，请使用 `RuntimeAdapter` 和 `ExternalStoreRuntimeCore`。Vue echo 示例遵循这一模式：创建外部状态存储适配器，在状态存储发生变化时更新它，然后通过 `AuiConfig` 暴露其运行时。
 
-The constructors come from `@assistant-ui/core/internal`, the advanced entry for building custom runtimes; it can evolve faster than the public entries, so pin your versions when depending on it.
+这些构造函数来自 `@assistant-ui/core/internal`，这是用于构建自定义运行时的高级入口；它的迭代速度可能快于公共入口，因此在依赖它时请固定版本。
 
 ```ts title="app/runtime/echo.ts"
 import type { AppendMessage, ExternalStoreAdapter } from "@assistant-ui/core";
@@ -108,7 +108,7 @@ export const createEchoRuntime = () => {
 };
 ```
 
-Connect the runtime to Vue with `RuntimeAdapter`:
+使用 `RuntimeAdapter` 将运行时连接到 Vue：
 
 ```ts title="app/components/Assistant.client.vue"
 import { AuiConfig } from "@assistant-ui/vue";
@@ -120,4 +120,4 @@ const config = AuiConfig({
 });
 ```
 
-The adapter owns conversion and mutations. Implement `onEdit`, `onReload`, `onCancel`, and thread-list methods when the external backend supports those actions.
+适配器负责转换和变更。当外部后端支持这些操作时，请实现 `onEdit`、`onReload`、`onCancel` 以及线程列表方法。

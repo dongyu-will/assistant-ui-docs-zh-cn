@@ -1,20 +1,20 @@
 ---
-title: "Document reference"
-description: "A document the answer leans on, with the quoted passage and the page to jump to."
+title: "文档引用"
+description: "答案所依据的文档，包含引用段落和可跳转的页面。"
 ---
 
-DocumentReference is a citation card for one source document: a header naming the file, then a list of page anchors you can step between. With a runtime the anchors come from a tool call that read the document; standalone you already hold them.
+DocumentReference 是一个用于单个源文档的引用卡片：顶部显示文件名，下面列出可在其间切换的页面锚点。在运行时中，这些锚点来自读取文档的工具调用；独立使用时，你已经持有这些锚点。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-assistant-ui's built-in `source` message part covers a single document citation (a title, a filename), but not a list of page anchors with quoted passages. The closest real building block for that shape is a tool call: ask the model to read a document and return its anchors, then render the result.
+assistant-ui 内置的 `source` 消息部分支持单个文档引用（标题、文件名），但不支持带引用段落的页面锚点列表。最接近这种结构的实际构建块是工具调用：让模型读取文档并返回其锚点，然后渲染结果。
 
 <Steps>
   <Step>
 
-### Render the tool call
+### 渲染工具调用
 
 ```tsx title="components/assistant-ui/elements/read-document-tool-ui.tsx"
 "use client";
@@ -56,7 +56,7 @@ export const ReadDocumentToolUI: ToolCallMessagePartComponent<
   </Step>
   <Step>
 
-### Register the tool
+### 注册工具
 
 ```tsx title="app/toolkit.ts"
 import { defineToolkit } from "@assistant-ui/react";
@@ -90,7 +90,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-See [Tool UI](/docs/tools/tool-ui) for backend-defined tools and approval gates.
+请参阅[工具 UI](/docs/tools/tool-ui)，了解由后端定义的工具和审批门。
 
   </Step>
 </Steps>
@@ -99,12 +99,12 @@ See [Tool UI](/docs/tools/tool-ui) for backend-defined tools and approval gates.
 
 <StandaloneMode>
 
-Standalone, the element is fully controlled: you hold the anchor list and the active page, and it reports jumps back to you.
+独立使用时，该元素完全受控：你持有锚点列表和当前页面，并由它将跳转操作报告回你的代码。
 
 <Steps>
   <Step>
 
-### Hold the active page
+### 保存当前页面
 
 ```tsx title="app/citation.tsx"
 "use client";
@@ -134,9 +134,9 @@ export function Citation() {
   </Step>
   <Step>
 
-### Replace the anchor list
+### 替换锚点列表
 
-Opening a different document swaps the whole set and resets the active page to its first anchor.
+打开其他文档会替换整个锚点集合，并将当前页面重置为第一个锚点。
 
 ```tsx
 async function openDocument(id: string) {
@@ -153,7 +153,7 @@ async function openDocument(id: string) {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="document-reference">
@@ -170,13 +170,13 @@ async function openDocument(id: string) {
 </div>
 ```
 
-`activePage` decides two independent things. Every anchor whose `page` equals `activePage` gets the active background, which can be more than one button when several anchors cite the same page. Only the first anchor in array order at that page gets `aria-current`, since it is found by `anchors.findIndex`. When `activePage` matches no anchor, no button gets either. Clicking a button calls `onJump` with that anchor's `page`, not its array index, so two same-page anchors are indistinguishable to the caller once clicked. An empty `anchors` array renders only the header, with `0 cited` in the meta line and no placeholder row.
+`activePage` 决定两个相互独立的行为。所有 `page` 等于 `activePage` 的锚点都会获得活动背景色；当多个锚点引用同一页面时，可能会有多个按钮获得该背景色。由于通过 `anchors.findIndex` 查找当前锚点，因此该页面在数组顺序中的第一个锚点才会获得 `aria-current`。当 `activePage` 与任何锚点都不匹配时，没有按钮会获得这两个状态。点击按钮时，会使用该锚点的 `page` 调用 `onJump`，而不是使用其数组索引，因此调用方在点击后无法区分两个引用同一页面的锚点。空的 `anchors` 数组只会渲染标题，元信息行显示 `0 cited`，且不会显示占位行。
 
-## Examples
+## 示例
 
-### Multiple citations on the same page
+### 同一页面上的多个引用
 
-Anchors don't have to be unique per page. Two entries citing page 4 both highlight when `activePage` is 4; only the first one in the array is marked current for assistive tech.
+每个页面的锚点不必唯一。两个引用第 4 页的条目在 `activePage` 为 4 时都会高亮；但只有数组中的第一个条目会被辅助技术标记为当前项。
 
 ```tsx
 const anchors = [
@@ -185,31 +185,31 @@ const anchors = [
 ];
 ```
 
-### Restyle the card
+### 重新设置卡片样式
 
-Both lanes take `className` on the root, which reads the shared `paper` token. The active anchor's background reads `field`, and the meta line and each anchor's page label read `mono`, both in `surfaces.tsx`.
+两条路径都会在根元素上接收 `className`，该属性读取共享的 `paper` token。当前锚点的背景色读取 `field`，元信息行和每个锚点的页面标签则读取 `mono`；两者都位于 `surfaces.tsx` 中。
 
 ```tsx
 <DocumentReference className="max-w-none gap-4" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool-call render props
+### 工具调用渲染属性
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `args` | `TArgs` | Parsed arguments. Partial while the model is still streaming them. |
-| `argsText` | `string` | Raw JSON argument text streamed by the model. |
-| `result` | `TResult \| undefined` | The tool's return value once it completes. `undefined` while running. |
-| `status` | `ToolCallMessagePartStatus` | `status.type` is `"running"`, `"requires-action"`, `"complete"`, or `"incomplete"`. |
-| `toolName` | `string` | Name of the tool the model called. |
-| `toolCallId` | `string` | Stable id for this invocation. |
-| `isError` | `boolean \| undefined` | Whether `result` represents a tool execution error. |
+| `args` | `TArgs` | 解析后的参数。模型仍在流式传输参数时，该值可能不完整。 |
+| `argsText` | `string` | 模型流式传输的原始 JSON 参数文本。 |
+| `result` | `TResult \| undefined` | 工具完成后返回的值。运行中为 `undefined`。 |
+| `status` | `ToolCallMessagePartStatus` | `status.type` 的值为 `"running"`、`"requires-action"`、`"complete"` 或 `"incomplete"`。 |
+| `toolName` | `string` | 模型调用的工具名称。 |
+| `toolCallId` | `string` | 此次调用的稳定 ID。 |
+| `isError` | `boolean \| undefined` | `result` 是否表示工具执行错误。 |
 
-Register the renderer on a toolkit entry's `render` field and attach the toolkit with `Tools({ toolkit })`. See [Tool UI](/docs/tools/tool-ui) for the full render-prop surface, including `addResult`, human tools, and approval gates.
+在工具包条目的 `render` 字段上注册渲染器，并使用 `Tools({ toolkit })` 挂载工具包。请参阅[工具 UI](/docs/tools/tool-ui)，了解完整的渲染属性接口，包括 `addResult`、人工工具和审批门。
 
 </RuntimeMode>
 
@@ -217,22 +217,22 @@ Register the renderer on a toolkit entry's `render` field and attach the toolkit
 
 ### DocumentReference
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `title` | `string` | required | Heading text. Shadows the native `title` attribute, which is dropped from the forwarded props. |
-| `pages` | `number` | required | Total page count, shown in the header meta line. Not cross-checked against `anchors`. |
-| `anchors` | `readonly DocumentAnchor[]` | required | The citations to list, in order. |
-| `activePage` | `number` | required | Page number to highlight. May match zero, one, or several anchors. |
-| `onJump` | `(page: number) => void` | | Called with an anchor's `page` when its button is pressed. |
-| `className` | `string` | | Merged onto the root. |
+| `title` | `string` | 必填 | 标题文本。它会覆盖原生的 `title` 属性，该属性不会被转发到其他属性中。 |
+| `pages` | `number` | 必填 | 页面总数，显示在标题元信息行中。不会与 `anchors` 进行交叉校验。 |
+| `anchors` | `readonly DocumentAnchor[]` | 必填 | 要按顺序列出的引用。 |
+| `activePage` | `number` | 必填 | 要高亮的页码。可能匹配零个、一个或多个锚点。 |
+| `onJump` | `(page: number) => void` | | 按钮按下时，使用该锚点的 `page` 调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### DocumentAnchor
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `page` | `number` | Page number this anchor cites. |
-| `quote` | `string` | The quoted passage shown under the page number. |
+| `page` | `number` | 此锚点引用的页码。 |
+| `quote` | `string` | 显示在页码下方的引用段落。 |
 
-All other `div` props are forwarded to the root, except `title`, which the component's own prop replaces.
+其他所有 `div` 属性都会转发到根元素，但 `title` 除外，因为它会被组件自身的属性替换。
 
 </StandaloneMode>

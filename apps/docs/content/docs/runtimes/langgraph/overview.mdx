@@ -1,39 +1,39 @@
 ---
-title: LangGraph UI Runtime
-description: Build a chat UI for LangGraph agents in React with assistant-ui — streaming, subgraph events, UI messages, interrupts, and end-to-end cancellation supported.
+title: LangGraph UI 运行时
+description: 使用 assistant-ui 在 React 中为 LangGraph 助手构建聊天 UI — 支持流式输出、子图事件、UI 消息、中断和端到端取消。
 ---
 
-`@assistant-ui/react-langgraph` integrates with [`@langchain/langgraph-sdk`](https://docs.langchain.com/oss/javascript/langgraph-sdk) directly, exposing the full LangGraph Cloud feature set in assistant-ui: streaming, subgraph events, UI messages, message metadata, interrupts, and end-to-end cancellation.
+`@assistant-ui/react-langgraph` 直接与 [`@langchain/langgraph-sdk`](https://docs.langchain.com/oss/javascript/langgraph-sdk) 集成，将完整的 LangGraph Cloud 功能集引入 assistant-ui：流式传输、子图事件、UI 消息、消息元数据、中断和端到端取消。
 
 <Callout type="info">
-**Migrating from LangServe?** LangChain has deprecated `RemoteRunnable` upstream and consolidated the chain and agent execution stories under LangGraph. Rebuild your chain as a LangGraph graph (LangChain's [LangServe → LangGraph migration guide](https://github.com/langchain-ai/langserve/blob/main/MIGRATION.md) covers the shape change), deploy via LangGraph Cloud or self-host LangGraph Studio, and use this runtime on the frontend. The runtime ships streaming, interrupts, generative UI, message metadata, and end-to-end cancellation out of the box.
+**正在从 LangServe 迁移？** LangChain 已在上游弃用 `RemoteRunnable`，并将链和助手执行统一到 LangGraph 下。将你的链重建为 LangGraph 图（LangChain 的 [LangServe → LangGraph 迁移指南](https://github.com/langchain-ai/langserve/blob/main/MIGRATION.md) 介绍了结构变化），通过 LangGraph Cloud 部署或自行托管 LangGraph Studio，然后在前端使用此运行时。该运行时开箱即支持流式传输、中断、生成式 UI、消息元数据和端到端取消。
 </Callout>
 
-## When to use it
+## 何时使用
 
-Pick the LangGraph runtime when:
+在以下情况下选择 LangGraph 运行时：
 
-- You have (or want) a LangGraph Cloud server, locally via [LangGraph Studio](https://docs.langchain.com/langsmith/quick-start-studio) or hosted via [LangSmith](https://www.langchain.com/langsmith).
-- Your graph state has a `messages` key with LangChain-alike messages.
-- You want generative UI (`ui_message`), per-message metadata, subgraph events, or checkpoint-based message editing.
+- 你已经拥有（或希望拥有）LangGraph Cloud 服务器，可通过 [LangGraph Studio](https://docs.langchain.com/langsmith/quick-start-studio) 在本地运行，或通过 [LangSmith](https://www.langchain.com/langsmith). 托管
+- 你的图状态包含一个 `messages` 键，其值为类似 LangChain 的消息。
+- 你需要生成式 UI（`ui_message`）、每条消息的元数据、子图事件或基于检查点的消息编辑。
 
 <Callout type="info">
-If you are already using `@langchain/react`'s `useStream` hook, the alternative [`@assistant-ui/react-langchain`](/docs/runtimes/langchain) adapter may fit better. It delegates the stream plumbing to the upstream hook; the feature surface differs, see [LangChain useStream](/docs/runtimes/langchain) for the comparison table.
+如果你已经在使用 `@langchain/react` 的 `useStream` hook，那么替代方案 [`@assistant-ui/react-langchain`](/docs/runtimes/langchain) 适配器可能更适合。它将流式传输的处理委托给上游 hook；功能范围有所不同，请参阅 [LangChain useStream](/docs/runtimes/langchain) 中的对比表。
 </Callout>
 
-## Architecture
+## 架构
 
-`@assistant-ui/react-langgraph` is layered on `ExternalStoreRuntime` (see [architecture](/docs/runtimes/concepts/architecture)). Graph state is the source of truth; the runtime renders messages from `state.values.messages` and submits user input back to the graph.
+`@assistant-ui/react-langgraph` 构建在 `ExternalStoreRuntime` 之上（参见[架构](/docs/runtimes/concepts/architecture)）。图状态是真实数据源；运行时从 `state.values.messages` 渲染消息，并将用户输入提交回图。
 
-Shared adapters (attachments, speech, feedback, history) work the same way described in [adapters](/docs/runtimes/concepts/adapters).
+共享适配器（附件、语音、反馈、历史记录）的工作方式与[适配器](/docs/runtimes/concepts/adapters)中所述相同。
 
-## Requirements
+## 要求
 
-- A LangGraph Cloud API server.
-- React 18 or 19.
-- The graph state must include a `messages` key with LangChain-alike messages.
+- 一个 LangGraph Cloud API 服务器。
+- React 18 或 19。
+- 图状态必须包含一个 `messages` 键，其值为类似 LangChain 的消息。
 
-## Install
+## 安装
 
 <PlatformTabs>
 <Tab value="React">
@@ -53,32 +53,32 @@ Shared adapters (attachments, speech, feedback, history) work the same way descr
 </Tab>
 </PlatformTabs>
 
-## Next
+## 下一步
 
 <Cards>
   <Card
-    title="Quickstart"
-    description="From-template and manual setup paths to a working LangGraph chat."
+    title="快速开始"
+    description="从模板和手动设置两种路径，构建一个可运行的 LangGraph 聊天应用。"
     href="/docs/runtimes/langgraph/quickstart"
   />
   <Card
-    title="Streaming"
-    description="Event handlers, message metadata, generative UI."
+    title="流式传输"
+    description="事件处理器、消息元数据和生成式 UI。"
     href="/docs/runtimes/langgraph/streaming"
   />
   <Card
-    title="Interrupts"
-    description="Interrupt persistence and checkpoint-based message editing."
+    title="中断"
+    description="中断持久化和基于检查点的消息编辑。"
     href="/docs/runtimes/langgraph/interrupts"
   />
   <Card
-    title="Threads"
-    description="Basic thread support, AssistantCloud, custom thread list adapter."
+    title="线程"
+    description="基本线程支持、AssistantCloud、自定义线程列表适配器。"
     href="/docs/runtimes/langgraph/threads"
   />
   <Card
-    title="Tutorial: Stockbroker"
-    description="End-to-end stockbroker assistant with generative UI and approval flows."
+    title="教程：股票经纪助手"
+    description="包含生成式 UI 和审批流程的端到端股票经纪助手。"
     href="/docs/runtimes/langgraph/tutorial/introduction"
   />
 </Cards>

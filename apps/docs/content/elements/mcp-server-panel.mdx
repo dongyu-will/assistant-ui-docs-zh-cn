@@ -1,20 +1,20 @@
 ---
-title: "Server panel"
-description: "Which servers are connected, what each one brought, and which is still waiting on you."
+title: "服务器面板"
+description: "哪些服务器已连接、每个服务器提供了什么，以及哪些服务器仍在等待你的操作。"
 ---
 
-A compact list of MCP servers, each row collapsed to a name and a status dot until you open it for its transport and tool list. With a runtime the servers come from your MCP connections; standalone you pass the list in.
+一个紧凑的 MCP 服务器列表：每一行默认折叠为名称和状态点，打开后即可查看其传输层和工具列表。在运行时中，服务器来自你的 MCP 连接；在独立模式下，你需要传入服务器列表。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-`@assistant-ui/react-mcp` owns MCP connection state. Mount its manager once, then read servers and their tools from it anywhere in the tree.
+`@assistant-ui/react-mcp`负责管理 MCP 连接状态。挂载一次其管理器后，即可在组件树的任意位置读取服务器及其工具。
 
 <Steps>
   <Step>
 
-### Mount the MCP manager
+### 挂载 MCP 管理器
 
 ```tsx title="app/providers.tsx"
 "use client";
@@ -28,12 +28,12 @@ function McpManagerMount({ connectors }: { connectors: MCPConnector[] }) {
 }
 ```
 
-Each connector in `connectors` becomes one server the manager connects, tracks, and lists tools for. Custom servers a user adds through `McpAddFormPrimitive` join the same list without another mount.
+`connectors`中的每个连接器都会成为一个服务器，由管理器负责连接、跟踪并列出其工具。用户通过 `McpAddFormPrimitive` 添加的自定义服务器也会加入同一列表，无需再次挂载。
 
   </Step>
   <Step>
 
-### List servers and their tools
+### 列出服务器及其工具
 
 ```tsx title="components/assistant-ui/elements/mcp-servers.tsx"
 "use client";
@@ -71,7 +71,7 @@ export function McpServerList() {
 }
 ```
 
-`McpServerPrimitive.Root` scopes the row so `useAuiState((s) => s.mcpServer...)` and `McpServerPrimitive.Tools` resolve to that one server. Each row tracks its own `open` state here, so more than one can be expanded at a time; the [MCP config dialog](/elements/mcp-config) ships a fuller version of this same list, with connect and authorize actions, inside a dialog shell.
+`McpServerPrimitive.Root`将这一行限定在对应服务器的作用域内，因此 `useAuiState((s) => s.mcpServer...)` 和 `McpServerPrimitive.Tools` 都会解析到该服务器。每一行在此处维护自己的 `open` 状态，因此可以同时展开多行；[MCP 配置对话框](/elements/mcp-config)在对话框外壳中提供了同一列表的完整版本，并包含连接和授权操作。
 
   </Step>
 </Steps>
@@ -80,12 +80,12 @@ export function McpServerList() {
 
 <StandaloneMode>
 
-Standalone, the panel is a controlled list: you own the servers, their status, and which row is expanded.
+在独立模式下，该面板是一个受控列表：服务器、服务器状态以及展开哪一行都由你管理。
 
 <Steps>
   <Step>
 
-### Hold the server list
+### 保存服务器列表
 
 ```tsx title="app/servers.tsx"
 "use client";
@@ -113,16 +113,16 @@ export function Servers() {
   </Step>
   <Step>
 
-### Expand one server at a time
+### 一次展开一个服务器
 
-`expandedId` holds a single id, so toggling it to a new server closes whichever row was open. Clicking the open row's own trigger again clears it, matching the `current === id ? undefined : id` check above.
+`expandedId`保存单个 ID，因此将其切换到新服务器时，会关闭当前已打开的行。再次点击已打开行自身的触发器会清除该值，这与上方的 `current === id ? undefined : id` 检查逻辑一致。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="mcp-server-panel">
@@ -134,15 +134,15 @@ export function Servers() {
 </div>
 ```
 
-The header count only tallies servers whose `status` is `"connected"`. The status dot is emerald for connected, a pulsing dim dot for connecting, amber for needs-auth, and red for failed, each paired with screen-reader-only text. The Authorize pill only renders on a needs-auth row when `onAuthorize` is passed; without it the row expands with no way to act on it.
+标题中的数量只统计 `status` 为 `"connected"` 的服务器。状态点在已连接时显示为翠绿色，连接中时显示为脉动的暗色点，需要授权时显示为琥珀色，失败时显示为红色；每种状态都配有仅供屏幕阅读器读取的文本。只有在需要授权的行传入 `onAuthorize` 时，才会渲染 Authorize 标签；如果不传入，该行仍可展开，但无法执行操作。
 
-## Examples
+## 示例
 
-### Map connection states onto four dots
+### 将连接状态映射到四种点
 
 <RuntimeMode>
 
-`McpServerPrimitive.Status` (and the `s.mcpServer.connectionState` selector behind it) carries six states: `connected`, `connecting`, `authRequired`, `authPending`, `error`, `disconnected`. The panel's own `McpServerStatus` type only has four. Fold the extra two into their nearest dot before handing the value to the panel:
+`McpServerPrimitive.Status`（以及其背后的 `s.mcpServer.connectionState` 选择器）包含六种状态：`connected`、`connecting`、`authRequired`、`authPending`、`error`、`disconnected`。而面板自身的 `McpServerStatus` 类型只有四种状态。将多出的两种状态折叠到最接近的点后，再将值传给面板：
 
 ```tsx
 import type { MCPConnectionState } from "@assistant-ui/react-mcp";
@@ -166,11 +166,11 @@ function toPanelStatus(state: MCPConnectionState): McpServerStatus {
 
 </RuntimeMode>
 
-### Wire the authorize action
+### 接入授权操作
 
 <RuntimeMode>
 
-`McpServerPrimitive.OAuthLink` starts the same OAuth flow the config dialog uses. Render it as the row's authorize action once `connectionState` is `authRequired`:
+`McpServerPrimitive.OAuthLink`会启动与配置对话框相同的 OAuth 流程。当 `connectionState` 为 `authRequired` 后，将其渲染为该行的授权操作：
 
 ```tsx
 <McpServerPrimitive.OAuthLink className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-medium text-amber-700">
@@ -191,36 +191,36 @@ function toPanelStatus(state: MCPConnectionState): McpServerStatus {
 
 </StandaloneMode>
 
-### Restyle the panel
+### 重新设置面板样式
 
-Both lanes take `className` on the root. The panel uses the shared `paper` surface for its background, `mono` for the counts and status text, and `field` alongside `mono` for the tool chips, so retargeting those tokens in `surfaces.tsx` restyles every element built on them.
+两条通道都会在根元素上接收 `className`。面板使用共享的 `paper` 表面作为背景，使用 `mono` 设置数量和状态文本的样式，并将 `field` 与 `mono` 搭配用于工具标签。因此，在 `surfaces.tsx` 中重新指定这些设计令牌，就能重新设置所有基于它们构建的元素的样式。
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### McpManagerPrimitive and McpServerPrimitive
+### McpManagerPrimitive 和 McpServerPrimitive
 
-| Part | Renders | Notes |
+| 部件 | 渲染内容 | 备注 |
 |------|---------|-------|
-| `McpManagerPrimitive.Root` | `div` | Provides the manager scope; wrap the list in it. |
-| `McpManagerPrimitive.Connectors` | render prop | Iterates app-declared connectors, one `{ server }` per call. |
-| `McpManagerPrimitive.CustomServers` | render prop | Iterates user-added custom servers the same way. |
-| `McpServerPrimitive.Root` | `div` | Scopes `useAuiState((s) => s.mcpServer...)` and the sub-parts below to one server. |
-| `McpServerPrimitive.Name` | text | The server's display name. |
-| `McpServerPrimitive.Status` | `span` | `data-state` set to the connection state; renders the state as text by default. |
-| `McpServerPrimitive.Tools` | render prop | Iterates the server's tools, one `MCPToolInfo` per call. Renders nothing while the list is empty. |
-| `McpServerPrimitive.ConnectButton` / `.DisconnectButton` / `.OAuthLink` / `.RemoveButton` | `button` | Call `connect()`, `disconnect()`, start OAuth, or `remove()` on the scoped server. |
+| `McpManagerPrimitive.Root` | `div` | 提供管理器作用域；将列表包裹在其中。 |
+| `McpManagerPrimitive.Connectors` | 渲染 prop | 遍历应用声明的连接器，每次调用传入一个 `{ server }`。 |
+| `McpManagerPrimitive.CustomServers` | 渲染 prop | 以相同方式遍历用户添加的自定义服务器。 |
+| `McpServerPrimitive.Root` | `div` | 将 `useAuiState((s) => s.mcpServer...)` 及以下子部件限定到一个服务器的作用域内。 |
+| `McpServerPrimitive.Name` | 文本 | 服务器的显示名称。 |
+| `McpServerPrimitive.Status` | `span` | 将 `data-state` 设置为连接状态；默认将该状态渲染为文本。 |
+| `McpServerPrimitive.Tools` | 渲染 prop | 遍历服务器的工具，每次调用传入一个 `MCPToolInfo`。列表为空时不渲染任何内容。 |
+| `McpServerPrimitive.ConnectButton` / `.DisconnectButton` / `.OAuthLink` / `.RemoveButton` | `button` | 在当前服务器作用域内调用 `connect()`、`disconnect()`、启动 OAuth，或调用 `remove()`。 |
 
-### Server state
+### 服务器状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.mcpServer.name` | `string` | Display name. |
-| `s.mcpServer.connectionState` | `"connected" \| "connecting" \| "authRequired" \| "authPending" \| "error" \| "disconnected"` | Full connection state, six values. |
-| `s.mcpServer.tools` | `MCPToolInfo[]` | `{ name, description?, inputSchema }` for each tool the server listed. |
-| `s.mcpServer.lastError` | `{ message: string } \| null` | Set when a connect or list-tools call failed. |
-| `useMcpServerTool()` | `MCPToolInfo` | The current tool inside `McpServerPrimitive.Tools`; throws outside it. |
+| `s.mcpServer.name` | `string` | 显示名称。 |
+| `s.mcpServer.connectionState` | `"connected" \| "connecting" \| "authRequired" \| "authPending" \| "error" \| "disconnected"` | 完整的连接状态，共六种值。 |
+| `s.mcpServer.tools` | `MCPToolInfo[]` | 服务器列出的每个工具对应的 `{ name, description?, inputSchema }`。 |
+| `s.mcpServer.lastError` | `{ message: string } \| null` | 连接或列出工具的调用失败时设置。 |
+| `useMcpServerTool()` | `MCPToolInfo` | `McpServerPrimitive.Tools` 内的当前工具；在其作用域外调用会抛出异常。 |
 
 </RuntimeMode>
 
@@ -228,24 +228,24 @@ Both lanes take `className` on the root. The panel uses the shared `paper` surfa
 
 ### McpServerPanel
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `servers` | `readonly McpServer[]` | required | Servers to list. |
-| `expandedId` | `string` | | Id of the currently expanded server. |
-| `onToggle` | `(id: string) => void` | | Called with a server's id when its row is clicked. |
-| `onAuthorize` | `(id: string) => void` | | Called from the Authorize pill on a needs-auth row. Omit it and the pill doesn't render. |
-| `className` | `string` | | Merged onto the root. |
+| `servers` | `readonly McpServer[]` | 必填 | 要列出的服务器。 |
+| `expandedId` | `string` | | 当前展开的服务器 ID。 |
+| `onToggle` | `(id: string) => void` | | 点击服务器行时，传入该服务器 ID 调用。 |
+| `onAuthorize` | `(id: string) => void` | | 从需要授权行的 Authorize 标签调用。省略时不会渲染该标签。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-### McpServer and McpServerStatus
+### McpServer 和 McpServerStatus
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `id` | `string` | Stable key for the server. |
-| `name` | `string` | Display name. |
-| `transport` | `string` | Shown next to the status label when expanded, e.g. `"stdio"` or `"http"`. |
-| `status` | `McpServerStatus` | `"connected" \| "connecting" \| "needs-auth" \| "failed"`. |
-| `tools` | `readonly string[]` | Tool names, rendered as chips when expanded. |
+| `id` | `string` | 服务器的稳定键。 |
+| `name` | `string` | 显示名称。 |
+| `transport` | `string` | 展开时显示在状态标签旁，例如 `"stdio"` 或 `"http"`。 |
+| `status` | `McpServerStatus` | `"connected" \| "connecting" \| "needs-auth" \| "failed"`。 |
+| `tools` | `readonly string[]` | 工具名称，展开时渲染为标签。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` props 都会转发到根元素。
 
 </StandaloneMode>

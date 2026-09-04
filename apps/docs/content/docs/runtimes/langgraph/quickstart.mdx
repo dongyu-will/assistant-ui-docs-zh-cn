@@ -1,11 +1,11 @@
 ---
-title: Quickstart
-description: From-template and manual setup paths to a working LangGraph chat.
+title: 快速开始
+description: 通过模板和手动配置路径，构建可运行的 LangGraph 聊天。
 ---
 
-Two paths to a running chat against a LangGraph Cloud server. The template is fastest; the manual path is what you adapt when integrating into an existing project.
+通过两种方式，连接 LangGraph Cloud 服务器并运行聊天。模板方式最快；当你需要集成到现有项目时，可以参考并调整手动配置方式。
 
-## From the template
+## 从模板开始
 
 <PlatformTabs>
 <Tab value="React">
@@ -15,7 +15,7 @@ npx create-assistant-ui@latest -t langchain my-app
 cd my-app
 ```
 
-Set environment variables:
+设置环境变量：
 
 ```sh title=".env.local"
 # LANGCHAIN_API_KEY=your_api_key       # production
@@ -28,27 +28,27 @@ NEXT_PUBLIC_LANGGRAPH_ASSISTANT_ID=your_graph_id
 npm run dev
 ```
 
-Skip ahead to [streaming](/docs/runtimes/langgraph/streaming) to start adding features.
+跳转到[流式传输](/docs/runtimes/langgraph/streaming)部分，开始添加功能。
 
 </Tab>
 <Tab value="React Native">
 
-There is not a React Native LangGraph template yet. Use the manual setup below in an Expo app.
+目前还没有 React Native LangGraph 模板。请在 Expo 应用中使用下面的手动配置方式。
 
 </Tab>
 <Tab value="React Ink">
 
-There is not an Ink LangGraph template yet. Use the manual setup below in a Node/Ink app.
+目前还没有 Ink LangGraph 模板。请在 Node/Ink 应用中使用下面的手动配置方式。
 
 </Tab>
 </PlatformTabs>
 
-## Manual setup in an existing project
+## 在现有项目中手动配置
 
 <Steps>
 <Step>
 
-### Install dependencies
+### 安装依赖
 
 <PlatformTabs>
 <Tab value="React">
@@ -71,7 +71,7 @@ There is not an Ink LangGraph template yet. Use the manual setup below in a Node
 </Step>
 <Step>
 
-### Create the LangGraph client helper
+### 创建 LangGraph 客户端辅助工具
 
 <PlatformTabs>
 <Tab value="React">
@@ -120,7 +120,7 @@ export const createClient = () => {
 </Step>
 <Step>
 
-### Build the assistant component
+### 构建助手组件
 
 <PlatformTabs>
 <Tab value="React">
@@ -292,7 +292,7 @@ export function MyAssistant() {
 </Step>
 <Step>
 
-### Mount the component
+### 挂载组件
 
 <PlatformTabs>
 <Tab value="React">
@@ -347,12 +347,12 @@ export function App() {
 </Step>
 <Step>
 
-### Set environment variables
+### 设置环境变量
 
 <PlatformTabs>
 <Tab value="React">
 
-Use the same `.env.local` shape as the template path [above](#from-the-template).
+使用与上方模板路径相同的 `.env.local` 结构，参见[上文](#from-the-template)。
 
 </Tab>
 <Tab value="React Native">
@@ -376,22 +376,22 @@ LANGGRAPH_ASSISTANT_ID=your_graph_id
 </Step>
 <Step>
 
-### Set up UI components
+### 配置 UI 组件
 
 <PlatformTabs>
 <Tab value="React">
 
-Follow the [UI Components guide](/elements/thread) to wire up the Thread, composer, and supporting primitives.
+请参阅 [UI 组件指南](/elements/thread)，为 Thread、输入框和支持性原语完成连接配置。
 
 </Tab>
 <Tab value="React Native">
 
-Follow the [React Native setup](/docs/react-native) to add a native Thread, composer, and supporting primitives.
+请按照 [React Native 配置指南](/docs/react-native)，添加原生 Thread、输入框和支持性原语。
 
 </Tab>
 <Tab value="React Ink">
 
-Follow the [Ink setup](/docs/ink) to add a terminal Thread, composer, and supporting primitives.
+请按照 [Ink 配置指南](/docs/ink)，添加终端 Thread、输入框和支持性原语。
 
 </Tab>
 </PlatformTabs>
@@ -399,9 +399,9 @@ Follow the [Ink setup](/docs/ink) to add a terminal Thread, composer, and suppor
 </Step>
 </Steps>
 
-## Production proxy backend
+## 生产环境代理后端
 
-For development, the client above hits LangGraph Cloud directly using `NEXT_PUBLIC_LANGGRAPH_API_URL`. For production, proxy through your own backend so your API key never reaches the client. Limit the proxy to the endpoints you actually need.
+在开发环境中，上面的客户端使用 `NEXT_PUBLIC_LANGGRAPH_API_URL` 直接访问 LangGraph Cloud。在生产环境中，请通过你自己的后端进行代理，确保 API 密钥不会传递到客户端。请将代理限制为实际需要的端点。
 
 ```ts title="@/app/api/[...path]/route.ts"
 import { NextRequest, NextResponse } from "next/server";
@@ -473,24 +473,24 @@ export const OPTIONS = () =>
   new NextResponse(null, { status: 204, headers: getCorsHeaders() });
 ```
 
-With this route in place, drop `NEXT_PUBLIC_LANGGRAPH_API_URL` from production env vars; the client helper falls back to the same-origin `/api` path. Set `LANGCHAIN_API_KEY` and `LANGGRAPH_API_URL` server-side instead.
+配置此路由后，从生产环境变量中移除 `NEXT_PUBLIC_LANGGRAPH_API_URL`；客户端辅助工具会回退到同源的 `/api` 路径。请改为在服务器端设置 `LANGCHAIN_API_KEY` 和 `LANGGRAPH_API_URL`。
 
-## Next
+## 下一步
 
 <Cards>
   <Card
-    title="Streaming"
-    description="Event handlers, message metadata, message conversion."
+    title="流式传输"
+    description="事件处理器、消息元数据和消息转换。"
     href="/docs/runtimes/langgraph/streaming"
   />
   <Card
-    title="Generative UI"
-    description="Structured UI components emitted by your graph."
+    title="生成式 UI"
+    description="由你的图生成的结构化 UI 组件。"
     href="/docs/runtimes/langgraph/generative-ui"
   />
   <Card
-    title="Interrupts"
-    description="Interrupt persistence and checkpoint-based message editing."
+    title="中断"
+    description="中断持久化，以及基于检查点的消息编辑。"
     href="/docs/runtimes/langgraph/interrupts"
   />
 </Cards>

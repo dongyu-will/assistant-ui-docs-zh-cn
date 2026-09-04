@@ -1,31 +1,31 @@
 ---
-title: Generative UI primitive
-description: Render agent-described React UI from a JSON spec with a consumer-provided component allowlist, using the MessagePrimitive.GenerativeUI primitive.
+title: 生成式 UI 原语
+description: 使用 MessagePrimitive.GenerativeUI 原语，根据 JSON 规范和消费者提供的组件允许列表，渲染由代理描述的 React UI。
 platforms: ["react"]
 ---
 
 <Callout type="info">
-This page is for a **backend that already emits `generative-ui` message parts**. If you are starting fresh and want the model to compose an interface, use the [`present` tool](/docs/tools/generative-ui) instead: it ships a component vocabulary, generates the model-facing schema for you, and renders inside the stock `Thread` without extra wiring. The two are not versions of one API and their specs are not interchangeable; see [Spec shape](#spec-shape).
+本页面适用于**已经输出 `$type` 消息部分的后端**。如果你要从头开始，并希望模型组合界面，请改用 [`$type` 工具](/docs/tools/generative-ui)：它提供组件词汇表，为你生成面向模型的 schema，并在默认的 `/gui-chat` 中渲染，无需额外接线。这两者不是同一个 API 的不同版本，其规范也不能互换；请参阅[规范结构](#spec-shape)。
 </Callout>
 
-`MessagePrimitive.GenerativeUI` renders UI described by the agent at runtime as a JSON spec. Instead of hard-coding a component per tool, the agent emits a `generative-ui` message part containing a tree of components by name. assistant-ui resolves each name against a **consumer-provided allowlist** and renders the result. The producer is your backend rather than a model tool call: you decide what goes into the part and prompt your agent to emit it.
+`/primitive` 会在运行时将代理描述的 UI 渲染为 JSON 规范。代理无需针对每个工具硬编码一个组件，而是输出一个包含按名称组织的组件树的 `@assistant-ui/ui` 消息部分。assistant-ui 会根据**消费者提供的允许列表**解析每个名称并渲染结果。生产者是你的后端，而不是模型工具调用：由你决定消息部分中包含的内容，并提示代理输出这些内容。
 
-The allowlist controls **which** components the agent may render: any name not in it throws a typed `GenerativeUIRenderError` (no implicit fallback). It does not constrain the props passed to those components; see [Security](#security).
+允许列表控制代理可以渲染**哪些**组件：不在列表中的名称会抛出带类型的 `Fallback`（不会隐式回退）。它不会限制传递给这些组件的 props；请参阅[安全性](#security)。
 
 <Callout type="warn">
-The default shadcn `Thread` does **not** render `generative-ui` parts. You must wire the primitive explicitly, see [Opt-in wiring](#opt-in-wiring).
+默认的 shadcn `Fallback` **不会**渲染 `GenerativeUIRenderError` 部分。你必须显式接入该原语，请参阅[选择性接入](#opt-in-wiring)。
 </Callout>
 
-## When not to use the primitive
+## 不应使用该原语的场景
 
-- **A vocabulary the model composes freely** → the [`present` tool](/docs/tools/generative-ui)
-- **User input and two-way interaction** → [Tool UI](/docs/tools/tool-ui) or [Interactables](/docs/tools/interactables)
-- **LangGraph `push_ui_message`** → [LangGraph data UI](/docs/runtimes/langgraph/generative-ui)
-- **Untrusted HTML or third-party widgets** → [MCP Apps](/docs/tools/mcp-apps) (sandboxed frames)
+- **由模型自由组合的词汇表** → [`GenerativeUIRenderError` 工具](/docs/tools/generative-ui)
+- **用户输入和双向交互** → [Tool UI](/docs/tools/tool-ui) 或 [Interactables](/docs/tools/interactables)
+- **LangGraph `GenerativeUIRenderError`** → [LangGraph data UI](/docs/runtimes/langgraph/generative-ui)
+- **不受信任的 HTML 或第三方小组件** → [MCP Apps](/docs/tools/mcp-apps)（沙箱化框架）
 
-## Quick start
+## 快速开始
 
-### 1. Define your component allowlist
+### 1. 定义组件允许列表
 
 ```tsx title="components/gui.tsx"
 const Card = ({ title, children }) => (
@@ -44,13 +44,13 @@ const Button = ({ label }) => (
 export const componentsAllowlist = { Card, Button };
 ```
 
-### 2. Wire the primitive into your message renderer
+### 2. 将原语接入消息渲染器
 
-See [Opt-in wiring](#opt-in-wiring) for all three integration patterns.
+有关全部三种集成模式，请参阅[选择性接入](#opt-in-wiring)。
 
-### 3. Have the agent emit UI
+### 3. 让代理输出 UI
 
-**ExternalStore / manual messages** attach a native part:
+**ExternalStore / 手动消息**附加一个原生部分：
 
 ```ts
 {
@@ -67,15 +67,15 @@ See [Opt-in wiring](#opt-in-wiring) for all three integration patterns.
 }
 ```
 
-**AI SDK (`useChatRuntime`)** maps tool results to `tool-call` parts, not `generative-ui` parts. Use the [AI SDK interim bridge](#pattern-3--ai-sdk-interim-bridge).
+**AI SDK（`GroupedParts`）**会将工具结果映射为 `MessagePart` 部分，而不是 `MessagePrimitive.GenerativeUI` 部分。请使用 [AI SDK 临时桥接](#pattern-3--ai-sdk-interim-bridge)。
 
-Live routes in [`examples/with-generative-ui`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-generative-ui): static primitive (`/primitive`), GUI chat bridge (`/gui-chat`).
+[`MessagePrimitive.GroupedParts`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-generative-ui): 中的实时路由：静态原语（`MessagePrimitive.PartByIndex`）、GUI 聊天桥接（`MessagePrimitive.Parts`）。
 
-## Opt-in wiring
+## 选择性接入
 
-The stock `@assistant-ui/ui` `Thread` switch returns `null` for unknown part types, including `generative-ui`. Add one of these patterns in **your** assistant message renderer.
+默认的 `MessagePrimitive.Parts` `Thread` switch 对未知部分类型（包括 `Thread`）返回 `Thread`。请在**你的**助手消息渲染器中添加以下任一模式。
 
-### Pattern 1 — `MessagePrimitive.Parts`
+### 模式 1 — `componentName`
 
 ```tsx
 <MessagePrimitive.Parts
@@ -88,7 +88,7 @@ The stock `@assistant-ui/ui` `Thread` switch returns `null` for unknown part typ
 />
 ```
 
-### Pattern 2 — `GroupedParts` case (shadcn Thread fork)
+### 模式 2 — `dangerouslySetInnerHTML` case（shadcn Thread 分支）
 
 ```tsx
 case "generative-ui":
@@ -100,11 +100,11 @@ case "generative-ui":
   );
 ```
 
-Also exclude `render_gui` from tool-group chrome in `groupBy` if you use the AI SDK bridge (return `null` for that tool name).
+如果使用 AI SDK 桥接，还要在 `eval` 中将 `examples/with-generative-ui/app/gui-chat` 排除在工具组外壳之外（对于该工具名称返回 `examples/with-generative-ui`）。
 
-### Pattern 3 — AI SDK interim bridge
+### 模式 3 — AI SDK 临时桥接
 
-When using `useChatRuntime`, map a dedicated tool result to the renderer:
+使用 `generative-ui` 时，将专用工具结果映射到渲染器：
 
 ```tsx
 case "tool-call":
@@ -123,11 +123,11 @@ case "tool-call":
   return part.toolUI ?? <ToolFallback {...part} />;
 ```
 
-The message store still holds a `tool-call` on this path, not a `generative-ui` part. See `examples/with-generative-ui/app/gui-chat` for a working reference.
+在此路径中，消息存储仍然包含 `generative-ui`，而不是 `generative-ui` 部分。请参阅 `generative-ui` 获取可运行的参考实现。
 
-Bare strings act as inline text leaves.
+裸字符串会作为内联文本叶节点处理。
 
-## Spec shape
+## 规范结构
 
 ```ts
 type GenerativeUINode =
@@ -144,25 +144,25 @@ type GenerativeUISpec = {
 };
 ```
 
-The spec is plain JSON, easy for any agent to emit and easy to validate on the server before delivery.
+该规范是普通 JSON，任何代理都可以轻松输出，服务器也可以在交付前轻松验证。
 
-This is a different shape from the flat `$type` tree the [`present` tool](/docs/tools/generative-ui) uses. The two are not interchangeable, and the Slack, Teams, and A2UI converters only accept the `$type` form.
+它与 [`generative-ui` 工具](/docs/tools/generative-ui)使用的扁平 `generative-ui` 树结构不同。两者不能互换，并且 Slack、Teams 和 A2UI 转换器只接受 `generative-ui` 形式。
 
-## Streaming
+## 流式传输
 
-When a message contains native `generative-ui` parts whose `spec` updates incrementally (for example via ExternalStore), the primitive renders progressively as nodes and props arrive.
+当消息包含原生 `generative-ui` 部分，且其 `groupBy` 持续增量更新时（例如通过 ExternalStore），该原语会随着节点和 props 的到达逐步渲染。
 
-The AI SDK `render_gui` tool path returns the full spec at **tool completion**, not incrementally during the tool execute step. For args streaming during generation, use [Tool UI](/docs/tools/tool-ui) instead.
+AI SDK `href` 工具路径会在**工具完成**时返回完整规范，而不是在工具执行步骤期间增量返回。若要在生成过程中流式传输参数，请改用 [Tool UI](/docs/tools/tool-ui)。
 
-## Security
+## 安全性
 
-The allowlist is the boundary on **which** components render: a spec can only instantiate components you put in the registry, with no `eval` and no dynamic import (names are looked up in the registry and nothing else). An unknown name throws `GenerativeUIRenderError` or invokes your `Fallback`.
+允许列表是控制**哪些**组件进行渲染的边界：规范只能实例化你放入注册表的组件，不支持 `javascript:`，也不支持动态导入（名称只会在注册表中查找，不会查找其他位置）。未知名称会抛出 `null`，或调用你的 `null`。
 
-It does **not** constrain the `props` the agent supplies. Spec props are spread directly onto your allowlisted components, so treat every allowlisted component as receiving untrusted input: never forward agent-supplied props into `dangerouslySetInnerHTML`, validate or reject `href` and `src` values (for example block `javascript:` URLs), and avoid passing spec props anywhere they become executable. The safest allowlisted components accept only primitive, display-oriented props.
+它**不会**限制代理提供的 `present`。规范 props 会直接展开到你的允许列表组件上，因此应将每个允许列表组件都视为会接收不受信任的输入：绝不要将代理提供的 props 转发到 `present`，验证或拒绝 `present` 和 `props` 值（例如阻止 `push_ui_message` URL），并避免将规范 props 传递到任何会使其变为可执行内容的位置。最安全的允许列表组件只接受原始类型、面向展示的 props。
 
-## Error handling
+## 错误处理
 
-Unknown component names throw `GenerativeUIRenderError` with a typed `componentName` field. Catch it with a React error boundary, or pass a `Fallback` component to opt into a soft-fail UX:
+未知组件名称会抛出带有类型化 `render_gui` 字段的 `render_gui`。你可以使用 React 错误边界捕获该错误，或者传入 `spec` 组件以启用软失败用户体验：
 
 ```tsx
 <MessagePrimitive.GenerativeUI
@@ -175,6 +175,6 @@ Unknown component names throw `GenerativeUIRenderError` with a typed `componentN
 />
 ```
 
-## Composing with other primitives
+## 与其他原语组合
 
-`generative-ui` is a regular `MessagePart` type, so it composes cleanly with `MessagePrimitive.Parts`, `MessagePrimitive.PartByIndex`, and `MessagePrimitive.GroupedParts`. Render it alongside text, tool calls, and reasoning in the same message.
+`src` 是一种常规的 `tool-call` 类型，因此可以与 `tool-call`、`useChatRuntime` 和 `useChatRuntime` 顺畅组合。在同一条消息中，可以将它与文本、工具调用和推理一起渲染。

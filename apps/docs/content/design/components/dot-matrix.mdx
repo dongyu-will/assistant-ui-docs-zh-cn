@@ -1,6 +1,6 @@
 ---
-title: Dot Matrix
-description: Tiny 5x5 dot-matrix indicator with 20 state-specific blink patterns.
+title: 点阵
+description: 微型 5x5 点阵指示器，提供 20 种特定于状态的闪烁模式。
 ---
 
 import { PreviewCode } from "@/components/pages/docs/preview-code.server";
@@ -14,13 +14,13 @@ import {
 
 <DotMatrixSample />
 
-## Installation
+## 安装
 
 <InstallCommand shadcn={["dot-matrix"]} />
 
-This adds a `/components/ui/dot-matrix.tsx` file to your project, which you can adjust as needed. The component has no dependencies beyond React.
+这会向项目添加一个 `/components/ui/dot-matrix.tsx` 文件，你可以根据需要进行调整。除了 React 之外，该组件没有其他依赖。
 
-## Usage
+## 用法
 
 ```tsx
 import { DotMatrix } from "@/components/ui/dot-matrix";
@@ -30,66 +30,66 @@ export function RunIndicator({ isRunning }: { isRunning: boolean }) {
 }
 ```
 
-Dots inherit the surrounding text color, so the matrix renders dark dots on light backgrounds and light dots on dark backgrounds without configuration. Every state is a combination of a dot pattern, a motion, and a color, and switching states cross-fades each dot into its new pattern.
+点会继承周围文本的颜色，因此无需配置，点阵即可在浅色背景上显示深色点，在深色背景上显示浅色点。每种状态都由点阵图案、动效和颜色组合而成，切换状态时，每个点都会交叉淡入到新的图案。
 
-## States
+## 状态
 
-| State | Pattern |
+| 状态 | 图案 |
 |-------|---------|
-| `idle` | Dim static grid |
-| `loading` | Randomized twinkle (default) |
-| `thinking` | Diagonal wave |
-| `streaming` | Falling rain, per-column streaks |
-| `searching` | Horizontal sweep |
-| `syncing` | Rotating sweep around the center |
-| `connecting` | Ripple expanding from the center |
-| `waiting` | Ellipsis dots blinking in sequence |
-| `uploading` | Wave rising upward |
-| `downloading` | Wave falling downward |
-| `listening` | Slow equalizer columns |
-| `speaking` | Fast equalizer columns |
-| `recording` | Red center dot breathing |
-| `success` | Green check glyph, static |
-| `error` | Red cross glyph, blinking |
-| `warning` | Amber exclamation glyph, slow blink |
-| `info` | Blue info glyph, static |
-| `paused` | Pause bars glyph, static |
-| `stopped` | Square glyph, static |
-| `offline` | Very dim static grid |
+| `idle` | 暗淡的静态网格 |
+| `loading` | 随机闪烁（默认） |
+| `thinking` | 对角波 |
+| `streaming` | 下落的雨滴，每列形成拖影 |
+| `searching` | 水平扫过 |
+| `syncing` | 围绕中心旋转扫过 |
+| `connecting` | 从中心扩散的波纹 |
+| `waiting` | 省略号圆点依次闪烁 |
+| `uploading` | 向上升起的波浪 |
+| `downloading` | 向下落下的波浪 |
+| `listening` | 缓慢的均衡器柱 |
+| `speaking` | 快速的均衡器柱 |
+| `recording` | 红色中心点呼吸闪烁 |
+| `success` | 绿色勾形图标，静态 |
+| `error` | 红色叉形图标，闪烁 |
+| `warning` | 琥珀色感叹号图标，慢速闪烁 |
+| `info` | 蓝色信息图标，静态 |
+| `paused` | 暂停条图标，静态 |
+| `stopped` | 方形图标，静态 |
+| `offline` | 非常暗淡的静态网格 |
 
-The component exports `dotMatrixStates` (the ordered list above) and the `DotMatrixState` union type, so UIs can enumerate or map states without duplicating the list. New states are added by extending the `STATES` record in the component source with a glyph and a per-dot blink function.
+该组件导出 `dotMatrixStates`（上方列出的有序列表）和 `DotMatrixState` 联合类型，因此 UI 可以枚举或映射状态，而无需重复维护列表。添加新状态时，只需在组件源代码中扩展 `STATES` 记录，并提供一个图标和逐点闪烁函数。
 
-## Examples
+## 示例
 
-### State Lifecycle
+### 状态生命周期
 
-Drive the `state` prop from your run status; the matrix morphs between patterns instead of swapping components.
+根据运行状态驱动 `state` 属性；点阵会在不同图案之间变形，而不是替换组件。
 
 <PreviewCode file="components/pages/docs/samples/dot-matrix" name="DotMatrixLifecycleSample">
   <DotMatrixLifecycleSample />
 </PreviewCode>
 
-### Inline With Text
+### 与文本内联
 
-At the default `size-4` the matrix aligns with text like an icon, and the dots adapt to inverted surfaces through `currentColor`.
+在默认的 `size-4` 下，点阵会像图标一样与文本对齐，并通过 `currentColor` 适配反色表面。
 
 <PreviewCode file="components/pages/docs/samples/dot-matrix" name="DotMatrixInlineSample">
   <DotMatrixInlineSample />
 </PreviewCode>
 
-### Sizes
+### 尺寸
 
-The matrix is an SVG, so any size utility scales it crisply.
+点阵是 SVG，因此任何尺寸工具类都能让它清晰地缩放。
 
 <DotMatrixSizesSample />
 
-## How It Works
+## 工作原理
 
-The grid is a 5x5 SVG of `currentColor` circles. Blinking is a single CSS keyframe animation whose high/low opacity bounds come from registered per-dot CSS variables; the animation runs in every state (static states collapse the bounds) and the bounds carry a transition, which is what makes state changes cross-fade per dot. The randomized loading rhythm uses deterministic per-dot delays and durations, so server and client render identical markup and no JavaScript runs after render. With `prefers-reduced-motion`, the dots hold their resting opacity instead of blinking.
+网格是一个由 `currentColor` 个圆组成的 5x5 SVG。闪烁使用单个 CSS 关键帧动画，其不透明度上下限来自每个点注册的 CSS 变量；动画在每种状态下都会运行（静态状态会折叠上下限），并且上下限带有过渡效果，这正是状态变化时每个点能够交叉淡入的原因。随机加载节奏使用确定性的逐点延迟和持续时间，因此服务端与客户端会渲染出完全相同的标记，并且渲染完成后不会运行 JavaScript。使用 `prefers-reduced-motion` 时，点会保持静止时的不透明度，而不会闪烁。
 
-The root is a `role="status"` live region whose text content is the state name (or the `label` prop), so screen readers announce state changes; the SVG itself is `aria-hidden`.
+根元素是一个 `role="status"` live region（实时区域），其文本内容为状态名称（或 `label` 属性），因此屏幕阅读器会播报状态变化；SVG 本身则是 `aria-hidden`。
 
-## API Reference
+## API 参考
 
 ### DotMatrix
 
@@ -101,29 +101,29 @@ The root is a `role="status"` live region whose text content is the state name (
       type: "DotMatrixState",
       default: '"loading"',
       description:
-        "One of the 20 built-in states listed above, controlling pattern, motion, and color.",
+        "20 种内置状态之一，用于控制图案、动效和颜色。",
     },
     {
       name: "label",
       type: "string",
       description:
-        "Accessible label announced by screen readers. Defaults to the state name.",
+        "由屏幕阅读器播报的无障碍标签。默认为状态名称。",
     },
     {
       name: "className",
       type: "string",
       description:
-        "Additional CSS classes. Use size utilities to scale and text color utilities to recolor.",
+        "其他 CSS 类。使用尺寸工具类进行缩放，使用文本颜色工具类重新着色。",
     },
   ]}
 />
 
-### Styling
+### 样式
 
-Color follows `currentColor`, so `className="text-blue-500"` recolors the whole matrix; the outcome states (`success`, `error`, `warning`, `info`, `recording`, and the muted static states) set their own color which a `className` can override. Dots are targetable via `[data-slot="dot-matrix"]` and `[data-slot="dot-matrix-dot"]`, and the current state is exposed as `data-state` on the root.
+颜色遵循 `currentColor`，因此 `className="text-blue-500"` 可以重新设置整个点阵的颜色；结果状态（`success`、`error`、`warning`、`info`、`recording` 以及静音静态状态）会设置自身颜色，`className` 可以覆盖该颜色。可以通过 `[data-slot="dot-matrix"]` 和 `[data-slot="dot-matrix-dot"]` 定位各个点，当前状态则会在根元素上通过 `data-state` 暴露。
 
-## Related Components
+## 相关组件
 
-- [Number Roll](/design/components/number-roll) - Animated rolling number
-- [Badge](/design/components/badge) - Small status and metadata labels
-- [Orb](/elements/orb) - Voice activity visualization
+- [数字滚动](/design/components/number-roll) - 滚动显示的动画数字
+- [徽章](/design/components/badge) - 小型状态和元数据标签
+- [Orb](/elements/orb) - 语音活动可视化

@@ -1,6 +1,6 @@
 ---
-title: Picking a runtime
-description: Decision guide for choosing the right runtime, by framework or by feature.
+title: 选择运行时
+description: 按框架或功能选择合适运行时的决策指南。
 ---
 
 import { A2AIcon } from "@/components/icons/a2a";
@@ -14,64 +14,64 @@ import { MastraIcon } from "@/components/icons/mastra";
 import { OpenCodeIcon } from "@/components/icons/opencode";
 import { VercelIcon } from "@/components/icons/vercel";
 
-A runtime is the connection between assistant-ui's UI primitives and your AI backend. This page helps you pick one. Two lenses, pick whichever maps to what you already know.
+运行时（runtime）连接了 assistant-ui 的 UI 原语与您的 AI 后端。本页面将帮助您选择合适的运行时。您可以从两个角度进行选择，挑选与您已有知识最匹配的方式即可。
 
-## Lens 1: by framework
+## 方式 1：按框架选择
 
-If you are already using one of these frameworks, the choice is mechanical.
+如果您已经在使用以下某个框架，选择过程非常直接。
 
-### First-party adapters
+### 第一方适配器
 
-assistant-ui ships React adapter packages for these. Pick the matching card and follow its overview.
+assistant-ui 为以下框架提供了 React 适配器包。选择匹配的卡片并查看其概览。
 
 <Cards>
   <Card
     icon={<VercelIcon width={20} height={20} />}
     title="Vercel AI SDK"
-    description="useChat hook, streaming, tools, attachments, multi-step. v6 current; v5 / v4 legacy."
+    description="useChat hook、流式输出、工具、附件、多步骤。当前版本为 v6；v5 / v4 为旧版本。"
     href="/docs/runtimes/ai-sdk/overview"
   />
   <Card
     icon={<VercelIcon width={20} height={20} />}
     title="Eve"
-    description="Filesystem-first durable agents with eve/next, sessions, NDJSON streaming, and HITL."
+    description="以文件系统为先的持久化助手，支持 eve/next、会话、NDJSON 流式传输和 HITL（人在回路）。"
     href="/docs/runtimes/eve/overview"
   />
   <Card
     icon={<LangGraphIcon width={20} height={20} className="text-[#1C3C3C] dark:text-[#5b9595]" />}
     title="LangGraph"
-    description="Direct integration with @langchain/langgraph-sdk. Subgraph events, UI messages, message metadata."
+    description="直接集成 @langchain/langgraph-sdk。支持子图事件、UI 消息和消息元数据。"
     href="/docs/runtimes/langgraph/overview"
   />
   <Card
     icon={<LangChainIcon width={20} height={20} className="text-[#7FC8FF]" />}
     title="LangChain useStream"
-    description="Wraps @langchain/react's useStream. Lighter-weight, tracks upstream."
+    description="封装 @langchain/react 的 useStream。更轻量，并与上游保持同步。"
     href="/docs/runtimes/langchain"
   />
   <Card
     icon={<AdkIcon width={20} height={20} />}
     title="Google ADK"
-    description="ADK JS or Python agents. Tool confirmations, auth flows, multi-agent, code execution."
+    description="支持 ADK JS 或 Python 助手。支持工具确认、身份验证流程、多助手和代码执行。"
     href="/docs/runtimes/google-adk/overview"
   />
   <Card
     icon={<A2AIcon width={20} height={20} />}
     title="A2A Protocol"
-    description="Any A2A v1.0-compliant agent server. Streaming task state, artifacts, multi-tenancy."
+    description="支持任何符合 A2A v1.0 的助手服务器。支持任务状态流式传输、工件和多租户。"
     href="/docs/runtimes/a2a/overview"
   />
   <Card
     icon={<AguiIcon width={20} height={20} />}
     title="AG-UI Protocol"
-    description="AG-UI agents (CopilotKit, custom servers). Streaming text, thinking, tool calls, state snapshots."
+    description="支持 AG-UI 助手（CopilotKit、自定义服务器）。支持文本、思考过程、工具调用和状态快照的流式传输。"
     href="/docs/runtimes/ag-ui/overview"
   />
   <PlatformOnly platforms={["react"]}>
     <Card
       icon={<OpenCodeIcon width={20} height={20} />}
       title="OpenCode"
-      description="OpenCode coding-agent server. Permission flows, questions, fork / revert. Experimental."
+      description="OpenCode 编程助手服务器。支持权限流程、问题提问、分叉/还原。实验性功能。"
       href="/docs/runtimes/opencode/overview"
     />
   </PlatformOnly>
@@ -79,55 +79,55 @@ assistant-ui ships React adapter packages for these. Pick the matching card and 
 
 <PlatformOnly platforms={["react"]}>
 
-### Integration guides
+### 集成指南
 
-For frameworks without a dedicated adapter, these wiring guides route through an existing runtime: an adapter above, or one of the core runtimes.
+对于没有专用适配器的框架，以下连接指南会通过现有运行时完成接入：上方的某个适配器，或核心运行时之一。
 
   <Cards>
     <Card
       icon={<CloudflareIcon width={20} height={20} />}
       title="Cloudflare Agents"
-      description="Stateful agents on Durable Objects with WebSocket streaming. Wired through the Vercel AI SDK runtime."
+      description="基于 Durable Objects 的有状态助手，支持 WebSocket 流式传输。通过 Vercel AI SDK 运行时接入。"
       href="/docs/integrations/frameworks/cloudflare-agents"
     />
     <Card
       icon={<MastraIcon width={20} height={20} />}
       title="Mastra"
-      description="TypeScript agent framework. Wired through the Vercel AI SDK runtime."
+      description="TypeScript 助手框架。通过 Vercel AI SDK 运行时接入。"
       href="/docs/integrations/frameworks/mastra/overview"
     />
     <Card
       icon={<ClaudeIcon width={20} height={20} className="text-[#D97757]" />}
       title="Claude Managed Agents"
-      description="Anthropic-hosted agent sessions. Wired through the external store runtime: event-log replay, approval gates, sessions as threads."
+      description="由 Anthropic 托管的助手会话。通过外部状态存储运行时接入：支持事件日志重放、审批门控，以及将会话作为线程。"
       href="/docs/runtimes/claude-managed-agents"
     />
   </Cards>
 
 </PlatformOnly>
 
-## Lens 2: by needs
+## 方式 2：按需求选择
 
-If you do not know your framework yet, or your backend is custom, pick by what you need:
+如果您还不了解自己要使用的框架，或者后端是自定义的，请根据需求进行选择：
 
-| You need | Use |
+| 您的需求 | 使用 |
 | --- | --- |
-| Simple `fetch` call to your API, runtime owns state | [LocalRuntime](/docs/runtimes/custom/local-runtime) |
-| Keep messages in redux, zustand, tanstack-query, etc. | [ExternalStoreRuntime](/docs/runtimes/custom/external-store) |
-| Backend that already speaks the data stream protocol | [DataStream](/docs/runtimes/custom/data-stream) |
-| Stream full agent state snapshots (not just messages) | [AssistantTransport](/docs/runtimes/custom/assistant-transport) |
+| 简单地 `ExternalStoreRuntime` 调用您的 API，由运行时管理状态 | [LocalRuntime](/docs/runtimes/custom/local-runtime) |
+| 将消息保存在 redux、zustand、tanstack-query 等状态管理工具中 | [ExternalStoreRuntime](/docs/runtimes/custom/external-store) |
+| 后端已经支持 data stream protocol | [DataStream](/docs/runtimes/custom/data-stream) |
+| 流式传输完整的助手状态快照，而不只是消息 | [AssistantTransport](/docs/runtimes/custom/assistant-transport) |
 
-If none of the framework adapters fits, start at [custom backend](/docs/runtimes/custom/overview).
+如果没有适合您的框架适配器，请从[自定义后端](/docs/runtimes/custom/overview)开始。
 
-## Shared concepts
+## 共享概念
 
-Regardless of which runtime you pick, four ideas apply across the board.
+无论选择哪种运行时，以下四个概念都适用。
 
-- **Architecture** — Framework adapters wrap one of two **core runtimes** (`LocalRuntime`, `ExternalStoreRuntime`). See [architecture](/docs/runtimes/concepts/architecture) for the full layering.
-- **Adapters** (attachments, speech, feedback, history, suggestions) work the same way across runtimes. See [adapters](/docs/runtimes/concepts/adapters).
-- **Threads** (single, cloud, custom database) follow the same model. See [threads](/docs/runtimes/concepts/threads).
-- **Stability** policy: APIs prefixed with `unstable_` may change in any release. See [stability](/docs/runtimes/concepts/stability).
+- **架构** — 框架适配器会封装两个**核心运行时**之一（`LocalRuntime`、`fetch`）。请参阅[架构](/docs/runtimes/concepts/architecture)了解完整的分层结构。
+- **适配器**（附件、语音、反馈、历史记录、建议）在不同运行时中的工作方式相同。请参阅[适配器](/docs/runtimes/concepts/adapters)。
+- **线程**（单线程、云端、自定义数据库）遵循相同的模型。请参阅[线程](/docs/runtimes/concepts/threads)。
+- **稳定性**策略：以 `unstable_` 开头的 API 可能在任何版本中发生变化。请参阅[稳定性](/docs/runtimes/concepts/stability)。
 
 <Callout type="info">
-Need help? Join our [Discord community](https://discord.gg/S9dwgCNEFs) or check the [GitHub repo](https://github.com/assistant-ui/assistant-ui).
+需要帮助？加入我们的 [Discord 社区](https://discord.gg/S9dwgCNEFs) [GitHub 仓库](https://github.com/assistant-ui/assistant-ui).
 </Callout>

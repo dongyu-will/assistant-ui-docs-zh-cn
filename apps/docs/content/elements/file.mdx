@@ -1,20 +1,20 @@
 ---
-title: "File"
-description: "File message parts with type-aware icons, filename, size, and download actions."
+title: "文件"
+description: "文件消息部分，提供基于类型的图标、文件名、大小和下载操作。"
 ---
 
-File renders one file message part as a row: an icon chosen from the MIME type, the filename, an optional size, and a download link. With a runtime it renders straight from a message's file part; standalone you hand it the part yourself.
+File 会将一个文件消息部分渲染为一行：根据 MIME 类型选择的图标、文件名、可选的大小以及下载链接。使用运行时（runtime）时，它会直接从消息的文件部分进行渲染；单独使用时，则需要手动传入该部分。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
 <Steps>
   <Step>
 
-### Render files from a message
+### 从消息渲染文件
 
-Register `File` as the `File` renderer on `MessagePrimitive.Parts`.
+将 `File` 注册为 `MessagePrimitive.Parts` 上的 `File` 渲染器。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { File } from "@/components/assistant-ui/elements/file";
@@ -29,7 +29,7 @@ function AssistantMessage() {
 }
 ```
 
-The `Thread` element already renders both assistant and user file parts through `File`, so installing `@assistant-ui/thread` gives you this without any of the above.
+`Thread` 元素已经通过 `File` 同时渲染助手和用户的文件部分，因此安装 `@assistant-ui/thread` 后无需进行上述任何操作即可获得此功能。
 
   </Step>
 </Steps>
@@ -38,12 +38,12 @@ The `Thread` element already renders both assistant and user file parts through 
 
 <StandaloneMode>
 
-Standalone, `File` is a plain function of one part object: no context, no runtime.
+单独使用时，`File` 是一个只接收单个部分对象的普通函数：不需要上下文，也不需要运行时。
 
 <Steps>
   <Step>
 
-### Render a file directly
+### 直接渲染文件
 
 ```tsx title="app/answer.tsx"
 import { File } from "@/components/assistant-ui/elements/file";
@@ -67,7 +67,7 @@ export function Attachment() {
 
 </StandaloneMode>
 
-## Anatomy
+## 构成
 
 ```tsx
 <div data-slot="file-root" data-variant={variant} data-size={size}>
@@ -80,31 +80,31 @@ export function Attachment() {
 </div>
 ```
 
-The icon depends on `mimeType`: images get an image icon, PDFs and other text get a document icon, JSON gets a braces icon, audio and video get their own icons, and everything else gets a generic file icon. `sourceType` states how `data` is encoded on the wire: `"url"` for a link, `"id"` for an opaque reference the download link can't resolve on its own, or omitted to infer it (an `http(s)://` string is treated as a URL, anything else as base64). The size row only appears for inline data (base64 or a `data:` URI), since a URL or id reference carries no byte count to read. The download link itself only renders for base64 and `data:` URI data, or for a URL that actually starts with `http(s)://` or `blob:`; an `"id"` reference, or a URL that fails that check, renders no link at all.
+图标取决于 `mimeType`：图像使用图像图标，PDF 和其他文本使用文档图标，JSON 使用大括号图标，音频和视频使用各自的图标，其他内容则使用通用文件图标。`sourceType` 说明了 `data` 在传输中的编码方式：链接使用 `"url"`，下载链接无法自行解析的不透明引用使用 `"id"`，省略该字段时则根据内容推断（`http(s)://` 字符串会被视为 URL，其他内容则视为 base64）。大小行仅会对内联数据（base64 或 `data:` URI）显示，因为 URL 或 id 引用不包含可读取的字节数。下载链接本身仅会对 base64 和 `data:` URI 数据显示，或者对实际以 `http(s)://` 或 `blob:` 开头的 URL 显示；`"id"` 引用或未通过该检查的 URL 完全不会渲染链接。
 
-## Examples
+## 示例
 
-### Variants and sizes
+### 变体和尺寸
 
 ```tsx
 <File variant="muted" size="sm" {...part} />
 ```
 
-| Variant | Description |
+| 变体 | 描述 |
 |---------|-------------|
-| `outline` | Border, background on hover (default) |
-| `ghost` | No border, background on hover |
-| `muted` | Muted background |
+| `outline` | 边框，悬停时显示背景（默认） |
+| `ghost` | 无边框，悬停时显示背景 |
+| `muted` | 柔和背景 |
 
-| Size | Description |
+| 尺寸 | 描述 |
 |------|-------------|
-| `sm` | Compact padding, smaller text |
-| `default` | Standard padding |
-| `lg` | Larger padding and text |
+| `sm` | 紧凑内边距，较小文本 |
+| `default` | 标准内边距 |
+| `lg` | 更大的内边距和文本 |
 
-### Restyle the row
+### 重新设置行样式
 
-`File.Root`, `File.Icon`, `File.Name`, `File.Size`, and `File.Download` are exported individually for a custom layout:
+`File.Root`、`File.Icon`、`File.Name`、`File.Size` 和 `File.Download` 均单独导出，可用于自定义布局：
 
 ```tsx
 import { File } from "@/components/assistant-ui/elements/file";
@@ -121,47 +121,47 @@ import { File } from "@/components/assistant-ui/elements/file";
 </File.Root>;
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### File
 
-| Export | Renders | Notes |
+| 导出项 | 渲染内容 | 说明 |
 |--------|---------|-------|
-| `File` | `div` | The `File` message-part renderer. Pass to `MessagePrimitive.Parts` as `components.File`. |
-| `File.Root` | `div` | Row with `variant` and `size`. |
-| `File.Icon` | `span` | Icon chosen from `mimeType`. |
-| `File.Name` | `span` | Filename text; shows "Unnamed file" when empty. |
-| `File.Size` | `span` | Formatted byte size; you supply `bytes`. |
-| `File.Download` | `a` | Download link; `null` when `data` can't produce a safe `href`. |
+| `File` | `div` | `File` 消息部分渲染器。作为 `components.File` 传递给 `MessagePrimitive.Parts`。 |
+| `File.Root` | `div` | 包含 `variant` 和 `size` 的行。 |
+| `File.Icon` | `span` | 根据 `mimeType` 选择图标。 |
+| `File.Name` | `span` | 文件名文本；为空时显示“未命名文件”。 |
+| `File.Size` | `span` | 格式化后的字节大小；需要提供 `bytes`。 |
+| `File.Download` | `a` | 下载链接；当 `data` 无法生成安全的 `href` 时为 `null`。 |
 
-### File part
+### 文件部分
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `filename` | `string` | Optional display name. |
-| `data` | `string` | The file payload: base64, a `data:` URI, or a URL/id per `sourceType`. |
-| `mimeType` | `string` | Drives the icon and, for base64/`data:` payloads, the download `href`. |
-| `sourceType` | `"url" \| "id"` | Optional. States how to interpret `data`; omitted infers from its shape. |
+| `filename` | `string` | 可选的显示名称。 |
+| `data` | `string` | 文件载荷：base64、`data:` URI，或根据 `sourceType` 规定的 URL/id。 |
+| `mimeType` | `string` | 决定图标，并在 base64/`data:` 载荷中决定下载 `href`。 |
+| `sourceType` | `"url" \| "id"` | 可选。说明如何解释 `data`；省略时根据其形式推断。 |
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-### File props
+### File 属性
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `type` | `"file"` | required | Required by the part type. |
-| `filename` | `string` | | Display name; falls back to "Unnamed file". |
-| `data` | `string` | required | The file payload: base64, a `data:` URI, or a URL/id per `sourceType`. |
-| `mimeType` | `string` | required | Drives the icon and, for base64/`data:` payloads, the download `href`. |
-| `sourceType` | `"url" \| "id"` | | States how to interpret `data`; omitted infers from its shape. |
-| `status` | `MessagePartStatus` | | Required by the type; not read by the renderer. |
-| `variant` | `"outline" \| "ghost" \| "muted"` | `"outline"` | Row style, set on `File.Root`. |
-| `size` | `"sm" \| "default" \| "lg"` | `"default"` | Row size, set on `File.Root`. |
+| `type` | `"file"` | 必需 | 由部分类型要求。 |
+| `filename` | `string` | | 显示名称；未提供时回退为“未命名文件”。 |
+| `data` | `string` | 必需 | 文件载荷：base64、`data:` URI，或根据 `sourceType` 规定的 URL/id。 |
+| `mimeType` | `string` | 必需 | 决定图标，并在 base64/`data:` 载荷中决定下载 `href`。 |
+| `sourceType` | `"url" \| "id"` | | 说明如何解释 `data`；省略时根据其形式推断。 |
+| `status` | `MessagePartStatus` | | 类型要求的属性；渲染器不会读取。 |
+| `variant` | `"outline" \| "ghost" \| "muted"` | `"outline"` | 行样式，设置在 `File.Root` 上。 |
+| `size` | `"sm" \| "default" \| "lg"` | `"default"` | 行尺寸，设置在 `File.Root` 上。 |
 
-`File.Root`, `File.Icon`, `File.Name`, `File.Size`, and `File.Download` are exported individually for a custom layout, as shown in [Restyle the row](#restyle-the-row).
+`File.Root`、`File.Icon`、`File.Name`、`File.Size` 和 `File.Download` 均单独导出，可用于自定义布局，具体请参见[重新设置行样式](#restyle-the-row)。
 
 </StandaloneMode>

@@ -1,20 +1,20 @@
 ---
-title: "Directive text"
-description: "A message renderer that turns mention directives into inline, runtime-aware chips."
+title: "指令文本"
+description: "一种消息渲染器，可将提及指令转换为内联的、可感知运行时的芯片。"
 ---
 
-Directive text parses a message's plain text for directive syntax and renders each one as an inline chip instead of raw markup, leaving ordinary text untouched. With a runtime it plugs into `MessagePrimitive.Parts` as the text renderer and understands assistant-ui's own directive format out of the box; standalone you supply your own parser and get the same chip rendering with no runtime underneath it.
+指令文本会解析消息纯文本中的指令语法，并将每条指令渲染为内联芯片，而不是原始标记，同时保持普通文本不变。搭配运行时使用时，它会作为文本渲染器接入 `MessagePrimitive.Parts`，并开箱即用地理解 assistant-ui 自有的指令格式；单独使用时，你可以提供自己的解析器，在没有运行时的情况下获得相同的芯片渲染效果。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
 <Steps>
   <Step>
 
-### Register the renderer
+### 注册渲染器
 
-`DirectiveText` is pre-wired with assistant-ui's default directive format. Pass it as the `Text` renderer on `MessagePrimitive.Parts` wherever directive chips should appear.
+`DirectiveText` 已预先接入 assistant-ui 的默认指令格式。在指令芯片应出现的位置，将它作为 `MessagePrimitive.Parts` 上的 `Text` 渲染器传入。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { DirectiveText } from "@/components/assistant-ui/elements/directive-text.aui";
@@ -29,23 +29,23 @@ function UserMessage() {
 }
 ```
 
-A message with no directive syntax renders exactly as plain text; nothing extra is added when there's nothing to parse.
+没有指令语法的消息会完全按照纯文本渲染；没有内容可解析时不会添加任何额外内容。
 
   </Step>
 </Steps>
 
-Pair this with [Composer trigger popover](/elements/composer-trigger-popover): a mention or slash command selected there inserts the same directive syntax into the sent message, and `DirectiveText` renders it back as a chip.
+将它与[输入框触发器弹出层](/elements/composer-trigger-popover)搭配使用：在那里选择的提及或斜杠命令会将相同的指令语法插入发送的消息中，然后由 `DirectiveText` 将其重新渲染为芯片。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-Standalone, `createDirectiveText` is a factory: give it your own parser and it returns a component that renders the parsed segments, no runtime involved.
+单独使用时，`createDirectiveText` 是一个工厂函数：传入你自己的解析器，它会返回一个渲染解析后片段的组件，整个过程不涉及运行时。
 
 <Steps>
   <Step>
 
-### Build a component from your own format
+### 根据自定义格式构建组件
 
 ```tsx title="app/message.tsx"
 import {
@@ -81,9 +81,9 @@ export function Message({ text }: { text: string }) {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
-A message whose text has no directive matches renders as the bare string, with no wrapper element. Once there is at least one match, the text splits into a sequence of runs:
+文本中没有指令匹配项的消息会渲染为原始字符串，不包含包装元素。一旦至少存在一个匹配项，文本就会拆分为一系列片段：
 
 ```tsx
 <>
@@ -96,22 +96,22 @@ A message whose text has no directive matches renders as the bare string, with n
 </>
 ```
 
-Each chip's icon comes from `iconMap[type]`, falling back to `fallbackIcon` when the map has no entry for that type, or no icon at all when neither is given. The chip is a fixed, secondary-styled badge with no `className` override; a renderer that needs different styling calls `formatter.parse` itself and maps the segments to its own markup instead of using `createDirectiveText`.
+每个芯片的图标来自 `iconMap[type]`；当映射中没有该类型的条目时，则回退到 `fallbackIcon`；如果两者都未提供，则不显示图标。芯片是固定的、采用 secondary 样式的徽章，不提供 `className` 覆盖；需要不同样式的渲染器应自行调用 `formatter.parse`，将片段映射为自己的标记，而不是使用 `createDirectiveText`。
 
-## Examples
+## 示例
 
-### Assistant-ui's default directive format
+### Assistant-ui 的默认指令格式
 
-With no custom parser, both `DirectiveText` and a `createDirectiveText` call with `unstable_defaultDirectiveFormatter` understand `:type[label]{name=id}`; the `{name=…}` attribute is omitted when `id` equals `label`, so `:tool[Search]` and `:tool[Search]{name=web-search}` both parse, the second with a different `id`.
+不使用自定义解析器时，`DirectiveText` 和传入 `unstable_defaultDirectiveFormatter` 的 `createDirectiveText` 调用都能理解 `:type[label]{name=id}`；当 `id` 等于 `label` 时会省略 `{name=…}` 属性，因此 `:tool[Search]` 和 `:tool[Search]{name=web-search}` 都可以解析，后者使用不同的 `id`。
 
 ```tsx
 "Ask :tool[Search]{name=web-search} to look this up."
 // → "Ask ", a chip labeled "Search" (type "tool", id "web-search"), " to look this up."
 ```
 
-### Map directive types to icons
+### 将指令类型映射到图标
 
-`iconMap` and `fallbackIcon` work the same whether the formatter is the default or your own; keys match each segment's `type`.
+无论格式化器是默认格式化器还是你自己的格式化器，`iconMap` 和 `fallbackIcon` 的工作方式都相同；键名与每个片段的 `type` 匹配。
 
 ```tsx
 import { WrenchIcon, SlashIcon, SparklesIcon } from "lucide-react";
@@ -122,28 +122,28 @@ createDirectiveText(unstable_defaultDirectiveFormatter, {
 });
 ```
 
-`unstable_useMentionAdapter`'s model-context tools default to `type: "tool"`, and `unstable_useSlashCommandAdapter`'s commands default to `type: "command"`, so this pair of keys covers both out of the box.
+`unstable_useMentionAdapter` 的模型上下文工具默认为 `type: "tool"`，而 `unstable_useSlashCommandAdapter` 的命令默认为 `type: "command"`，因此这对键可以开箱即用地覆盖两者。
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### DirectiveText
 
-| Export | Type | Description |
+| 导出项 | 类型 | 描述 |
 |--------|------|-------------|
-| `DirectiveText` | `TextMessagePartComponent` | Ready to use; parses assistant-ui's default `:type[label]{name=id}` syntax. Pass as `MessagePrimitive.Parts`'s `components.Text`. |
-| `createDirectiveText(formatter, options?)` | `(formatter, options?) => TextMessagePartComponent` | Builds a `Text` renderer around any formatter, for a custom `iconMap` or `fallbackIcon`. |
+| `DirectiveText` | `TextMessagePartComponent` | 开箱即用；解析 assistant-ui 的默认 `:type[label]{name=id}` 语法。作为 `MessagePrimitive.Parts` 的 `components.Text` 传入。 |
+| `createDirectiveText(formatter, options?)` | `(formatter, options?) => TextMessagePartComponent` | 围绕任意格式化器构建 `Text` 渲染器，用于自定义 `iconMap` 或 `fallbackIcon`。 |
 
-### Directive segment
+### 指令片段
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `kind` | `"text" \| "mention"` | Which shape the segment is. |
-| `text` | `string` | The literal run, for `kind: "text"`. |
-| `type` | `string` | The directive's type, for `kind: "mention"`; used to look up an icon. |
-| `label` | `string` | Shown inside the chip. |
-| `id` | `string` | Not shown; carried in `data-directive-id`. |
+| `kind` | `"text" \| "mention"` | 片段所属的形状。 |
+| `text` | `string` | 原义文本片段，用于 `kind: "text"`。 |
+| `type` | `string` | 指令的类型，用于 `kind: "mention"`；也用于查找图标。 |
+| `label` | `string` | 显示在芯片内部。 |
+| `id` | `string` | 不会显示；包含在 `data-directive-id` 中。 |
 
 </RuntimeMode>
 
@@ -151,18 +151,18 @@ createDirectiveText(unstable_defaultDirectiveFormatter, {
 
 ### createDirectiveText
 
-| Parameter | Type | Description |
+| 参数 | 类型 | 描述 |
 |-----------|------|-------------|
-| `formatter` | `DirectiveTextFormatter` | Object with a `parse(text): readonly DirectiveTextSegment[]` method. |
-| `options.iconMap` | `Record<string, IconComponent>` | Maps a segment's `type` to an icon. |
-| `options.fallbackIcon` | `IconComponent` | Used when `iconMap` has no entry for a segment's `type`. |
+| `formatter` | `DirectiveTextFormatter` | 包含 `parse(text): readonly DirectiveTextSegment[]` 方法的对象。 |
+| `options.iconMap` | `Record<string, IconComponent>` | 将片段的 `type` 映射到图标。 |
+| `options.fallbackIcon` | `IconComponent` | 当 `iconMap` 中没有片段 `type` 对应的条目时使用。 |
 
-Returns a component with a single prop, `text: string`.
+返回一个只有单个属性 `text: string` 的组件。
 
 ### DirectiveTextFormatter
 
-| Method | Type | Description |
+| 方法 | 类型 | 描述 |
 |--------|------|-------------|
-| `parse` | `(text: string) => readonly DirectiveTextSegment[]` | The only method the standalone renderer needs; write any syntax you want. `Unstable_DirectiveFormatter` (which also has `serialize`) satisfies this type, so `unstable_defaultDirectiveFormatter` works here too. |
+| `parse` | `(text: string) => readonly DirectiveTextSegment[]` | 独立渲染器所需的唯一方法；你可以编写任意语法。`Unstable_DirectiveFormatter`（同时还具有 `serialize`）满足此类型，因此 `unstable_defaultDirectiveFormatter` 在这里同样适用。 |
 
 </StandaloneMode>

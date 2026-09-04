@@ -1,37 +1,37 @@
 ---
 title: Clerk
-description: Gate the chat route and scope thread persistence to the signed-in user with Clerk.
+description: 使用 Clerk 保护聊天路由，并将线程持久化限定为已登录用户。
 ---
 
-[Clerk](https://clerk.com/) is a hosted auth platform that integrates with Next.js through `@clerk/nextjs`. This page covers using it with assistant-ui *without* AssistantCloud: middleware-based route gating, server-side `auth()` checks, and per-user scoping on a custom thread list.
+[Clerk](https://clerk.com/) 是一个托管式身份验证平台，可通过 `@clerk/nextjs` 与 Next.js 集成。本页面介绍如何在**不使用** AssistantCloud 的情况下使用它：基于中间件的路由保护、服务端 `auth()` 检查，以及在自定义线程列表中按用户进行数据隔离。
 
-If you use AssistantCloud, see [cloud authorization](/docs/cloud/authorization) instead. Cloud handles the Clerk JWT exchange for you and gives you workspace-scoped threads with no DB code.
+如果你使用 AssistantCloud，请改为参阅[云端授权](/docs/cloud/authorization)。Cloud 会为你处理 Clerk JWT 交换，并提供按工作区隔离的线程，无需编写数据库代码。
 
-## How it works
+## 工作原理
 
 ```mermaid
 flowchart LR
     browser["browser"] --> mw["clerkMiddleware<br/>(proxy.ts)"] --> routes["/api/chat<br/>/api/threads/*"] --> auth["auth() returns { userId }"] --> scope["scope queries by userId"]
 ```
 
-Three places Clerk touches the integration:
+Clerk 会在以下三个位置接入集成：
 
-1. **Middleware** runs before every request and sets up the auth context the rest of the app reads.
-2. **API routes** (`/api/chat`, `/api/threads/*`) call `await auth()` from `@clerk/nextjs/server`, return 401 when `userId` is null, then scope DB queries by that id.
-3. **Reload-on-auth** uses `useUser` from `@clerk/nextjs` so the thread list re-fetches when the user signs in.
+1. **中间件**在每个请求之前运行，并设置应用其余部分读取的身份验证上下文。
+2. **API 路由**（`/api/chat`、`/api/threads/*`）从 `@clerk/nextjs/server` 调用 `await auth()`；当 `userId` 为 null 时返回 401，然后使用该 ID 限定数据库查询范围。
+3. **身份验证后重新加载**使用 `@clerk/nextjs` 中的 `useUser`，以便用户登录后重新获取线程列表。
 
-Clerk's `auth()` returns `userId` directly, so the route handler can scope queries without any callback configuration.
+Clerk 的 `auth()` 会直接返回 `userId`，因此路由处理程序无需配置回调即可限定查询范围。
 
-## Setup
+## 设置
 
-This guide assumes you already have Clerk configured in your Next.js app. If not, follow the [Clerk Next.js quickstart](https://clerk.com/docs/quickstarts/nextjs) first; the steps below pick up after `<ClerkProvider>` wraps your root layout and `clerkMiddleware()` is in place.
+本指南假设你已经在 Next.js 应用中配置好了 Clerk。如果还没有，请先按照 [Clerk Next.js 快速入门](https://clerk.com/docs/quickstarts/nextjs) 操作；下面的步骤从 `<ClerkProvider>` 包裹根布局且 `clerkMiddleware()` 已就绪之后开始。
 
 <Steps>
 <Step>
 
-### Gate the chat route
+### 保护聊天路由
 
-Add an `auth()` check to the AI SDK route. Return 401 before calling the model so unauthenticated traffic doesn't burn provider credits.
+在 AI SDK 路由中添加 `auth()` 检查。在调用模型之前返回 401，以避免未通过身份验证的请求消耗提供商额度。
 
 ```ts title="app/api/chat/route.ts"
 import { auth } from "@clerk/nextjs/server";
@@ -55,9 +55,9 @@ export async function POST(req: Request) {
 </Step>
 <Step>
 
-### Scope thread queries by user
+### 按用户限定线程查询范围
 
-If you also use [custom thread persistence](/docs/integrations/persistence/custom-adapter), every thread-list endpoint must filter by `userId`. Without scoping, any signed-in user can list everyone's threads.
+如果你还使用了[自定义线程持久化](/docs/integrations/persistence/custom-adapter)，每个线程列表端点都必须按 `userId` 进行筛选。如果不限定范围，任何已登录用户都可以列出所有人的线程。
 
 ```ts title="app/api/threads/route.ts"
 import { auth } from "@clerk/nextjs/server";
@@ -79,7 +79,7 @@ export async function GET() {
 }
 ```
 
-For organization-scoped threads (Clerk Orgs), pull `orgId` from `auth()` and add it to the where clause. The combination is a stable workspace key:
+对于按组织限定的线程（Clerk Orgs），从 `auth()` 中获取 `orgId`，并将其添加到 where 子句中。两者组合后即可构成稳定的工作区键：
 
 ```ts
 import { and, eq } from "drizzle-orm";
@@ -100,9 +100,9 @@ const rows = await db
 </Step>
 <Step>
 
-### Reload threads after async auth
+### 异步身份验证后重新加载线程
 
-The first render of `<MyProvider>` may run before Clerk resolves the user on the client. Drop a small effect inside `<AssistantRuntimeProvider>` that calls `aui.threads.reload()` once the user is loaded:
+`<MyProvider>` 的首次渲染可能发生在 Clerk 解析客户端用户之前。在 `<AssistantRuntimeProvider>` 中添加一个小型 effect，在用户加载完成后调用 `aui.threads.reload()`：
 
 ```tsx title="app/components/ReloadOnAuth.tsx"
 "use client";
@@ -121,46 +121,46 @@ export function ReloadOnAuth() {
 }
 ```
 
-Mount this component anywhere inside your `<AssistantRuntimeProvider>` subtree (typically next to the runtime's provider in `MyProvider`). `reload()` discards in-flight responses from superseded calls, so it is safe to invoke on every auth transition (sign in, sign out, organization switch).
+将此组件挂载到 `<AssistantRuntimeProvider>` 子树中的任意位置（通常与 `MyProvider` 中运行时的 provider 放在一起）。`reload()` 会丢弃已被后续调用取代的进行中响应，因此可以在每次身份验证状态转换时调用它（登录、登出、切换组织）。
 
 </Step>
 <Step>
 
-### Run and verify
+### 运行并验证
 
-Sign in. Check:
+登录后检查：
 
-- `/api/chat` returns `200` with a streaming response when authenticated; `401` when not.
-- `/api/threads` returns only the current user's threads.
-- Switching users (incognito tab, different account) shows a different thread list.
-- Switching active organization in Clerk's `<OrganizationSwitcher>` triggers a reload (if you wired `orgId` into the where clause).
+- `/api/chat` 在通过身份验证时返回带流式响应的 `200`；未通过身份验证时返回 `401`。
+- `/api/threads` 只返回当前用户的线程。
+- 切换用户（使用隐身标签页或其他账户）后，应显示不同的线程列表。
+- 在 Clerk 的 `<OrganizationSwitcher>` 中切换当前组织会触发重新加载（如果你已将 `orgId` 接入 where 子句）。
 
 </Step>
 </Steps>
 
-## Notes
+## 注意事项
 
-- **Cookies are automatic.** Clerk's session cookie travels with same-origin fetches; no `credentials: "include"` is needed for browser requests to your own API routes.
-- **Server contexts.** `auth()` from `@clerk/nextjs/server` runs in any Next.js server context: server components, route handlers, and server actions. See Clerk's [`auth()` reference](https://clerk.com/docs/references/nextjs/auth) for the supported surfaces.
-- **Cloud users.** If you use AssistantCloud, prefer the [Clerk JWT template integration](/docs/cloud/authorization) over the pattern on this page. Cloud handles workspace assignment and you don't need to build the thread persistence yourself.
-- **B2B with organizations.** Clerk Orgs map cleanly to multi-tenant chat: scope by `orgId` in addition to `userId`, surface Clerk's `<OrganizationSwitcher>` (from `@clerk/nextjs`), and re-fetch threads on org change.
+- **Cookie 会自动处理。** Clerk 的会话 Cookie 会随同源 fetch 请求一起发送；浏览器请求你自己的 API 路由时无需 `credentials: "include"`。
+- **服务端上下文。** `@clerk/nextjs/server` 中的 `auth()` 可在任何 Next.js 服务端上下文中运行：服务端组件、路由处理程序和服务端操作。有关支持的使用场景，请参阅 Clerk 的 [`auth()` 参考](https://clerk.com/docs/references/nextjs/auth) 支持的使用场景。
+- **Cloud 用户。** 如果你使用 AssistantCloud，建议采用 [Clerk JWT 模板集成](/docs/cloud/authorization)，而不是本页面中的模式。Cloud 会处理工作区分配，你无需自行构建线程持久化。
+- **使用组织实现 B2B。** Clerk Orgs 可以很好地映射到多租户聊天：除了 `userId` 外，还应按 `orgId` 限定范围，展示 Clerk 的 `<OrganizationSwitcher>`（来自 `@clerk/nextjs`），并在组织变更时重新获取线程。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
-    title="Custom thread persistence"
-    description="The persistence story this page builds on; required for per-user threads outside AssistantCloud."
+    title="自定义线程持久化"
+    description="本页面所依赖的持久化方案；在 AssistantCloud 之外实现按用户划分的线程时必需。"
     href="/docs/integrations/persistence/custom-adapter"
   />
   <Card
-    title="AssistantCloud authorization"
-    description="The cloud-managed alternative: Clerk JWT template plus workspace scoping, no DB code."
+    title="AssistantCloud 授权"
+    description="由云端管理的替代方案：Clerk JWT 模板加工作区范围控制，无需数据库代码。"
     href="/docs/cloud/authorization"
   />
   <Card
-    title="Threads (concepts)"
-    description="The full RemoteThreadListAdapter contract and reload-on-auth pattern."
+    title="线程（概念）"
+    description="完整的 RemoteThreadListAdapter 合约以及身份验证后重新加载模式。"
     href="/docs/runtimes/concepts/threads"
   />
 </Cards>

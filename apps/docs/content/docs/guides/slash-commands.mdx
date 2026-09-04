@@ -1,27 +1,27 @@
 ---
-title: Slash Commands
-description: Trigger predefined actions in your AI chat by typing / — slash command palette with popover, search, and action handlers in React via assistant-ui.
+title: 斜杠命令
+description: 在 AI 聊天中输入 / 触发预定义操作——通过 assistant-ui 在 React 中实现带弹出层、搜索和操作处理器的斜杠命令面板。
 platforms: ["react"]
 ---
 
-Slash commands let users type `/` in the composer to open a popover, browse available commands, and execute one. Unlike [mentions](/docs/guides/mentions) (which only insert a directive into the message), slash commands additionally fire an **action callback** at the moment of selection.
+斜杠命令允许用户在输入框中输入 `/`，打开弹出层、浏览可用命令并执行其中一个命令。与 [提及](/docs/guides/mentions) 不同，提及只会将指令插入消息，而斜杠命令还会在选中时触发 **操作回调**。
 
-## How It Works
+## 工作原理
 
 ```mermaid
 flowchart LR
     type["User types /"] --> trigger["Trigger detected"] --> adapter["Adapter provides<br/>commands"] --> select["User selects command<br/>from popover"] --> callback["Callback fired"] --> chip["Directive chip left in composer<br/>(or removed if removeOnExecute)"]
 ```
 
-The slash command system is built on the same [trigger popover architecture](#trigger-popover-architecture) as mentions. A slash command declares its behavior with a `<TriggerPopover.Action>` sub-primitive whose `onExecute` callback fires when an item is chosen.
+斜杠命令系统与提及使用相同的[触发器弹出层架构](#trigger-popover-architecture)。斜杠命令通过 `<TriggerPopover.Action>` 子原语声明其行为，其中的 `onExecute` 回调会在选中某个项目时触发。
 
-By default `Action` leaves a directive chip in the composer — giving the user (and the LLM) an audit trail of which commands were invoked. Pass `removeOnExecute` to strip the `/command` text entirely.
+默认情况下，`Action` 会在输入框中保留一个指令标签，让用户（以及 LLM）能够追溯调用过哪些命令。传入 `removeOnExecute` 可完全移除 `/command` 文本。
 
-## Quick Start
+## 快速开始
 
-### 1. Define Commands with `unstable_useSlashCommandAdapter`
+### 1. 使用 `unstable_useSlashCommandAdapter` 定义命令
 
-Declare commands (data + `execute` bundled together, like a toolkit entry). The hook returns `{ adapter, action }` — wire both into a single `<TriggerPopover>`:
+声明命令（将数据与 `execute` 组合在一起，类似工具包条目）。该 Hook 返回 `{ adapter, action }`，将两者连接到同一个 `<TriggerPopover>` 中：
 
 ```tsx
 import {
@@ -85,24 +85,24 @@ function MyComposer() {
 }
 ```
 
-The label defaults to `/${id}`; override via `label` on the command. Icons are strings that your `iconMap` on the picker UI resolves to components (see [ComposerTriggerPopover](/elements/composer-trigger-popover)).
+标签默认为 `/${id}`；可通过命令上的 `label` 覆盖。图标是字符串，选择器 UI 中的 `iconMap` 会将其解析为组件（参见 [ComposerTriggerPopover](/elements/composer-trigger-popover)）。
 
-### `unstable_useSlashCommandAdapter` options
+### `unstable_useSlashCommandAdapter` 选项
 
-| Option | Type | Default | Description |
+| 选项 | 类型 | 默认值 | 描述 |
 | --- | --- | --- | --- |
-| `commands` | `Unstable_SlashCommand[]` | — | Command definitions — each has `id`, optional `label`, `description`, `icon`, and an `execute` callback (required) |
-| `removeOnExecute` | `boolean` | `false` | When `true`, strips the trigger text from the composer after executing instead of leaving a directive chip |
-| `iconMap` | `Record<string, IconComponent>` | — | Maps `metadata.icon` / category `id` strings to React icon components; forwarded to `ComposerTriggerPopover` |
-| `fallbackIcon` | `IconComponent` | — | Fallback when no `iconMap` entry matches; forwarded to `ComposerTriggerPopover` |
+| `commands` | `Unstable_SlashCommand[]` | — | 命令定义——每个定义都包含 `id`，以及可选的 `label`、`description`、`icon` 和一个 `execute` 回调（必需） |
+| `removeOnExecute` | `boolean` | `false` | 当 `true` 时，执行后会从输入框中移除触发文本，而不是留下指令标签 |
+| `iconMap` | `Record<string, IconComponent>` | — | 将 `metadata.icon` / 类别 `id` 字符串映射到 React 图标组件；转发给 `ComposerTriggerPopover` |
+| `fallbackIcon` | `IconComponent` | — | 没有匹配的 `iconMap` 条目时使用的回退项；转发给 `ComposerTriggerPopover` |
 
-The hook returns `{ adapter, action, iconMap?, fallbackIcon? }` — spread directly into `<ComposerTriggerPopover char="/" {...slash} />` for one-line wiring.
+该 Hook 返回 `{ adapter, action, iconMap?, fallbackIcon? }`，可直接展开到 `<ComposerTriggerPopover char="/" {...slash} />` 中，实现单行连接。
 
-### 2. Controlling the Chip
+### 2. 控制标签
 
-By default, a selected `/summarize` is converted into a directive chip (`:command[/summarize]{name=summarize}`) in the composer text and the command's `execute` fires. This keeps an audit trail of which commands were invoked.
+默认情况下，选中的 `/summarize` 会在输入框文本中转换为指令标签（`:command[/summarize]{name=summarize}`），并触发命令的 `execute`。这样可以保留调用过哪些命令的审计记录。
 
-To strip the trigger text entirely — useful for purely transient commands — pass `removeOnExecute` on the hook options:
+如需完全移除触发文本（适用于纯临时命令），请在 Hook 选项中传入 `removeOnExecute`：
 
 ```tsx
 const slash = unstable_useSlashCommandAdapter({
@@ -111,9 +111,9 @@ const slash = unstable_useSlashCommandAdapter({
 });
 ```
 
-### 3. Custom Dispatch
+### 3. 自定义分发
 
-For side effects on top of `execute` (logging, analytics, intercept), wrap the hook's `onExecute`:
+如需在 `execute` 之上添加副作用（日志记录、分析或拦截），可以包装该 Hook 的 `onExecute`：
 
 ```tsx
 <ComposerPrimitive.Unstable_TriggerPopover.Action
@@ -124,9 +124,9 @@ For side effects on top of `execute` (logging, analytics, intercept), wrap the h
 />
 ```
 
-## Categorized Commands
+## 分类命令
 
-For **categorized navigation** (drill-down into groups), return categories from `categories()` and items from `categoryItems()`. The popover shows categories first, then items within the selected category:
+对于**分类导航**（深入浏览各个分组），请从 `categories()` 返回类别，并从 `categoryItems()` 返回项目。弹出层会先显示类别，再显示所选类别中的项目：
 
 ```ts
 import type { Unstable_TriggerAdapter } from "@assistant-ui/core";
@@ -166,7 +166,7 @@ const adapter: Unstable_TriggerAdapter = {
 };
 ```
 
-When using a categorized adapter, add `TriggerPopoverCategories` to your popover UI:
+使用分类适配器时，请将 `TriggerPopoverCategories` 添加到弹出层 UI：
 
 ```tsx
 const commandHandlers: Record<string, () => void> = {
@@ -200,9 +200,9 @@ const commandHandlers: Record<string, () => void> = {
 </ComposerPrimitive.Unstable_TriggerPopover>
 ```
 
-## Combining with Mentions
+## 与提及结合使用
 
-Slash commands and mentions live under the same `TriggerPopoverRoot`. Declare one `TriggerPopover` per trigger — each with its own behavior sub-primitive:
+斜杠命令和提及位于同一个 `TriggerPopoverRoot` 下。请为每个触发器声明一个 `TriggerPopover`，并为其配置各自的行为子原语：
 
 ```tsx
 <ComposerPrimitive.Unstable_TriggerPopoverRoot>
@@ -243,11 +243,11 @@ Slash commands and mentions live under the same `TriggerPopoverRoot`. Declare on
 </ComposerPrimitive.Unstable_TriggerPopoverRoot>
 ```
 
-Each `TriggerPopover` is its own scope — the `@` popover and the `/` popover read state from their own declaration and never collide. Keyboard events route to whichever popover is currently active.
+每个 `TriggerPopover` 都有自己的作用域——`@` 弹出层和 `/` 弹出层会读取各自声明中的状态，彼此不会冲突。键盘事件会路由到当前处于活动状态的弹出层。
 
-## Commands with Arguments
+## 带参数的命令
 
-Some commands accept inline arguments typed after the command word — for example `/translate en` or `/ask what is TypeScript`. Because the adapter's `search` method receives the full text after `/`, you can split on the first space to separate the command from its arguments:
+某些命令支持在命令词后输入内联参数，例如 `/translate en` 或 `/ask what is TypeScript`。由于适配器的 `search` 方法会接收 `/` 之后的完整文本，因此可以按第一个空格进行拆分，将命令与参数分开：
 
 ```tsx
 const SLASH_COMMANDS: readonly Unstable_SlashCommand[] = [
@@ -302,13 +302,13 @@ function MyComposer() {
 }
 ```
 
-`removeOnExecute: true` strips the `/translate en` text from the composer so the argument is consumed by the handler rather than sent to the LLM.
+`removeOnExecute: true` 会从输入框中移除 `/translate en` 文本，使参数由处理器消费，而不是发送给 LLM。
 
-## Async Command Loading
+## 异步加载命令
 
-The adapter interface is synchronous, but the command list can come from any async source. Load commands into state (or a query cache) and pass the current snapshot to the hook. Because `unstable_useSlashCommandAdapter` re-runs on every render, the adapter always reflects the latest list.
+适配器接口是同步的，但命令列表可以来自任何异步源。将命令加载到状态（或查询缓存）中，并将当前快照传递给 Hook。由于 `unstable_useSlashCommandAdapter` 会在每次渲染时重新运行，适配器始终反映最新列表。
 
-**With React state:**
+**使用 React 状态：**
 
 ```tsx
 function MyComposer() {
@@ -324,7 +324,7 @@ function MyComposer() {
 }
 ```
 
-**With React Query:**
+**使用 React Query：**
 
 ```tsx
 function MyComposer() {
@@ -339,20 +339,20 @@ function MyComposer() {
 }
 ```
 
-## Keyboard Navigation
+## 键盘导航
 
-See [ComposerTriggerPopover keyboard navigation](/elements/composer-trigger-popover#keyboard-navigation) for the full key bindings table.
+完整的按键绑定表请参阅 [ComposerTriggerPopover 键盘导航](/elements/composer-trigger-popover#keyboard-navigation)。
 
-## Trigger Popover Architecture
+## 触发器弹出层架构
 
-Both mentions and slash commands are built on a generic trigger popover system where each `Unstable_TriggerPopover` declares one trigger character, an adapter, and exactly one behavior sub-primitive (`Directive` or `Action`). Multiple triggers coexist under a single `Unstable_TriggerPopoverRoot`. See the [Composer Primitives](/docs/primitives/composer) reference for the complete API.
+提及和斜杠命令都构建在通用的触发器弹出层系统之上。在该系统中，每个 `Unstable_TriggerPopover` 都会声明一个触发字符、一个适配器，以及且仅有一个行为子原语（`Directive` 或 `Action`）。多个触发器可以共存于同一个 `Unstable_TriggerPopoverRoot` 下。完整 API 请参阅 [输入框原语](/docs/primitives/composer)参考。
 
-## Primitives Reference
+## 原语参考
 
-See the [Composer Primitives](/docs/primitives/composer) reference for the full list of trigger popover primitives and their props.
+完整的触发器弹出层原语及其 props 列表请参阅[输入框原语](/docs/primitives/composer)参考。
 
-## Related
+## 相关内容
 
-- [Mentions Guide](/docs/guides/mentions) — `@`-mention system built on the same architecture
-- [Suggestions Guide](/docs/guides/suggestions) — static follow-up prompts (different from slash commands)
-- [Composer Primitives](/docs/primitives/composer) — underlying composer primitives
+- [提及指南](/docs/guides/mentions) — 基于相同架构构建的 `@`-mention 系统
+- [建议指南](/docs/guides/suggestions) — 静态后续提示（不同于斜杠命令）
+- [输入框原语](/docs/primitives/composer) — 底层输入框原语

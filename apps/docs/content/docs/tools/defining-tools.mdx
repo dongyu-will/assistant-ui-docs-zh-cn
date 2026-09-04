@@ -1,43 +1,39 @@
 ---
-title: Defining Tools
-description: Define tools for your AI chat with assistant-ui toolkits and the "use generative" directive — frontend, backend, human, and provider tools with type safety and streaming.
+title: 定义工具
+description: 使用 assistant-ui 工具包和 “use generative” 指令为 AI 聊天定义工具——包括类型安全和流式传输支持的前端、后端、人工和 provider 工具。
 platforms: ["react"]
 ---
 
-Tools let the model take actions: fetch data, call an API, query a database, drive your UI, or run a workflow. In assistant-ui you declare tools in a **toolkit** — a named map where each key is the tool name the model sees and each value describes the tool's schema, where it runs, and how its call renders.
+工具可以让模型执行操作：获取数据、调用 API、查询数据库、驱动 UI 或运行工作流。在 assistant-ui 中，你可以在一个**工具包**（toolkit）中声明工具——这是一个带名称的映射，其中每个键都是模型看到的工具名称，每个值则描述工具的 schema、运行位置以及工具调用的渲染方式。
 
-This page covers how to **author** tools. To render a tool call as a custom component, see [Tool UI](/docs/tools/tool-ui). To wire tools into your server, see [Backend tools](/docs/tools/backend).
+本页面介绍如何**编写**工具。要将工具调用渲染为自定义组件，请参阅 [Tool UI](/docs/tools/tool-ui)。要将工具接入服务器，请参阅[后端工具](/docs/tools/backend)。
 
-## Define tools with `"use generative"`
+## 使用 `"use generative"` 定义工具
 
-Use `"use generative"` + `defineToolkit` for toolkits. The compiler co-locates
-the schema, executor, and renderer in one file and splits them across the
-client/server boundary for you.
+使用 `"use generative"` + `defineToolkit` 创建工具包。编译器会将 schema、执行器和渲染器放在同一个文件中，并自动将它们拆分到客户端/服务器边界两侧。
 
 <Callout type="info">
-  You can still use the generative toolkit pattern when a tool executes
-  elsewhere:
+  当工具在其他位置执行时，你仍然可以使用生成式工具包模式：
 
-  - for MCP servers, spread `defineMcpToolkit({ ... })`;
-  - for non-MCP tools defined by another backend or runtime, write
-    `execute: externalTool()` and provide a renderer.
+  - 对于 MCP 服务器，展开 `defineMcpToolkit({ ... })`；
+  - 对于由其他后端或运行时定义的非 MCP 工具，编写
+    `execute: externalTool()` 并提供渲染器。
 </Callout>
 
-In a `"use generative"` file every tool declares an `execute`, and you never
-write `type` yourself — the compiler infers it. For render-only external tools,
-`externalTool()` is the escape hatch that satisfies the compiler without
-emitting schema or executable code on the server.
+在 `"use generative"` 文件中，每个工具都必须声明 `execute`，你无需手动编写
+`type`——编译器会自动推断。对于仅用于渲染的外部工具，
+`externalTool()` 是一个逃生口：它可以满足编译器要求，同时不会在服务器上生成 schema 或可执行代码。
 
-## Quick start (`"use generative"`)
+## 快速开始（`"use generative"`）
 
-A `"use generative"` file is a single module that holds a tool's schema, its executor, and its renderer together. A build plugin splits it into a server build (schema + backend executors) and a client build (schema + renderers + browser executors), so a backend `execute` never reaches the browser and a `render` never reaches your server.
+`"use generative"` 文件是一个单独的模块，其中同时包含工具的 schema、执行器和渲染器。构建插件会将其拆分为服务器构建（schema + 后端执行器）和客户端构建（schema + 渲染器 + 浏览器执行器），因此后端 `execute` 不会进入浏览器，`render` 也不会进入服务器。
 
 <Steps>
 <Step>
 
-### Add the build plugin
+### 添加构建插件
 
-The directive does nothing without a compiler. Wrap your Next.js config with `withAui`:
+没有编译器时，该指令不会执行任何操作。使用 `withAui` 包装你的 Next.js 配置：
 
 ```ts title="next.config.ts"
 import { withAui } from "@assistant-ui/next";
@@ -47,7 +43,7 @@ export default withAui({
 });
 ```
 
-For Vite / TanStack Start, add the `aui()` plugin instead:
+对于 Vite / TanStack Start，请改为添加 `aui()` 插件：
 
 ```ts title="vite.config.ts"
 import { aui } from "@assistant-ui/vite";
@@ -57,7 +53,7 @@ export default defineConfig({
 });
 ```
 
-For Expo, wrap your Metro config with `withAui`:
+对于 Expo，请使用 `withAui` 包装你的 Metro 配置：
 
 ```js title="metro.config.js"
 const { getDefaultConfig } = require("expo/metro-config");
@@ -66,14 +62,14 @@ const { withAui } = require("@assistant-ui/metro");
 module.exports = withAui(getDefaultConfig(__dirname));
 ```
 
-For a bare React Native app, import `getDefaultConfig` from `@react-native/metro-config` instead of `expo/metro-config`.
+对于裸 React Native 应用，请从 `@react-native/metro-config` 导入 `getDefaultConfig`，而不是导入 `expo/metro-config`。
 
 </Step>
 <Step>
 
-### Write the toolkit
+### 编写工具包
 
-The file's first line is `"use generative"`, and its default export is `defineToolkit({ ... })`. Each tool is an inline object literal with a `parameters` schema, an `execute`, and a `render` (or `renderText`):
+文件的第一行是 `"use generative"`，默认导出为 `defineToolkit({ ... })`。每个工具都是一个内联对象字面量，包含 `parameters` schema、`execute`，以及 `render`（或 `renderText`）：
 
 ```tsx title="app/toolkit.tsx"
 "use generative";
@@ -108,14 +104,14 @@ export default defineToolkit({
 });
 ```
 
-The inner `"use client"` inside `execute` marks this as a **frontend** tool — its executor runs in the browser. (Omit it to run on the server; see [Tool kinds](#tool-kinds).)
+`execute` 内部的 `"use client"` 表示这是一个**前端**工具——其执行器会在浏览器中运行。（省略它即可让工具在服务器上运行；请参阅[工具类型](#tool-kinds)。）
 
 </Step>
 <Step>
 
-### Register the toolkit
+### 注册工具包
 
-Import the toolkit in your runtime provider and pass it to `config` via `Tools`:
+在运行时 provider 中导入工具包，并通过 `Tools` 将其传递给 `config`：
 
 ```tsx title="app/MyRuntimeProvider.tsx"
 "use client";
@@ -138,14 +134,14 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-`useChatRuntime()` targets `/api/chat` by default. To point at a different endpoint or customize requests, see [Custom transport](/docs/runtimes/ai-sdk/v7#custom-transport).
+`useChatRuntime()` 默认指向 `/api/chat`。如需指向其他端点或自定义请求，请参阅[自定义传输](/docs/runtimes/ai-sdk/v7#custom-transport)。
 
 </Step>
 <Step>
 
-### Expose the toolkit to the model on your server
+### 在服务器上向模型公开工具包
 
-The same import resolves to the **server build** inside a route handler. Wrap it in an `AISDKToolkit` so the model is configured with every tool's schema:
+在路由处理器中，同一个导入会解析为**服务器构建**。将它包装在 `AISDKToolkit` 中，使模型配置拥有每个工具的 schema：
 
 ```ts title="app/api/chat/route.ts"
 import { AISDKToolkit } from "@assistant-ui/ai-sdk";
@@ -168,35 +164,35 @@ export async function POST(req: Request) {
 }
 ```
 
-See [Backend tools](/docs/tools/backend) for the full server setup.
+完整的服务器设置请参阅[后端工具](/docs/tools/backend)。
 
 </Step>
 </Steps>
 
-## How the compiler splits a generative file
+## 编译器如何拆分生成式文件
 
-You author one file; the plugin forks it per build target. The schema (`description` + `parameters`) is kept on **both** builds, so the model contract is identical and authoritative on the backend. The client marks its frontend/human schemas as backend-known and skips re-uploading them.
+你只需编写一个文件；插件会根据构建目标为其创建不同副本。schema（`description` + `parameters`）会保留在**两个**构建中，因此模型契约保持一致，并以后端上的 schema 为权威版本。客户端会将其前端/人工 schema 标记为后端已知，从而跳过重复上传。
 
-The tool's **kind is inferred from its `execute`** and written back as a `type` field — you never author `type` in a `"use generative"` file:
+工具的**类型会根据其 `execute` 推断**，并写回为 `type` 字段——在 `"use generative"` 文件中，你无需编写 `type`：
 
-| `execute` you write | Inferred kind | Server build keeps | Client build keeps |
+| 你编写的 `execute` | 推断出的类型 | 服务器构建保留 | 客户端构建保留 |
 | --- | --- | --- | --- |
-| plain `async () => …` | **backend** | schema + `execute` (guarded `server-only`) | schema + `render` |
-| `async () => { "use client"; … }` | **frontend** | schema only | schema + `execute` + `render`/`renderText` |
-| `humanTool()` | **human** | schema only | schema + `render` |
-| `stubTool()` | **frontend** (executor supplied at runtime) | schema only | schema + `render`/`renderText` |
-| `providerTool({ … })` | **provider** | schema + provider config | schema + provider config |
-| `externalTool()` | **backend** (defined elsewhere) | omitted | `type: "backend"` + `render`/`renderText` |
+| 普通 `async () => …` | **后端** | schema + `execute`（受 `server-only` 保护） | schema + `render` |
+| `async () => { "use client"; … }` | **前端** | 仅 schema | schema + `execute` + `render`/`renderText` |
+| `humanTool()` | **人工** | 仅 schema | schema + `render` |
+| `stubTool()` | **前端**（运行时提供执行器） | 仅 schema | schema + `render`/`renderText` |
+| `providerTool({ … })` | **provider** | schema + provider 配置 | schema + provider 配置 |
+| `externalTool()` | **后端**（在其他位置定义） | 省略 | `type: "backend"` + `render`/`renderText` |
 
-The compiler also enforces, at build time:
+编译器还会在构建时强制执行以下规则：
 
-- every tool declares an `execute`;
-- a **frontend** tool declares a `render` or `renderText`;
-- a **human** tool declares a `render`.
+- 每个工具都必须声明 `execute`；
+- **前端**工具必须声明 `render` 或 `renderText`；
+- **人工**工具必须声明 `render`。
 
-### Running without your own backend
+### 不运行自己的后端
 
-The client build skips uploading frontend/human schemas because it assumes your backend imported the same file's server build and already knows them. When no server of yours does — for example, cloud-hosted runs — that assumption breaks and the model never learns about those tools. Compile with the `backendless` option so the client keeps every schema uploadable, including the `present`/`prompt_user` schema of a `JSONGenerativeUI` component library:
+客户端构建会跳过前端/人工 schema 的上传，因为它假设你的后端已经导入同一文件的服务器构建，并且已经知道这些 schema。当不存在你自己的服务器时——例如使用云托管运行时——这一假设就会失效，模型也永远不会了解这些工具。使用 `backendless` 选项进行编译，使客户端保留所有可上传的 schema，包括 `JSONGenerativeUI` 组件库的 `present`/`prompt_user` schema：
 
 ```ts title="next.config.ts"
 export default withAui({ ...yourConfig, aui: { backendless: true } });
@@ -213,11 +209,11 @@ module.exports = withAui({
 });
 ```
 
-## Tool kinds
+## 工具类型
 
-### Backend tools
+### 后端工具
 
-Run on your server. Author a plain `execute` (no `"use client"`); the compiler moves it to the server build behind `import "server-only"` and keeps only the schema and `render` on the client. A backend tool can still carry a `render` to show its call as a trace:
+在服务器上运行。编写普通的 `execute`（不包含 `"use client"`）；编译器会将其移到服务器构建中，并置于 `import "server-only"` 之后，同时只在客户端保留 schema 和 `render`。后端工具仍然可以携带 `render`，以便将其调用显示为跟踪信息：
 
 ```tsx
 geocode_location: {
@@ -229,15 +225,12 @@ geocode_location: {
 ```
 
 <Callout type="tip">
-  A backend tool authored this way **has** an `execute`. To attach a renderer to
-  a tool whose execution lives entirely elsewhere (an MCP server, a different
-  backend route) — where there is no real executor to write — use
-  `externalTool()` or `defineMcpToolkit()`.
+  以这种方式编写的后端工具**具有** `execute`。如果要为执行完全位于其他位置的工具（例如 MCP 服务器或其他后端路由）附加渲染器——此时没有可供编写的真实执行器——请使用 `externalTool()` 或 `defineMcpToolkit()`。
 </Callout>
 
-### Frontend tools
+### 前端工具
 
-Run in the browser. Author a real `execute` with a leading `"use client"`:
+在浏览器中运行。使用带有前置 `"use client"` 的真实 `execute`：
 
 ```tsx
 copy_to_clipboard: {
@@ -255,9 +248,9 @@ copy_to_clipboard: {
 },
 ```
 
-### Human tools
+### 人工工具
 
-Pause the run until the user supplies a result through the rendered UI. Author `execute: humanTool()` and a `render` that calls `addResult` exactly once:
+暂停运行，直到用户通过渲染后的 UI 提供结果。编写 `execute: humanTool()`，以及一个只调用 `addResult` 一次的 `render`：
 
 ```tsx
 select_date: {
@@ -276,11 +269,11 @@ select_date: {
 },
 ```
 
-`humanTool` is imported from `@assistant-ui/react`. See [Tool UI → Human-in-the-loop](/docs/tools/tool-ui#user-input-collection) for the full pattern.
+`humanTool` 从 `@assistant-ui/react` 导入。完整模式请参阅 [Tool UI → 人在回路](/docs/tools/tool-ui#user-input-collection)。
 
-### Provider tools
+### Provider 工具
 
-Executed by the model provider (e.g. OpenAI web search). Author `execute: providerTool({ … })`; the compiler lifts the config onto the tool entry:
+由模型 provider 执行（例如 OpenAI 网络搜索）。编写 `execute: providerTool({ … })`；编译器会将该配置提升到工具条目上：
 
 ```tsx
 web_search: {
@@ -291,12 +284,9 @@ web_search: {
 },
 ```
 
-### Externally defined tools
+### 外部定义的工具
 
-Use `externalTool()` when a non-MCP tool is already defined and executed by
-another system (for example a separate backend route or LangGraph node), but you
-want assistant-ui to render its tool calls. Import `externalTool` from
-`@assistant-ui/react`:
+当非 MCP 工具已经由其他系统定义并执行（例如独立的后端路由或 LangGraph 节点），但你希望 assistant-ui 渲染其工具调用时，请使用 `externalTool()`。从 `@assistant-ui/react` 导入 `externalTool`：
 
 ```tsx
 web_search: {
@@ -308,14 +298,11 @@ web_search: {
 },
 ```
 
-The compiler omits this entry from the server build, so the model still gets
-the tool definition from the external system. The client build keeps only
-`type: "backend"` and the renderer (or `renderText`) for matching tool-call
-message parts.
+编译器会从服务器构建中省略此条目，因此模型仍会从外部系统获取工具定义。客户端构建只保留 `type: "backend"`，以及用于匹配工具调用消息部分的渲染器（或 `renderText`）。
 
-### Tool stubs (supply the executor elsewhere)
+### 工具存根（在其他位置提供执行器）
 
-Sometimes a tool's executor can't live in the build-split `"use generative"` file, usually because it has to close over React state (a `useState` setter, a ref). Declare the model-facing contract with `execute: stubTool()`, then supply the real executor at runtime with `useAuiToolOverrides` from the component that owns the state:
+有时工具的执行器无法放在拆分构建的 `"use generative"` 文件中，通常是因为它需要捕获 React 状态（例如 `useState` setter 或 ref）。使用 `execute: stubTool()` 声明面向模型的契约，然后在拥有该状态的组件中，使用 `useAuiToolOverrides` 在运行时提供真实执行器：
 
 ```tsx title="app/toolkit.tsx"
 "use generative";
@@ -348,15 +335,15 @@ function TaskBoardToolOverrides({ setTasks }) {
 }
 ```
 
-`stubTool()` has no runtime implementation: it marks the executor as supplied later, while the compiler still ships the schema to the backend so the model can call the tool. The override registers above the toolkit default, so its `execute` wins for that name. To turn a tool off at runtime instead, see [Disabling a tool](#disabling-a-tool). See [Dynamic tools](/docs/tools/dynamic-tools) for the full walkthrough.
+`stubTool()` 没有运行时实现：它表示执行器将在之后提供，同时编译器仍会将 schema 发布到后端，以便模型可以调用该工具。此覆盖项的注册优先级高于工具包默认值，因此对于该名称，`execute` 会生效。如需在运行时关闭工具，请参阅[禁用工具](#disabling-a-tool)。完整流程请参阅[动态工具](/docs/tools/dynamic-tools)。
 
 <Callout type="warn">
-  `useAuiToolOverrides` is experimental and its API may change.
+  `useAuiToolOverrides` 目前处于实验阶段，其 API 可能会发生变化。
 </Callout>
 
-## Rendering a tool call
+## 渲染工具调用
 
-`render` receives the live `args`, `result`, and `status` of the call and returns a React node. For a one-line status instead of a component, use `renderText` with a `running` and/or `complete` value (each a string or an `({ args, result }) => …` function):
+`render` 会接收调用实时的 `args`、`result` 和 `status`，并返回一个 React 节点。如果不使用组件，而是要显示单行状态，请使用 `renderText`，并传入 `running` 和/或 `complete` 值（每个值可以是字符串或 `({ args, result }) => …` 函数）：
 
 ```tsx
 renderText: {
@@ -365,14 +352,11 @@ renderText: {
 },
 ```
 
-If you don't provide a renderer, add the [`ToolFallback`](/elements/tool-fallback) component to render a default tool card. The full rendering API — status states, streaming args, deferred rendering, approvals — is covered in [Tool UI](/docs/tools/tool-ui).
+如果没有提供渲染器，请添加 [`ToolFallback`](/elements/tool-fallback) 组件来渲染默认工具卡片。完整的渲染 API——包括状态、流式参数、延迟渲染和审批——请参阅 [Tool UI](/docs/tools/tool-ui)。
 
-## Render-only tools (for externally-executed tools)
+## 仅用于渲染的工具（用于外部执行的工具）
 
-Prefer `"use generative"` with `externalTool()` for non-MCP tools, or
-`defineMcpToolkit()` for MCP servers. If a file cannot go through the generative
-compiler, declare a `"use client"` toolkit object with an explicit
-`type: "backend"` and only a `render`:
+对于非 MCP 工具，优先使用带有 `externalTool()` 的 `"use generative"`；对于 MCP 服务器，则使用 `defineMcpToolkit()`。如果文件无法通过生成式编译器处理，请声明一个 `"use client"` 工具包对象，显式指定 `type: "backend"`，并且只提供 `render`：
 
 ```tsx title="app/tool-ui.tsx"
 "use client";
@@ -389,19 +373,19 @@ export const toolkit = defineToolkit({
 });
 ```
 
-Register it exactly like a generative toolkit: hoist `const config = AuiConfig({ tools: Tools({ toolkit }) })` in the component body and pass `config={config}`. The key must match the tool name your backend or MCP server publishes. Render-only entries upload no schema and run no browser code — they only attach UI to matching tool-call message parts.
+注册方式与生成式工具包完全相同：在组件主体中提升 `const config = AuiConfig({ tools: Tools({ toolkit }) })`，并传入 `config={config}`。键必须与后端或 MCP 服务器发布的工具名称一致。仅用于渲染的条目不会上传 schema，也不会运行浏览器代码——它们只会为匹配的工具调用消息部分附加 UI。
 
 <Callout type="warn">
-  This `{ type: "backend", render }` shape is **plain-toolkit only**. Inside a
-  `"use generative"` file, use `execute: externalTool()` instead; generative
-  tools must declare an `execute`, and you never author `type` there.
+  这种 `{ type: "backend", render }` 形状**仅适用于普通工具包**。在
+  `"use generative"` 文件中，请改用 `execute: externalTool()`；生成式
+  工具必须声明 `execute`，并且不能在其中编写 `type`。
 </Callout>
 
-## Organizing toolkits
+## 组织工具包
 
-### Keep schemas in a separate module
+### 将 schema 保存在单独的模块中
 
-Importing your Zod schemas (and the `z.infer` arg types) from a plain `.ts` file keeps them out of the compiled boundary and lets your route handler and components share the same types:
+从普通的 `.ts` 文件导入 Zod schema（以及 `z.infer` 参数类型），可以将它们排除在编译边界之外，并让路由处理器和组件共享相同的类型：
 
 ```ts title="app/tools/schemas.ts"
 import { z } from "zod";
@@ -410,9 +394,9 @@ export const getWeatherParameters = z.object({ location: z.string() });
 export type GetWeatherArgs = z.infer<typeof getWeatherParameters>;
 ```
 
-### Split tools across files and merge them
+### 跨文件拆分并合并工具
 
-Each file you split into is its own `"use generative"` module that default-exports a `defineToolkit(...)`:
+拆分出的每个文件都是独立的 `"use generative"` 模块，并默认导出一个 `defineToolkit(...)`：
 
 ```tsx title="app/tools/weather.tsx"
 "use generative";
@@ -426,7 +410,7 @@ export default defineToolkit({
 });
 ```
 
-Merge them by spreading their default imports into a parent toolkit:
+将这些默认导入展开到父工具包中，即可合并它们：
 
 ```tsx title="app/toolkit.tsx"
 "use generative";
@@ -441,23 +425,18 @@ export default defineToolkit({
 });
 ```
 
-The compiler splits each file across the client/server boundary on its own, then checks that the spread import resolves to a `"use generative"` module before allowing it, so a backend `execute` can't leak to the client. Two rules follow:
+编译器会自行将每个文件拆分到客户端/服务器边界两侧，然后检查展开导入是否解析为 `"use generative"` 模块，确认无误后才允许使用。因此，后端 `execute` 不会泄漏到客户端。由此有以下两条规则：
 
-- **Spread a default import** (`import weatherTools from "./tools/weather"`). Relative paths and `tsconfig` path aliases like `@/tools/weather` both resolve. Only the default export crosses the generative-module boundary, so a named import (or any opaque, non-generative import) is rejected.
-- You can also spread a local `defineToolkit(...)` or `defineMcpToolkit(...)` binding declared in the same file.
+- **展开默认导入**（`import weatherTools from "./tools/weather"`）。相对路径和类似 `@/tools/weather` 的 `tsconfig` 路径别名都可以解析。只有默认导出会跨越生成式模块边界，因此命名导入（或任何不透明的非生成式导入）都会被拒绝。
+- 也可以展开在同一文件中声明的本地 `defineToolkit(...)` 或 `defineMcpToolkit(...)` 绑定。
 
-The compiler checks static tool names across inline entries and compiler-visible
-spreads. If two fragments define the same tool name, the build warns that
-JavaScript object spread will keep the later tool definition.
+编译器会检查内联条目和编译器可见展开项中的静态工具名称。如果两个片段定义了相同的工具名称，构建会发出警告，指出 JavaScript 对象展开会保留后出现的工具定义。
 
-If the compiler reports that `tool "weather" cannot be makeTool()`, that entry
-came from an opaque factory call. Rewrite it as an inline tool object, or spread
-a compiler-visible `defineToolkit(...)` / `defineMcpToolkit(...)` fragment
-instead.
+如果编译器报告 `tool "weather" cannot be makeTool()`，说明该条目来自不透明的工厂调用。请将其重写为内联工具对象，或改为展开编译器可见的 `defineToolkit(...)` / `defineMcpToolkit(...)` 片段。
 
-### Add MCP server tools
+### 添加 MCP 服务器工具
 
-`defineMcpToolkit` exposes tools from an MCP server. For an MCP-only toolkit, export it directly:
+`defineMcpToolkit` 会公开 MCP 服务器提供的工具。对于仅包含 MCP 工具的工具包，直接导出它：
 
 ```tsx title="app/mcp-toolkit.tsx"
 "use generative";
@@ -469,7 +448,7 @@ export default defineMcpToolkit({
 });
 ```
 
-To expose MCP tools alongside your own, spread it into a `defineToolkit`:
+要将 MCP 工具与自有工具一起公开，请将其展开到 `defineToolkit` 中：
 
 ```tsx
 "use generative";
@@ -484,17 +463,15 @@ export default defineToolkit({
 });
 ```
 
-When two MCP servers expose the same tool name, use `{ server, prefix }` on an
-entry so the model sees distinct names such as `docs_search` and
-`github_search`.
+当两个 MCP 服务器公开了相同的工具名称时，请在条目上使用 `{ server, prefix }`，这样模型就能看到不同的名称，例如 `docs_search` 和 `github_search`。
 
-See [MCP](/docs/tools/mcp) for the full server-side and user-managed MCP flows.
+完整的服务器端和用户管理 MCP 流程请参阅 [MCP](/docs/tools/mcp)。
 
-## Advanced
+## 高级用法
 
-### Multi-modal tool results
+### 多模态工具结果
 
-By default a tool's `execute` result is sent to the model as a JSON blob. When the useful output is a file or image, add `toModelOutput` to project the result into the multi-modal content the model sees — your `render` still receives the rich, typed `result`:
+默认情况下，工具的 `execute` 结果会以 JSON blob 的形式发送给模型。当有用的输出是文件或图像时，请添加 `toModelOutput`，将结果投影到模型可见的多模态内容中——你的 `render` 仍然会接收类型丰富的 `result`：
 
 ```tsx
 read_pdf: {
@@ -511,11 +488,11 @@ read_pdf: {
 },
 ```
 
-`ToolModelContentPart` is a union of `{ type: "text"; text }` and `{ type: "file"; data; mediaType; filename? }`. With the AI SDK runtime, also pass the tool registry to `convertToModelMessages` so `toModelOutput` fires on round-tripped results — see [Backend tools](/docs/tools/backend#multi-modal-results).
+`ToolModelContentPart` 是 `{ type: "text"; text }` 和 `{ type: "file"; data; mediaType; filename? }` 的联合类型。使用 AI SDK 运行时时，还要将工具注册表传递给 `convertToModelMessages`，这样 `toModelOutput` 才会在往返传输的结果上触发——请参阅[后端工具](/docs/tools/backend#multi-modal-results)。
 
-### Per-tool provider options
+### 每个工具的 Provider 选项
 
-Every tool accepts a `providerOptions` field. assistant-ui serializes it verbatim under the tool entry; the AI SDK route forwards it; the provider SDK reads the keys it cares about. This is how you opt into provider-specific behaviors (such as Anthropic's progressive tool disclosure) without provider-aware code:
+每个工具都接受 `providerOptions` 字段。assistant-ui 会将其原样序列化到工具条目下；AI SDK 路由会转发它；provider SDK 会读取其关注的键。通过这种方式，你可以启用 provider 特有的行为（例如 Anthropic 的渐进式工具披露），而无需编写了解 provider 的代码：
 
 ```tsx
 search_docs: {
@@ -530,11 +507,11 @@ search_docs: {
 },
 ```
 
-The outer key is the provider name; the inner object is whatever that provider's AI SDK package expects under `tool.providerOptions[provider]`.
+外层键是 provider 名称；内层对象则是相应 provider 的 AI SDK 包在 `tool.providerOptions[provider]` 下所期望的内容。
 
-### Cancellation
+### 取消
 
-`execute` receives a context object whose `abortSignal` fires when the user stops the run. Pass it to any async I/O so the work stops immediately:
+`execute` 会接收一个上下文对象，其中的 `abortSignal` 会在用户停止运行时触发。将其传递给任何异步 I/O，使工作立即停止：
 
 ```tsx
 execute: async ({ query }, { abortSignal }) => {
@@ -544,17 +521,17 @@ execute: async ({ query }, { abortSignal }) => {
 },
 ```
 
-The context also carries `toolCallId` and a `human()` function for requesting input mid-execution.
+该上下文还包含 `toolCallId` 和一个 `human()` 函数，可用于在执行过程中请求输入。
 
-### Streaming arguments
+### 流式参数
 
-While a tool runs, its arguments arrive as partial JSON. Use [`useToolArgsStatus`](/docs/tools/tool-ui#field-level-streaming-state) inside a renderer to react to each field as it streams in.
+工具运行期间，其参数会以不完整的 JSON 形式到达。在渲染器中使用 [`useToolArgsStatus`](/docs/tools/tool-ui#field-level-streaming-state)，即可在每个字段流式传入时做出响应。
 
-### Disabling a tool
+### 禁用工具
 
-Set `disabled: true` to keep a tool known to the client but hidden from the model in the current scope.
+设置 `disabled: true`，即可让客户端知道某个工具，但在当前作用域中对模型隐藏该工具。
 
-To toggle a tool off at runtime without editing the toolkit, register the same flag through `useAuiToolOverrides`:
+如需在不编辑工具包的情况下于运行时切换工具状态，请通过 `useAuiToolOverrides` 注册相同的标志：
 
 ```tsx
 import { useAuiToolOverrides } from "@assistant-ui/react";
@@ -567,8 +544,8 @@ function GuestModeTools() {
 }
 ```
 
-The override registers above the toolkit default, so the tool drops out of the set sent to the model. Mount the override only while the tool should be hidden (for example, for signed-out users); unmounting it restores the toolkit default.
+该覆盖项的注册优先级高于工具包默认值，因此该工具会从发送给模型的工具集合中移除。仅在工具应被隐藏期间挂载覆盖项（例如对未登录用户隐藏工具）；卸载覆盖项后，会恢复工具包默认值。
 
-## Migrating from the component APIs
+## 从组件 API 迁移
 
-`makeAssistantTool`, `useAssistantTool`, `makeAssistantToolUI`, and `useAssistantToolUI` are deprecated. See [Migrating Tools to Toolkits](/docs/migrations/toolkit-tools) for the mechanical migration.
+`makeAssistantTool`、`useAssistantTool`、`makeAssistantToolUI` 和 `useAssistantToolUI` 已弃用。有关机械式迁移，请参阅[将工具迁移到工具包](/docs/migrations/toolkit-tools)。

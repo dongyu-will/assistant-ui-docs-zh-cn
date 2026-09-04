@@ -1,21 +1,21 @@
 ---
 title: ExternalStoreRuntime
-description: Bring your own redux, zustand, or state manager.
+description: 使用你自己的 redux、zustand 或状态管理器。
 ---
 
-`ExternalStoreRuntime` bridges your existing state management with assistant-ui. You provide messages and callbacks; the runtime renders whatever you give it. UI features turn on based on which callbacks are present.
+`ExternalStoreRuntime` 将现有的状态管理与 assistant-ui 连接起来。你提供消息和回调；运行时会渲染你提供的内容。UI 功能会根据存在的回调启用。
 
-## When to use it
+## 适用场景
 
-Pick `ExternalStoreRuntime` when:
+在以下情况下选择 `ExternalStoreRuntime`：
 
-- You already keep messages in redux, zustand, tanstack-query, or another store, and want to keep them there.
-- You want full control over message state, persistence, and synchronization.
-- You have a custom message format and need automatic conversion to assistant-ui's format.
+- 你已经将消息保存在 redux、zustand、tanstack-query 或其他存储中，并希望继续保存在那里。
+- 你希望完全控制消息状态、持久化和同步。
+- 你使用自定义消息格式，并需要自动转换为 assistant-ui 的格式。
 
-If you do not have an existing store, use [`LocalRuntime`](/docs/runtimes/custom/local-runtime) instead; it is lower-friction.
+如果你没有现成的存储，请改用 [`LocalRuntime`](/docs/runtimes/custom/local-runtime)；它的使用成本更低。
 
-## Architecture
+## 架构
 
 <Flow.Root
   llm={`graph TD
@@ -32,45 +32,45 @@ If you do not have an existing store, use [`LocalRuntime`](/docs/runtimes/custom
         from: "components",
         to: "adapter",
         route: "loop-right",
-        label: "user actions",
+        label: "用户操作",
         laneOffset: 40,
       },
       {
         from: "adapter",
         to: "state",
         route: "loop-right",
-        label: "state updates",
+        label: "状态更新",
         laneOffset: 88,
       },
     ]}
   >
     <Flow.Column>
-      <Flow.Node flowId="state">Your state</Flow.Node>
-      <Flow.Arrow direction="down" label="messages" length={36} />
+      <Flow.Node flowId="state">你的状态</Flow.Node>
+      <Flow.Arrow direction="down" label="消息" length={36} />
       <Flow.Node flowId="adapter">ExternalStoreAdapter</Flow.Node>
       <Flow.Arrow direction="down" length={36} />
       <Flow.Node>ExternalStoreRuntime</Flow.Node>
       <Flow.Arrow direction="down" length={36} />
-      <Flow.Node flowId="components">assistant-ui components</Flow.Node>
+      <Flow.Node flowId="components">assistant-ui 组件</Flow.Node>
     </Flow.Column>
   </Flow.Canvas>
 </Flow.Root>
 
-Key idea: you own the state, the adapter translates between your format and assistant-ui's. UI features are capability-based; if you provide `setMessages`, branching turns on; if you provide `onEdit`, editing turns on; etc.
+核心理念：状态由你负责，适配器负责在你的格式与 assistant-ui 格式之间进行转换。UI 功能基于能力启用；如果提供 `setMessages`，就会启用分支；如果提供 `onEdit`，就会启用编辑；以此类推。
 
-## Quickstart
+## 快速开始
 
 <Steps>
 <Step>
 
-### Install
+### 安装
 
 <InstallCommand npm={["@assistant-ui/react"]} />
 
 </Step>
 <Step>
 
-### Create the runtime provider
+### 创建运行时提供程序
 
 ```tsx title="app/MyRuntimeProvider.tsx"
 "use client";
@@ -131,7 +131,7 @@ export function MyRuntimeProvider({
 </Step>
 <Step>
 
-### Use in your app
+### 在应用中使用
 
 ```tsx title="app/page.tsx"
 import { Thread } from "@/components/assistant-ui/elements/thread.aui";
@@ -149,11 +149,11 @@ export default function Page() {
 </Step>
 </Steps>
 
-## Message conversion
+## 消息转换
 
-Two approaches.
+有两种方式。
 
-### Inline `convertMessage`
+### 内联 `convertMessage`
 
 ```tsx
 const convertMessage = (message: MyMessage): ThreadMessageLike => ({
@@ -170,9 +170,9 @@ const runtime = useExternalStoreRuntime({
 });
 ```
 
-### `useExternalMessageConverter` (with join strategy)
+### `useExternalMessageConverter`（使用合并策略）
 
-For performance optimization or when you need to merge adjacent assistant messages:
+用于性能优化，或需要合并相邻助手消息的场景：
 
 ```tsx
 import { useExternalMessageConverter } from "@assistant-ui/react";
@@ -194,26 +194,26 @@ const runtime = useExternalStoreRuntime({
 });
 ```
 
-`joinStrategy` controls how adjacent assistant messages combine: `concat-content` (default) merges them into one; `none` keeps them separate.
+`joinStrategy` 控制相邻助手消息的合并方式：`concat-content`（默认）会将它们合并为一条；`none` 会将它们分开。
 
-## Handler matrix
+## 处理器矩阵
 
-Each handler enables a specific UI feature.
+每个处理器都会启用一项特定的 UI 功能。
 
-| Handler | Enables |
+| 处理器 | 启用功能 |
 | --- | --- |
-| `onNew` | Sending new user messages (required) |
-| `setMessages` | Branch switching |
-| `onEdit` | Message edit button |
-| `onReload` | Regenerate button |
-| `onCancel` | Cancel button while generating |
-| `onRefetchThread` | `threads.reloadMainThread()` refetching the open thread in place |
-| `onAddToolResult` | Client-side tool result handoff |
-| `queue` | Queueing messages sent while a run is in progress |
+| `onNew` | 发送新的用户消息（必需） |
+| `setMessages` | 切换分支 |
+| `onEdit` | 消息编辑按钮 |
+| `onReload` | 重新生成按钮 |
+| `onCancel` | 生成期间的取消按钮 |
+| `onRefetchThread` | `threads.reloadMainThread()` 原地重新获取打开的线程 |
+| `onAddToolResult` | 客户端工具结果传递 |
+| `queue` | 对运行期间发送的消息进行排队 |
 
-## Streaming responses
+## 流式响应
 
-Stream by mutating the assistant message in place:
+通过原地修改助手消息进行流式传输：
 
 ```tsx
 const onNew = async (message: AppendMessage) => {
@@ -250,7 +250,7 @@ const onNew = async (message: AppendMessage) => {
 };
 ```
 
-## Message editing
+## 编辑消息
 
 ```tsx
 const onEdit = async (message: AppendMessage) => {
@@ -271,9 +271,9 @@ const onEdit = async (message: AppendMessage) => {
 };
 ```
 
-## Branching
+## 分支
 
-The linear `messages` array assumes each message's parent is the previous one. For branching (e.g. multiple regenerations), use `ExportedMessageRepository.fromBranchableArray()` and import via `thread.import()`:
+线性 `messages` 数组假设每条消息的父消息都是前一条消息。要实现分支（例如多次重新生成），请使用 `ExportedMessageRepository.fromBranchableArray()`，并通过 `thread.import()` 导入：
 
 ```tsx
 import {
@@ -298,11 +298,11 @@ const repo = ExportedMessageRepository.fromBranchableArray(
 runtime.thread.import(repo);
 ```
 
-Each message must have an explicit `id` and `parentId`; messages with the same `parentId` create branches. Parents must appear before children in the array.
+每条消息都必须显式包含 `id` 和 `parentId`；具有相同 `parentId` 的消息会创建分支。父消息必须在数组中出现在子消息之前。
 
-### Exporting a snapshot
+### 导出快照
 
-`thread.import()` has a counterpart, `thread.export()`, which captures the current thread (including its full branch tree) as a serializable `ExportedMessageRepository`. Use it to persist a conversation and re-import it later:
+`thread.import()` 有一个对应项 `thread.export()`，可将当前线程（包括完整的分支树）捕获为可序列化的 `ExportedMessageRepository`。使用它可以持久化对话，并在之后重新导入：
 
 ```tsx
 // capture the current thread as a serializable snapshot
@@ -313,11 +313,11 @@ await saveToBackend(JSON.stringify(repo));
 runtime.thread.import(repo);
 ```
 
-The exported shape round-trips through `thread.import()` directly, so the same value is both your persistence format and what you load back.
+导出的结构可以直接通过 `thread.import()` 往返处理，因此同一个值既是你的持久化格式，也是重新加载时使用的值。
 
-### Persisting branch selection
+### 持久化分支选择
 
-If you store the full branch tree outside assistant-ui, persist the selected branch head too and pass it back as `messageRepository.headId`. `setMessages` still performs the branch switch; `unstable_onBranchChange` is an additional signal that fires after an explicit `switchToBranch` action, such as a BranchPicker click.
+如果你将完整的分支树存储在 assistant-ui 外部，也要持久化选中的分支头，并将其作为 `messageRepository.headId` 传回。`setMessages` 仍会执行分支切换；`unstable_onBranchChange` 是一个额外信号，会在显式的 `switchToBranch` 操作（例如点击 BranchPicker）后触发。
 
 ```tsx
 const runtime = useExternalStoreRuntime({
@@ -338,19 +338,17 @@ const runtime = useExternalStoreRuntime({
 });
 ```
 
-`headId` is the canonical persisted head of the visible branch. Optimistic or transient message ids are not surfaced there. `visibleMessageIds` is the currently visible path in order, which can include an optimistic leaf while `headId` points to its persisted ancestor.
+`headId` 是可见分支的规范持久化头。乐观消息或临时消息的 id 不会在其中暴露。`visibleMessageIds` 是当前按顺序可见的路径，其中可能包含乐观叶节点，而 `headId` 指向其持久化祖先。
 
-The callback only fires for explicit branch switches, and consecutive switches that resolve to the same canonical head are de-duped. It does not fire on adapter resync, `messageRepository` reset, append, edit/regenerate, content-only updates, or while the thread is running.
+该回调仅会在显式分支切换时触发；连续切换如果最终解析到同一个规范头，则会去重。在适配器重新同步、`messageRepository` 重置、追加、编辑/重新生成、仅内容更新或线程运行期间，都不会触发。
 
 <Callout type="warn">
-  `unstable_onBranchChange` is under active development and may change without
-  notice. It complements `setMessages`; it does not enable branch switching by
-  itself.
+  `unstable_onBranchChange` 正在积极开发中，可能会在不另行通知的情况下发生变化。它是对 `setMessages` 的补充；本身不会启用分支切换。
 </Callout>
 
-## Tool calling
+## 工具调用
 
-Handle tool results by updating the matching tool-call entry:
+通过更新匹配的工具调用条目来处理工具结果：
 
 ```tsx
 const onAddToolResult = (options: AddToolResultOptions) => {
@@ -378,11 +376,11 @@ const runtime = useExternalStoreRuntime({
 });
 ```
 
-The runtime automatically matches tool results to their tool calls by `toolCallId` and groups related messages for display.
+运行时会根据 `toolCallId` 自动将工具结果与其工具调用进行匹配，并将相关消息分组后显示。
 
-## Attachments
+## 附件
 
-Attachments use the standard adapter contract, see [adapters](/docs/runtimes/concepts/adapters#attachment-adapter):
+附件使用标准适配器契约，请参阅 [适配器](/docs/runtimes/concepts/adapters#attachment-adapter)：
 
 ```tsx
 const runtime = useExternalStoreRuntime({
@@ -392,13 +390,13 @@ const runtime = useExternalStoreRuntime({
 });
 ```
 
-## Queueing messages during a run
+## 运行期间对消息排队
 
-By default, sending while the thread is running is disabled. Provide a `queue` adapter to buffer a message sent during a run and process it once the run settles. The pending message is exposed on `composer.queue` and renders through [`ComposerPrimitive.Queue`](/docs/api-reference/primitives/composer).
+默认情况下，线程运行期间会禁用发送操作。提供一个 `queue` 适配器，即可缓存运行期间发送的消息，并在运行结束后处理。待处理消息会暴露在 `composer.queue` 上，并通过 [`ComposerPrimitive.Queue`](/docs/api-reference/primitives/composer) 渲染。
 
-The `createMessageQueue` helper owns the two-lane ordering and the in-flight guard: `steerItems` drain before `items`, and within each lane items drain in order. Supply a driver that runs a message, pass its `adapter` to the runtime, and tell the queue when a run starts (`notifyBusy()`, so concurrent sends buffer) and ends (`notifyIdle()`).
+`createMessageQueue` 辅助函数负责双通道排序和运行中保护：先排出 `steerItems`，再排出 `items`；每个通道内部则按顺序排出项目。提供一个用于运行消息的驱动程序，将其 `adapter` 传递给运行时，并在运行开始时（`notifyBusy()`，这样并发发送会进入缓存）和结束时（`notifyIdle()`）通知队列。
 
-A hand-rolled adapter must implement the same contract: `items` and `steerItems` expose the lanes (each item carries a required `parts` projection of its content), `enqueue`/`steer` add to a lane, and `move(queueItemId, placement)` repositions with fail-fast anchors — unknown ids or anchors throw rather than being coerced. Individual items are addressable through `composer.queueItem({ id })` (or by index).
+手写适配器必须实现相同的契约：`items` 和 `steerItems` 暴露各个通道（每个项目都包含必需的 `parts` 内容投影），`enqueue`/`steer` 向通道添加项目，`move(queueItemId, placement)` 使用快速失败锚点重新定位项目——未知 id 或锚点会直接抛出异常，而不会被强制转换。可以通过 `composer.queueItem({ id })`（或索引）定位单个项目。
 
 ```tsx
 import { useEffect, useRef, useState } from "react";
@@ -421,7 +419,7 @@ useEffect(() => {
 }, [isRunning, queue]);
 ```
 
-With a `createMessageQueue` adapter, cancelling pauses the queue for you: the runtime tells the queue before your `onCancel` runs, so the cancelled run's settle keeps the pending items instead of dispatching the next one, and the next send resumes draining. Call `queue.clear()` in `onCancel` instead if you want a cancel to drop them. A hand-rolled adapter has no such channel, so it owns its cancel policy the same way it owns the rest. Edit and reload stay host-owned: call `queue.clear()` in your `onEdit` and `onReload` handlers so stale items do not drain onto the new branch.
+使用 `createMessageQueue` 适配器时，取消操作会自动暂停队列：运行时会在执行你的 `onCancel` 之前通知队列，因此被取消运行的结束处理会保留待处理项目，而不会调度下一个项目；下一次发送时会恢复排出。如果希望取消操作丢弃这些项目，则改为在 `onCancel` 中调用 `queue.clear()`。手写适配器没有这样的通道，因此它需要像管理其他逻辑一样自行管理取消策略。编辑和重新加载仍由宿主负责：在你的 `onEdit` 和 `onReload` 处理器中调用 `queue.clear()`，避免旧项目被排出到新分支。
 
 ```tsx
 const runtime = useExternalStoreRuntime({
@@ -441,14 +439,14 @@ const runtime = useExternalStoreRuntime({
 });
 ```
 
-## Multi-thread
+## 多线程
 
-`ExternalStoreRuntime` uses `ExternalStoreThreadListAdapter` (synchronous, inline). See [threads](/docs/runtimes/concepts/threads#externalstorethreadlistadapter) for the contract and best practices on keeping `currentThreadId` in sync with your store.
+`ExternalStoreRuntime` 使用 `ExternalStoreThreadListAdapter`（同步、内联）。有关契约以及如何让 `currentThreadId` 与你的存储保持同步的最佳实践，请参阅[线程](/docs/runtimes/concepts/threads#externalstorethreadlistadapter)。
 
-## Integration examples
+## 集成示例
 
 <Callout type="info">
-**Real-world example:** the [Claude Managed Agents guide](/docs/runtimes/claude-managed-agents) maps Anthropic-hosted agent sessions onto this runtime, with Anthropic's official [quickstart](https://github.com/anthropics/claude-quickstarts/tree/main/managed-agents/assistant-ui) as the runnable reference.
+**真实示例：**[Claude Managed Agents 指南](/docs/runtimes/claude-managed-agents)将 Anthropic 托管的代理会话映射到此运行时；Anthropic 的官方[快速开始](https://github.com/anthropics/claude-quickstarts/tree/main/managed-agents/assistant-ui) 是可运行的参考。
 </Callout>
 
 ### Redux
@@ -664,11 +662,11 @@ export function TanStackQueryRuntimeProvider({ children }) {
 }
 ```
 
-## Working with external messages
+## 使用外部消息
 
 ### `getExternalStoreMessages`
 
-Retrieve your original message format from any assistant-ui state:
+从任意 assistant-ui 状态中获取原始消息格式：
 
 ```tsx
 import { getExternalStoreMessages, useAuiState } from "@assistant-ui/react";
@@ -680,12 +678,12 @@ function MyComponent() {
 ```
 
 <Callout type="warn">
-`getExternalStoreMessages` may return multiple messages for a single UI message; assistant-ui merges adjacent assistant and tool messages for display.
+对于单条 UI 消息，`getExternalStoreMessages` 可能会返回多条消息；assistant-ui 会合并相邻的助手消息和工具消息以供显示。
 </Callout>
 
 ### `bindExternalStoreMessage`
 
-Attach your original message to a `ThreadMessage` you constructed manually (outside the built-in converter):
+将原始消息附加到你手动构造的 `ThreadMessage` 上（在内置转换器之外）：
 
 ```tsx
 import {
@@ -697,24 +695,24 @@ bindExternalStoreMessage(threadMessage, originalMessage);
 const original = getExternalStoreMessages(threadMessage);
 ```
 
-`bindExternalStoreMessage` is a no-op if the target already has a bound message. It mutates the target in place.
+如果目标已经绑定了消息，`bindExternalStoreMessage` 不执行任何操作。它会直接原地修改目标。
 
 <Callout type="warn">
-This API is experimental and may change without notice.
+此 API 处于实验阶段，可能会在不另行通知的情况下发生变化。
 </Callout>
 
-## Best practices
+## 最佳实践
 
-1. **Immutable updates.** Always create new arrays:
+1. **使用不可变更新。** 始终创建新数组：
    ```tsx
-   setMessages([...messages, newMessage]); // not messages.push(newMessage)
+   setMessages([...messages, newMessage]); // 不要使用 messages.push(newMessage)
    ```
-2. **Stable handler references.** Memoize `onNew`, `onEdit`, etc. with `useCallback` to avoid recreating the runtime.
-3. **Use `useShallow`** with zustand to prevent unnecessary re-renders.
+2. **保持处理器引用稳定。** 使用 `useCallback` 对 `onNew`、`onEdit` 等进行记忆化，避免重新创建运行时。
+3. **在 zustand 中使用 `useShallow`**，避免不必要的重新渲染。
 
-## Common pitfalls
+## 常见问题
 
-**Edit / regenerate / cancel buttons missing.** Each requires its handler:
+**缺少编辑/重新生成/取消按钮。** 每项功能都需要对应的处理器：
 
 ```tsx
 useExternalStoreRuntime({
@@ -727,11 +725,11 @@ useExternalStoreRuntime({
 });
 ```
 
-**State not updating.** check for: array mutation instead of new arrays, missing `setMessages`, broken async handling, or invalid `convertMessage` output.
+**状态没有更新。** 请检查：是否用数组变更代替了创建新数组、是否缺少 `setMessages`、异步处理是否损坏，或 `convertMessage` 输出是否无效。
 
-**Messages going to the wrong thread.** the runtime's `currentThreadId` and your store's selected thread must stay in sync. Centralize thread id in a context, never in component-local state. See [threads](/docs/runtimes/concepts/threads#externalstorethreadlistadapter).
+**消息进入了错误的线程。** 运行时的 `currentThreadId` 与存储中选中的线程必须保持同步。应在 context 中集中管理线程 id，不要放在组件本地状态中。请参阅[线程](/docs/runtimes/concepts/threads#externalstorethreadlistadapter)。
 
-## API reference
+## API 参考
 
 ### `ExternalStoreAdapter`
 
@@ -741,149 +739,149 @@ useExternalStoreRuntime({
     {
       name: "messages",
       type: "readonly T[]",
-      description: "Array of messages from your state.",
+      description: "来自你的状态的消息数组。",
       required: true,
     },
     {
       name: "onNew",
       type: "(message: AppendMessage) => Promise<void>",
-      description: "Handler for new messages from the user.",
+      description: "处理用户新消息的处理器。",
       required: true,
     },
     {
       name: "isRunning",
       type: "boolean",
       description:
-        "Whether the assistant is currently generating a response. When true, shows an optimistic assistant message and flows directly to thread.isRunning.",
+        "助手当前是否正在生成响应。为 true 时，会显示一条乐观助手消息，并直接传递给 thread.isRunning。",
       default: "false",
     },
     {
       name: "isDisabled",
       type: "boolean",
       description:
-        "Disables the entire composer, including the text input. For a narrower gate that keeps the input usable but blocks only sending, use isSendDisabled.",
+        "禁用整个输入框，包括文本输入。若需要更窄范围的控制，使输入框保持可用但仅阻止发送，请使用 isSendDisabled。",
       default: "false",
     },
     {
       name: "isSendDisabled",
       type: "boolean",
       description:
-        "Blocks new-message sending while leaving the input usable. When true, the thread composer's canSend becomes false, the Send button is disabled, Enter and the steer hotkey are no-ops, and aui.composer.send() short-circuits. Edit composers (saving message edits) ignore this flag. Use this to gate sending on external React state (e.g. while tools or auth are still loading).",
+        "阻止发送新消息，同时保持输入框可用。为 true 时，线程输入框的 canSend 会变为 false，Send 按钮会被禁用，Enter 和 steer 快捷键不会执行，且 aui.composer.send() 会提前返回。编辑输入框（保存消息编辑）会忽略此标志。可使用它根据外部 React 状态控制发送（例如工具或身份验证仍在加载时）。",
       default: "false",
     },
     {
       name: "isLoading",
       type: "boolean",
       description:
-        "Whether the adapter is in a loading state. Displays a loading indicator instead of the composer.",
+        "适配器是否处于加载状态。显示加载指示器，而不是输入框。",
     },
     {
       name: "suggestions",
       type: "readonly ThreadSuggestion[]",
-      description: "Suggested prompts to display.",
+      description: "要显示的建议提示。",
     },
     {
       name: "extras",
       type: "unknown",
-      description: "Additional data accessible via runtime.extras.",
+      description: "可通过 runtime.extras 访问的附加数据。",
     },
     {
       name: "setMessages",
       type: "(messages: readonly T[]) => void",
-      description: "Update messages (required for branch switching).",
+      description: "更新消息（切换分支时必需）。",
     },
     {
       name: "unstable_onBranchChange",
       type: "(event: ExternalStoreBranchChange) => void",
       description:
-        "Called after an explicit branch switch with the canonical persisted head id and visible message path. Complements setMessages and is unstable.",
+        "在显式切换分支后调用，并传入规范持久化头 id 和可见消息路径。是 setMessages 的补充，目前不稳定。",
     },
     {
       name: "onEdit",
       type: "(message: AppendMessage) => Promise<void>",
-      description: "Handler for message edits (required for edit feature).",
+      description: "处理消息编辑的处理器（编辑功能必需）。",
     },
     {
       name: "onReload",
       type: "(parentId: string | Null, config: StartRunConfig) => Promise<void>",
       description:
-        "Handler for regenerating messages (required for reload feature).",
+        "处理消息重新生成的处理器（重新加载功能必需）。",
     },
     {
       name: "onCancel",
       type: "() => Promise<void>",
-      description: "Handler for cancelling the current generation.",
+      description: "取消当前生成的处理器。",
     },
     {
       name: "onRefetchThread",
       type: "() => Promise<void>",
       description:
-        "Handler for re-fetching this thread's state in place, driving threads.reloadMainThread(). Unrelated to onReload, which re-generates an assistant message.",
+        "在原地重新获取此线程状态的处理器，用于驱动 threads.reloadMainThread()。它与会重新生成助手消息的 onReload 无关。",
     },
     {
       name: "onAddToolResult",
       type: "(options: AddToolResultOptions) => Promise<void> | Void",
-      description: "Handler for adding tool call results.",
+      description: "添加工具调用结果的处理器。",
     },
     {
       name: "onResume",
       type: "(config: ResumeRunConfig) => Promise<void>",
       description:
-        "Handler for resuming an interrupted run (e.g. after a page reload mid-generation). For AI SDK reload-safe streaming, see the [Resumable Streams](/docs/guides/resumable-streams) guide.",
+        "恢复中断运行的处理器（例如页面在生成过程中重新加载之后）。有关 AI SDK 的可重新加载安全流式传输，请参阅[可恢复流](/docs/guides/resumable-streams)指南。",
     },
     {
       name: "onResumeToolCall",
       type: "(options: { toolCallId: string; payload: unknown }) => void",
       description:
-        "Handler for resuming a suspended tool call (used with human-in-the-loop tool execution).",
+        "恢复挂起工具调用的处理器（与人在回路的工具执行配合使用）。",
     },
     {
       name: "messageRepository",
       type: "ExportedMessageRepository",
       description:
-        "Pre-built message repository with branching history. Use instead of messages when you need to restore branch state.",
+        "预构建的带分支历史的消息存储库。当需要恢复分支状态时，请使用它代替 messages。",
     },
     {
       name: "state",
       type: "ReadonlyJSONValue",
       description:
-        "Opaque serializable state passed to onLoadExternalState during thread import.",
+        "在线程导入期间传递给 onLoadExternalState 的不透明可序列化状态。",
     },
     {
       name: "onImport",
       type: "(messages: readonly ThreadMessage[]) => void",
       description:
-        "Called when the runtime imports messages into the external store (e.g. on thread switch).",
+        "运行时将消息导入外部存储时调用（例如切换线程时）。",
     },
     {
       name: "onExportExternalState",
       type: "() => any",
       description:
-        "Called to retrieve external state when the runtime exports a thread snapshot.",
+        "运行时导出线程快照时调用，用于获取外部状态。",
     },
     {
       name: "onLoadExternalState",
       type: "(state: any) => void",
       description:
-        "Called with previously exported external state when restoring a thread snapshot.",
+        "恢复线程快照时调用，并传入之前导出的外部状态。",
     },
     {
       name: "convertMessage",
       type: "(message: T, index: number) => ThreadMessageLike",
       description:
-        "Convert your message format to assistant-ui format. Not needed if using ThreadMessage type.",
+        "将你的消息格式转换为 assistant-ui 格式。如果使用 ThreadMessage 类型，则不需要此项。",
     },
     {
       name: "adapters",
       type: "object",
       description:
-        "Capability adapters: attachments, speech, dictation, feedback, threadList. See /docs/runtimes/concepts/adapters.",
+        "能力适配器：附件、语音、听写、反馈、threadList。请参阅 /docs/runtimes/concepts/adapters。",
     },
     {
       name: "unstable_capabilities",
       type: "object",
       description:
-        "Configure runtime capabilities (e.g. copy). Unstable, may change.",
+        "配置运行时能力（例如复制）。不稳定，可能会发生变化。",
     },
   ]}
 />
@@ -896,62 +894,62 @@ useExternalStoreRuntime({
     {
       name: "role",
       type: '"assistant" | "user" | "system"',
-      description: "The role of the message sender.",
+      description: "消息发送者的角色。",
       required: true,
     },
     {
       name: "content",
       type: "string | Readonly MessagePart[]",
       description:
-        "Message content as string or structured message parts. Supports data-* prefixed types (e.g. { type: \"data-workflow\", data: {...} }) which are automatically converted to DataMessagePart.",
+        "以字符串或结构化消息片段表示的消息内容。支持带有 data-* 前缀的类型（例如 { type: \"data-workflow\", data: {...} }），这些类型会自动转换为 DataMessagePart。",
       required: true,
     },
     {
       name: "id",
       type: "string",
-      description: "Unique identifier for the message.",
+      description: "消息的唯一标识符。",
     },
     {
       name: "createdAt",
       type: "Date",
-      description: "Timestamp when the message was created.",
+      description: "消息创建时的时间戳。",
     },
     {
       name: "status",
       type: "MessageStatus",
       description:
-        'Status of assistant messages ({ type: "running" }, { type: "complete" }, { type: "incomplete" }).',
+        '助手消息的状态（{ type: "running" }、{ type: "complete" }、{ type: "incomplete" }）。',
     },
     {
       name: "attachments",
       type: "readonly CompleteAttachment[]",
       description:
-        'File attachments (user messages only). Type accepts custom strings beyond "image" | "document" | "file"; contentType is optional.',
+        '文件附件（仅限用户消息）。类型除 "image" | "document" | "file" 外还接受自定义字符串；contentType 为可选项。',
     },
     {
       name: "metadata",
       type: "object",
-      description: "Additional message metadata (steps, custom fields).",
+      description: "其他消息元数据（步骤、自定义字段）。",
     },
   ]}
 />
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="LocalRuntime"
-    description="Simpler core runtime when you do not have your own state store."
+    description="没有自己的状态存储时使用的更简单的核心运行时。"
     href="/docs/runtimes/custom/local-runtime"
   />
   <Card
-    title="Adapters"
-    description="Attachments, speech, feedback, history, suggestions."
+    title="适配器"
+    description="附件、语音、反馈、历史记录、建议。"
     href="/docs/runtimes/concepts/adapters"
   />
   <Card
-    title="Threads"
-    description="ExternalStoreThreadListAdapter for multi-thread."
+    title="线程"
+    description="用于多线程的 ExternalStoreThreadListAdapter。"
     href="/docs/runtimes/concepts/threads"
   />
 </Cards>

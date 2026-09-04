@@ -1,43 +1,43 @@
 ---
-title: Migration from Web
-description: Migrate an existing @assistant-ui/react app to the terminal with React Ink.
+title: 从 Web 迁移
+description: 使用 React Ink 将现有的 @assistant-ui/react 应用迁移到终端。
 ---
 
-If you already have an assistant-ui web app, most of your code transfers directly. The runtime core is shared between `@assistant-ui/react` and `@assistant-ui/react-ink` via `@assistant-ui/core` — only the UI layer changes.
+如果你已经有一个 assistant-ui Web 应用，大部分代码都可以直接迁移。`@assistant-ui/react` 和 `@assistant-ui/react-ink` 之间通过 `@assistant-ui/core` 共享运行时核心——只有 UI 层需要改变。
 
-## What stays the same
+## 保持不变的部分
 
-- **Runtime setup** — `useLocalRuntime`, `ChatModelAdapter`, and all runtime options work identically.
-- **AI SDK integration** — `@assistant-ui/ai-sdk` works with React Ink. Your runtime setup transfers directly.
-- **Tool definitions** — `Tools({ toolkit })` and toolkit renderers use the same API.
-- **State hooks** — `useAuiState`, `useAui`, and selector patterns are the same.
-- **Backend code** — Your API routes, streaming endpoints, and server-side logic need zero changes.
+- **运行时设置**——`useLocalRuntime`、`ChatModelAdapter` 以及所有运行时选项的工作方式完全相同。
+- **AI SDK 集成**——`@assistant-ui/ai-sdk` 可与 React Ink 配合使用。你的运行时设置可以直接迁移。
+- **工具定义**——`Tools({ toolkit })` 和工具包渲染器使用相同的 API。
+- **状态 Hooks**——`useAuiState`、`useAui` 以及选择器模式保持不变。
+- **后端代码**——你的 API 路由、流式传输端点和服务端逻辑无需任何修改。
 
-## What changes
+## 需要改变的部分
 
-| Web (`@assistant-ui/react`) | Terminal (`@assistant-ui/react-ink`) |
+| Web（`@assistant-ui/react`） | 终端（`@assistant-ui/react-ink`） |
 |---|---|
-| `AssistantRuntimeProvider` | `AssistantRuntimeProvider` (same name, from `@assistant-ui/react-ink`) |
-| DOM primitives (`div`, `button`, `input`) | Ink primitives (`Box`, `Text`, `TextInput`) |
-| CSS / Tailwind styling | Ink's flexbox + ANSI colors |
-| `@assistant-ui/ui` (shadcn components) | Build your own terminal UI with primitives |
-| `@assistant-ui/react-markdown` | `@assistant-ui/react-ink-markdown` (ANSI-rendered markdown) |
+| `AssistantRuntimeProvider` | `AssistantRuntimeProvider`（名称相同，来自 `@assistant-ui/react-ink`） |
+| DOM 原语（`div`、`button`、`input`） | Ink 原语（`Box`、`Text`、`TextInput`） |
+| CSS / Tailwind 样式 | Ink 的 flexbox + ANSI 颜色 |
+| `@assistant-ui/ui`（shadcn 组件） | 使用原语构建自己的终端 UI |
+| `@assistant-ui/react-markdown` | `@assistant-ui/react-ink-markdown`（使用 ANSI 渲染的 Markdown） |
 
-## Step-by-step
+## 分步迁移
 
 <Steps>
   <Step>
 
-### Install the React Ink package
+### 安装 React Ink 包
 
 <InstallCommand npm={["@assistant-ui/react-ink", "ink", "react"]} />
 
   </Step>
   <Step>
 
-### Keep your runtime hook
+### 保留你的运行时 Hook
 
-Your `useLocalRuntime` setup works as-is — no changes needed:
+你的 `useLocalRuntime` 设置可以直接使用——无需任何修改：
 
 ```tsx title="hooks/use-app-runtime.ts"
 // This file is identical to your web version
@@ -49,13 +49,13 @@ export function useAppRuntime(adapter: ChatModelAdapter) {
 ```
 
 <Callout type="tip">
-  If you use a monorepo, you can share the adapter between web and terminal projects directly.
+  如果你使用 monorepo，可以直接在 Web 项目和终端项目之间共享适配器。
 </Callout>
 
   </Step>
   <Step>
 
-### Replace the provider
+### 替换 Provider
 
 ```tsx
 // Before (web)
@@ -77,9 +77,9 @@ export function App() {
   </Step>
   <Step>
 
-### Rebuild the UI layer
+### 重建 UI 层
 
-This is the main migration effort. Web components don't render in the terminal. Replace them with Ink primitives:
+这是迁移工作的主要部分。Web 组件无法在终端中渲染。请将它们替换为 Ink 原语：
 
 ```tsx
 // Web — DOM-based
@@ -115,14 +115,14 @@ function ChatScreen() {
 }
 ```
 
-See the [Primitives reference](/docs/ink/primitives) for the full list of available components.
+请参阅[原语参考](/docs/ink/primitives)，查看所有可用组件的完整列表。
 
   </Step>
 </Steps>
 
-## Monorepo code sharing
+## Monorepo 代码共享
 
-In a monorepo, you can share everything except the UI layer:
+在 monorepo 中，除了 UI 层之外，其他内容都可以共享：
 
 ```
 packages/
@@ -135,4 +135,4 @@ packages/
     components/     ← Ink-based terminal UI
 ```
 
-The runtime hook, tool definitions, and backend code are platform-agnostic. Only the UI components need separate implementations for web and terminal.
+运行时 Hook、工具定义和后端代码与平台无关。只有 UI 组件需要分别为 Web 和终端实现。

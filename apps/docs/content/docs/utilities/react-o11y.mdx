@@ -1,6 +1,6 @@
 ---
 title: react-o11y
-description: Headless primitives for visualizing observability spans as collapsible trace trees, waterfalls, and agent and LLM call timelines.
+description: 用于将可观测性 span 可视化为可折叠跟踪树、瀑布图以及代理和 LLM 调用时间线的无头原语。
 platforms: ["react"]
 ---
 
@@ -12,27 +12,27 @@ import {
 } from "@/components/pages/docs/samples/o11y/capability-samples";
 
 <Callout type="warn">
-`@assistant-ui/react-o11y` is experimental. The API may change without notice.
+`@assistant-ui/react-o11y` 处于实验阶段。API 可能会随时变更，恕不另行通知。
 </Callout>
 
-`@assistant-ui/react-o11y` provides headless, Radix-style primitives for rendering observability spans as collapsible, indented hierarchical UIs. Use it to build trace inspectors, waterfall debug panels, or LLM call timelines on top of your own span data source.
+`@assistant-ui/react-o11y` 提供无头、Radix 风格的原语，用于将可观测性 span 渲染为可折叠、带缩进的层级 UI。你可以基于自己的 span 数据源，使用它构建跟踪检查器、瀑布图调试面板或 LLM 调用时间线。
 
-- **Headless** — Zero styling opinions, bring your own CSS / Tailwind.
-- **Composable** — Radix-style primitive parts you fully control.
-- **Tree-aware** — Automatic depth, parent / child collapse, time range computation.
-- **Reactive** — Built on the same reactive core as the runtimes, so spans stream into your UI as they change.
+- **无头** — 不附带任何样式约定，请使用你自己的 CSS / Tailwind。
+- **可组合** — Radix 风格的原语部件，完全由你控制。
+- **感知树结构** — 自动计算深度、父子折叠状态和时间范围。
+- **响应式** — 基于与运行时相同的响应式核心构建，因此 span 发生变化时会流式传输到 UI 中。
 
 <div className="not-prose my-6">
   <WaterfallSample />
 </div>
 
-## Installation
+## 安装
 
 <InstallCommand npm={["@assistant-ui/react-o11y"]} />
 
-## Quick start
+## 快速开始
 
-Mount `SpanResource` with your span data, then render primitives that read from the resource's state:
+使用 span 数据挂载 `SpanResource`，然后渲染从资源状态中读取数据的原语：
 
 ```tsx title="components/trace-view.tsx"
 "use client";
@@ -68,35 +68,35 @@ export function TraceView({ spans }: { spans: SpanData[] }) {
 }
 ```
 
-`SpanData` is the input shape your code produces (see [SpanData](#spandata)). `SpanResource` enriches it with depth, child counts, time range, and collapse state.
+`SpanData` 是你的代码生成的输入结构（请参阅 [SpanData](#spandata)）。`SpanResource` 会为其补充深度、子级数量、时间范围和折叠状态。
 
-## Examples
+## 示例
 
-### Status states
+### 状态
 
-`data-span-status` exposes each span's lifecycle, so running, completed, failed, and skipped are styled with pure CSS.
+`data-span-status` 会公开每个 span 的生命周期，因此可以仅使用 CSS 为运行中、已完成、失败和已跳过的状态设置样式。
 
 <div className="not-prose my-6">
   <StatusSample />
 </div>
 
-### Collapsible subtrees
+### 可折叠子树
 
-`SpanPrimitive.CollapseToggle` removes a span's descendants from the visible flat list, not just hides them. Click a chevron to collapse a subtree.
+`SpanPrimitive.CollapseToggle` 会从可见的扁平列表中移除 span 的后代，而不仅仅是将其隐藏。点击箭头即可折叠子树。
 
 <div className="not-prose my-6">
   <CollapseSample />
 </div>
 
-### Streaming spans
+### 流式传输 span
 
-`SpanResource` re-derives the tree whenever the `spans` prop changes, so spans stream in and update live.
+每当 `spans` prop 发生变化时，`SpanResource` 都会重新推导树，因此 span 会流式传入并实时更新。
 
 <div className="not-prose my-6">
   <StreamingSample />
 </div>
 
-## Anatomy
+## 结构
 
 ```tsx
 import {
@@ -126,45 +126,45 @@ function SpanRow() {
 }
 ```
 
-`SpanPrimitive.Children` produces a flat list of visible spans (collapsed subtrees are excluded). Each rendered child is wrapped in a `SpanByIndexProvider` so its primitives resolve to that specific span's state.
+`SpanPrimitive.Children` 会生成可见 span 的扁平列表（不包含已折叠的子树）。每个渲染出的子级都会包装在 `SpanByIndexProvider` 中，使其中的原语解析到该特定 span 的状态。
 
-## API reference
+## API 参考
 
 ### SpanResource
 
-Resource that ingests raw span data and exposes a tree-aware reactive state to primitives.
+用于接收原始 span 数据，并向原语公开感知树结构的响应式状态的资源。
 
 ```ts
 SpanResource({ spans }: { spans: SpanData[] }): ClientOutput<"span">;
 ```
 
-Mount through `config={config}`, where `const config = AuiConfig({ span: SpanResource({ spans }) })`.
+通过 `config={config}` 挂载，其中 `const config = AuiConfig({ span: SpanResource({ spans }) })`。
 
-The resource computes:
+该资源会计算：
 
-- **depth** of each span based on parent chain.
-- **hasChildren** flag.
-- **timeRange** (`min` / `max` across all spans).
-- **collapse state** managed internally; toggles through primitives.
+- 基于父级链计算每个 span 的 **depth**。
+- **hasChildren** 标志。
+- 所有 span 的 **timeRange**（`min` / `max`）。
+- 由内部管理的 **collapse state**；通过原语进行切换。
 
 ### SpanData
 
-Input shape you provide to `SpanResource`:
+提供给 `SpanResource` 的输入结构：
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 | --- | --- | --- |
-| `id` | `string` | Unique span identifier. |
-| `parentSpanId` | `string \| null` | Parent span id, or `null` for root spans. |
-| `name` | `string` | Display name. |
-| `type` | `string` | Span category (e.g. `llm`, `tool`, `http`). Used by `TypeBadge`. |
-| `status` | `"running" \| "completed" \| "failed" \| "skipped"` | Lifecycle state. Used by `StatusIndicator`. |
-| `startedAt` | `number` | Start timestamp (ms). |
-| `endedAt` | `number \| null` | End timestamp (ms), or `null` if still running. |
-| `latencyMs` | `number \| null` | Pre-computed latency, or `null` if running. |
+| `id` | `string` | 唯一的 span 标识符。 |
+| `parentSpanId` | `string \| null` | 父 span id；根 span 使用 `null`。 |
+| `name` | `string` | 显示名称。 |
+| `type` | `string` | Span 类别（例如 `llm`、`tool`、`http`）。由 `TypeBadge` 使用。 |
+| `status` | `"running" \| "completed" \| "failed" \| "skipped"` | 生命周期状态。由 `StatusIndicator` 使用。 |
+| `startedAt` | `number` | 开始时间戳（毫秒）。 |
+| `endedAt` | `number \| null` | 结束时间戳（毫秒）；如果仍在运行，则为 `null`。 |
+| `latencyMs` | `number \| null` | 预先计算的延迟；如果正在运行，则为 `null`。 |
 
 ### SpanState
 
-Returned by `useAuiState((s) => s.span)` inside any span-scoped subtree:
+由 `useAuiState((s) => s.span)` 在任意 span 作用域子树中返回：
 
 ```ts
 type SpanState = {
@@ -186,9 +186,9 @@ type SpanState = {
 
 ### SpanPrimitive.Root
 
-Container `<div>` exposing span state via data attributes for styling:
+容器 `<div>`，通过数据属性公开 span 状态，以便设置样式：
 
-| Attribute | Source |
+| 属性 | 来源 |
 | --- | --- |
 | `data-span-id` | `span.id` |
 | `data-span-status` | `span.status` |
@@ -196,28 +196,28 @@ Container `<div>` exposing span state via data attributes for styling:
 | `data-span-depth` | `span.depth` |
 | `data-collapsed` | `span.isCollapsed` |
 
-Accepts all standard `<div>` props.
+接受所有标准 `<div>` props。
 
 ### SpanPrimitive.Indent
 
-A `<div>` that adds horizontal padding proportional to span depth.
+一种 `<div>`，根据 span 深度添加成比例的水平内边距。
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 | --- | --- | --- | --- |
-| `baseIndent` | `number` | `8` | Base padding in pixels. |
-| `indentPerLevel` | `number` | `12` | Additional padding per depth level. |
+| `baseIndent` | `number` | `8` | 以像素为单位的基础内边距。 |
+| `indentPerLevel` | `number` | `12` | 每个深度级别增加的内边距。 |
 
-Final `paddingLeft = baseIndent + depth * indentPerLevel`.
+最终 `paddingLeft = baseIndent + depth * indentPerLevel`。
 
 ### SpanPrimitive.CollapseToggle
 
-A `<button>` that toggles the current span's collapsed state. Renders only when the span has children. Stops click propagation so it can be nested inside a clickable row.
+一种 `<button>`，用于切换当前 span 的折叠状态。仅当 span 包含子级时渲染。它会阻止点击事件传播，因此可以嵌套在可点击行中。
 
-Exposes `data-collapsed` for styling. Accepts all standard `<button>` props.
+公开 `data-collapsed` 以便设置样式。接受所有标准 `<button>` props。
 
 ### SpanPrimitive.StatusIndicator
 
-A `<span>` that exposes `data-span-status` for status-based styling (color, icon swap, etc.). Renders no built-in glyph; you provide the visual.
+一种 `<span>`，公开 `data-span-status` 以便根据状态设置样式（颜色、图标切换等）。不会渲染内置图形；视觉表现由你提供。
 
 ```tsx
 <SpanPrimitive.StatusIndicator className="size-2 rounded-full data-[span-status=running]:bg-yellow-500 data-[span-status=completed]:bg-green-500 data-[span-status=failed]:bg-red-500 data-[span-status=skipped]:bg-gray-400" />
@@ -225,19 +225,19 @@ A `<span>` that exposes `data-span-status` for status-based styling (color, icon
 
 ### SpanPrimitive.TypeBadge
 
-A `<span>` that defaults its children to `span.type` (override by passing custom children). Exposes `data-span-type`.
+一种 `<span>`，其子级默认为 `span.type`（传入自定义子级即可覆盖）。公开 `data-span-type`。
 
 ### SpanPrimitive.Name
 
-A `<span>` that defaults its children to `span.name`. Override by passing custom children.
+一种 `<span>`，其子级默认为 `span.name`。传入自定义子级即可覆盖。
 
 ### SpanPrimitive.Children
 
-Iterates over visible child spans and renders each.
+遍历可见的子 span，并渲染每个子 span。
 
-Two usage modes:
+有两种使用模式：
 
-**Render-prop:**
+**Render-prop：**
 
 ```tsx
 <SpanPrimitive.Children>
@@ -245,19 +245,19 @@ Two usage modes:
 </SpanPrimitive.Children>
 ```
 
-**Component prop (recommended for performance):**
+**Component prop（推荐，性能更佳）：**
 
 ```tsx
 <SpanPrimitive.Children components={{ Span: SpanRow }} />
 ```
 
-The `components.Span` form is memoized; pass a stable component reference to avoid re-renders on unrelated state changes.
+`components.Span` 形式经过了记忆化；请传入稳定的组件引用，以避免无关状态变化导致重新渲染。
 
-Each child is wrapped in `SpanByIndexProvider` automatically, so primitives inside `SpanRow` read that child's state.
+每个子级都会自动包装在 `SpanByIndexProvider` 中，因此 `SpanRow` 内部的原语会读取该子级的状态。
 
 ### SpanByIndexProvider
 
-Lower-level escape hatch. Selects one span by index and provides its scope to descendants:
+较低层级的备用入口。按索引选择一个 span，并将其作用域提供给后代：
 
 ```tsx
 <SpanByIndexProvider index={0}>
@@ -265,38 +265,38 @@ Lower-level escape hatch. Selects one span by index and provides its scope to de
 </SpanByIndexProvider>
 ```
 
-Most users do not need to use this directly; `SpanPrimitive.Children` wires it up automatically.
+大多数用户无需直接使用它；`SpanPrimitive.Children` 会自动完成连接。
 
 ### SpanPrimitive.ChildByIndex
 
-Convenience component that pairs `SpanByIndexProvider` with a render component:
+将 `SpanByIndexProvider` 与渲染组件配对的便捷组件：
 
 ```tsx
 <SpanPrimitive.ChildByIndex index={0} components={{ Span: SpanRow }} />
 ```
 
-Useful when you want explicit control over which child indices to render (e.g. for virtualization).
+当你希望显式控制要渲染的子级索引时很有用（例如用于虚拟化）。
 
 ### SpanPrimitive.Timeline
 
-A `<div>` that provides a timeline range to descendant `TimelineBar` primitives and exposes range CSS variables.
+一种 `<div>`，为后代 `TimelineBar` 原语提供时间线范围，并公开范围 CSS 变量。
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 | --- | --- | --- | --- |
-| `timeRange` | `{ min: number; max: number }` | `span.timeRange` | Override the range used for positioning bars. |
-| `paddingEnd` | `number` | `0` | Extends the max by this ratio of the range duration, useful for right-side breathing room. |
+| `timeRange` | `{ min: number; max: number }` | `span.timeRange` | 覆盖用于定位条形图的范围。 |
+| `paddingEnd` | `number` | `0` | 按时间范围持续时长的该比例扩展最大值，适用于在右侧留出呼吸空间。 |
 
-Exposes `data-span-timeline` and CSS variables:
+公开 `data-span-timeline` 和以下 CSS 变量：
 
-| Variable | Description |
+| 变量 | 描述 |
 | --- | --- |
-| `--span-timeline-min-ms` | Timeline start timestamp. |
-| `--span-timeline-max-ms` | Timeline end timestamp after padding. |
-| `--span-timeline-range-ms` | Timeline duration after padding. |
+| `--span-timeline-min-ms` | 时间线开始时间戳。 |
+| `--span-timeline-max-ms` | 添加内边距后的时间线结束时间戳。 |
+| `--span-timeline-range-ms` | 添加内边距后的时间线持续时长。 |
 
 ### SpanPrimitive.TimelineBar
 
-A `<div>` that positions the current span within the nearest `SpanPrimitive.Timeline` range. It reads `startedAt`, `endedAt`, `status`, `type`, and `timeRange` from the current span scope.
+一种 `<div>`，用于在最近的 `SpanPrimitive.Timeline` 范围内定位当前 span。它会从当前 span 作用域读取 `startedAt`、`endedAt`、`status`、`type` 和 `timeRange`。
 
 ```tsx
 <SpanPrimitive.Timeline>
@@ -310,26 +310,26 @@ A `<div>` that positions the current span within the nearest `SpanPrimitive.Time
 </SpanPrimitive.Timeline>
 ```
 
-Running spans use the timeline range max when `now` is omitted, keeping SSR and hydration deterministic. For live ticking, update a timestamp from an effect or animation loop and pass it as `now`.
+当省略 `now` 时，运行中的 span 使用时间线范围的最大值，从而确保 SSR 和 hydration 具有确定性。如需实时计时，请在 effect 或动画循环中更新时间戳，并将其作为 `now` 传入。
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 | --- | --- | --- | --- |
-| `now` | `number` | `undefined` | Explicit timestamp used as the end of running spans. |
-| `timeRange` | `{ min: number; max: number }` | nearest `Timeline` range | Override the range used for this bar. |
+| `now` | `number` | `undefined` | 用作运行中 span 结束时间的显式时间戳。 |
+| `timeRange` | `{ min: number; max: number }` | 最近的 `Timeline` 范围 | 覆盖此条形图使用的范围。 |
 
-Exposes `data-span-status`, `data-span-type`, `data-span-running`, and these CSS variables:
+公开 `data-span-status`、`data-span-type`、`data-span-running` 以及以下 CSS 变量：
 
-| Variable | Description |
+| 变量 | 描述 |
 | --- | --- |
-| `--span-timeline-left` | Bar start position as a percentage. |
-| `--span-timeline-end` | Bar end position as a percentage. |
-| `--span-timeline-width` | Bar width as a percentage. |
-| `--span-timeline-duration-ms` | Bar duration in milliseconds. |
-| `--span-timeline-min-width` | Optional consumer-set minimum width used by the default inline size. |
+| `--span-timeline-left` | 条形图起始位置的百分比。 |
+| `--span-timeline-end` | 条形图结束位置的百分比。 |
+| `--span-timeline-width` | 条形图宽度的百分比。 |
+| `--span-timeline-duration-ms` | 条形图持续时间（毫秒）。 |
+| `--span-timeline-min-width` | 可选的使用者设置的最小宽度，由默认内联尺寸使用。 |
 
-## Styling
+## 样式
 
-All primitives forward refs and accept standard DOM props (`className`, `style`, etc.). Use the data attributes for state-based styling:
+所有原语都会转发 refs，并接受标准 DOM props（`className`、`style` 等）。使用数据属性根据状态设置样式：
 
 ```css
 [data-span-status="running"] {
@@ -346,17 +346,17 @@ All primitives forward refs and accept standard DOM props (`className`, `style`,
 }
 ```
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="heat-graph"
-    description="Activity heatmap primitives in the same Radix-style headless pattern."
+    description="采用相同 Radix 风格无头模式的活动热力图原语。"
     href="/docs/utilities/heat-graph"
   />
   <Card
-    title="Primitives overview"
-    description="The broader assistant-ui primitive system."
+    title="原语概览"
+    description="更广泛的 assistant-ui 原语系统。"
     href="/docs/primitives"
   />
 </Cards>

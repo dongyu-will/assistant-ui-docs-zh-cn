@@ -1,20 +1,20 @@
 ---
-title: "Agent status"
-description: "One pill that always answers: what is it doing, and for how long."
+title: "Agent 状态"
+description: "一个始终回答两个问题的胶囊：它在做什么，以及已经持续了多久。"
 ---
 
-A rounded pill with a state dot, a label that crossfades when it changes, an elapsed time while the agent is still going, and a trailing icon. With a runtime the state and label track a tool call's own lifecycle; standalone you hold all three and update them yourself.
+一个带有状态圆点的圆角胶囊，标签变化时会交叉淡化，Agent 运行期间会显示已用时间，并带有尾部图标。使用运行时（runtime）时，状态和标签会跟踪工具调用（tool call）自身的生命周期；独立使用时，则由你持有这三个值并自行更新。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-The pill maps naturally onto a single tool call: what the call is doing is the label, and whether it is still running, waiting on something, or finished is the state.
+这个胶囊很自然地对应单个工具调用：调用正在做什么就是标签，而它是否仍在运行、正在等待某项操作，或已经完成，则由状态表示。
 
 <Steps>
   <Step>
 
-### Render the tool call
+### 渲染工具调用
 
 ```tsx title="app/toolkit.tsx"
 "use client";
@@ -42,12 +42,12 @@ export const toolkit = defineToolkit({
 });
 ```
 
-`state` follows the call's own status: `requires-action` reads as waiting, `running` as working, and both `complete` and `incomplete` read as done, since either way the call is no longer active. `label` and `elapsed` are whatever the call's `args` carry, so your server formats `elapsed` (`"2m14s"`) the way you want it shown.
+`state` 会跟随调用自身的状态：`requires-action` 表示等待，`running` 表示工作中，而 `complete` 和 `incomplete` 都表示已完成，因为无论哪种情况，调用都不再处于活动状态。`label` 和 `elapsed` 携带的内容就是调用的 `args`，因此你可以让服务器按照希望展示的方式格式化 `elapsed`（`"2m14s"`）。
 
   </Step>
   <Step>
 
-### Register the toolkit
+### 注册工具包
 
 ```tsx title="app/MyRuntimeProvider.tsx"
 import { AssistantRuntimeProvider, AuiConfig, Tools } from "@assistant-ui/react";
@@ -71,12 +71,12 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 
 <StandaloneMode>
 
-Standalone, the element is a controlled display: you own `state`, `label`, and `elapsed`, and update them as the agent's work moves along.
+独立使用时，该元素是一个受控显示组件：由你管理 `state`、`label` 和 `elapsed`，并随着 Agent 的工作推进而更新它们。
 
 <Steps>
   <Step>
 
-### Hold the status state
+### 保存状态
 
 ```tsx title="app/status.tsx"
 "use client";
@@ -99,7 +99,7 @@ export function Status() {
   </Step>
   <Step>
 
-### Move through the run
+### 在运行过程中推进状态
 
 ```tsx
 setState("waiting");
@@ -109,14 +109,14 @@ setState("done");
 setLabel("Finished, 2 files changed");
 ```
 
-Changing `label` alone still animates: the text fades and blurs between values because the element keys the label on its own content.
+仅更改 `label` 仍然会触发动画：文本值之间会淡出并模糊过渡，因为该元素会根据标签自身的内容设置键。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="agent-status">
@@ -128,37 +128,37 @@ Changing `label` alone still animates: the text fades and blurs between values b
 </div>
 ```
 
-The leading indicator is a check once `state` is `"done"`, otherwise a dot: filled blue and pulsing while `"working"`, a static muted outline while `"waiting"`, so the two states differ in shape and motion and not only in color. The state is also rendered as visually hidden text, so it is exposed to assistive technology rather than carried by the dot's color alone. `elapsed` only renders when it is supplied and `state` is not `"done"`. The trailing icon swaps between the pause and replay treatments based on `state`, and is decorative: it carries no hover or press treatment and is hidden from assistive technology. Props spread onto the root pill.
+当前导指示器在 `state` 为 `"done"` 时显示为勾选标记，否则显示为圆点：`"working"` 时为实心蓝色并持续脉动，`"waiting"` 时为静态的低调描边，因此这两种状态的区别不仅体现在颜色上，也体现在形状和动效上。状态还会渲染为视觉隐藏文本，使辅助技术能够获取它，而不是仅依赖圆点的颜色来传达状态。只有在提供 `elapsed` 且 `state` 不为 `"done"` 时，才会渲染它。尾部图标会根据 `state` 在暂停和重播样式之间切换，并且仅用于装饰：它没有悬停或按下样式，也会对辅助技术隐藏。传递给组件的 Props 会展开到根胶囊上。
 
-## Examples
+## 示例
 
-### Restyle the pill
+### 重新设置胶囊样式
 
-Both lanes take `className` on the root. The elapsed text uses the `mono` token from `surfaces.tsx`.
+两种方式都在根元素上接收 `className`。已用时间文本使用来自 `surfaces.tsx` 的 `mono` 令牌。
 
 ```tsx
 <AgentStatus className="gap-3" state={state} label={label} elapsed={elapsed} />
 ```
 
-### A pill with no elapsed time
+### 不显示已用时间的胶囊
 
-Omit `elapsed` for work that is not worth timing, like a wait state with no useful duration.
+对于不值得计时的工作，可以省略 `elapsed`，例如没有有用持续时间的等待状态。
 
 ```tsx
 <AgentStatus state="waiting" label="Waiting for approval" />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Render props
+### 渲染属性
 
-| Source | Type | Description |
+| 来源 | 类型 | 描述 |
 |--------|------|-------------|
-| `status.type` | `"running" \| "requires-action" \| "incomplete" \| "complete"` | Drives `state`: `requires-action` to `"waiting"`, `running` to `"working"`, otherwise `"done"`. |
-| `args.label` | `string` | What the agent is doing right now. |
-| `args.elapsed` | `string \| undefined` | Preformatted elapsed time, shown only while the mapped `state` is not `"done"`. |
+| `status.type` | `"running" \| "requires-action" \| "incomplete" \| "complete"` | 驱动 `state`：`requires-action` 对应 `"waiting"`，`running` 对应 `"working"`，否则对应 `"done"`。 |
+| `args.label` | `string` | Agent 当前正在做什么。 |
+| `args.elapsed` | `string \| undefined` | 预格式化的已用时间，仅在映射的 `state` 不为 `"done"` 时显示。 |
 
 </RuntimeMode>
 
@@ -166,13 +166,13 @@ Omit `elapsed` for work that is not worth timing, like a wait state with no usef
 
 ### AgentStatus
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `state` | `"working" \| "waiting" \| "done"` | required | Drives the leading indicator, visually hidden state text, and trailing icon. |
-| `label` | `string` | required | Crossfades in whenever its value changes. |
-| `elapsed` | `string` | | Shown only while `state` is not `"done"`. |
-| `className` | `string` | | Merged onto the root. |
+| `state` | `"working" \| "waiting" \| "done"` | 必填 | 驱动当前导指示器、视觉隐藏的状态文本和尾部图标。 |
+| `label` | `string` | 必填 | 每当其值发生变化时进行交叉淡化。 |
+| `elapsed` | `string` | | 仅在 `state` 不为 `"done"` 时显示。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其余所有 `div` props 都会转发到根元素。
 
 </StandaloneMode>

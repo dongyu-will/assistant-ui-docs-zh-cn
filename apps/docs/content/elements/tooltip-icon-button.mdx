@@ -1,20 +1,20 @@
 ---
-title: "Tooltip icon button"
-description: "An accessible icon button with a tooltip label and shared interaction states."
+title: "Tooltip 图标按钮"
+description: "带有工具提示标签和共享交互状态的可访问图标按钮。"
 ---
 
-TooltipIconButton wraps a single icon in a button that always carries an accessible name and a hover tooltip, both driven by the same `tooltip` string. With a runtime it's the button most kit elements reach for whenever a primitive needs a trigger; standalone you drive it with your own `onClick` and `disabled`.
+TooltipIconButton 将单个图标包裹在按钮中，使按钮始终具有可访问名称和悬停工具提示，两者都由同一个 `tooltip` 字符串驱动。在运行时环境中，只要原语需要触发器，大多数 kit 元素都会使用这个按钮；单独使用时，则由你自行通过 `onClick` 和 `disabled` 驱动它。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-Every action button across the runtime-connected kit elements, thread, voice, attachment, the assistant modal, is a `TooltipIconButton`, usually composed with a primitive through `render` so the primitive owns the click handling and the disabled or hidden state.
+运行时连接的 kit 元素、线程、语音、附件和助手模态框中的每个操作按钮，都是一个 `TooltipIconButton`，通常通过 `render` 与原语组合，从而由原语负责点击处理以及禁用或隐藏状态。
 
 <Steps>
   <Step>
 
-### Compose it with a primitive
+### 与原语组合
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 "use client";
@@ -34,14 +34,14 @@ function ScrollToBottom() {
 }
 ```
 
-The primitive supplies the click handler and hides itself, `ScrollToBottom` in particular renders nothing once the thread is already at the bottom; `TooltipIconButton` only supplies the look, the tooltip, and the accessible name.
+原语提供点击处理并将自身隐藏，尤其是 `ScrollToBottom` 在线程已经位于底部时不会渲染任何内容；`TooltipIconButton` 只提供外观、工具提示和可访问名称。
 
   </Step>
   <Step>
 
-### Install a kit element for it pre-wired
+### 安装预先连接好的 kit 元素
 
-`@assistant-ui/thread` alone wires up scroll-to-bottom, send, voice dictation start and stop, copy, refresh, edit, and branch previous and next, all as `TooltipIconButton`s. `@assistant-ui/voice`, `@assistant-ui/attachment`, and `@assistant-ui/assistant-modal` each add a few more of their own. None of that composition lives in this file, so you rarely reach for `TooltipIconButton` directly once those are installed.
+仅 `@assistant-ui/thread` 就可以连接滚动到底部、发送、开始和停止语音听写、复制、刷新、编辑，以及切换到上一个和下一个分支等功能，并且全部作为 `TooltipIconButton` 使用。`@assistant-ui/voice`、`@assistant-ui/attachment` 和 `@assistant-ui/assistant-modal` 还会分别添加一些自身的功能。这些组合逻辑都不在此文件中，因此安装它们后，你很少需要直接使用 `TooltipIconButton`。
 
   </Step>
 </Steps>
@@ -50,12 +50,12 @@ The primitive supplies the click handler and hides itself, `ScrollToBottom` in p
 
 <StandaloneMode>
 
-Standalone, there's no primitive to compose it with, so you own the click handler, the disabled state, and, if the action can fail or take time, any loading state yourself.
+单独使用时，没有可与之组合的原语，因此点击处理、禁用状态，以及在操作可能失败或需要耗时执行时的加载状态，都需要由你自行管理。
 
 <Steps>
   <Step>
 
-### Use it like any icon button
+### 像使用普通图标按钮一样使用
 
 ```tsx title="app/toolbar.tsx"
 "use client";
@@ -88,7 +88,7 @@ export function GenerateButton() {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <button data-slot="button">
@@ -97,13 +97,13 @@ export function GenerateButton() {
 </button>
 ```
 
-A tooltip provider and a floating content panel wrap the button but render nothing of their own until it's hovered or focused. `tooltip` does double duty: it's both the floating label and, through the sr-only span, the button's only accessible name, there's no separate `aria-label` prop. `side` positions the floating tooltip and defaults to `"bottom"`.
+工具提示提供器和浮动内容面板会包裹按钮，但在按钮获得悬停或焦点之前，它们自身不会渲染任何内容。`tooltip` 身兼二职：它既是浮动标签，也是按钮唯一的可访问名称（通过 sr-only span 实现），不存在单独的 `aria-label` 属性。`side` 用于定位浮动工具提示，默认值为 `"bottom"`。
 
-## Examples
+## 示例
 
-### Every prop `Button` takes, still works
+### `Button` 接受的每个属性都仍然有效
 
-`TooltipIconButtonProps` extends `Button`'s own props, so `variant` (`"default" | "outline" | "secondary" | "ghost" | "destructive" | "link"`), `size`, and `disabled` all pass straight through. The component itself only fixes `variant="ghost"` and `size="icon"` as defaults, both overridable the normal way:
+`TooltipIconButtonProps` 扩展了 `Button` 自身的属性，因此 `variant`（`"default" | "outline" | "secondary" | "ghost" | "destructive" | "link"`）、`size` 和 `disabled` 都会直接透传。组件本身只将 `variant="ghost"` 和 `size="icon"` 固定为默认值，两者都可以按常规方式覆盖：
 
 ```tsx
 <TooltipIconButton tooltip="Delete" variant="destructive">
@@ -111,9 +111,9 @@ A tooltip provider and a floating content panel wrap the button but render nothi
 </TooltipIconButton>
 ```
 
-### Restyle the button
+### 重新设置按钮样式
 
-`className` merges onto the rendered `Button`, on top of this file's own `size-6 p-1` default. It does not read from `surfaces.tsx`, unlike most of the catalog, its look comes from the shadcn-style `Button` and tooltip primitives in `components/ui`.
+`className` 会合并到渲染出的 `Button` 上，并覆盖此文件自身的 `size-6 p-1` 默认值。它不会从 `surfaces.tsx` 读取样式；与目录中的大多数组件不同，它的外观来自 `components/ui` 中 shadcn 风格的 `Button` 和工具提示原语。
 
 ```tsx
 <TooltipIconButton tooltip="Copy" className="size-8">
@@ -121,22 +121,22 @@ A tooltip provider and a floating content panel wrap the button but render nothi
 </TooltipIconButton>
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Composition sites
+### 组合位置
 
-| File | Tooltip text |
+| 文件 | 工具提示文本 |
 |------|--------------|
-| `thread.aui.tsx` | "Scroll to bottom", "Send message", "Voice input", "Stop dictation" |
-| `thread.aui.tsx` | "Copy", "Refresh", "More", "Edit", "Previous", "Next" |
-| `voice.aui.tsx` | "Mute" / "Unmute", "Disconnect" |
-| `attachment.aui.tsx` | "Add Attachment", "Remove file" |
-| `assistant-modal.aui.tsx` | "Open Assistant" / "Close Assistant" |
-| `markdown-text.tsx` | "Copy", on a rendered code block |
+| `thread.aui.tsx` | “滚动到底部”、“发送消息”、“语音输入”、“停止听写” |
+| `thread.aui.tsx` | “复制”、“刷新”、“更多”、“编辑”、“上一个”、“下一个” |
+| `voice.aui.tsx` | “静音”/“取消静音”、“断开连接” |
+| `attachment.aui.tsx` | “添加附件”、“移除文件” |
+| `assistant-modal.aui.tsx` | “打开助手”/“关闭助手” |
+| `markdown-text.tsx` | 在渲染出的代码块上显示“复制” |
 
-There's no state selector of its own: it renders whatever the primitive it wraps decides, through `render`.
+它自身没有状态选择器：它会通过 `render` 渲染其所包裹的原语决定的内容。
 
 </RuntimeMode>
 
@@ -144,14 +144,14 @@ There's no state selector of its own: it renders whatever the primitive it wraps
 
 ### TooltipIconButton
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `tooltip` | `string` | required | Floating label on hover or focus, and the button's accessible name. |
-| `side` | `"top" \| "bottom" \| "left" \| "right"` | `"bottom"` | Side the tooltip opens toward. |
-| `variant` | `"default" \| "outline" \| "secondary" \| "ghost" \| "destructive" \| "link"` | `"ghost"` | Inherited from `Button`. |
-| `size` | `"default" \| "xs" \| "sm" \| "lg" \| "icon" \| "icon-xs" \| "icon-sm" \| "icon-lg"` | `"icon"` | Inherited from `Button`. |
-| `className` | `string` | | Merged onto the rendered button. |
+| `tooltip` | `string` | 必填 | 悬停或获得焦点时显示的浮动标签，也是按钮的可访问名称。 |
+| `side` | `"top" \| "bottom" \| "left" \| "right"` | `"bottom"` | 工具提示展开的方向。 |
+| `variant` | `"default" \| "outline" \| "secondary" \| "ghost" \| "destructive" \| "link"` | `"ghost"` | 继承自 `Button`。 |
+| `size` | `"default" \| "xs" \| "sm" \| "lg" \| "icon" \| "icon-xs" \| "icon-sm" \| "icon-lg"` | `"icon"` | 继承自 `Button`。 |
+| `className` | `string` | | 合并到渲染出的按钮上。 |
 
-All other `Button` props (`disabled`, `onClick`, `type`, and so on) are forwarded.
+其他所有 `Button` 属性（`disabled`、`onClick`、`type` 等）都会被透传。
 
 </StandaloneMode>

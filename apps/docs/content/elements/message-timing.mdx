@@ -1,22 +1,22 @@
 ---
-title: "Message timing"
-description: "Streaming statistics for the current message, including first token, total time, and speed."
+title: "消息计时"
+description: "当前消息的流式统计信息，包括首个令牌时间、总耗时和速度。"
 ---
 
-Message timing turns a stream's own telemetry into a small badge: a duration on the trigger, and first token time, total time, speed, and chunk count in its tooltip. With a runtime it reads the timing recorded on the current assistant message; there is no standalone form of this exact badge, since a badge with nothing to time has nothing to show. It comes in two designs: the runtime variant reads that live telemetry into a hover tooltip, and the static variant renders the same numbers as a props-driven stats row instead (see [The timing-footer design](#the-timing-footer-design)).
+消息计时会将流自身的遥测数据转换为一个小徽章：触发器上显示时长，悬停提示中显示首个令牌时间、总耗时、速度和分块数量。使用运行时（runtime）时，它会读取当前助手消息中记录的计时信息；这个精确徽章没有独立形式，因为没有可计时内容的徽章也就没有可显示的内容。它有两种设计：运行时版本将实时遥测数据显示在悬停提示中，而静态版本则将相同数字渲染为由 props 驱动的统计信息行（参见[计时页脚设计](#the-timing-footer-design)）。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-Every assistant-ui runtime records how a response streamed in. The badge reads that recording through `useMessageTiming()` and stays invisible until it has something to report.
+每个 assistant-ui 运行时都会记录响应的流式传输过程。徽章通过 `useMessageTiming()` 读取这份记录，并在有可报告的信息之前保持不可见。
 
 <Steps>
   <Step>
 
-### Read the message's timing
+### 读取消息计时
 
-`useMessageTiming()` returns the current assistant message's `metadata.timing`, or `undefined` on a user message or before any timing exists. The badge renders nothing until `totalStreamTime` is set, so it appears only once a response has actually finished streaming.
+`useMessageTiming()` 返回当前助手消息的 `metadata.timing`；如果当前是用户消息，或尚不存在任何计时信息，则返回 `undefined`。在设置 `totalStreamTime` 之前，徽章不会渲染任何内容，因此它只会在响应完成流式传输后显示。
 
 ```tsx title="components/assistant-ui/elements/message-timing.aui.tsx"
 "use client";
@@ -69,9 +69,9 @@ export const MessageTiming: FC<{
   </Step>
   <Step>
 
-### Add it to the message's action bar
+### 将其添加到消息操作栏
 
-Drop `MessageTiming` next to copy and reload so it inherits the action bar's own hover and autohide behavior from `ActionBarPrimitive.Root`.
+将 `MessageTiming` 放在复制和重新加载按钮旁边，这样它就会从 `ActionBarPrimitive.Root` 继承操作栏自身的悬停和自动隐藏行为。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx" {3,10}
 import { ActionBarPrimitive } from "@assistant-ui/react";
@@ -90,7 +90,7 @@ function AssistantActionBar() {
 }
 ```
 
-`Thread` ships this action bar without `MessageTiming` in it; add the line above to turn timing on for every assistant message.
+`Thread` 提供的操作栏中不包含 `MessageTiming`；添加上面的代码行，即可为每条助手消息启用计时功能。
 
   </Step>
 </Steps>
@@ -99,11 +99,11 @@ function AssistantActionBar() {
 
 <StandaloneMode>
 
-Standalone, there is nothing to time. The badge exists to surface a runtime's own stream telemetry, and a value you already hold in a variable does not need a hover tooltip to reveal it. Render your own stats row from [The timing-footer design](#the-timing-footer-design) instead, which takes the same kind of numbers as plain props.
+单独使用时，没有可计时的内容。该徽章用于展示运行时自身的流遥测数据，而已经保存在变量中的值不需要通过悬停提示来揭示。请改用[计时页脚设计](#the-timing-footer-design)渲染自定义统计信息行，它接受相同类型的数字作为普通 props。
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 <RuntimeMode>
 
@@ -117,52 +117,52 @@ Standalone, there is nothing to time. The badge exists to surface a runtime's ow
 </div>
 ```
 
-The trigger itself is the gate: while `totalStreamTime` is undefined the whole badge is `null`, so a message still streaming shows nothing rather than a placeholder. Once it is visible, "Total" and "Chunks" always print; "First token" and "Speed" each drop out on their own when the underlying value is missing.
+触发器本身就是显示条件：当 `totalStreamTime` 未定义时，整个徽章都是 `null`，因此仍在流式传输的消息不会显示任何内容，而不是显示占位符。徽章可见后，“Total”和“Chunks”始终会显示；当底层值缺失时，“First token”和“Speed”会分别独立隐藏。
 
 </RuntimeMode>
 
-## Examples
+## 示例
 
 <RuntimeMode>
 
-### Tooltip side
+### 悬停提示方向
 
-Pass `side` to flip which edge the tooltip opens toward, matching wherever the action bar sits in your layout.
+传入 `side` 可以翻转悬停提示打开的边缘，使其与布局中操作栏所在的位置相匹配。
 
 ```tsx
 <MessageTiming side="left" />
 ```
 
-### Formatting rule
+### 格式化规则
 
-A duration under a second renders as whole milliseconds (`420ms`); a second or more renders with two decimal places (`1.24s`). Speed always renders as tokens per second to one decimal place (`38.4 tok/s`), and this same `formatTimingMs` rule is what the trigger itself uses for the total.
+小于一秒的时长会渲染为整数毫秒（`420ms`）；一秒或更长的时长会渲染为两位小数（`1.24s`）。速度始终以每秒令牌数显示，并保留一位小数（`38.4 tok/s`）；触发器本身显示总耗时时，也使用相同的 `formatTimingMs` 规则。
 
 </RuntimeMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Message state
+### 消息状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.message.metadata.timing` | `MessageTiming \| undefined` | Timing recorded for the current assistant message; `undefined` on a user message or before any timing exists. `useMessageTiming()` wraps exactly this selector. |
+| `s.message.metadata.timing` | `MessageTiming \| undefined` | 当前助手消息记录的计时信息；如果当前是用户消息，或尚不存在任何计时信息，则为 `undefined`。`useMessageTiming()` 对该选择器进行了完全封装。 |
 
-`MessageTiming` carries `streamStartTime`, `firstTokenTime?`, `totalStreamTime?`, `tokenCount?`, `tokensPerSecond?`, `totalChunks`, and `toolCallCount`.
+`MessageTiming` 包含 `streamStartTime`、`firstTokenTime?`、`totalStreamTime?`、`tokenCount?`、`tokensPerSecond?`、`totalChunks` 和 `toolCallCount`。
 
 ### MessageTiming props
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `className` | `string` | | Merged onto the trigger button. |
-| `side` | `"top" \| "right" \| "bottom" \| "left"` | `"right"` | Side the tooltip opens toward. |
+| `className` | `string` | | 合并到触发器按钮上。 |
+| `side` | `"top" \| "right" \| "bottom" \| "left"` | `"right"` | 悬停提示打开的方向。 |
 
 </RuntimeMode>
 
-## The timing-footer design
+## 计时页脚设计
 
-The Static variant in the rail is a second design for the same telemetry: `MessageTiming` lays the numbers out as an always-visible row of plain props, instead of tucking them into a badge's hover tooltip. It is a single props-driven component with no runtime dependency:
+栏中的 Static 变体是同一遥测数据的第二种设计：`MessageTiming` 将数字布局为始终可见的普通 props 行，而不是将其收纳到徽章的悬停提示中。这是一个完全由 props 驱动、无运行时依赖的单一组件：
 
 ```sh
 npx shadcn@latest add "@assistant-ui/elements-message-timing"
@@ -170,7 +170,7 @@ npx shadcn@latest add "@assistant-ui/elements-message-timing"
 
 <RuntimeMode>
 
-A runtime already exposes the same timing through `useMessageTiming()`; map it into stats yourself when you want a row instead of a badge:
+运行时已经通过 `useMessageTiming()` 暴露了相同的计时信息；如果希望显示信息行而不是徽章，请自行将其映射为统计信息：
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 "use client";
@@ -212,7 +212,7 @@ function TimingFooter() {
 
 <StandaloneMode>
 
-Standalone, `MessageTiming` renders whatever pairs you give it; nothing about the stats is fixed:
+单独使用时，`MessageTiming` 会渲染你提供的任意键值对；统计信息的内容没有固定限制：
 
 ```tsx title="app/answer.tsx"
 import {
@@ -231,14 +231,14 @@ const stats: TimingStat[] = [
 
 </StandaloneMode>
 
-The row fades in on mount and wraps to multiple lines past its max width. Passing `streaming` highlights every value in blue instead of the settled muted tone, useful while the stats are still updating live; `stats` can be any length, including empty, which renders a bare row with nothing in it.
+该行在挂载时淡入，并会在超过最大宽度后换为多行。传入 `streaming` 后，会将每个值高亮为蓝色，而不是使用稳定状态下的柔和色调；这在统计信息仍在实时更新时很有用。`stats` 可以是任意长度，包括空数组；传入空数组时，会渲染一个不包含任何内容的空行。
 
 ### MessageTiming
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `stats` | `readonly TimingStat[]` | required | `{ label: string; value: string }[]`, rendered in order. |
-| `streaming` | `boolean` | | Highlights every value in blue while true. |
-| `className` | `string` | | Merged onto the root. |
+| `stats` | `readonly TimingStat[]` | required | `{ label: string; value: string }[]`，按顺序渲染。 |
+| `streaming` | `boolean` | | 为 true 时，将每个值高亮为蓝色。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` props 都会转发到根元素。

@@ -1,17 +1,17 @@
 ---
-title: Adapters
-description: Persistence and title generation adapters for React Native.
+title: 适配器
+description: 用于 React Native 的持久化和标题生成适配器。
 ---
 
-Adapters customize runtime behavior. They can be passed as options to `useLocalRuntime` or `useRemoteThreadListRuntime`.
+适配器用于自定义运行时行为。它们可以作为选项传递给 `useLocalRuntime` 或 `useRemoteThreadListRuntime`。
 
-## Persistence
+## 持久化
 
-By default, `useLocalRuntime` stores threads and messages in memory only -- they are lost when the app restarts. To persist data, use one of these approaches:
+默认情况下，`useLocalRuntime` 仅将线程和消息存储在内存中——应用重启后这些数据会丢失。要持久化数据，请使用以下方法之一：
 
 ### Assistant Cloud
 
-The simplest way to add persistence. Pass a `cloud` option to `useLocalRuntime`:
+添加持久化功能的最简单方式。将 `cloud` 选项传递给 `useLocalRuntime`：
 
 ```tsx
 import { useLocalRuntime } from "@assistant-ui/react-native";
@@ -25,11 +25,11 @@ const cloud = new AssistantCloud({
 const runtime = useLocalRuntime(chatModel, { cloud });
 ```
 
-This gives you multi-thread support with server-side persistence, cross-device sync, and automatic title generation.
+这样即可获得多线程支持、服务端持久化、跨设备同步和自动标题生成。
 
-### History adapter
+### 历史记录适配器
 
-For custom persistence (e.g. saving message history to your own backend), pass a `ThreadHistoryAdapter` via `adapters.history`:
+如需自定义持久化方式（例如，将消息历史记录保存到你自己的后端），请通过 `adapters.history` 传递 `ThreadHistoryAdapter`：
 
 ```tsx
 import { useLocalRuntime } from "@assistant-ui/react-native";
@@ -56,11 +56,11 @@ const runtime = useLocalRuntime(chatModel, {
 
 ### RemoteThreadListAdapter
 
-For full backend thread management (thread list, archiving, cross-device sync), use `useRemoteThreadListRuntime`. See the [Custom Backend](/docs/react-native/custom-backend) page for a full example.
+如需完整的后端线程管理功能（线程列表、归档和跨设备同步），请使用 `useRemoteThreadListRuntime`。完整示例请参阅[自定义后端](/docs/react-native/custom-backend)页面。
 
 ## RemoteThreadListAdapter
 
-Title generation is configured via the `generateTitle` method on `RemoteThreadListAdapter`. See the [Custom Backend](/docs/react-native/custom-backend) page for a full example.
+标题生成通过 `RemoteThreadListAdapter` 上的 `generateTitle` 方法进行配置。完整示例请参阅[自定义后端](/docs/react-native/custom-backend)页面。
 
 ```tsx
 import type { RemoteThreadListAdapter } from "@assistant-ui/react-native";
@@ -83,12 +83,12 @@ const myAdapter: RemoteThreadListAdapter = {
 };
 ```
 
-## Which option to choose?
+## 应选择哪个选项？
 
 | | ChatModelAdapter + `useLocalRuntime` | RemoteThreadListAdapter + `useRemoteThreadListRuntime` |
 |---|---|---|
-| **Thread storage** | In-memory (or cloud) | Your backend |
-| **Message storage** | In-memory (can add history adapter) | In-memory (can add history adapter for server-side) |
-| **Cross-device sync** | Only with cloud | Yes |
-| **Setup complexity** | Minimal | Moderate |
-| **Best for** | Single-device apps, prototypes | Production apps with user accounts |
+| **线程存储** | 内存中（或云端） | 你的后端 |
+| **消息存储** | 内存中（可添加历史记录适配器） | 内存中（可添加历史记录适配器以支持服务端存储） |
+| **跨设备同步** | 仅云端支持 | 支持 |
+| **设置复杂度** | 最低 | 中等 |
+| **适用场景** | 单设备应用、原型 | 带用户账户的生产应用 |

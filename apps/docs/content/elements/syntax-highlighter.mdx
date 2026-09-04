@@ -1,18 +1,18 @@
 ---
-title: "Syntax highlighter"
-description: "Prism-based code highlighting for assistant markdown code blocks."
+title: "语法高亮器"
+description: "基于 Prism 的助手 Markdown 代码块高亮。"
 ---
 
-SyntaxHighlighter tokenizes one fenced code block with Prism, through `react-syntax-highlighter`'s async light build, and renders a light and a dark themed variant at once so a theme switch needs no re-render. With a runtime it replaces the plain code [Markdown text](/elements/markdown-text) renders by default; standalone you call it directly with the code, the language, and the tag components it mounts onto.
+SyntaxHighlighter 通过 `react-syntax-highlighter` 的异步轻量构建，使用 Prism 对一个围栏代码块进行分词，同时渲染浅色和深色主题变体，因此切换主题无需重新渲染。在运行时中，它会替换 [Markdown 文本](/elements/markdown-text) 默认渲染的纯代码；单独使用时，则需要直接传入代码、语言以及它要挂载到的标签组件。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
 <Steps>
   <Step>
 
-### Add it to MarkdownText's components
+### 将其添加到 MarkdownText 的组件中
 
 ```tsx title="components/assistant-ui/elements/markdown-text.tsx"
 import { SyntaxHighlighter } from "./syntax-highlighter";
@@ -24,7 +24,7 @@ const defaultComponents = memoizeMarkdownComponents({
 });
 ```
 
-Every fenced code block in an assistant message now highlights, using the light and dark Coldark Prism themes. [Shiki highlighter](/elements/shiki-highlighter) is the newer, runtime-aware alternative: reach for this one if you are already on `react-syntax-highlighter`.
+现在，助手消息中的每个围栏代码块都会使用浅色和深色 Coldark Prism 主题进行高亮。[Shiki 高亮器](/elements/shiki-highlighter) 是更新且支持运行时感知的替代方案：如果你已经在使用 `react-syntax-highlighter`，可以优先选择它。
 
   </Step>
 </Steps>
@@ -36,7 +36,7 @@ Every fenced code block in an assistant message now highlights, using the light 
 <Steps>
   <Step>
 
-### Call it directly
+### 直接调用
 
 ```tsx
 import { SyntaxHighlighter } from "@/components/assistant-ui/elements/syntax-highlighter";
@@ -51,14 +51,14 @@ import { SyntaxHighlighter } from "@/components/assistant-ui/elements/syntax-hig
 />;
 ```
 
-`components.Pre` and `components.Code` are the tag components the highlighter renders into. `react-markdown`'s code-block pipeline supplies real ones automatically inside MarkdownText; standalone, pass through elements yourself.
+`components.Pre` 和 `components.Code` 是高亮器用于渲染的标签组件。`react-markdown` 的代码块处理流程会在 MarkdownText 内自动提供真实组件；单独使用时，请自行传入元素。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 构成
 
 ```tsx
 <>
@@ -67,11 +67,11 @@ import { SyntaxHighlighter } from "@/components/assistant-ui/elements/syntax-hig
 </>
 ```
 
-Both the light and the dark highlighter mount on every render; Tailwind's `dark:` classes hide whichever one does not match the active theme, so switching themes toggles visibility instead of re-tokenizing.
+浅色和深色高亮器都会在每次渲染时挂载；Tailwind 的 `dark:` 类会隐藏与当前主题不匹配的那个变体，因此切换主题时只需切换可见性，无需重新进行分词。
 
-## Examples
+## 示例
 
-### Register another language
+### 注册其他语言
 
 ```tsx title="components/assistant-ui/elements/syntax-highlighter.tsx"
 import { PrismAsyncLight } from "react-syntax-highlighter";
@@ -80,17 +80,17 @@ import go from "react-syntax-highlighter/dist/esm/languages/prism/go";
 PrismAsyncLight.registerLanguage("go", go);
 ```
 
-Only `js`, `jsx`, `ts`, `tsx` (all mapped to the TSX grammar) and `python` are registered by default. A fenced block whose language is not registered still renders, unhighlighted.
+默认仅注册了 `js`、`jsx`、`ts`、`tsx`（它们都映射到 TSX 语法）以及 `python`。语言未注册的围栏代码块仍会渲染，但不会进行高亮。
 
-### Load every language instead
+### 改为加载所有语言
 
 ```tsx title="components/assistant-ui/elements/syntax-highlighter.tsx"
 import { makePrismAsyncSyntaxHighlighter } from "@assistant-ui/react-syntax-highlighter/full";
 ```
 
-Swap the light-build import for the full build to skip per-language registration entirely, at the cost of a larger bundle.
+将轻量构建的导入替换为完整构建，即可完全跳过按语言注册，但代价是更大的 bundle。
 
-### Choose a different theme
+### 选择其他主题
 
 ```tsx title="components/assistant-ui/elements/syntax-highlighter.tsx"
 import { oneLight, oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
@@ -102,26 +102,26 @@ const LightSyntaxHighlighter = makePrismAsyncLightSyntaxHighlighter({
 });
 ```
 
-Pass any `react-syntax-highlighter` Prism style in place of `coldarkCold`/`coldarkDark`; do the same for the dark variant.
+可以传入任意 `react-syntax-highlighter` Prism 样式，以替代 `coldarkCold`/`coldarkDark`；深色变体同样如此。
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-MarkdownText's code-block pipeline supplies every prop below automatically, from the fenced block being rendered; you never call `SyntaxHighlighter` yourself once it is wired into `components`.
+MarkdownText 的代码块处理流程会根据正在渲染的围栏代码块，自动提供下面的所有 prop；将其接入 `components` 后，无需再自行调用 `SyntaxHighlighter`。
 
 </RuntimeMode>
 
 ### SyntaxHighlighter
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `language` | `string` | required | The fence's language, for example `"tsx"`. Selects the Prism grammar. |
-| `code` | `string` | required | The code to highlight. |
-| `components` | `{ Pre: ComponentType; Code: ComponentType }` | required | Tag components the highlighter renders into, as `PreTag`/`CodeTag`. |
+| `language` | `string` | 必填 | 围栏代码块的语言，例如 `"tsx"`。用于选择 Prism 语法。 |
+| `code` | `string` | 必填 | 要高亮的代码。 |
+| `components` | `{ Pre: ComponentType; Code: ComponentType }` | 必填 | 高亮器用于渲染的标签组件，例如 `PreTag`/`CodeTag`。 |
 
 <StandaloneMode>
 
-Construct all three yourself, as in the standalone step above.
+如上面的单独使用步骤所示，自行构造这三个组件。
 
 </StandaloneMode>

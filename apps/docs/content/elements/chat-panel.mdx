@@ -1,22 +1,22 @@
 ---
-title: "Chat panel"
-description: "The whole family working together: a message, a pause, a streamed reply."
+title: "聊天面板"
+description: "整个家族协同工作：一条消息、片刻停顿，以及一条流式回复。"
 ---
 
-A chat panel is the smallest complete slice of a thread: a scrollable message list, a bubble per role, a beat while the reply is in flight, and a composer that sends. With a runtime the pieces wire to live thread state; standalone you arrange the same pieces around whatever messages and handlers you pass in.
+聊天面板是一个线程最小但完整的切片：可滚动的消息列表、每种角色对应的消息气泡、回复进行中的短暂等待，以及用于发送消息的输入框。使用运行时（runtime）时，这些部分会连接到实时线程状态；独立使用时，你可以围绕传入的消息和处理函数，按相同方式组织这些部分。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-assistant-ui's `Thread` element already ships a complete version of this composition, wired end to end from viewport to composer. Build it from these pieces yourself only when you want a smaller, custom shell instead of the full `Thread`.
+assistant-ui 的 `Thread` 元素已经提供了这一组合的完整版本，从视口到输入框端到端连接。只有在想要使用更小的自定义外壳，而不是完整的 `Thread` 时，才需要自行用这些部分进行构建。
 
 <Steps>
   <Step>
 
-### Render the message list
+### 渲染消息列表
 
-`ThreadPrimitive.Viewport` takes over scrolling from `ChatPanelMessages`; pass it as the `asChild` target so the panel keeps `ChatPanelMessages`'s look while the viewport owns the behavior:
+`ThreadPrimitive.Viewport` 接管 `ChatPanelMessages` 的滚动；将它作为 `asChild` 目标传入，这样面板可以保留 `ChatPanelMessages` 的外观，同时由视口负责行为：
 
 ```tsx title="components/assistant-ui/elements/chat-panel.tsx"
 "use client";
@@ -49,12 +49,12 @@ export function LiveChatPanel() {
 }
 ```
 
-`ThreadPrimitive.Messages`'s render function is called once per message, already scoped to it, so `MessagePrimitive.Parts` and `message.role` inside resolve to that message.
+`ThreadPrimitive.Messages` 的渲染函数会针对每条消息调用一次，并且已经限定在该消息的作用域内，因此其中的 `MessagePrimitive.Parts` 和 `message.role` 都会解析为对应的消息。
 
   </Step>
   <Step>
 
-### Add a composer and a running state
+### 添加输入框和运行状态
 
 ```tsx
 import { AuiIf, ComposerPrimitive } from "@assistant-ui/react";
@@ -70,7 +70,7 @@ import { ChatPanelComposer, ChatPanelTyping } from "./chat-panel";
 </ComposerPrimitive.Root>
 ```
 
-`s.thread.isRunning` is `true` for as long as a stream is connected to the backend, which is when `ChatPanelTyping`'s bounce reads as thinking. `ComposerPrimitive.Send` disables itself the same way `ChatPanelComposer`'s button does, whenever the composer has nothing to send.
+只要流式传输连接到后端，`s.thread.isRunning` 就会处于 `true` 状态；此时 `ChatPanelTyping` 的弹跳效果表示正在思考。每当输入框没有可发送的内容时，`ComposerPrimitive.Send` 会像 `ChatPanelComposer` 的按钮一样自动禁用。
 
   </Step>
 </Steps>
@@ -79,12 +79,12 @@ import { ChatPanelComposer, ChatPanelTyping } from "./chat-panel";
 
 <StandaloneMode>
 
-Standalone, you hold the transcript yourself and hand each turn to the matching piece.
+独立使用时，你需要自行维护消息记录，并将每一轮交给匹配的部分。
 
 <Steps>
   <Step>
 
-### Assemble the panel
+### 组装面板
 
 ```tsx title="app/panel.tsx"
 "use client";
@@ -115,9 +115,9 @@ export function Panel() {
   </Step>
   <Step>
 
-### Handle the send
+### 处理发送
 
-`ChatPanelComposer` shows `placeholder` as static text and calls `onSend` on click; it holds no text value of its own, so pair it with your own input state if you need a working field:
+`ChatPanelComposer` 将 `placeholder` 显示为静态文本，并在点击时调用 `onSend`；它本身不保存文本值，因此如果需要可用的输入框，请将它与自有的输入状态结合使用：
 
 ```tsx
 const [sending, setSending] = useState(false);
@@ -128,14 +128,14 @@ const [sending, setSending] = useState(false);
 />
 ```
 
-The send button disables itself whenever `onSend` is left `undefined`.
+当 `onSend` 保持为 `undefined` 时，发送按钮会自动禁用。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="chat-panel">
@@ -151,13 +151,13 @@ The send button disables itself whenever `onSend` is left `undefined`.
 </div>
 ```
 
-`ChatPanelComposer` is a shell, not a text field: `placeholder` is text it displays, not a bound value, and the send button's only behavior is calling `onSend` when present. It renders disabled whenever `onSend` is `undefined`, the same rule `EmptyStateComposer` follows. `ChatPanelTyping` and `ChatPanelUserMessage` both fade and slide in on mount; change their `key` if you want that entrance to replay for a new message.
+`ChatPanelComposer` 是一个外壳，而不是文本字段：`placeholder` 是它显示的文本，而不是绑定值；发送按钮唯一的行为是在存在 `onSend` 时调用它。当 `onSend` 为 `undefined` 时，它会被渲染为禁用状态，这与 `EmptyStateComposer` 遵循相同的规则。`ChatPanelTyping` 和 `ChatPanelUserMessage` 都会在挂载时淡入并滑入；如果希望新消息重新播放这一入场动画，可以修改它们的 `key`。
 
-## Examples
+## 示例
 
-### Reuse pieces individually
+### 单独复用各个部分
 
-Every part, `ChatPanel`, `ChatPanelMessages`, `ChatPanelUserMessage`, `ChatPanelAssistantMessage`, `ChatPanelTyping`, and `ChatPanelComposer`, accepts `className` and forwards the rest of its element's props, so pieces recombine outside the default card shape, for example a full-height page shell instead of the fixed `h-[270px]` card:
+每个部分，包括 `ChatPanel`、`ChatPanelMessages`、`ChatPanelUserMessage`、`ChatPanelAssistantMessage`、`ChatPanelTyping` 和 `ChatPanelComposer`，都接受 `className`，并会向其根元素转发其余 props。因此，这些部分可以脱离默认卡片形状重新组合，例如使用全高页面外壳，而不是固定的 `h-[270px]` 卡片：
 
 ```tsx
 <ChatPanel className="h-full max-w-none rounded-none border-none">
@@ -165,11 +165,11 @@ Every part, `ChatPanel`, `ChatPanelMessages`, `ChatPanelUserMessage`, `ChatPanel
 </ChatPanel>
 ```
 
-### Typing state
+### 输入状态
 
 <RuntimeMode>
 
-Gate `ChatPanelTyping` on the thread's running flag so it only shows while a reply is in flight:
+根据线程的运行标志控制 `ChatPanelTyping`，使其仅在回复进行中时显示：
 
 ```tsx
 <AuiIf condition={(s) => s.thread.isRunning}>
@@ -181,46 +181,46 @@ Gate `ChatPanelTyping` on the thread's running flag so it only shows while a rep
 
 <StandaloneMode>
 
-Standalone, render it whenever your own state says a reply is pending; nothing inside the component reads elapsed time or message state on its own.
+独立使用时，只要你自己的状态表明回复正在等待，就可以渲染它；组件内部不会自行读取经过的时间或消息状态。
 
 </StandaloneMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Primitive parts
+### 原语部分
 
-| Part | Renders | Notes |
+| 部分 | 渲染内容 | 备注 |
 |------|---------|-------|
-| `ThreadPrimitive.Viewport` | `div` | Scrollable message area; auto-scrolls to the bottom on new messages by default. Accepts `asChild`. |
-| `ThreadPrimitive.Messages` | children | Calls its `children` render function once per message, already scoped to that message. |
-| `MessagePrimitive.Parts` | children | Renders the active message's content. |
-| `ComposerPrimitive.Root` / `.Input` / `.Send` | `form` / `textarea` / `button` | The real composer; `.Send` disables itself when the composer can't send. |
-| `AuiIf` | children | Renders `children` while `condition` selects `true` from state. |
+| `ThreadPrimitive.Viewport` | `div` | 可滚动的消息区域；默认会在新消息到达时自动滚动到底部。接受 `asChild`。 |
+| `ThreadPrimitive.Messages` | children | 每条消息调用一次其 `children` 渲染函数，并且已经限定在该消息的作用域内。 |
+| `MessagePrimitive.Parts` | children | 渲染当前消息的内容。 |
+| `ComposerPrimitive.Root` / `.Input` / `.Send` | `form` / `textarea` / `button` | 真正的输入框；当输入框无法发送时，`.Send` 会自动禁用。 |
+| `AuiIf` | children | 当 `condition` 从状态中选择 `true` 时，渲染 `children`。 |
 
-### Thread state
+### 线程状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.thread.isRunning` | `boolean` | `true` while a stream is connected to the backend. |
-| `s.message.role` | `"user" \| "assistant" \| "system"` | Read inside `ThreadPrimitive.Messages`'s render function to pick a bubble. |
+| `s.thread.isRunning` | `boolean` | 当流式传输连接到后端时为 `true`。 |
+| `s.message.role` | `"user" \| "assistant" \| "system"` | 在 `ThreadPrimitive.Messages` 的渲染函数中读取，用于选择消息气泡。 |
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-### ChatPanel family
+### ChatPanel 系列
 
-| Part | Renders | Props | Description |
+| 部分 | 渲染内容 | Props | 描述 |
 |------|---------|-------|-------------|
-| `ChatPanel` | `div` | `className` | Root card. Fixed `h-[270px]`, `max-w-md`. |
-| `ChatPanelMessages` | `div` | `className` | Scrollable, bottom-anchored message list. |
-| `ChatPanelUserMessage` | `div` | `className` | A right-aligned bubble. Fades and slides in on mount. |
-| `ChatPanelAssistantMessage` | `p` | `className` | A left-aligned, unbubbled line of text. |
-| `ChatPanelTyping` | `div` | `className` (no `children`) | Three bouncing dots. |
-| `ChatPanelComposer` | `div` | `placeholder` (required `string`), `onSend?: () => void`, `className` | Shows static placeholder text and a send button; `onSend` fires on click and the button disables without it. |
+| `ChatPanel` | `div` | `className` | 根卡片。固定的 `h-[270px]`、`max-w-md`。 |
+| `ChatPanelMessages` | `div` | `className` | 可滚动、锚定到底部的消息列表。 |
+| `ChatPanelUserMessage` | `div` | `className` | 右对齐的消息气泡。在挂载时淡入并滑入。 |
+| `ChatPanelAssistantMessage` | `p` | `className` | 左对齐、不带气泡的文本行。 |
+| `ChatPanelTyping` | `div` | `className`（无 `children`） | 三个弹跳的点。 |
+| `ChatPanelComposer` | `div` | `placeholder`（必需的 `string`）、`onSend?: () => void`、`className` | 显示静态占位文本和发送按钮；点击时触发 `onSend`，未提供该函数时按钮会被禁用。 |
 
-All other props for each part forward to its root element.
+每个部分的其他 props 都会转发到其根元素。
 
 </StandaloneMode>

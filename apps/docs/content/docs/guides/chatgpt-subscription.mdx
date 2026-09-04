@@ -1,32 +1,32 @@
 ---
-title: ChatGPT Subscription
-description: Run your assistant-ui app on your ChatGPT Plus or Pro subscription via Codex OAuth. Local development without an OpenAI API key.
+title: ChatGPT 订阅
+description: 通过 Codex OAuth 使用 ChatGPT Plus 或 Pro 订阅运行 assistant-ui 应用。本地开发无需 OpenAI API 密钥。
 platforms: ["react"]
 ---
 
-If you have a ChatGPT Plus or Pro subscription, you can run your assistant-ui app against it locally instead of paying per token with an API key. OpenAI's Codex CLI authenticates via OAuth and caches tokens on your machine; requests made with those tokens hit the Responses API endpoint at `chatgpt.com` and bill to your plan. The same mechanism powers Codex itself and a growing set of local agents.
+如果你订阅了 ChatGPT Plus 或 Pro，可以在本地运行 assistant-ui 应用并使用该订阅，而无需使用 API 密钥按 token 付费。OpenAI 的 Codex CLI 通过 OAuth 完成身份验证，并将令牌缓存到你的计算机上；使用这些令牌发出的请求会访问 `chatgpt.com` 处的 Responses API 端点，并计入你的订阅方案。Codex 本身以及越来越多的本地代理也使用相同的机制。
 
-This is a personal-use setup for apps running on your own machine. For anything deployed or shared, use an API key.
+这种配置适用于在你自己的计算机上运行的个人应用。对于任何已部署或共享的应用，请使用 API 密钥。
 
-## Log in with Codex
+## 使用 Codex 登录
 
-Authenticate once with the Codex CLI. The login flow runs OAuth in your browser and writes access and refresh tokens to `~/.codex/auth.json`:
+使用 Codex CLI 完成一次身份验证。登录流程会在浏览器中运行 OAuth，并将访问令牌和刷新令牌写入 `~/.codex/auth.json`：
 
 ```sh
 npx @openai/codex login
 ```
 
-Everything below reads that file; no environment variables or API keys are involved.
+下面的所有内容都会读取该文件；不涉及环境变量或 API 密钥。
 
-## AI SDK route
+## AI SDK 路由
 
-The community AI SDK provider [`openai-oauth-provider`](https://github.com/EvanZhouDev/openai-oauth) picks up `~/.codex/auth.json` automatically, refreshes tokens as needed, and supports streaming, tool calls, and reasoning traces.
+社区 AI SDK 提供商 [`openai-oauth-provider`](https://github.com/EvanZhouDev/openai-oauth) 会自动读取 `~/.codex/auth.json`，并在需要时刷新令牌，同时支持流式传输、工具调用和推理轨迹。
 
 ```sh
 npm install openai-oauth-provider
 ```
 
-In your chat route, swap `@ai-sdk/openai` for the OAuth provider. Starting from the default assistant-ui template route, only the model changes; `frontendTools` and the UI message stream response work as before:
+在聊天路由中，将 `@ai-sdk/openai` 替换为 OAuth 提供商。从默认的 assistant-ui 模板路由开始，只需更改模型；`frontendTools` 和 UI 消息流响应的工作方式保持不变：
 
 ```ts title="/app/api/chat/route.ts" {10}
 import { createOpenAIOAuth } from "openai-oauth-provider";
@@ -66,11 +66,11 @@ export async function POST(req: Request) {
 }
 ```
 
-The provider discovers which models your plan includes (for example `gpt-5.4` and `gpt-5.3-codex`) from your ChatGPT account.
+提供商会从你的 ChatGPT 账户中发现订阅方案包含哪些模型（例如 `gpt-5.4` 和 `gpt-5.3-codex`）。
 
-## Eve agents
+## Eve 代理
 
-Eve's `defineAgent` accepts a provider-authored AI SDK `LanguageModel`, so the same provider drops into an eve agent config:
+Eve 的 `defineAgent` 接受由提供商创建的 AI SDK `LanguageModel`，因此可以将同一个提供商直接用于 Eve 代理配置：
 
 ```ts title="agent/agent.ts"
 import { defineAgent } from "eve";
@@ -81,16 +81,16 @@ export default defineAgent({
 });
 ```
 
-## OpenAI-compatible proxy
+## OpenAI 兼容代理
 
-For stacks that take an OpenAI base URL rather than an AI SDK model, the same project publishes a sibling package, `openai-oauth`, whose CLI runs a local proxy:
+对于使用 OpenAI base URL 而不是 AI SDK 模型的技术栈，同一项目还发布了姊妹包 `openai-oauth`，其 CLI 可以运行本地代理：
 
 ```sh
 npx openai-oauth
 # OpenAI-compatible endpoint ready at http://127.0.0.1:10531/v1
 ```
 
-Point any OpenAI-compatible client at that URL. No real API key is involved, but most clients require one at construction, so pass a placeholder:
+将任何 OpenAI 兼容客户端指向该 URL。这里不涉及真实的 API 密钥，但大多数客户端在构造时都要求传入一个密钥，因此请传入占位符：
 
 ```ts
 import { OpenAI } from "openai";
@@ -101,8 +101,8 @@ const openai = new OpenAI({
 });
 ```
 
-The proxy binds to `127.0.0.1` by default; keep it that way, since any caller that can reach the endpoint bills your subscription.
+代理默认绑定到 `127.0.0.1`；请保持默认设置，因为任何能够访问该端点的调用方都会从你的订阅中扣费。
 
 <Callout type="warn">
-  Your OAuth tokens live in `~/.codex/auth.json`, so this only works where that file exists. A deployed instance would bill every visitor to your subscription. `openai-oauth-provider` is an unofficial community package, available models depend on your ChatGPT plan, and OpenAI sanctions this auth flow for Codex tooling, so treat it as personal use.
+  你的 OAuth 令牌存储在 `~/.codex/auth.json` 中，因此只有在该文件存在的环境中才能工作。已部署的实例会让每位访问者产生的费用都计入你的订阅。`openai-oauth-provider` 是非官方的社区软件包，可用模型取决于你的 ChatGPT 订阅方案；OpenAI 认可这种身份验证流程用于 Codex 工具，因此请将其视为个人用途。
 </Callout>

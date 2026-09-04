@@ -1,22 +1,22 @@
 ---
-title: "Draft restore"
-description: "Come back to a thread and the sentence you never sent is still waiting."
+title: "恢复草稿"
+description: "回到一个会话线程时，您从未发送的句子仍在等待发送。"
 ---
 
-A dismissible banner offering to put an unsent message back into the composer, with when it was last touched underneath it. With a runtime you decide when to snapshot the composer's text and when to resurface it; standalone you hold the draft and the timestamp yourself and pass them in.
+一个可关闭的横幅，用于将未发送的消息放回输入框，并在下方显示消息上次编辑的时间。使用运行时（runtime）时，您可以决定何时对输入框文本进行快照，以及何时重新显示它；单独使用时，则由您自行保存草稿和时间戳并传入。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-With a runtime, a reload does not keep unsent composer text by default: a thread whose runtime lacks the in-place refetch capability has its hook remounted on reload, which discards whatever was still being typed. Restoring a draft across that gap is app-level work built on the composer's own text state.
+使用运行时时，重新加载默认不会保留未发送的输入框文本：如果会话线程的运行时不具备原地重新获取能力，重新加载时其 hook 会重新挂载，从而丢弃仍在输入的内容。跨越这一间隔恢复草稿属于应用层工作，并建立在输入框自身的文本状态之上。
 
 <Steps>
   <Step>
 
-### Save the draft as it is typed
+### 随输入保存草稿
 
-Read the live text and write it to your own storage, keyed by thread, debounced so every keystroke does not hit disk.
+读取实时文本并将其写入您自己的存储中，以会话线程为键，并进行防抖处理，避免每次按键都写入磁盘。
 
 ```tsx title="components/assistant-ui/elements/use-draft-persistence.ts"
 "use client";
@@ -44,9 +44,9 @@ export function useDraftPersistence(threadId: string) {
   </Step>
   <Step>
 
-### Restore or discard it
+### 恢复或丢弃草稿
 
-On mount, read the saved draft for the active thread and show the banner when the composer is still empty. Restoring writes it back into the live composer; discarding just clears storage, since the component itself holds no state.
+挂载时，读取当前会话线程保存的草稿，并在输入框仍为空时显示横幅。恢复操作会将草稿写回实时输入框；丢弃操作只需清除存储，因为组件本身不持有任何状态。
 
 ```tsx title="components/assistant-ui/elements/draft-restore-banner.tsx"
 "use client";
@@ -91,12 +91,12 @@ export function DraftRestoreBanner({
 
 <StandaloneMode>
 
-Standalone, `DraftRestore` is presentation only: it never measures time or watches an input, so `savedAt` arrives pre-formatted and `onRestore`/`onDiscard` are the only ways anything happens.
+单独使用时，`DraftRestore` 仅负责展示：它不会计算时间，也不会监听输入，因此 `savedAt` 需要传入预先格式化的值，而 `onRestore`/`onDiscard` 是触发任何操作的唯一方式。
 
 <Steps>
   <Step>
 
-### Hold the draft and wire the callbacks
+### 保存草稿并连接回调
 
 ```tsx title="app/thread.tsx"
 "use client";
@@ -134,7 +134,7 @@ export function ThreadDraftBanner({
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="draft-restore">
@@ -148,38 +148,38 @@ export function ThreadDraftBanner({
 </div>
 ```
 
-The banner has no visibility state of its own: it renders whenever it is mounted, and the caller decides when that is, typically by clearing the saved draft inside `onRestore` and `onDiscard` so the banner unmounts on either choice. `draft` is truncated with CSS, not measured or word-wrapped, and `savedAt` is shown exactly as passed.
+横幅本身没有可见性状态：只要挂载就会渲染，何时挂载由调用方决定。通常，调用方会在 `onRestore` 和 `onDiscard` 中清除保存的草稿，使横幅在任一选择后卸载。`draft` 使用 CSS 截断，不会进行测量或自动换行；`savedAt` 则会完全按照传入的内容显示。
 
-## Examples
+## 示例
 
-### Restyle the banner
+### 重新设置横幅样式
 
-`className` merges onto the root; the Discard button reuses the shared `ghostButton` surface, so restyling that token restyles every icon-only button across the kit at once.
+`className` 会合并到根元素上；Discard 按钮会复用共享的 `ghostButton` 表面，因此重新设置该令牌的样式，就会同时重新设置 kit 中所有仅包含图标的按钮。
 
 ```tsx
 <DraftRestore className="max-w-md" draft={draft} savedAt={savedAt} onRestore={restore} onDiscard={discard} />
 ```
 
-### Naming the timestamp
+### 命名时间戳
 
-The element never computes relative time. Format it with whatever you already use elsewhere, from a raw `Intl.RelativeTimeFormat` call to a library.
+该元素不会计算相对时间。使用您在其他位置已经采用的方式进行格式化，可以是原生的 `Intl.RelativeTimeFormat` 调用，也可以使用库。
 
 ```tsx
 const savedAt = new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(-2, "minute");
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Composer state
+### 输入框状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.composer.text` | `string` | The live, unsent text in the active composer. Snapshot this on a timer or on unload to build the saved draft. |
-| `aui.composer.setText(text)` | `(text: string) => void` | Writes text into the composer. Called from `onRestore` to put a saved draft back, using the client from `useAui()`. |
+| `s.composer.text` | `string` | 当前输入框中的实时未发送文本。可以定时或在卸载时对其进行快照，以构建保存的草稿。 |
+| `aui.composer.setText(text)` | `(text: string) => void` | 将文本写入输入框。通过 `onRestore` 调用，将保存的草稿放回输入框，并使用来自 `useAui()` 的客户端。 |
 
-There is no runtime concept of a saved draft: persistence and the decision to show the banner are both yours.
+运行时没有保存草稿这一概念：持久化以及决定何时显示横幅，都由您负责。
 
 </RuntimeMode>
 
@@ -187,14 +187,14 @@ There is no runtime concept of a saved draft: persistence and the decision to sh
 
 ### DraftRestore
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `draft` | `string` | required | The unsent text, truncated to one line. |
-| `savedAt` | `string` | required | When it was last touched, pre-formatted. |
-| `onRestore` | `() => void` | | Called to put the draft back in the composer. |
-| `onDiscard` | `() => void` | | Called to throw the draft away. |
-| `className` | `string` | | Merged onto the root. |
+| `draft` | `string` | 必填 | 未发送的文本，截断为一行。 |
+| `savedAt` | `string` | 必填 | 上次编辑的时间，需预先格式化。 |
+| `onRestore` | `() => void` | | 用于将草稿放回输入框时调用。 |
+| `onDiscard` | `() => void` | | 用于丢弃草稿时调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

@@ -1,17 +1,17 @@
 ---
-title: Interrupts and message editing
-description: Interrupt persistence and checkpoint-based message editing.
+title: 中断与消息编辑
+description: 中断持久化和基于检查点的消息编辑。
 ---
 
-Both interrupt persistence and message editing rely on LangGraph's server-side checkpoints. Once you have one wired up, the other is mostly free.
+中断持久化和消息编辑都依赖 LangGraph 的服务端检查点。完成其中一项的接入后，另一项基本无需额外工作。
 
-## Interrupt persistence
+## 中断持久化
 
-LangGraph supports interrupting the execution flow to request user input or handle specific interactions. These interrupts can be persisted and restored when switching between threads:
+LangGraph 支持中断执行流程，以请求用户输入或处理特定交互。在不同线程之间切换时，这些中断可以被持久化和恢复：
 
-1. Make sure your thread state type includes the `interrupts` field.
-2. Return the interrupts from the `load` function along with the messages.
-3. The runtime automatically restores the interrupt state when switching threads.
+1. 确保线程状态类型包含 `interrupts` 字段。
+2. 从 `load` 函数中连同消息一起返回中断。
+3. 在切换线程时，运行时会自动恢复中断状态。
 
 ```ts
 const runtime = useLangGraphRuntime({
@@ -28,11 +28,11 @@ const runtime = useLangGraphRuntime({
 });
 ```
 
-This is particularly useful for applications that require user approval flows, multi-step forms, or other interactive elements that span multiple thread switches.
+这对于需要用户审批流程、多步骤表单或其他跨越多次线程切换的交互元素的应用尤其有用。
 
-## Message editing and regeneration
+## 消息编辑与重新生成
 
-LangGraph uses server-side checkpoints for state management. To support message editing (branching) and regeneration, provide a `getCheckpointId` callback that resolves the appropriate checkpoint for server-side forking.
+LangGraph 使用服务端检查点进行状态管理。要支持消息编辑（分支）和重新生成，请提供 `getCheckpointId` 回调，用于解析适合服务端创建分支的检查点。
 
 ```ts
 const runtime = useLangGraphRuntime({
@@ -77,28 +77,28 @@ const runtime = useLangGraphRuntime({
 });
 ```
 
-When `getCheckpointId` is provided:
+提供 `getCheckpointId` 后：
 
-- **Edit buttons** appear on user messages, allowing users to edit and resend from that point.
-- **Regenerate buttons** appear on assistant messages, allowing users to regenerate the response.
+- 用户消息上会显示**编辑按钮**，允许用户从该位置编辑并重新发送。
+- 助手消息上会显示**重新生成按钮**，允许用户重新生成响应。
 
-The resolved `checkpointId` is passed to your `stream` callback via `config.checkpointId`. Your `sendMessage` helper should map it to the LangGraph SDK's `checkpoint_id` parameter (see [quickstart](/docs/runtimes/langgraph/quickstart) for the helper).
+解析后的 `checkpointId` 会通过 `config.checkpointId` 传递给你的 `stream` 回调。你的 `sendMessage` 辅助函数应将其映射到 LangGraph SDK 的 `checkpoint_id` 参数（有关该辅助函数，请参阅[快速入门](/docs/runtimes/langgraph/quickstart)）。
 
 <Callout type="info">
-Without `getCheckpointId`, edit and regenerate buttons will not appear. This is intentional; truncating client-side messages without forking from the correct server-side checkpoint would produce incorrect state.
+如果没有 `getCheckpointId`，则不会显示编辑和重新生成按钮。这是有意为之；如果不从正确的服务端检查点创建分支，而仅截断客户端消息，就会产生错误的状态。
 </Callout>
 
-## Next
+## 下一步
 
 <Cards>
   <Card
-    title="Threads"
-    description="Basic thread support, AssistantCloud, custom thread list adapter."
+    title="线程"
+    description="基本线程支持、AssistantCloud、自定义线程列表适配器。"
     href="/docs/runtimes/langgraph/threads"
   />
   <Card
-    title="Streaming"
-    description="Event handlers, message metadata, generative UI."
+    title="流式传输"
+    description="事件处理器、消息元数据、生成式 UI。"
     href="/docs/runtimes/langgraph/streaming"
   />
 </Cards>

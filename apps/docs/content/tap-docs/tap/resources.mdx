@@ -1,18 +1,15 @@
 ---
-title: Resources
-description: Package stateful behavior into reusable, configurable values.
+title: 资源
+description: 将有状态行为封装为可复用、可配置的值。
 ---
 
-A **Resource** packages stateful behavior behind a JavaScript value. It renders
-with inputs, keeps Hook state between renders, mounts effects, and cleans up
-when it unmounts.
+**Resource（资源）** 将有状态行为封装在一个 JavaScript 值之后。它使用输入进行渲染，在多次渲染之间保留 Hook 状态，挂载副作用，并在卸载时进行清理。
 
-Its return value is its public API: the state and methods available wherever the
-Resource is rendered.
+它的返回值就是其公共 API：无论 Resource 在何处渲染，都可以使用其中的状态和方法。
 
-## Package a Hook as a Resource
+## 将 Hook 封装为 Resource
 
-Start with an ordinary Hook, then pass it to `resource()`:
+从一个普通的 Hook 开始，然后将其传递给 `resource()`：
 
 ```ts
 import { resource } from "@assistant-ui/tap";
@@ -27,24 +24,21 @@ const useCounter = (props: { initialValue?: number }) => {
 const Counter = resource(useCounter);
 ```
 
-`useCounter` contains the implementation. `Counter` is the reusable Resource.
-Keep the implementation in a `use`-prefixed Hook so React's rules of Hooks lint
-it normally.
+`useCounter` 包含实现。`Counter` 是可复用的 Resource。
+请将实现放在以 `use` 为前缀的 Hook 中，以便 React 的 Hooks 规则能够正常检查它。
 
-Calling a Resource configures it:
+调用 Resource 会对其进行配置：
 
 ```ts
 const counter = Counter({ initialValue: 10 });
 ```
 
-This does not run `useCounter` or create state. It returns an inert
-`ResourceElement` describing what to render, much like JSX describes a component
-before React renders it.
+这不会运行 `useCounter`，也不会创建状态。它会返回一个描述待渲染内容的惰性
+`ResourceElement`，这与 React 渲染组件之前，JSX 对组件的描述方式非常相似。
 
-## Configuration is a value
+## 配置就是一个值
 
-Because a configured Resource is a value, an application can choose, pass, and
-nest it before any state is created:
+由于配置后的 Resource 是一个值，应用可以在创建任何状态之前选择、传递并嵌套它：
 
 ```tsx
 import { useResource, type ResourceElement } from "@assistant-ui/tap";
@@ -62,15 +56,12 @@ function CounterButton({
 }
 ```
 
-The component owns where the state is rendered without owning its
-implementation or configuration. A caller can use the default or provide any
-other Resource that returns the same API.
+组件负责决定状态在哪里渲染，但不负责其实现或配置。调用方可以使用默认 Resource，也可以提供任何返回相同 API 的其他 Resource。
 
-## Hosting a Resource
+## 承载 Resource
 
-Use `useResource` to render a single Resource, or
-[`useResources`](/tap/docs/tap/composition#useresources) to render a keyed list
-of Resources.
+使用 `useResource` 渲染单个 Resource，或使用
+[`useResources`](/tap/docs/tap/composition#useresources) 渲染 Resource 的带键列表。
 
 ```tsx
 import { useResource } from "@assistant-ui/tap";
@@ -81,17 +72,12 @@ function CounterButton() {
 }
 ```
 
-Rendering creates the Resource's state and returns its current public API. In a
-React component, the component re-renders when that state changes and the
-Resource unmounts with the component. Inside another Resource, it becomes a
-child in the same resource tree.
+渲染会创建 Resource 的状态，并返回其当前的公共 API。在 React 组件中，状态发生变化时组件会重新渲染，而 Resource 会随组件一起卸载。在另一个 Resource 内部，它会成为同一资源树中的子节点。
 
-Arguments can change across renders without replacing the Resource's state.
-Effects respond through their dependency arrays, just as they do in a React
-component.
+多次渲染之间可以更改参数，而不会替换 Resource 的状态。副作用会通过其依赖数组作出响应，这与 React 组件中的行为相同。
 
-## Next
+## 下一步
 
-- [Composition](/tap/docs/tap/composition): compose individual resources and keyed lists.
-- [Trees & Re-renders](/tap/docs/tap/trees-and-rerenders): give a resource tree its own scheduler with `useTapRoot`.
-- [Context](/tap/docs/tap/context): pass values through the resource tree without prop drilling.
+- [组合](/tap/docs/tap/composition)：组合单个 Resource 和带键列表。
+- [树与重新渲染](/tap/docs/tap/trees-and-rerenders)：使用 `useTapRoot` 为资源树提供独立的调度器。
+- [Context](/tap/docs/tap/context)：在资源树中传递值，无需逐层传递 props。

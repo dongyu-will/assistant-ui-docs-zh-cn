@@ -1,20 +1,20 @@
 ---
-title: "Research report"
-description: "An outline that fills in section by section, each carrying the sources behind it."
+title: "研究报告"
+description: "逐节完善的大纲，每节都附带其背后的来源。"
 ---
 
-ResearchReport is a live outline: a heading list that tracks pending, writing, and done as an agent works through it, with a source count per section. With a runtime the sections stream in as the model writes them; standalone you already hold the full list.
+ResearchReport 是一个实时大纲：一个标题列表，用于在助手处理过程中跟踪待处理、编写中和已完成状态，并显示每节的来源数量。在运行时中，模型写入内容时，各节会以流式方式传输；单独使用时，你已经持有完整列表。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-assistant-ui streams a tool call's arguments as partial JSON while the model writes them, so a report can be the argument itself rather than something you wait for a finished result to show. Ask the model for the report as structured `args` and read them live.
+assistant-ui 会在模型写入工具调用的参数时，以部分 JSON 的形式流式传输这些参数，因此报告本身可以直接作为参数，而不必等待完成的结果后再显示。要求模型以结构化的 `args` 形式返回报告，并实时读取这些内容。
 
 <Steps>
   <Step>
 
-### Render the live args
+### 渲染实时参数
 
 ```tsx title="components/assistant-ui/elements/write-report-tool-ui.tsx"
 "use client";
@@ -43,14 +43,14 @@ export const WriteReportToolUI: ToolCallMessagePartComponent<
 );
 ```
 
-`args` is a partial parse while the call is `running`: `title` can be `undefined` before the model writes it, `sections` can be shorter than the final list, and the last entry's `preview` can be a half-written sentence. The fallbacks keep the render from breaking on a field that has not arrived yet.
+`args` 是工具调用处于 `running` 状态时的部分解析结果：模型写入前，`title` 可能会被 `undefined`，`sections` 可能比最终列表更短，而最后一项的 `preview` 可能只是写到一半的句子。回退值可以避免因某个字段尚未传输到而导致渲染中断。
 
   </Step>
   <Step>
 
-### Register the tool
+### 注册工具
 
-This tool has nothing to execute: the report is the argument, not something fetched afterward. Give the schema the same shape as `ReportSection` so the model's own output already carries `state`.
+此工具不需要执行任何操作：报告就是参数本身，而不是之后再获取的内容。让 schema 与 `ReportSection` 具有相同的形状，这样模型自身的输出就已经携带了 `state`。
 
 ```tsx title="app/toolkit.ts"
 import { defineToolkit } from "@assistant-ui/react";
@@ -80,7 +80,7 @@ export const toolkit = defineToolkit({
 });
 ```
 
-`execute` does no work; it only lets the call complete once the model finishes writing, the same as any other frontend tool. Wire the toolkit in with `Tools({ toolkit })`; see [Tool UI](/docs/tools/tool-ui).
+`execute` 不执行任何工作；它只是让工具调用在模型完成写入后结束，与其他前端工具相同。使用 `Tools({ toolkit })` 接入工具包；参见 [工具 UI](/docs/tools/tool-ui)。
 
   </Step>
 </Steps>
@@ -89,12 +89,12 @@ export const toolkit = defineToolkit({
 
 <StandaloneMode>
 
-Standalone, you own the section list end to end, including every state transition.
+单独使用时，你需要端到端地管理节列表，包括每次状态转换。
 
 <Steps>
   <Step>
 
-### Hold the sections
+### 保存各节
 
 ```tsx title="app/report.tsx"
 "use client";
@@ -128,9 +128,9 @@ export function Report() {
   </Step>
   <Step>
 
-### Advance a section
+### 推进一节
 
-Finishing one section and starting the next are two writes to the same array.
+完成一节并开始下一节，实际上是对同一个数组进行两次写入。
 
 ```tsx
 function finishSection(id: string, preview: string) {
@@ -150,7 +150,7 @@ function finishSection(id: string, preview: string) {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="research-report">
@@ -168,15 +168,15 @@ function finishSection(id: string, preview: string) {
 </div>
 ```
 
-The header's `done` count is computed by filtering `sections` for `state === "done"`; `sourcesRead` is a separate number you supply and is never cross-checked against each section's own `sources`. Heading brightness marks two states, not three: `pending` dims the heading, while both `writing` and `done` render it at full opacity, so only the glyph beside it, a static dot, a spinning loader, or a check, tells writing and done apart. A section's source count renders only when greater than zero; a `0` is hidden rather than shown as `0 src`. `preview` renders only for a non-empty string; an explicit empty string hides it the same as omitting the field. The first section's row carries no top border; every one after it does. An empty `sections` array renders the header alone, reading `0/0 sections`, with no placeholder row.
+标题中的 `done` 数量是通过筛选 `sections` 中的 `state === "done"` 计算得出的；`sourcesRead` 是你单独提供的数字，永远不会与每节自身的 `sources` 交叉校验。标题亮度表示两种状态，而不是三种：`pending` 会使标题变暗，而 `writing` 和 `done` 都会以完全不透明的效果渲染标题，因此只有标题旁的图标——静态圆点、旋转加载器或勾号——能够区分编写中和已完成状态。只有当某节的来源数量大于零时，才会渲染该数量；`0` 会被隐藏，而不是显示为 `0 src`。`preview` 仅在字符串非空时渲染；显式传入空字符串时，其效果与省略该字段相同，都会将其隐藏。第一节的行没有顶部边框；之后的每一节都有顶部边框。空的 `sections` 数组只会渲染标题，显示 `0/0 sections`，不会显示占位行。
 
-## Examples
+## 示例
 
-### Section state comes from the model, not from assistant-ui
+### 节状态来自模型，而不是 assistant-ui
 
 <RuntimeMode>
 
-`state` is plain data the model writes as part of `sections`; assistant-ui does not infer pending, writing, or done from streaming progress on its own. If you would rather not trust the model to self-report accurately, `useToolArgsStatus` reports whether the whole `sections` argument has finished streaming, which you can use to force every section to `"done"` once the call settles, regardless of what the model wrote for individual entries.
+`state` 是模型作为 `sections` 一部分写入的普通数据；assistant-ui 不会自行根据流式传输进度推断待处理、编写中或已完成状态。如果你不希望依赖模型准确地自我报告，`useToolArgsStatus` 会报告整个 `sections` 参数是否已经完成流式传输。工具调用结束后，你可以用它强制将每一节设置为 `"done"`，而不考虑模型为各项写入了什么状态。
 
 ```tsx
 import { useToolArgsStatus } from "@assistant-ui/react";
@@ -189,31 +189,31 @@ function useIsReportSettled() {
 
 </RuntimeMode>
 
-### Restyle the report
+### 重新设置报告样式
 
-Both lanes take `className` on the root. The header meta line and the per-section source count read from the shared `mono` token, and the card itself from `paper`, both in `surfaces.tsx`.
+两条样式通道都会在根元素上接收 `className`。标题元信息行和每节的来源数量读取共享的 `mono` token，而卡片本身读取 `paper`；两者都来自 `surfaces.tsx`。
 
 ```tsx
 <ResearchReport className="max-w-none p-6" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool-call render props
+### 工具调用渲染属性
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `args` | `TArgs` | Parsed arguments. Partial while the model is still streaming them. |
-| `argsText` | `string` | Raw JSON argument text streamed by the model. |
-| `result` | `TResult \| undefined` | The tool's return value once it completes. `undefined` while running. |
-| `status` | `ToolCallMessagePartStatus` | `status.type` is `"running"`, `"requires-action"`, `"complete"`, or `"incomplete"`. |
-| `toolName` | `string` | Name of the tool the model called. |
-| `toolCallId` | `string` | Stable id for this invocation. |
-| `isError` | `boolean \| undefined` | Whether `result` represents a tool execution error. |
+| `args` | `TArgs` | 已解析的参数。模型仍在流式传输参数时，该值是部分内容。 |
+| `argsText` | `string` | 模型流式传输的原始 JSON 参数文本。 |
+| `result` | `TResult \| undefined` | 工具完成后的返回值。运行期间为 `undefined`。 |
+| `status` | `ToolCallMessagePartStatus` | `status.type` 的值为 `"running"`、`"requires-action"`、`"complete"` 或 `"incomplete"`。 |
+| `toolName` | `string` | 模型调用的工具名称。 |
+| `toolCallId` | `string` | 此次调用的稳定 ID。 |
+| `isError` | `boolean \| undefined` | `result` 是否表示工具执行错误。 |
 
-Register the renderer on a toolkit entry's `render` field and attach the toolkit with `Tools({ toolkit })`. See [Tool UI](/docs/tools/tool-ui) for the full render-prop surface, including `addResult`, human tools, and approval gates.
+将渲染器注册到工具包条目的 `render` 字段，并使用 `Tools({ toolkit })` 接入工具包。完整的渲染属性列表请参见[工具 UI](/docs/tools/tool-ui)，其中包括 `addResult`、人工工具和审批门。
 
 </RuntimeMode>
 
@@ -221,23 +221,23 @@ Register the renderer on a toolkit entry's `render` field and attach the toolkit
 
 ### ResearchReport
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `title` | `string` | required | Report heading. Shadows the native `title` attribute, which is dropped from the forwarded props. |
-| `sections` | `readonly ReportSection[]` | required | The outline, in order. |
-| `sourcesRead` | `number` | required | Total source count shown in the header meta line. Independent of each section's own `sources`. |
-| `className` | `string` | | Merged onto the root. |
+| `title` | `string` | 必填 | 报告标题。它会覆盖原生的 `title` 属性，该属性不会被转发到其他属性中。 |
+| `sections` | `readonly ReportSection[]` | 必填 | 按顺序排列的大纲。 |
+| `sourcesRead` | `number` | 必填 | 标题元信息行中显示的来源总数。独立于每节自身的 `sources`。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### ReportSection
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
 | `id` | `string` | |
 | `heading` | `string` | |
-| `state` | `"pending" \| "writing" \| "done"` | Drives the status glyph and heading brightness. |
-| `sources` | `number` | Per-section citation count. Hidden when `0`. |
-| `preview` | `string` (optional) | Shown under the heading once it is a non-empty string. |
+| `state` | `"pending" \| "writing" \| "done"` | 控制状态图标和标题亮度。 |
+| `sources` | `number` | 每节的引用数量。`0` 时隐藏。 |
+| `preview` | `string`（可选） | 字符串非空后显示在标题下方。 |
 
-All other `div` props are forwarded to the root, except `title`, which the component's own prop replaces.
+所有其他 `div` 属性都会被转发到根元素，但 `title` 除外；该属性会被组件自身的属性替换。
 
 </StandaloneMode>

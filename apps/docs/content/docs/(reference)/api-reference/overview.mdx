@@ -1,6 +1,6 @@
 ---
-title: API Reference
-description: Complete assistant-ui React API reference for building AI chat UIs with primitives, hooks, runtimes, adapters, tools, transport, voice, and integrations.
+title: API 参考
+description: 完整的 assistant-ui React API 参考，涵盖用于构建 AI 聊天 UI 的原语、Hooks、运行时、适配器、工具、传输层、语音和集成。
 ---
 
 {/* api-reference:skip-auto-generation */}
@@ -8,55 +8,55 @@ description: Complete assistant-ui React API reference for building AI chat UIs 
 import { Component, ContextLevel } from "./context";
 
 export const contextColors = {
-  "Assistant Context": "#4a86e8",
-  "Thread Context": "#45a049",
-  "Composer Context": "#ff9933",
-  "Message Context": "#bb2244",
-  "MessagePart Context": "#268bd2",
-  "Attachment Context": "#FFB6C1",
-  "ThreadListItem Context": "#c678dd",
+  "助手上下文": "#4a86e8",
+  "线程上下文": "#45a049",
+  "输入框上下文": "#ff9933",
+  "消息上下文": "#bb2244",
+  "消息部分上下文": "#268bd2",
+  "附件上下文": "#FFB6C1",
+  "线程列表项上下文": "#c678dd",
 };
 
-## Start Here
+## 从这里开始
 
-The React API reference is organized by how you build with assistant-ui:
+React API 参考按照使用 assistant-ui 构建应用的方式组织：
 
 <Cards>
-  <Card title="Tools" href="/docs/api-reference/tools">
-    Define toolkits, install tool resources, and render tool or data parts.
+  <Card title="工具" href="/docs/api-reference/tools">
+    定义工具包、安装工具资源，并渲染工具或数据部分。
   </Card>
-  <Card title="Model Context" href="/docs/api-reference/model-context/context">
-    Provide instructions, merge model context, and register inline renderers for model-facing state.
+  <Card title="模型上下文" href="/docs/api-reference/model-context/context">
+    提供指令、合并模型上下文，并为面向模型的状态注册内联渲染器。
   </Card>
-  <Card title="Transport" href="/docs/api-reference/transport/assistant-transport">
-    Assistant transport, frame provider, and serialized frame protocol APIs for cross-boundary runtimes.
+  <Card title="传输层" href="/docs/api-reference/transport/assistant-transport">
+    用于跨边界运行时的助手传输层、帧提供器和序列化帧协议 API。
   </Card>
-  <Card title="External Store" href="/docs/api-reference/external-store/runtime">
-    Runtime and message conversion APIs for apps that own their message store.
+  <Card title="外部状态存储" href="/docs/api-reference/external-store/runtime">
+    适用于自行管理消息存储的应用的运行时和消息转换 API。
   </Card>
-  <Card title="Voice" href="/docs/api-reference/voice/session">
-    Realtime voice sessions, speech synthesis adapters, and dictation adapters.
+  <Card title="语音" href="/docs/api-reference/voice/session">
+    实时语音会话、语音合成适配器和听写适配器。
   </Card>
-  <Card title="Primitives" href="/docs/api-reference/primitives/thread">
-    Composable React components such as `ThreadPrimitive`, `MessagePrimitive`, and `ComposerPrimitive`.
+  <Card title="原语" href="/docs/api-reference/primitives/thread">
+    可组合的 React 组件，例如 `ThreadPrimitive`、`MessagePrimitive` 和 `ComposerPrimitive`。
   </Card>
   <Card title="Hooks" href="/docs/api-reference/hooks/state">
-    Reactive state hooks, runtime hooks, model context hooks, and utility hooks.
+    响应式状态 Hooks、运行时 Hooks、模型上下文 Hooks 和工具 Hooks。
   </Card>
-  <Card title="Adapters" href="/docs/api-reference/adapters/model">
-    Runtime extension points for attachments, persistence, feedback, speech, dictation, and suggestions.
+  <Card title="适配器" href="/docs/api-reference/adapters/model">
+    用于附件、持久化、反馈、语音、听写和建议的运行时扩展点。
   </Card>
-  <Card title="Integrations" href="/docs/api-reference/integrations/ai-sdk">
-    Package-level APIs for integrations such as `@assistant-ui/ai-sdk` and `@assistant-ui/cloud-ai-sdk`.
+  <Card title="集成" href="/docs/api-reference/integrations/ai-sdk">
+    用于 `@assistant-ui/ai-sdk` 和 `@assistant-ui/cloud-ai-sdk` 等集成的包级 API。
   </Card>
-  <Card title="Runtime State" href="/docs/api-reference/runtimes/assistant-runtime">
-    Runtime action and state shapes used by `useAui` and `useAuiState`.
+  <Card title="运行时状态" href="/docs/api-reference/runtimes/assistant-runtime">
+    `useAui` 和 `useAuiState` 使用的运行时操作和状态结构。
   </Card>
 </Cards>
 
-The lower sections on this page show how the core React contexts nest and where the primary primitives, hooks, and runtime objects are available. Feature-first APIs such as tools, model context, transport, external store, and voice now live in their own generated sections.
+本页面下方的章节展示了核心 React 上下文的嵌套方式，以及主要原语、Hooks 和运行时对象的可用位置。工具、模型上下文、传输层、外部状态存储和语音等以功能为先的 API 现在位于各自生成的章节中。
 
-## Highest Level Context Providers
+## 最高层级的上下文提供器
 
 <Component
   name="AssistantRuntimeProvider"
@@ -109,32 +109,32 @@ The lower sections on this page show how the core React contexts nest and where 
 
 <ContextLevel color={contextColors["Assistant Context"]}>
 
-## Assistant Context
+## 助手上下文
 
-The context available to components inside `<AssistantRuntimeProvider />`. You usually wrap your entire application in this context.
+`<AssistantRuntimeProvider />` 内部组件可用的上下文。通常会用此上下文包裹整个应用。
 
 ### AssistantRuntime
 
-Programmatically access the assistant's state and actions via `useAui()`.
+通过 `useAui()` 以编程方式访问助手的状态和操作。
 
-### Instructions
+### 指令
 
-Add system prompt instructions
+添加系统提示词指令
 
 - [`useAssistantInstructions`](/docs/api-reference/model-context/context)
 
-### Tool UI
+### 工具 UI
 
-Register toolkits and tool UIs
+注册工具包和工具 UI
 
 - [`Toolkit`](/docs/api-reference/tools/toolkits#toolkit)
 - [`Tools`](/docs/api-reference/tools/toolkits#tools)
 
-Programmatically access the list of registered tool UIs via `useAuiState((s) => s.tools)` and `useAui().tools()`.
+通过 `useAuiState((s) => s.tools)` 和 `useAui().tools()` 以编程方式访问已注册工具 UI 的列表。
 
 ### ThreadListPrimitive
 
-Shows a list of threads and allows the user to switch between them.
+显示线程列表，并允许用户在不同线程之间切换。
 
 <Component
   name="ThreadListPrimitive.Root"
@@ -165,17 +165,17 @@ Shows a list of threads and allows the user to switch between them.
 
 <ContextLevel color={contextColors["Thread Context"]}>
 
-## Thread Context
+## 线程上下文
 
-The context for a single thread. Currently always corresponds to the runtime's main thread.
+单个线程的上下文。目前始终对应运行时的主线程。
 
 ### ThreadRuntime
 
-Programmatically access the thread's state and actions.
+以编程方式访问线程的状态和操作。
 
-- State: `useAuiState((s) => s.thread)`
-- Actions: `useAui().thread()`
-- Composer: `useAuiState((s) => s.composer)`
+- 状态：`useAuiState((s) => s.thread)`
+- 操作：`useAui().thread()`
+- 输入框：`useAuiState((s) => s.composer)`
 
 ### ModelContext
 
@@ -188,7 +188,7 @@ Programmatically access the thread's state and actions.
 
 ### ThreadPrimitive
 
-A conversation thread.
+一个对话线程。
 
 <Component
   name="ThreadPrimitive.Root"
@@ -245,7 +245,7 @@ A conversation thread.
 
 ### AssistantModalPrimitive
 
-A floating modal that usually appears in the lower right corner of the screen. Common for support use cases.
+一种浮动模态框，通常显示在屏幕右下角。常用于支持场景。
 
 <Component
   name="AssistantModalPrimitive.Root"
@@ -273,14 +273,14 @@ A floating modal that usually appears in the lower right corner of the screen. C
 
 <ContextLevel color={contextColors["Composer Context"]}>
 
-## Composer Context
+## 输入框上下文
 
-Manages the state and actions for the message composer
+管理消息输入框的状态和操作
 
 ### ComposerRuntime
 
-- State: `useAuiState((s) => s.composer)`
-- Actions: `useAui().composer()`
+- 状态：`useAuiState((s) => s.composer)`
+- 操作：`useAui().composer()`
 
 ### ComposerPrimitive
 
@@ -327,16 +327,16 @@ Manages the state and actions for the message composer
 
 <ContextLevel color={contextColors["Message Context"]}>
 
-## Message Context
+## 消息上下文
 
-Manages the state and actions for individual messages
+管理单条消息的状态和操作
 
 ### MessageRuntime
 
-- State: `useAuiState((s) => s.message)`
-- Edit Composer: `useAuiState((s) => s.message.composer)`
-- Actions: `useAui().message()`
-- Utilities: `useAuiState((s) => s.message.isCopied)` / `useAuiState((s) => s.message.isHovering)`
+- 状态：`useAuiState((s) => s.message)`
+- 编辑输入框：`useAuiState((s) => s.message.composer)`
+- 操作：`useAui().message()`
+- 工具函数：`useAuiState((s) => s.message.isCopied)` / `useAuiState((s) => s.message.isHovering)`
 
 ### MessagePrimitive
 
@@ -448,14 +448,14 @@ Manages the state and actions for individual messages
 
 <ContextLevel color={contextColors["MessagePart Context"]}>
 
-## MessagePart Context
+## 消息部分上下文
 
-Manages the state and actions for message parts within messages
+管理消息中各消息部分的状态和操作
 
 ### MessagePartRuntime
 
-- State: `useAuiState((s) => s.part)`
-- Actions: `useAui().part()`
+- 状态：`useAuiState((s) => s.part)`
+- 操作：`useAui().part()`
 
 ### MessagePartPrimitive
 
@@ -477,14 +477,14 @@ Manages the state and actions for message parts within messages
 
 <ContextLevel color={contextColors["Attachment Context"]}>
 
-## Attachment Context
+## 附件上下文
 
-Manages the state and actions for attachments in messages and composer
+管理消息和输入框中附件的状态和操作
 
 ### AttachmentRuntime
 
-- State: `useAuiState((s) => s.attachment)`
-- Actions: `useAui().attachment()`
+- 状态：`useAuiState((s) => s.attachment)`
+- 操作：`useAui().attachment()`
 
 ### AttachmentPrimitive
 
@@ -514,14 +514,14 @@ Manages the state and actions for attachments in messages and composer
 
 <ContextLevel color={contextColors["ThreadListItem Context"]}>
 
-## ThreadListItem Context
+## 线程列表项上下文
 
-Manages the state and actions for individual thread list items
+管理单个线程列表项的状态和操作
 
 ### ThreadListItemRuntime
 
-- State: `useAuiState((s) => s.threadListItem)`
-- Actions: `useAui().threadListItem()`
+- 状态：`useAuiState((s) => s.threadListItem)`
+- 操作：`useAui().threadListItem()`
 
 ### ThreadListItem
 
@@ -560,7 +560,7 @@ Manages the state and actions for individual thread list items
 
 </ContextLevel>
 
-## Utilities
+## 工具函数
 
 - [`useThreadViewportAutoScroll`](/docs/api-reference/hooks/primitives)
 - [`useInlineRender`](/docs/api-reference/model-context/context)

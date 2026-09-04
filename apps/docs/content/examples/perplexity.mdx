@@ -1,32 +1,32 @@
 ---
 title: Perplexity Clone
-description: Open-source Perplexity-style chat in React — theme-aware composer, functional Search and Model dropdowns, four-state primary action, and a Search-icon assistant avatar.
+description: React 中开源的 Perplexity 风格聊天界面——支持主题感知的输入框、可用的 Search 和 Model 下拉菜单、四状态主操作，以及使用 Search 图标的助手头像。
 ---
 
-## Overview
+## 概述
 
-The Perplexity Clone demonstrates how to customize assistant-ui to match Perplexity's search-focused interface. The empty state centers the `perplexity` wordmark above a multi-line composer with functional Search and Model dropdowns; the chat state keeps the composer pinned as a sticky follow-up footer.
+Perplexity Clone 展示了如何自定义 assistant-ui，使其匹配 Perplexity 以搜索为核心的界面。空状态会将 `perplexity` wordmark 居中置于多行输入框上方，并提供可用的 Search 和 Model 下拉菜单；聊天状态则会将输入框固定为粘性的后续操作页脚。
 
-## Features
+## 功能
 
-- **Theme-Aware Styling**: Cream `#f6f2ec` light, espresso `#171615` dark — no forced theme
-- **Hero Wordmark**: Large centered `perplexity` headline that scales down on mobile
-- **Multi-line Composer**: `rows={2}` with `min-h-20` so the input feels as tall as Perplexity's hero
-- **Functional Search Dropdown**: Search / Research / Labs modes, each with an icon and description
-- **Functional Model Dropdown**: Best / Sonar / Claude 4.5 Sonnet / GPT-5 / Gemini 3 Pro (hidden on small screens)
-- **Four-State Primary Action**: Cancel, StopDictation, Send, Dictate — mutually exclusive via priority
-- **Inline Attachment Chips**: Compact previews render above the input
-- **Sticky Follow-up**: Once a chat starts, the composer becomes a pinned footer with a fade-out gradient over the cream background
+- **主题感知样式**：奶油色 `#f6f2ec` 浅色主题、浓缩咖啡色 `#171615` 深色主题——不强制指定主题
+- **主视觉 Wordmark**：居中的大型 `perplexity` 标题，在移动设备上会缩小
+- **多行输入框**：`rows={2}` 配合 `min-h-20`，让输入区域拥有类似 Perplexity 主视觉区域的高度
+- **可用的 Search 下拉菜单**：提供 Search / Research / Labs 模式，每种模式都带有图标和说明
+- **可用的 Model 下拉菜单**：Best / Sonar / Claude 4.5 Sonnet / GPT-5 / Gemini 3 Pro（在小屏幕上隐藏）
+- **四状态主操作**：Cancel、StopDictation、Send、Dictate——通过优先级实现互斥
+- **行内附件标签**：在输入框上方显示紧凑的预览
+- **粘性后续操作**：聊天开始后，输入框会变为固定页脚，并在奶油色背景上叠加渐隐渐变
 
-## Quick Start
+## 快速开始
 
 ```bash
 npx assistant-ui add thread
 ```
 
-## Code
+## 代码
 
-The empty state and chat state share the same `Composer`. The composer uses `--thread-max-width: 40rem` to stay tighter than the typical max-w-3xl:
+空状态和聊天状态共用同一个 `Composer`。输入框使用 `--thread-max-width: 40rem`，使其比常见的 max-w-3xl 更紧凑：
 
 ```tsx
 import {
@@ -72,7 +72,7 @@ const Composer = ({ placeholder }) => (
 );
 ```
 
-### Functional Search & Model Dropdowns
+### 可用的 Search 和 Model 下拉菜单
 
 ```tsx
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -98,9 +98,9 @@ const SEARCH_MODES = [
 </DropdownMenu>
 ```
 
-The Model picker uses `hidden sm:flex` so it collapses on mobile and the Search pill keeps room.
+Model 选择器使用 `hidden sm:flex`，因此会在移动设备上折叠，同时为 Search 标签保留空间。
 
-### Four-State Primary Action
+### 四状态主操作
 
 ```tsx
 <AuiIf condition={(s) => s.thread.isRunning}>
@@ -117,29 +117,29 @@ The Model picker uses `hidden sm:flex` so it collapses on mobile and the Search 
 </AuiIf>
 ```
 
-The conditions are mutually exclusive in priority order so dictation can be paused even when transcribed text fills the composer.
+这些条件按照优先级排列且彼此互斥，因此即使转录文本填满输入框，也可以暂停听写。
 
-### Color Palette
+### 配色
 
-| Element | Light | Dark |
+| 元素 | 浅色 | 深色 |
 |---------|-------|------|
-| Background | `#f6f2ec` | `#171615` |
-| Composer surface | `#fcfbf8` | `#23211f` |
-| Composer border | `#d7d0c5` | `#4a433b` |
-| Primary text | `#1f1b17` | `#f5f2ed` |
-| Muted text | `#7d7468` | `#a19a91` |
-| Primary action | `#25211c` | `#f5f2ed` |
-| Search pill | `#f5f1eb` | `#2a2724` |
+| 背景 | `#f6f2ec` | `#171615` |
+| 输入框表面 | `#fcfbf8` | `#23211f` |
+| 输入框边框 | `#d7d0c5` | `#4a433b` |
+| 主要文本 | `#1f1b17` | `#f5f2ed` |
+| 次要文本 | `#7d7468` | `#a19a91` |
+| 主操作 | `#25211c` | `#f5f2ed` |
+| Search 标签 | `#f5f1eb` | `#2a2724` |
 
-### Styling Details
+### 样式细节
 
-- **Composer Shell**: `rounded-3xl` card with a soft layered shadow and explicit light/dark borders
-- **Multi-line Input**: `rows={2}` and `min-h-20` keep the composer tall like Perplexity's hero input
-- **Wordmark**: `text-5xl sm:text-[3.1rem]` so it stays readable on mobile
-- **User Bubble**: `rounded-3xl rounded-tr-md` (chopped top-right corner) with a subtle border
-- **Assistant Avatar**: Search icon on the left of every assistant message
-- **Sticky Footer Gradient**: Fade from `transparent` to the cream background so messages don't sit flush against the composer
+- **输入框外壳**：`rounded-3xl` 卡片，配合柔和的分层阴影以及明确的浅色/深色边框
+- **多行输入**：`rows={2}` 和 `min-h-20` 让输入框保持类似 Perplexity 主视觉输入区域的高度
+- **Wordmark**：`text-5xl sm:text-[3.1rem]`，确保在移动设备上仍然清晰可读
+- **用户气泡**：`rounded-3xl rounded-tr-md`（右上角截角），配合细微边框
+- **助手头像**：每条助手消息左侧显示 Search 图标
+- **粘性页脚渐变**：从 `transparent` 渐变至奶油色背景，避免消息紧贴输入框
 
-## Source
+## 源码
 
 <SourceLink href="https://github.com/assistant-ui/assistant-ui/blob/main/apps/docs/components/pages/examples/perplexity.tsx" />

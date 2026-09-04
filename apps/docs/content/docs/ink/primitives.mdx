@@ -1,13 +1,13 @@
 ---
-title: Primitives
-description: Composable terminal components for building chat UIs with Ink.
+title: 原语
+description: 使用 Ink 构建聊天 UI 的可组合终端组件。
 ---
 
-Primitives are thin wrappers around Ink components (`Box`, `Text`) that integrate with the assistant-ui runtime. They accept all standard Ink props and add runtime-aware behavior.
+原语是对 Ink 组件（`Box`、`Text`）的轻量封装，可与 assistant-ui 运行时集成。它们接受所有标准 Ink props，并添加感知运行时的行为。
 
-Primitives use namespace imports, the same pattern as the web package (e.g. `ThreadPrimitive.Root`, `ComposerPrimitive.Input`).
+原语使用命名空间导入，与 Web 包采用相同模式（例如 `ThreadPrimitive.Root`、`ComposerPrimitive.Input`）。
 
-Many primitives share their core logic with `@assistant-ui/react` via `@assistant-ui/core/react` — only the UI layer (Ink vs DOM) differs.
+许多原语通过 `@assistant-ui/core/react` 与 `@assistant-ui/react` 共享核心逻辑，区别仅在于 UI 层（Ink 与 DOM）。
 
 ## Thread
 
@@ -17,7 +17,7 @@ import { ThreadPrimitive } from "@assistant-ui/react-ink";
 
 ### Root
 
-Container `Box` for the thread area.
+线程区域的容器 `Box`。
 
 ```tsx
 <ThreadPrimitive.Root>
@@ -27,11 +27,11 @@ Container `Box` for the thread area.
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `...rest` | `BoxProps` | Standard Ink Box props |
+| `...rest` | `BoxProps` | 标准 Ink Box props |
 
 ### Messages
 
-Renders the message list with automatic runtime integration. Each message is wrapped in a scoped context so that `useAuiState((s) => s.message)` works inside the message component.
+渲染消息列表并自动集成运行时。每条消息都包装在一个作用域上下文中，因此 `useAuiState((s) => s.message)` 可以在消息组件内部使用。
 
 ```tsx
 <ThreadPrimitive.Messages>
@@ -41,11 +41,11 @@ Renders the message list with automatic runtime integration. Each message is wra
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `components` | `MessageComponents` | Component map with `Message`, `UserMessage`, `AssistantMessage`, `SystemMessage`, and edit composer variants |
+| `components` | `MessageComponents` | 包含 `Message`、`UserMessage`、`AssistantMessage`、`SystemMessage` 和编辑输入框变体的组件映射 |
 
 ### AuiIf
 
-Conditional rendering based on assistant state. Replaces the deprecated `ThreadPrimitive.Empty`, `ThreadPrimitive.If`, `MessagePrimitive.If`, and `ComposerPrimitive.If`.
+基于助手状态进行条件渲染。替代已弃用的 `ThreadPrimitive.Empty`、`ThreadPrimitive.If`、`MessagePrimitive.If` 和 `ComposerPrimitive.If`。
 
 ```tsx
 import { AuiIf } from "@assistant-ui/react-ink";
@@ -61,15 +61,15 @@ import { AuiIf } from "@assistant-ui/react-ink";
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `condition` | `(state) => boolean` | Selector that determines whether children are rendered |
+| `condition` | `(state) => boolean` | 用于确定是否渲染子元素的选择器 |
 
-### Empty (deprecated)
+### Empty（已弃用）
 
 <Callout type="warn">
-  Deprecated. Use `AuiIf` with `condition={(s) => s.thread.isEmpty}` instead.
+  已弃用。请改用带有 `condition={(s) => s.thread.isEmpty}` 的 `AuiIf`。
 </Callout>
 
-Renders children only when the thread has no messages.
+仅在线程没有消息时渲染子元素。
 
 ```tsx
 <ThreadPrimitive.Empty>
@@ -77,13 +77,13 @@ Renders children only when the thread has no messages.
 </ThreadPrimitive.Empty>
 ```
 
-### If (deprecated)
+### If（已弃用）
 
 <Callout type="warn">
-  Deprecated. Use `AuiIf` instead.
+  已弃用。请改用 `AuiIf`。
 </Callout>
 
-Conditional rendering based on thread state.
+基于线程状态进行条件渲染。
 
 ```tsx
 <ThreadPrimitive.If empty>
@@ -97,12 +97,12 @@ Conditional rendering based on thread state.
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `empty` | `boolean` | Render when thread is empty |
-| `running` | `boolean` | Render when thread is running |
+| `empty` | `boolean` | 在线程为空时渲染 |
+| `running` | `boolean` | 在线程运行时渲染 |
 
 ### MessageByIndex
 
-Low-level provider that sets up the message context for a specific message by index. Used internally by `ThreadPrimitive.Messages`.
+低级 provider，根据索引为特定消息设置消息上下文。由 `ThreadPrimitive.Messages` 内部使用。
 
 ```tsx
 <ThreadPrimitive.MessageByIndex index={0}>
@@ -112,11 +112,11 @@ Low-level provider that sets up the message context for a specific message by in
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `index` | `number` | Zero-based message index |
+| `index` | `number` | 从零开始的消息索引 |
 
 ### Suggestions
 
-Renders all thread suggestions using a provided component. Each suggestion is wrapped in a `SuggestionByIndexProvider` context.
+使用提供的组件渲染线程中的所有建议。每条建议都包装在 `SuggestionByIndexProvider` 上下文中。
 
 ```tsx
 <ThreadPrimitive.Suggestions>
@@ -126,11 +126,11 @@ Renders all thread suggestions using a provided component. Each suggestion is wr
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `() => ReactElement` | Render function for each suggestion |
+| `children` | `() => ReactElement` | 为每条建议调用的渲染函数 |
 
 ### SuggestionByIndex
 
-Low-level provider that sets up the suggestion context for a specific suggestion by index. Used internally by `ThreadPrimitive.Suggestions`.
+低级 provider，根据索引为特定建议设置建议上下文。由 `ThreadPrimitive.Suggestions` 内部使用。
 
 ```tsx
 <ThreadPrimitive.SuggestionByIndex index={0}>
@@ -140,11 +140,11 @@ Low-level provider that sets up the suggestion context for a specific suggestion
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `index` | `number` | Zero-based suggestion index |
+| `index` | `number` | 从零开始的建议索引 |
 
 ### Suggestion
 
-Renders a suggestion button. Uses Ink `Box` + `Text`.
+渲染建议按钮。使用 Ink `Box` + `Text`。
 
 ```tsx
 <ThreadPrimitive.Suggestion
@@ -155,9 +155,9 @@ Renders a suggestion button. Uses Ink `Box` + `Text`.
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `prompt` | `string` | The suggestion text |
-| `send` | `boolean` | When true, automatically sends the message |
-| `clearComposer` | `boolean` | When true (default), replaces composer text; when false, appends |
+| `prompt` | `string` | 建议文本 |
+| `send` | `boolean` | 为 true 时自动发送消息 |
+| `clearComposer` | `boolean` | 为 true（默认值）时替换输入框文本；为 false 时追加文本 |
 
 ## Loading
 
@@ -165,9 +165,7 @@ Renders a suggestion button. Uses Ink `Box` + `Text`.
 import { LoadingPrimitive } from "@assistant-ui/react-ink";
 ```
 
-Composable loading UI for active runs. `LoadingPrimitive.Root` only renders
-while the current thread is running, so it pairs naturally with status rows in
-terminal chat layouts.
+用于活动运行的可组合加载 UI。`LoadingPrimitive.Root` 仅在线程运行期间渲染，因此很适合与终端聊天布局中的状态行搭配使用。
 
 ```tsx
 <LoadingPrimitive.Root gap={1}>
@@ -177,50 +175,45 @@ terminal chat layouts.
 </LoadingPrimitive.Root>
 ```
 
-This renders a compact status line such as `[=== ] Analyzing codebase... (3s)`
-while the assistant is streaming.
+助手进行流式输出时，该组件会渲染类似 `[=== ] Analyzing codebase... (3s)` 的紧凑状态行。
 
 ### Root
 
-Runtime-aware `Box` container that renders children only while
-`s.thread.isRunning` is true.
+感知运行时的 `Box` 容器，仅在 `s.thread.isRunning` 为 true 时渲染子元素。
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `ReactNode` | Status row content |
-| `...rest` | `BoxProps` | Standard Ink Box props |
+| `children` | `ReactNode` | 状态行内容 |
+| `...rest` | `BoxProps` | 标准 Ink Box props |
 
 ### Spinner
 
-Animated loader indicator. Supports the existing `ink-spinner` path plus a few
-built-in text-based variants for more terminal-native styles.
+动画加载指示器。支持现有的 `ink-spinner` 路径，以及一些内置的基于文本的变体，以实现更符合终端风格的样式。
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `variant` | `"spinner" \| "dots" \| "pulse" \| "bar" \| "bounce"` | Loader style (default: `"spinner"`) |
-| `type` | `ink-spinner` type | Spinner preset used when `variant="spinner"` |
-| `intervalMs` | `number` | Animation speed for non-spinner variants (default: `120`) |
-| `...rest` | `TextProps` | Standard Ink Text props |
+| `variant` | `"spinner" \| "dots" \| "pulse" \| "bar" \| "bounce"` | 加载器样式（默认值：`"spinner"`） |
+| `type` | `ink-spinner` 类型 | `variant="spinner"` 时使用的 Spinner 预设 |
+| `intervalMs` | `number` | 非 Spinner 变体的动画速度（默认值：`120`） |
+| `...rest` | `TextProps` | 标准 Ink Text props |
 
 ### Text
 
-Status label rendered as Ink `Text`.
+以 Ink `Text` 渲染的状态标签。
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `ReactNode` | Message text (default: `"Thinking..."`) |
-| `...rest` | `TextProps` | Standard Ink Text props |
+| `children` | `ReactNode` | 消息文本（默认值：`"Thinking..."`） |
+| `...rest` | `TextProps` | 标准 Ink Text props |
 
 ### ElapsedTime
 
-Elapsed time indicator for the current run. Uses message timing metadata when
-available and falls back to a local timer so it still works during manual
-testing.
+当前运行的已用时间指示器。如果可用，则使用消息计时元数据；否则回退到本地计时器，因此在手动测试期间也能正常工作。
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `format` | `(seconds: number) => string` | Custom formatter for the elapsed time label |
-| `...rest` | `TextProps` | Standard Ink Text props |
+| `format` | `(seconds: number) => string` | 已用时间标签的自定义格式化函数 |
+| `...rest` | `TextProps` | 标准 Ink Text props |
 
 ## Composer
 
@@ -230,7 +223,7 @@ import { ComposerPrimitive } from "@assistant-ui/react-ink";
 
 ### Root
 
-Container `Box` for the composer area.
+输入框区域的容器 `Box`。
 
 ```tsx
 <ComposerPrimitive.Root>
@@ -240,7 +233,7 @@ Container `Box` for the composer area.
 
 ### Input
 
-Terminal line editor wired to the composer runtime. Value is managed automatically and supports cursor-aware editing.
+与输入框运行时连接的终端行编辑器。值会自动管理，并支持感知光标的编辑。
 
 ```tsx
 <ComposerPrimitive.Input
@@ -253,34 +246,34 @@ Terminal line editor wired to the composer runtime. Value is managed automatical
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `submitOnEnter` | `boolean` | Whether Enter sends the message (default: `false`) |
-| `placeholder` | `string` | Placeholder text when empty |
-| `autoFocus` | `boolean` | Auto-focus on mount |
-| `multiLine` | `boolean` | When true, Enter inserts a newline unless `submitOnEnter` is enabled |
-| `onSubmit` | `(text: string) => void` | Overrides the default send behavior and receives the current composer text |
+| `submitOnEnter` | `boolean` | Enter 是否发送消息（默认值：`false`） |
+| `placeholder` | `string` | 为空时显示的占位文本 |
+| `autoFocus` | `boolean` | 挂载时自动聚焦 |
+| `multiLine` | `boolean` | 为 true 时，Enter 插入换行，除非启用了 `submitOnEnter` |
+| `onSubmit` | `(text: string) => void` | 覆盖默认发送行为，并接收当前输入框文本 |
 
-Supported keyboard bindings:
+支持的键盘绑定：
 
 | Key | Action | Context |
 |-----|--------|---------|
-| `Left` / `Right` | Move cursor by one grapheme | Always |
-| `Backspace` / `Delete` | Remove the grapheme before / after the cursor | Always |
-| `Home` / `End` | Jump to buffer or line boundary | Buffer in single-line, line in multi-line |
-| `Up` / `Down` | Move between lines, preserving column when possible | Multi-line only |
-| `Ctrl+A` / `Ctrl+E` | Move to line start / end | Always |
-| `Ctrl+W` | Kill the word before the cursor | Always |
-| `Ctrl+D` | Delete the grapheme after the cursor | Always |
-| `Ctrl+U` / `Ctrl+K` | Kill from cursor to line start / end; in multi-line, `Ctrl+K` at end-of-line joins the next line | Always |
-| `Ctrl+J` | Insert a newline | Multi-line only; swallowed in single-line so it never submits |
-| `Alt+B` / `Alt+F` | Move by word backward / forward | Terminals that emit meta-key sequences |
-| `Alt+D` | Kill the word after the cursor | Terminals that emit meta-key sequences |
-| `Shift+Enter` | Insert a newline | Multi-line submit mode, terminals that distinguish it |
+| `Left` / `Right` | 将光标移动一个字素 | 始终 |
+| `Backspace` / `Delete` | 删除光标前/后的字素 | 始终 |
+| `Home` / `End` | 跳转到缓冲区或行边界 | 单行时为缓冲区，多行时为行 |
+| `Up` / `Down` | 在行之间移动，并尽可能保留列位置 | 仅多行 |
+| `Ctrl+A` / `Ctrl+E` | 移动到行首/行尾 | 始终 |
+| `Ctrl+W` | 删除光标前的单词 | 始终 |
+| `Ctrl+D` | 删除光标后的字素 | 始终 |
+| `Ctrl+U` / `Ctrl+K` | 删除从光标到行首/行尾的内容；多行时，`Ctrl+K` 在行尾会连接下一行 | 始终 |
+| `Ctrl+J` | 插入换行 | 仅多行；单行时会吞掉该输入，因此不会提交 |
+| `Alt+B` / `Alt+F` | 向前/向后按单词移动 | 会发出 meta-key 序列的终端 |
+| `Alt+D` | 删除光标后的单词 | 会发出 meta-key 序列的终端 |
+| `Shift+Enter` | 插入换行 | 多行提交模式，以及能够区分该输入的终端 |
 
-Word boundaries and grapheme stepping use `Intl.Segmenter`, so emoji, accented letters, skin-tone modifiers, ZWJ sequences, and CJK ideographs each move and delete as a single character.
+单词边界和字素移动使用 `Intl.Segmenter`，因此 emoji、重音字母、肤色修饰符、ZWJ 序列和 CJK 表意文字都会作为单个字符移动和删除。
 
-Some bindings depend on terminal capabilities. iTerm2, Windows Terminal, and most Linux terminals emit `Alt`-letter combinations as `Esc`-prefixed sequences that Ink decodes as meta-key input; macOS Terminal.app requires enabling "Use Option as Meta key" in its preferences before `Alt+B` / `Alt+F` / `Alt+D` work as expected. `Shift+Enter` requires a terminal that supports the CSI-u protocol (iTerm2 3.4+, kitty, foot, and similar) — terminals that conflate it with `Enter` will fall back to the `submitOnEnter` behaviour.
+部分绑定取决于终端能力。iTerm2、Windows Terminal 和大多数 Linux 终端会将 `Alt`-字母组合发出为带 `Esc` 前缀的序列，Ink 会将其解码为 meta-key 输入；macOS Terminal.app 需要先在偏好设置中启用“Use Option as Meta key”，`Alt+B` / `Alt+F` / `Alt+D` 才能按预期工作。`Shift+Enter` 要求终端支持 CSI-u 协议（iTerm2 3.4+、kitty、foot 及类似终端）；将其与 `Enter` 混淆的终端会回退到 `submitOnEnter` 行为。
 
-Example with custom submit handling:
+自定义提交处理示例：
 
 ```tsx
 <ComposerPrimitive.Input
@@ -294,7 +287,7 @@ Example with custom submit handling:
 
 ### Send
 
-`Box` that triggers sending the current message. Typically used with a button-like UI.
+`Box`，用于触发发送当前消息。通常与类似按钮的 UI 搭配使用。
 
 ```tsx
 <ComposerPrimitive.Send>
@@ -304,7 +297,7 @@ Example with custom submit handling:
 
 ### Cancel
 
-`Box` that cancels the current run.
+`Box`，用于取消当前运行。
 
 ```tsx
 <ComposerPrimitive.Cancel>
@@ -314,7 +307,7 @@ Example with custom submit handling:
 
 ### Attachments
 
-Renders composer attachments using the provided component configuration.
+使用提供的组件配置渲染输入框附件。
 
 ```tsx
 <ComposerPrimitive.Attachments>
@@ -324,11 +317,11 @@ Renders composer attachments using the provided component configuration.
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `components` | `{ Image?, Document?, File?, Attachment? }` | Component renderers by attachment type |
+| `components` | `{ Image?, Document?, File?, Attachment? }` | 按附件类型提供的组件渲染器 |
 
 ### AddAttachment
 
-Triggers attachment addition.
+触发添加附件。
 
 ```tsx
 <ComposerPrimitive.AddAttachment>
@@ -338,7 +331,7 @@ Triggers attachment addition.
 
 ### Queue
 
-Renders all queued composer items. Each item is wrapped in a `QueueItemByIndexProvider`, so `QueueItemPrimitive.*` can read item state and call queue actions inside the render prop. Backed by the shared `ComposerPrimitiveQueue` from `@assistant-ui/core/react`.
+渲染所有排队的输入框项目。每个项目都包装在 `QueueItemByIndexProvider` 中，因此 `QueueItemPrimitive.*` 可以在 render prop 中读取项目状态并调用队列操作。底层使用来自 `@assistant-ui/core/react` 的共享 `ComposerPrimitiveQueue`。
 
 ```tsx
 <ComposerPrimitive.Queue>
@@ -358,11 +351,11 @@ Renders all queued composer items. Each item is wrapped in a `QueueItemByIndexPr
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `(value: { queueItem: QueueItemState }) => ReactNode` | Render function called for each queue item |
+| `children` | `(value: { queueItem: QueueItemState }) => ReactNode` | 为每个队列项目调用的渲染函数 |
 
 ### Quote
 
-Renders the active composer quote preview. Children are only rendered while `s.composer.quote` is set, so this acts as both a container and a gate.
+渲染当前输入框引用预览。仅在设置了 `s.composer.quote` 时渲染子元素，因此它同时充当容器和门控组件。
 
 ```tsx
 <ComposerPrimitive.Quote>
@@ -378,12 +371,12 @@ Renders the active composer quote preview. Children are only rendered while `s.c
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `ReactNode` | Quote preview content; only rendered when a quote is set |
-| `...rest` | `BoxProps` | Standard Ink Box props |
+| `children` | `ReactNode` | 引用预览内容；仅在设置了引用时渲染 |
+| `...rest` | `BoxProps` | 标准 Ink Box props |
 
 ### QuoteText
 
-Renders the quoted text from `s.composer.quote?.text`. Pass `children` to override the displayed value.
+渲染来自 `s.composer.quote?.text` 的引用文本。传入 `children` 可覆盖显示值。
 
 ```tsx
 <ComposerPrimitive.QuoteText color="gray" />
@@ -391,12 +384,12 @@ Renders the quoted text from `s.composer.quote?.text`. Pass `children` to overri
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `ReactNode` | Override content; defaults to `s.composer.quote?.text` |
-| `...rest` | `TextProps` | Standard Ink Text props |
+| `children` | `ReactNode` | 覆盖内容；默认为 `s.composer.quote?.text` |
+| `...rest` | `TextProps` | 标准 Ink Text props |
 
 ### QuoteDismiss
 
-Pressable that clears the active quote by calling `aui.composer.setQuote(undefined)`.
+可按下的组件，通过调用 `aui.composer.setQuote(undefined)` 清除当前引用。
 
 ```tsx
 <ComposerPrimitive.QuoteDismiss>
@@ -406,13 +399,13 @@ Pressable that clears the active quote by calling `aui.composer.setQuote(undefin
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `ReactNode` | Button content |
-| `disabled` | `boolean` | Disable Enter activation and focus |
-| `...rest` | `BoxProps` | Standard Ink Box props |
+| `children` | `ReactNode` | 按钮内容 |
+| `disabled` | `boolean` | 禁用 Enter 激活和聚焦 |
+| `...rest` | `BoxProps` | 标准 Ink Box props |
 
-### Conditional Rendering (Composer)
+### 条件渲染（Composer）
 
-Use `AuiIf` for conditional rendering based on composer state:
+使用 `AuiIf` 根据输入框状态进行条件渲染：
 
 ```tsx
 <AuiIf condition={(s) => s.composer.isEditing}>
@@ -422,7 +415,7 @@ Use `AuiIf` for conditional rendering based on composer state:
 
 ### AttachmentByIndex
 
-Low-level provider that sets up the attachment context for a specific attachment by index. Used internally by `ComposerPrimitive.Attachments`.
+低级 provider，根据索引为特定附件设置附件上下文。由 `ComposerPrimitive.Attachments` 内部使用。
 
 ```tsx
 <ComposerPrimitive.AttachmentByIndex index={0}>
@@ -432,15 +425,15 @@ Low-level provider that sets up the attachment context for a specific attachment
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `index` | `number` | Zero-based attachment index |
+| `index` | `number` | 从零开始的附件索引 |
 
-### If (deprecated)
+### If（已弃用）
 
 <Callout type="warn">
-  Deprecated. Use `AuiIf` instead.
+  已弃用。请改用 `AuiIf`。
 </Callout>
 
-Conditional rendering based on composer state. Shared from `@assistant-ui/core/react`.
+基于输入框状态进行条件渲染。共享自 `@assistant-ui/core/react`。
 
 ```tsx
 <ComposerPrimitive.If editing>
@@ -454,8 +447,8 @@ Conditional rendering based on composer state. Shared from `@assistant-ui/core/r
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `editing` | `boolean` | Render when composer is in editing mode |
-| `dictation` | `boolean` | Render when dictation is currently active |
+| `editing` | `boolean` | 在输入框处于编辑模式时渲染 |
+| `dictation` | `boolean` | 当前处于听写状态时渲染 |
 
 ## Message
 
@@ -465,7 +458,7 @@ import { MessagePartPrimitive, MessagePrimitive } from "@assistant-ui/react-ink"
 
 ### Root
 
-Container `Box` for a single message.
+单条消息的容器 `Box`。
 
 ```tsx
 <MessagePrimitive.Root>
@@ -475,7 +468,7 @@ Container `Box` for a single message.
 
 ### Parts
 
-Renders message content parts via a `components` prop. Tool call and data parts automatically render registered toolkit renderers and data UIs (via `useAssistantDataUI`), falling back to components provided here. Default terminal-safe renderers are provided for text, reasoning, source, image, file, and data parts.
+通过 `components` prop 渲染消息内容部分。工具调用和数据部分会自动渲染已注册的 toolkit 渲染器和数据 UI（通过 `useAssistantDataUI`），并在必要时回退到此处提供的组件。默认提供适用于终端的文本、推理、来源、图像、文件和数据部分渲染器。
 
 ```tsx
 <MessagePrimitive.Parts>
@@ -487,7 +480,7 @@ Renders message content parts via a `components` prop. Tool call and data parts 
 </MessagePrimitive.Parts>
 ```
 
-Override part rendering with app-owned components when you need richer terminal UI:
+需要更丰富的终端 UI 时，可以使用应用自有组件覆盖部分渲染：
 
 ```tsx
 <MessagePrimitive.Parts
@@ -503,13 +496,13 @@ Override part rendering with app-owned components when you need richer terminal 
 />
 ```
 
-### Content (deprecated)
+### Content（已弃用）
 
 <Callout type="warn">
-  Deprecated. Use `MessagePrimitive.Parts` instead. See the [v0.11 migration guide](/docs/migrations/v0-11) for details.
+  已弃用。请改用 `MessagePrimitive.Parts`。详情请参阅 [v0.11 迁移指南](/docs/migrations/v0-11)。
 </Callout>
 
-Renders message content parts using render props. Tool call and data parts automatically render registered toolkit renderers and data UIs (via `useAssistantDataUI`), falling back to render props if provided.
+使用 render props 渲染消息内容部分。工具调用和数据部分会自动渲染已注册的 toolkit 渲染器和数据 UI（通过 `useAssistantDataUI`）；如果提供了 render props，则回退到这些 render props。
 
 ```tsx
 <MessagePrimitive.Content
@@ -520,17 +513,17 @@ Renders message content parts using render props. Tool call and data parts autom
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `renderText` | `(props: { part; index }) => ReactElement` | Text part renderer |
-| `renderToolCall` | `(props: { part; index }) => ReactElement` | Tool call fallback |
-| `renderImage` | `(props: { part; index }) => ReactElement` | Image part renderer |
-| `renderReasoning` | `(props: { part; index }) => ReactElement` | Reasoning part renderer |
-| `renderSource` | `(props: { part; index }) => ReactElement` | Source part renderer |
-| `renderFile` | `(props: { part; index }) => ReactElement` | File part renderer |
-| `renderData` | `(props: { part; index }) => ReactElement` | Data part fallback |
+| `renderText` | `(props: { part; index }) => ReactElement` | 文本部分渲染器 |
+| `renderToolCall` | `(props: { part; index }) => ReactElement` | 工具调用回退渲染器 |
+| `renderImage` | `(props: { part; index }) => ReactElement` | 图像部分渲染器 |
+| `renderReasoning` | `(props: { part; index }) => ReactElement` | 推理部分渲染器 |
+| `renderSource` | `(props: { part; index }) => ReactElement` | 来源部分渲染器 |
+| `renderFile` | `(props: { part; index }) => ReactElement` | 文件部分渲染器 |
+| `renderData` | `(props: { part; index }) => ReactElement` | 数据部分回退渲染器 |
 
 ## MessagePartPrimitive
 
-Composable primitives for rendering the current message part inside part context from `MessagePrimitive.Parts`, `MessagePrimitive.PartByIndex`, or `PartByIndexProvider`.
+用于在由 `MessagePrimitive.Parts`、`MessagePrimitive.PartByIndex` 或 `PartByIndexProvider` 提供的部分上下文中渲染当前消息部分的可组合原语。
 
 ```tsx
 <MessagePrimitive.Parts
@@ -548,19 +541,19 @@ Composable primitives for rendering the current message part inside part context
 />
 ```
 
-| Primitive | Default terminal behavior |
-|-----------|---------------------------|
-| `MessagePartPrimitive.Text` | Renders text with Ink `<Text>` |
-| `MessagePartPrimitive.InProgress` | Renders children only while the current part status is `running` |
-| `MessagePartPrimitive.Image` | Renders `[image: filename]` or `[image]`; never emits image data or terminal image protocols |
-| `MessagePartPrimitive.File` | Renders `[file: filename mimeType]` or `[file: mimeType]`; never prints file data |
-| `MessagePartPrimitive.Source` | Renders source title and/or URL metadata |
-| `MessagePartPrimitive.Reasoning` | Renders conservative reasoning text by default; override or return `null` to suppress |
-| `MessagePartPrimitive.Data` | Renders `[data: name]` when no registered data renderer is available |
+| Primitive | 默认终端行为 |
+|-----------|-----------|
+| `MessagePartPrimitive.Text` | 使用 Ink `<Text>` 渲染文本 |
+| `MessagePartPrimitive.InProgress` | 仅在当前部分状态为 `running` 时渲染子元素 |
+| `MessagePartPrimitive.Image` | 渲染 `[image: filename]` 或 `[image]`；不会发出图像数据或终端图像协议 |
+| `MessagePartPrimitive.File` | 渲染 `[file: filename mimeType]` 或 `[file: mimeType]`；不会打印文件数据 |
+| `MessagePartPrimitive.Source` | 渲染来源标题和/或 URL 元数据 |
+| `MessagePartPrimitive.Reasoning` | 默认渲染保守的推理文本；覆盖它或返回 `null` 可抑制渲染 |
+| `MessagePartPrimitive.Data` | 没有可用的已注册数据渲染器时渲染 `[data: name]` |
 
 ### PartByIndex
 
-Low-level provider that sets up the part context for a specific message part by index. Used internally by `MessagePrimitive.Parts`.
+低级 provider，根据索引为特定消息部分设置部分上下文。由 `MessagePrimitive.Parts` 内部使用。
 
 ```tsx
 <MessagePrimitive.PartByIndex index={0}>
@@ -570,11 +563,11 @@ Low-level provider that sets up the part context for a specific message part by 
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `index` | `number` | Zero-based part index |
+| `index` | `number` | 从零开始的部分索引 |
 
 ### AttachmentByIndex
 
-Low-level provider that sets up the attachment context for a specific message attachment by index. Used internally by `MessagePrimitive.Attachments`.
+低级 provider，根据索引为特定消息附件设置附件上下文。由 `MessagePrimitive.Attachments` 内部使用。
 
 ```tsx
 <MessagePrimitive.AttachmentByIndex index={0}>
@@ -584,11 +577,11 @@ Low-level provider that sets up the attachment context for a specific message at
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `index` | `number` | Zero-based attachment index |
+| `index` | `number` | 从零开始的附件索引 |
 
-### Conditional Rendering (Message)
+### 条件渲染（Message）
 
-Use `AuiIf` for conditional rendering based on message properties:
+使用 `AuiIf` 根据消息属性进行条件渲染：
 
 ```tsx
 <AuiIf condition={(s) => s.message.role === "user"}>
@@ -600,13 +593,13 @@ Use `AuiIf` for conditional rendering based on message properties:
 </AuiIf>
 ```
 
-### If (deprecated)
+### If（已弃用）
 
 <Callout type="warn">
-  Deprecated. Use `AuiIf` instead.
+  已弃用。请改用 `AuiIf`。
 </Callout>
 
-Conditional rendering based on message properties.
+基于消息属性进行条件渲染。
 
 ```tsx
 <MessagePrimitive.If user>
@@ -620,14 +613,14 @@ Conditional rendering based on message properties.
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `user` | `boolean` | Render for user messages |
-| `assistant` | `boolean` | Render for assistant messages |
-| `running` | `boolean` | Render when message is being generated |
-| `last` | `boolean` | Render for the last message |
+| `user` | `boolean` | 为用户消息渲染 |
+| `assistant` | `boolean` | 为助手消息渲染 |
+| `running` | `boolean` | 在消息生成期间渲染 |
+| `last` | `boolean` | 为最后一条消息渲染 |
 
 ### Attachments
 
-Renders user message attachments using the provided component configuration.
+使用提供的组件配置渲染用户消息附件。
 
 ```tsx
 <MessagePrimitive.Attachments>
@@ -637,7 +630,7 @@ Renders user message attachments using the provided component configuration.
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `components` | `{ Image?, Document?, File?, Attachment? }` | Component renderers by attachment type |
+| `components` | `{ Image?, Document?, File?, Attachment? }` | 按附件类型提供的组件渲染器 |
 
 ## Attachment
 
@@ -645,52 +638,52 @@ Renders user message attachments using the provided component configuration.
 import { AttachmentPrimitive } from "@assistant-ui/react-ink";
 ```
 
-Primitives for rendering individual attachments. Each primitive reads from the current attachment context (provided by `ComposerPrimitive.Attachments`, `ComposerPrimitive.AttachmentByIndex`, `MessagePrimitive.Attachments`, or `MessagePrimitive.AttachmentByIndex`).
+用于渲染单个附件的原语。每个原语都从当前附件上下文读取数据，该上下文由 `ComposerPrimitive.Attachments`、`ComposerPrimitive.AttachmentByIndex`、`MessagePrimitive.Attachments` 或 `MessagePrimitive.AttachmentByIndex` 提供。
 
 ### Root
 
-Container `Box` for an attachment. Forwards all `Box` props.
+附件的容器 `Box`。转发所有 `Box` props。
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `ReactNode` | Attachment sub-components |
-| `...rest` | `ComponentProps<typeof Box>` | Forwarded to the underlying Ink `Box` |
+| `children` | `ReactNode` | 附件子组件 |
+| `...rest` | `ComponentProps<typeof Box>` | 转发给底层 Ink `Box` |
 
 ### Name
 
-`Text` component displaying `s.attachment.name`.
+显示 `s.attachment.name` 的 `Text` 组件。
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `...rest` | `ComponentProps<typeof Text>` | Forwarded to the underlying Ink `Text` |
+| `...rest` | `ComponentProps<typeof Text>` | 转发给底层 Ink `Text` |
 
 ### Thumb
 
-`Text` component displaying a short identifier for the attachment. Renders the file extension (`.pdf`, `.png`, …) when the name has one. Falls back to the attachment `type` (e.g. `image`, `document`) otherwise, and finally to `file`. Passing `children` overrides the automatic label.
+显示附件短标识的 `Text` 组件。如果名称包含文件扩展名，则渲染该扩展名（`.pdf`、`.png`、……）。否则回退到附件 `type`（例如 `image`、`document`），最后回退到 `file`。传入 `children` 可覆盖自动标签。
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `ReactNode` | Overrides the automatic extension/type label |
-| `...rest` | `ComponentProps<typeof Text>` | Forwarded to the underlying Ink `Text` |
+| `children` | `ReactNode` | 覆盖自动生成的扩展名/类型标签 |
+| `...rest` | `ComponentProps<typeof Text>` | 转发给底层 Ink `Text` |
 
 ### Status
 
-`Text` component rendering the current attachment status from `s.attachment.status`. Uses the same visual vocabulary as `ToolFallback`: spinner = uploading, `?` = pending action, `x` = error, `||` = paused. By default, completed attachments render nothing.
+`Text` 组件根据 `s.attachment.status` 渲染当前附件状态。使用与 `ToolFallback` 相同的视觉语义：spinner = 上传中，`?` = 等待操作，`x` = 错误，`||` = 已暂停。默认情况下，已完成的附件不渲染任何内容。
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `showComplete` | `boolean` | When `true`, completed attachments render `+ ready` instead of `null` |
-| `...rest` | `Omit<ComponentProps<typeof Text>, "children">` | Forwarded to the underlying Ink `Text`. Caller-supplied `color` overrides the per-status default. `children` is not accepted; `Status` always renders its own content. |
+| `showComplete` | `boolean` | 当 `true` 时，已完成的附件渲染 `+ ready`，而不是 `null` |
+| `...rest` | `Omit<ComponentProps<typeof Text>, "children">` | 转发给底层 Ink `Text`。调用方提供的 `color` 会覆盖每种状态的默认值。`children` 不被接受；`Status` 始终渲染自己的内容。 |
 
 ### Remove
 
-`Pressable` that calls `aui.attachment.remove()` when activated (Enter while focused). Disabled when not focused or when the `disabled` prop is set.
+`Pressable`，激活时（聚焦后按 Enter）调用 `aui.attachment.remove()`。未聚焦或设置了 `disabled` prop 时处于禁用状态。
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `ReactNode` | Visual content for the button |
-| `disabled` | `boolean` | Skip focus registration and ignore Enter |
-| `...rest` | `ComponentProps<typeof Box>` | Forwarded to the underlying Pressable's `Box` |
+| `children` | `ReactNode` | 按钮的视觉内容 |
+| `disabled` | `boolean` | 跳过焦点注册并忽略 Enter |
+| `...rest` | `ComponentProps<typeof Box>` | 转发给底层 Pressable 的 `Box` |
 
 ```tsx
 <AttachmentPrimitive.Root>
@@ -709,11 +702,11 @@ Container `Box` for an attachment. Forwards all `Box` props.
 import { QueueItemPrimitive } from "@assistant-ui/react-ink";
 ```
 
-Primitives for rendering individual queued composer items. Use inside a `ComposerPrimitive.Queue` render prop, where the queue item context is set up by `QueueItemByIndexProvider`.
+用于渲染单个排队输入框项目的原语。在 `ComposerPrimitive.Queue` render prop 中使用，此时队列项目上下文由 `QueueItemByIndexProvider` 设置。
 
 ### Text
 
-Renders the queue item's text with Ink `<Text>`. Pass `children` to override the displayed value.
+使用 Ink `<Text>` 渲染队列项目文本。传入 `children` 可覆盖显示值。
 
 ```tsx
 <QueueItemPrimitive.Text color="gray" />
@@ -721,12 +714,12 @@ Renders the queue item's text with Ink `<Text>`. Pass `children` to override the
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `ReactNode` | Override content; defaults to the text parts of `s.queueItem.parts` |
-| `...rest` | `TextProps` | Standard Ink Text props |
+| `children` | `ReactNode` | 覆盖内容；默认为 `s.queueItem.parts` 的文本部分 |
+| `...rest` | `TextProps` | 标准 Ink Text props |
 
 ### Remove
 
-Pressable that removes the queue item by calling `aui.queueItem.remove()`.
+可按下的组件，通过调用 `aui.queueItem.remove()` 移除队列项目。
 
 ```tsx
 <QueueItemPrimitive.Remove>
@@ -736,14 +729,14 @@ Pressable that removes the queue item by calling `aui.queueItem.remove()`.
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `ReactNode` | Button content |
-| `disabled` | `boolean` | Disable Enter activation and focus |
+| `children` | `ReactNode` | 按钮内容 |
+| `disabled` | `boolean` | 禁用 Enter 激活和聚焦 |
 
-Remaining props are forwarded to the underlying `Pressable` (Ink `Box` props).
+其余 props 会转发给底层 `Pressable`（Ink `Box` props）。
 
 ### Steer
 
-Pressable that promotes the queue item to run next by calling `aui.queueItem.steer()`.
+可按下的组件，通过调用 `aui.queueItem.steer()` 将队列项目提升为下一个运行项目。
 
 ```tsx
 <QueueItemPrimitive.Steer>
@@ -753,10 +746,10 @@ Pressable that promotes the queue item to run next by calling `aui.queueItem.ste
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `ReactNode` | Button content |
-| `disabled` | `boolean` | Disable Enter activation and focus |
+| `children` | `ReactNode` | 按钮内容 |
+| `disabled` | `boolean` | 禁用 Enter 激活和聚焦 |
 
-Remaining props are forwarded to the underlying `Pressable` (Ink `Box` props).
+其余 props 会转发给底层 `Pressable`（Ink `Box` props）。
 
 ## ActionBar
 
@@ -766,7 +759,7 @@ import { ActionBarPrimitive } from "@assistant-ui/react-ink";
 
 ### Copy
 
-Pressable that copies the message content. Pass a platform clipboard writer through `copyToClipboard`. Supports function-as-children for copy state feedback.
+可按下的组件，用于复制消息内容。通过 `copyToClipboard` 传入平台剪贴板写入器。支持使用函数子元素反馈复制状态。
 
 <InstallCommand npm={["clipboardy"]} />
 
@@ -783,12 +776,12 @@ import clipboard from "clipboardy";
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `copiedDuration` | `number` | Duration in ms to show "copied" state (default: 3000) |
-| `copyToClipboard` | `(text: string) => void \| Promise<void>` | Platform clipboard writer |
+| `copiedDuration` | `number` | 显示“已复制”状态的时长（毫秒，默认值：3000） |
+| `copyToClipboard` | `(text: string) => void \| Promise<void>` | 平台剪贴板写入器 |
 
 ### Edit
 
-Pressable that enters edit mode for a message.
+可按下的组件，用于进入消息编辑模式。
 
 ```tsx
 <ActionBarPrimitive.Edit>
@@ -798,7 +791,7 @@ Pressable that enters edit mode for a message.
 
 ### Reload
 
-Pressable that regenerates an assistant message.
+可按下的组件，用于重新生成助手消息。
 
 ```tsx
 <ActionBarPrimitive.Reload>
@@ -808,7 +801,7 @@ Pressable that regenerates an assistant message.
 
 ### FeedbackPositive / FeedbackNegative
 
-Pressable buttons for submitting message feedback.
+用于提交消息反馈的可按下按钮。
 
 ```tsx
 <ActionBarPrimitive.FeedbackPositive>
@@ -828,7 +821,7 @@ import { BranchPickerPrimitive } from "@assistant-ui/react-ink";
 
 ### Previous / Next
 
-Pressable buttons to navigate between message branches.
+用于在消息分支之间导航的可按下按钮。
 
 ```tsx
 <Box>
@@ -846,7 +839,7 @@ Pressable buttons to navigate between message branches.
 
 ### Number / Count
 
-`Text` components displaying the current branch number and total count.
+显示当前分支编号和总数的 `Text` 组件。
 
 ## ThreadList
 
@@ -856,11 +849,11 @@ import { ThreadListPrimitive } from "@assistant-ui/react-ink";
 
 ### Root
 
-Container `Box` for the thread list.
+线程列表的容器 `Box`。
 
 ### Items
 
-Renders thread list items with runtime integration.
+渲染线程列表项目并集成运行时。
 
 ```tsx
 <ThreadListPrimitive.Items
@@ -872,11 +865,11 @@ Renders thread list items with runtime integration.
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `renderItem` | `(props: { threadId: string; index: number }) => ReactElement` | Thread item renderer |
+| `renderItem` | `(props: { threadId: string; index: number }) => ReactElement` | 线程项目渲染器 |
 
 ### New
 
-Pressable that creates a new thread.
+创建新线程的可按下组件。
 
 ```tsx
 <ThreadListPrimitive.New>
@@ -892,23 +885,23 @@ import { ThreadListItemPrimitive } from "@assistant-ui/react-ink";
 
 ### Root
 
-Container `Box` for a thread list item.
+线程列表项目的容器 `Box`。
 
 ### Title
 
-`Text` component displaying the thread list item title. Shared from `@assistant-ui/core/react`.
+显示线程列表项目标题的 `Text` 组件。共享自 `@assistant-ui/core/react`。
 
 ### Trigger
 
-Pressable that switches to the thread.
+切换到该线程的可按下组件。
 
 ### Delete
 
-Pressable that deletes the thread.
+删除该线程的可按下组件。
 
 ### Archive / Unarchive
 
-Pressable buttons that archive or unarchive the thread.
+用于归档或取消归档线程的可按下按钮。
 
 ```tsx
 <ThreadListItemPrimitive.Root>
@@ -929,15 +922,15 @@ import { SuggestionPrimitive } from "@assistant-ui/react-ink";
 
 ### Title
 
-`Text` component displaying the suggestion title.
+显示建议标题的 `Text` 组件。
 
 ### Description
 
-`Text` component displaying the suggestion label. Despite the component name, this reads from the `label` field of the suggestion state (not a separate `description` field).
+显示建议标签的 `Text` 组件。尽管组件名如此，该组件读取的是建议状态中的 `label` 字段，而不是单独的 `description` 字段。
 
 ### Trigger
 
-Pressable that triggers the suggestion action.
+触发建议操作的可按下组件。
 
 ```tsx
 <SuggestionPrimitive.Trigger send>
@@ -947,8 +940,8 @@ Pressable that triggers the suggestion action.
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `send` | `boolean` | When true, sends immediately; when false, inserts into composer |
-| `clearComposer` | `boolean` | Whether to clear/replace composer text (default: true) |
+| `send` | `boolean` | 为 true 时立即发送；为 false 时插入输入框 |
+| `clearComposer` | `boolean` | 是否清除/替换输入框文本（默认值：true） |
 
 ## ChainOfThought
 
@@ -958,15 +951,15 @@ import { ChainOfThoughtPrimitive } from "@assistant-ui/react-ink";
 
 ### Root
 
-Container `Box` for chain of thought content.
+思维链内容的容器 `Box`。
 
 ### AccordionTrigger
 
-Pressable that toggles the collapsed state of the chain of thought.
+切换思维链折叠状态的可按下组件。
 
 ### Parts
 
-Renders the individual parts of a chain of thought using a provided components map. Shared from `@assistant-ui/core/react`.
+使用提供的组件映射渲染思维链的各个部分。共享自 `@assistant-ui/core/react`。
 
 ```tsx
 <ChainOfThoughtPrimitive.Root>
@@ -987,7 +980,7 @@ import { ToolCallPrimitive } from "@assistant-ui/react-ink";
 
 ### Fallback
 
-A built-in component for rendering tool calls with expandable/collapsible output. Includes a spinner for running tools, formatted JSON args and result output, and status icons for completed, errored, or interrupted calls.
+用于渲染带有可展开/折叠输出的工具调用的内置组件。包含运行中工具的 spinner、格式化的 JSON 参数和结果输出，以及表示调用已完成、出错或中断的状态图标。
 
 ```tsx
 <MessagePrimitive.Parts>
@@ -1000,14 +993,14 @@ A built-in component for rendering tool calls with expandable/collapsible output
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `part` | `ToolCallMessagePartProps` | The tool call message part (pass the component prop directly) |
-| `expanded` | `boolean` | Force expanded or collapsed. When unset, auto-expands while running, awaiting action, or errored |
-| `maxArgLines` | `number` | Maximum lines to show for args when expanded (default: 20) |
-| `maxResultLines` | `number` | Maximum lines to show for result when expanded (default: 20) |
-| `maxResultPreviewLines` | `number` | Maximum lines to show for result preview when collapsed (default: 1) |
-| `renderHeader` | `(props: { toolName, status, expanded }) => ReactNode` | Custom header renderer |
-| `renderArgs` | `(props: { args, argsText }) => ReactNode` | Custom args renderer |
-| `renderResult` | `(props: { result, isError }) => ReactNode` | Custom result renderer |
+| `part` | `ToolCallMessagePartProps` | 工具调用消息部分（直接传入 component prop） |
+| `expanded` | `boolean` | 强制展开或折叠。未设置时，在运行中、等待操作或出错时自动展开 |
+| `maxArgLines` | `number` | 展开时显示参数的最大行数（默认值：20） |
+| `maxResultLines` | `number` | 展开时显示结果的最大行数（默认值：20） |
+| `maxResultPreviewLines` | `number` | 折叠时显示结果预览的最大行数（默认值：1） |
+| `renderHeader` | `(props: { toolName, status, expanded }) => ReactNode` | 自定义标题渲染器 |
+| `renderArgs` | `(props: { args, argsText }) => ReactNode` | 自定义参数渲染器 |
+| `renderResult` | `(props: { result, isError }) => ReactNode` | 自定义结果渲染器 |
 
 ## Diff
 
@@ -1015,13 +1008,13 @@ A built-in component for rendering tool calls with expandable/collapsible output
 import { DiffPrimitive, DiffView } from "@assistant-ui/react-ink";
 ```
 
-Components for rendering code diffs in the terminal.
+用于在终端中渲染代码差异的组件。
 
 ### DiffView
 
-Pre-composed component that combines all diff primitives for easy diff rendering. Accepts either a unified diff patch string or old/new file content for inline comparison.
+预组合组件，组合了所有 diff 原语，便于渲染差异。接受统一 diff 补丁字符串，或旧/新文件内容以进行内联比较。
 
-When a replacement is rendered as an equal-length adjacent `-`/`+` run, `DiffView` also highlights the changed word spans inside those lines. The existing prefixes, line numbers, folding, and primitive API surface stay the same. This intra-line behavior is internal to `DiffView`; `DiffPrimitive.Line` remains a line-level primitive.
+当替换内容被渲染为等长且相邻的 `-`/`+` 序列时，`DiffView` 还会高亮这些行中发生变化的单词范围。现有前缀、行号、折叠功能和原语 API 表面保持不变。此行内行为是 `DiffView` 的内部实现；`DiffPrimitive.Line` 仍然是行级原语。
 
 ```tsx
 // From a patch string
@@ -1042,16 +1035,16 @@ When a replacement is rendered as an equal-length adjacent `-`/`+` run, `DiffVie
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `patch` | `string` | Unified diff patch string to parse and display |
-| `oldFile` | `{ content: string; name?: string }` | Old file content for inline comparison |
-| `newFile` | `{ content: string; name?: string }` | New file content for inline comparison |
-| `showLineNumbers` | `boolean` | Whether to show line numbers (default: true) |
-| `contextLines` | `number` | Number of context lines to show around changes |
-| `maxLines` | `number` | Maximum number of lines to display |
+| `patch` | `string` | 用于解析和显示的统一 diff 补丁字符串 |
+| `oldFile` | `{ content: string; name?: string }` | 用于内联比较的旧文件内容 |
+| `newFile` | `{ content: string; name?: string }` | 用于内联比较的新文件内容 |
+| `showLineNumbers` | `boolean` | 是否显示行号（默认值：true） |
+| `contextLines` | `number` | 在变更周围显示的上下文行数 |
+| `maxLines` | `number` | 要显示的最大行数 |
 
 ### Root
 
-Container `Box` that provides diff context to child components. Parses the patch or computes the diff from old/new file content.
+提供 diff 上下文给子组件的容器 `Box`。该组件会解析补丁，或根据旧/新文件内容计算 diff。
 
 ```tsx
 <DiffPrimitive.Root
@@ -1065,13 +1058,13 @@ Container `Box` that provides diff context to child components. Parses the patch
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `patch` | `string` | Unified diff patch string |
-| `oldFile` | `{ content: string; name?: string }` | Old file for inline diff |
-| `newFile` | `{ content: string; name?: string }` | New file for inline diff |
+| `patch` | `string` | 统一 diff 补丁字符串 |
+| `oldFile` | `{ content: string; name?: string }` | 用于内联 diff 的旧文件 |
+| `newFile` | `{ content: string; name?: string }` | 用于内联 diff 的新文件 |
 
 ### Header
 
-Displays file header information including filename(s) and change statistics.
+显示文件头信息，包括文件名和变更统计。
 
 ```tsx
 <DiffPrimitive.Header fileIndex={0} />
@@ -1079,11 +1072,11 @@ Displays file header information including filename(s) and change statistics.
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `fileIndex` | `number` | Index of file to display header for (default: 0) |
+| `fileIndex` | `number` | 要显示文件头的文件索引（默认值：0） |
 
 ### Content
 
-Renders the diff content with lines. Supports context folding and line truncation.
+渲染包含各行的 diff 内容。支持上下文折叠和行截断。
 
 ```tsx
 <DiffPrimitive.Content
@@ -1098,16 +1091,16 @@ Renders the diff content with lines. Supports context folding and line truncatio
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `fileIndex` | `number` | Index of file to display (default: 0) |
-| `showLineNumbers` | `boolean` | Show line numbers (default: true) |
-| `contextLines` | `number` | Number of context lines around changes |
-| `maxLines` | `number` | Maximum lines to display |
-| `renderLine` | `(props: { line; index }) => ReactNode` | Custom line renderer |
-| `renderFold` | `(props: { region; index }) => ReactNode` | Custom fold region renderer |
+| `fileIndex` | `number` | 要显示的文件索引（默认值：0） |
+| `showLineNumbers` | `boolean` | 是否显示行号（默认值：true） |
+| `contextLines` | `number` | 变更周围的上下文行数 |
+| `maxLines` | `number` | 要显示的最大行数 |
+| `renderLine` | `(props: { line; index }) => ReactNode` | 自定义行渲染器 |
+| `renderFold` | `(props: { region; index }) => ReactNode` | 自定义折叠区域渲染器 |
 
 ### Line
 
-Renders an individual diff line with appropriate coloring and indicators.
+使用适当的颜色和指示器渲染单个 diff 行。
 
 ```tsx
 <DiffPrimitive.Line
@@ -1119,13 +1112,13 @@ Renders an individual diff line with appropriate coloring and indicators.
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `line` | `ParsedLine` | The parsed line object to render |
-| `showLineNumbers` | `boolean` | Show line numbers (default: true) |
-| `lineNumberWidth` | `number` | Width for line number padding (default: 4) |
+| `line` | `ParsedLine` | 要渲染的已解析行对象 |
+| `showLineNumbers` | `boolean` | 是否显示行号（默认值：true） |
+| `lineNumberWidth` | `number` | 行号填充宽度（默认值：4） |
 
 ### Stats
 
-Displays diff statistics (additions and deletions count).
+显示 diff 统计信息（新增和删除数量）。
 
 ```tsx
 <DiffPrimitive.Stats fileIndex={0} />
@@ -1133,11 +1126,11 @@ Displays diff statistics (additions and deletions count).
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `fileIndex` | `number` | Index of file to display stats for (default: 0) |
+| `fileIndex` | `number` | 要显示统计信息的文件索引（默认值：0） |
 
-### Composing with Primitives
+### 使用原语组合
 
-For custom layouts, use the primitives directly:
+对于自定义布局，可以直接使用原语：
 
 ```tsx
 <DiffPrimitive.Root patch={patchString}>
@@ -1158,61 +1151,61 @@ For custom layouts, use the primitives directly:
 import { StatusBarPrimitive } from "@assistant-ui/react-ink";
 ```
 
-Primitives for rendering a compact terminal status bar showing run state, model, message count, token usage, and latency. All sub-components read directly from the active thread state.
+用于渲染紧凑终端状态栏的原语，可显示运行状态、模型、消息数量、token 使用量和延迟。所有子组件都直接读取活动线程状态。
 
 ### Root
 
-Container `Box` for the status bar. Forwards all `Box` props; pass `gap` to space its children.
+状态栏的容器 `Box`。转发所有 `Box` props；传入 `gap` 可在子元素之间留出间距。
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `ReactNode` | Status bar sub-components |
-| `...rest` | `ComponentProps<typeof Box>` | Forwarded to the underlying Ink `Box` |
+| `children` | `ReactNode` | 状态栏子组件 |
+| `...rest` | `ComponentProps<typeof Box>` | 转发给底层 Ink `Box` |
 
 ### ModelName
 
-`Text` component displaying the current model name. The name is supplied as a prop — the primitive does not infer it from state.
+显示当前模型名称的 `Text` 组件。名称由 prop 提供，该原语不会从状态中推断名称。
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `name` | `ReactNode` | Model label to render (default: `"unknown"`) |
-| `...rest` | `ComponentProps<typeof Text>` | Forwarded to the underlying Ink `Text` |
+| `name` | `ReactNode` | 要渲染的模型标签（默认值：`"unknown"`） |
+| `...rest` | `ComponentProps<typeof Text>` | 转发给底层 Ink `Text` |
 
 ### MessageCount
 
-`Text` component displaying the number of messages on the current thread, formatted as `N msgs` by default. Renders nothing when the thread is empty.
+显示当前线程消息数量的 `Text` 组件，默认格式为 `N msgs`。线程为空时不渲染任何内容。
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `format` | `(count: number) => string` | Custom formatter for the count (default: `` `${count} msgs` ``) |
-| `...rest` | `ComponentProps<typeof Text>` | Forwarded to the underlying Ink `Text` |
+| `format` | `(count: number) => string` | 数量的自定义格式化函数（默认值：`` `${count} msgs` ``） |
+| `...rest` | `ComponentProps<typeof Text>` | 转发给底层 Ink `Text` |
 
 ### TokenCount
 
-`Text` component summing `metadata.timing.tokenCount` across all assistant messages on the thread, formatted with `toLocaleString()` + `" tokens"` by default. Renders nothing when the total is `0`.
+`Text` 组件会汇总线程中所有助手消息的 `metadata.timing.tokenCount`，默认使用 `toLocaleString()` + `" tokens"` 格式化。当总数为 `0` 时不渲染任何内容。
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `format` | `(tokens: number) => string` | Custom formatter for the total (default: `` `${tokens.toLocaleString()} tokens` ``) |
-| `...rest` | `ComponentProps<typeof Text>` | Forwarded to the underlying Ink `Text` |
+| `format` | `(tokens: number) => string` | 总数的自定义格式化函数（默认值：`` `${tokens.toLocaleString()} tokens` ``） |
+| `...rest` | `ComponentProps<typeof Text>` | 转发给底层 Ink `Text` |
 
 ### Latency
 
-`Text` component displaying `metadata.timing.tokensPerSecond` from the most recent assistant message, formatted as `N tok/s` (rounded) by default. Renders nothing when the field is missing.
+显示最近一条助手消息中 `metadata.timing.tokensPerSecond` 的 `Text` 组件，默认将其格式化为四舍五入后的 `N tok/s`。字段缺失时不渲染任何内容。
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `format` | `(tokensPerSecond: number) => string` | Custom formatter (default: `` `${Math.round(tokensPerSecond)} tok/s` ``) |
-| `...rest` | `ComponentProps<typeof Text>` | Forwarded to the underlying Ink `Text` |
+| `format` | `(tokensPerSecond: number) => string` | 自定义格式化函数（默认值：`` `${Math.round(tokensPerSecond)} tok/s` ``） |
+| `...rest` | `ComponentProps<typeof Text>` | 转发给底层 Ink `Text` |
 
 ### Status
 
-`Text` component reporting the thread's run state. Resolves to `"running"` while `s.thread.isRunning`, otherwise inspects the most recent assistant message: `"error"` when its status is `incomplete` with reason `error`, `"cancelled"` when reason is `cancelled`, and `"idle"` for every other case. Pass `color` (or any `Text` prop) to style the label.
+报告线程运行状态的 `Text` 组件。`s.thread.isRunning` 时解析为 `"running"`；否则检查最近一条助手消息：当其状态为 `incomplete` 且原因为 `error` 时为 `"error"`，原因为 `cancelled` 时为 `"cancelled"`，其他情况均为 `"idle"`。传入 `color`（或任意 `Text` prop）可设置标签样式。
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `format` | `(status: "idle" \| "running" \| "error" \| "cancelled") => string` | Custom label formatter (default: returns the state string verbatim) |
-| `...rest` | `ComponentProps<typeof Text>` | Forwarded to the underlying Ink `Text` |
+| `format` | `(status: "idle" \| "running" \| "error" \| "cancelled") => string` | 自定义标签格式化函数（默认原样返回状态字符串） |
+| `...rest` | `ComponentProps<typeof Text>` | 转发给底层 Ink `Text` |
 
 ```tsx
 <StatusBarPrimitive.Root gap={1}>
@@ -1230,9 +1223,9 @@ Container `Box` for the status bar. Forwards all `Box` props; pass `gap` to spac
 import { TextInput } from "@assistant-ui/react-ink";
 ```
 
-Store-free, controlled single/multi-line text field. Ink ships no native text input, so this is the terminal equivalent of the DOM `<textarea>` or React Native's `<TextInput>` — the editing engine (buffer, grapheme-aware cursor, and the full emacs/arrow keymap) without any runtime or composer coupling. `ComposerPrimitive.Input` is a thin adapter that wraps `TextInput` and binds it to the composer store; reach for `TextInput` directly when you need an editable field outside the thread composer (for example, editing a value before confirming an action).
+无需状态存储、由外部控制的单行/多行文本字段。Ink 没有提供原生文本输入，因此这是 DOM `<textarea>` 或 React Native `<TextInput>` 在终端中的等价实现——包含编辑引擎（缓冲区、感知字素的光标以及完整的 emacs/方向键映射），但不耦合任何运行时或输入框逻辑。`ComposerPrimitive.Input` 是对 `TextInput` 的轻量适配器，并将其绑定到输入框 store；当需要在线程输入框之外使用可编辑字段时（例如在确认操作前编辑某个值），请直接使用 `TextInput`。
 
-It is controlled on `value`/`onChange`, so an external owner can override the text at any time (the buffer absorbs the echo without thrashing the cursor). An owner may also transform the emitted text in `onChange` (uppercase, mask, reject); the buffer applies the corrected value while keeping the cursor at the edit position, snapped to a grapheme boundary. A replacement that does not respond to an edit (a programmatic set while idle) still places the cursor at the end:
+它通过 `value`/`onChange` 受控，因此外部所有者可以随时覆盖文本（缓冲区会吸收回显，而不会导致光标抖动）。所有者还可以在 `onChange` 中转换发出的文本（转为大写、掩码或拒绝）；缓冲区会应用修正后的值，同时将光标保留在编辑位置，并将其对齐到字素边界。对于不响应编辑的替换（空闲时通过程序设置值），光标仍会置于末尾：
 
 ```tsx
 const [command, setCommand] = useState(approval.action.command);
@@ -1247,13 +1240,13 @@ const [command, setCommand] = useState(approval.action.command);
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `value` | `string` | Current text (controlled) |
-| `onChange` | `(text: string) => void` | Called with the next text whenever the buffer changes |
-| `onSubmit` | `(text: string) => void` | Called on Enter when `submitOnEnter` is set, with the text as displayed; owners that validate in `onChange` should validate again in `onSubmit` |
-| `submitOnEnter` | `boolean` | Whether Enter calls `onSubmit` (default: `false`) |
-| `placeholder` | `string` | Placeholder text when empty (default: `""`) |
-| `autoFocus` | `boolean` | Auto-focus on mount (default: `true`) |
-| `multiLine` | `boolean` | When true, Enter inserts a newline unless `submitOnEnter` is enabled |
-| `...rest` | `ComponentProps<typeof Box>` | Forwarded to the underlying Ink `Box` |
+| `value` | `string` | 当前文本（受控） |
+| `onChange` | `(text: string) => void` | 缓冲区变化时使用下一段文本调用 |
+| `onSubmit` | `(text: string) => void` | 设置了 `submitOnEnter` 时按下 Enter 调用，并传入当前显示的文本；在 `onChange` 中执行验证的所有者也应在 `onSubmit` 中再次验证 |
+| `submitOnEnter` | `boolean` | Enter 是否调用 `onSubmit`（默认值：`false`） |
+| `placeholder` | `string` | 为空时显示的占位文本（默认值：`""`） |
+| `autoFocus` | `boolean` | 挂载时自动聚焦（默认值：`true`） |
+| `multiLine` | `boolean` | 为 true 时，Enter 插入换行，除非启用了 `submitOnEnter` |
+| `...rest` | `ComponentProps<typeof Box>` | 转发给底层 Ink `Box` |
 
-Keyboard bindings, grapheme handling, and terminal-capability caveats are identical to [`ComposerPrimitive.Input`](#input).
+键盘绑定、字素处理和终端能力注意事项与 [`ComposerPrimitive.Input`](#input) 完全相同。

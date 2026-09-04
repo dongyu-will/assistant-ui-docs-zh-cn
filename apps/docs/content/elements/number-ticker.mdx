@@ -1,20 +1,20 @@
 ---
-title: "Number ticker"
-description: "Digits that roll into place as a count updates in real time."
+title: "数字滚动器"
+description: "计数实时更新时，数字滚动到位。"
 ---
 
-A number ticker rolls each digit into place on its own short transition instead of swapping the text in place, so a changing count reads as motion rather than a flicker. With a runtime the value comes from a tool's result; standalone you pass it in directly.
+数字滚动器会让每一位数字通过各自的短暂过渡动画滚动到位，而不是直接替换原有文本，因此变化中的计数呈现为动态效果，而非闪烁。在运行时（runtime）中，数值来自工具调用的结果；单独使用时，则可以直接传入数值。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-With a runtime, the ticker only needs a number and a label, so its renderer is one of the smallest in the catalog: read `result` from the tool call, and fall back to zero while it is still running.
+在运行时中，数字滚动器只需要一个数字和一个标签，因此它的渲染器是目录中最精简的渲染器之一：从工具调用中读取 `result`，在工具仍处于运行状态时回退为零。
 
 <Steps>
   <Step>
 
-### Render the tool call
+### 渲染工具调用
 
 ```tsx title="components/assistant-ui/elements/token-count-tool-ui.tsx"
 "use client";
@@ -36,7 +36,7 @@ export const TokenCountToolUI: ToolCallMessagePartComponent<
   </Step>
   <Step>
 
-### Register the tool
+### 注册工具
 
 ```tsx title="app/toolkit.ts"
 import { defineToolkit } from "@assistant-ui/react";
@@ -70,7 +70,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-See [Tool UI](/docs/tools/tool-ui) for backend-defined tools and approval gates.
+有关后端定义的工具和审批闸门，请参阅 [Tool UI](/docs/tools/tool-ui)。
 
   </Step>
 </Steps>
@@ -79,12 +79,12 @@ See [Tool UI](/docs/tools/tool-ui) for backend-defined tools and approval gates.
 
 <StandaloneMode>
 
-Standalone, the ticker is fully controlled: it re-renders and rolls whenever `value` changes, from whatever source you like.
+单独使用时，数字滚动器完全由你控制：无论 `value` 来自何处，只要它发生变化，组件就会重新渲染并滚动。
 
 <Steps>
   <Step>
 
-### Hold the value
+### 保存数值
 
 ```tsx title="app/token-count.tsx"
 "use client";
@@ -101,9 +101,9 @@ export function TokenCount() {
   </Step>
   <Step>
 
-### Update it as work happens
+### 随工作进展更新
 
-Any state update that changes `value` triggers the roll, so a poll or a socket message both work the same way.
+任何会改变 `value` 的状态更新都会触发滚动，因此轮询或 socket 消息的工作方式完全相同。
 
 ```tsx
 useEffect(() => {
@@ -119,42 +119,42 @@ useEffect(() => {
 
 </StandaloneMode>
 
-## Examples
+## 示例
 
-### Formatting large counts
+### 格式化大数值
 
-`value` is formatted with `toLocaleString("en-US")` before it splits into digits, so thousands separators appear as static characters between the rolling digits rather than digits themselves. Screen readers read the same formatted string from an `aria-label` on the row, instead of parsing the individual rolling spans.
+`value` 会先使用 `toLocaleString("en-US")` 进行格式化，然后再拆分为各个数字，因此千位分隔符会作为滚动数字之间的静态字符显示，而不是数字本身。屏幕阅读器会从行上的 `aria-label` 读取同一个格式化字符串，而不是解析单独的滚动 span。
 
 ```tsx
 <NumberTicker value={1234567} label="tokens generated" />
 // renders "1,234,567", with "," as plain characters between the rollers
 ```
 
-### Restyle the ticker
+### 重新设置数字滚动器样式
 
-Both lanes take `className` on the root, a column flex container around the number and its label. The label reads from the shared `mono` token in `surfaces.tsx`.
+两个区域都会在根元素上接收 `className`；根元素是一个围绕数字及其标签的纵向 flex 容器。标签从 `surfaces.tsx` 中共享的 `mono` token 读取。
 
 ```tsx
 <NumberTicker className="gap-1" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool-call render props
+### 工具调用渲染属性
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `args` | `TArgs` | Parsed arguments. Partial while the model is still streaming them. |
-| `argsText` | `string` | Raw JSON argument text streamed by the model. |
-| `result` | `TResult \| undefined` | The tool's return value once it completes. `undefined` while running. |
-| `status` | `ToolCallMessagePartStatus` | `status.type` is `"running"`, `"requires-action"`, `"complete"`, or `"incomplete"`. |
-| `toolName` | `string` | Name of the tool the model called. |
-| `toolCallId` | `string` | Stable id for this invocation. |
-| `isError` | `boolean \| undefined` | Whether `result` represents a tool execution error. |
+| `args` | `TArgs` | 解析后的参数。模型仍在流式传输参数时，该值可能不完整。 |
+| `argsText` | `string` | 模型流式传输的原始 JSON 参数文本。 |
+| `result` | `TResult \| undefined` | 工具完成后返回的值。运行期间为 `undefined`。 |
+| `status` | `ToolCallMessagePartStatus` | `status.type` 为 `"running"`、`"requires-action"`、`"complete"` 或 `"incomplete"`。 |
+| `toolName` | `string` | 模型调用的工具名称。 |
+| `toolCallId` | `string` | 此次调用的稳定 ID。 |
+| `isError` | `boolean \| undefined` | `result` 是否表示工具执行错误。 |
 
-Register the renderer on a toolkit entry's `render` field and attach the toolkit with `Tools({ toolkit })`. See [Tool UI](/docs/tools/tool-ui) for the full render-prop surface, including `addResult`, human tools, and approval gates.
+将渲染器注册到工具包条目的 `render` 字段，并使用 `Tools({ toolkit })` 附加工具包。有关完整的渲染属性接口（包括 `addResult`、人工工具和审批闸门），请参阅 [Tool UI](/docs/tools/tool-ui)。
 
 </RuntimeMode>
 
@@ -162,12 +162,12 @@ Register the renderer on a toolkit entry's `render` field and attach the toolkit
 
 ### NumberTicker
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `value` | `number` | required | The number to show, formatted with `toLocaleString("en-US")` and split into rolling digits. |
-| `label` | `string` | required | Caption below the number. |
-| `className` | `string` | | Merged onto the root. |
+| `value` | `number` | 必填 | 要显示的数字，会使用 `toLocaleString("en-US")` 格式化，并拆分为滚动数字。 |
+| `label` | `string` | 必填 | 显示在数字下方的说明文字。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

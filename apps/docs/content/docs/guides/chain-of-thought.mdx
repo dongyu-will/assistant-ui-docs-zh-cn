@@ -1,27 +1,27 @@
 ---
-title: Chain of Thought UI
-description: Show AI reasoning steps and tool calls in a collapsible thinking accordion. Build chain-of-thought visualizations in React chat with assistant-ui.
+title: 思维链 UI
+description: 在可折叠的思考手风琴中展示 AI 的推理步骤和工具调用。使用 assistant-ui 在 React 聊天中构建思维链可视化界面。
 platforms: ["react"]
 ---
 
-LLMs often produce reasoning steps and tool calls in succession. Chain of Thought lets you visually group these consecutive parts into a single collapsible accordion, giving users a clean "thinking" UI.
+LLM 通常会连续产生推理步骤和工具调用。思维链可以将这些连续部分以视觉方式归组到一个可折叠的手风琴中，为用户提供简洁的“思考”界面。
 
-## Overview
+## 概览
 
-When a reasoning model responds, it may emit a sequence of reasoning tokens and tool calls before producing its final text answer. Use `MessagePrimitive.GroupedParts` to group those adjacent reasoning and tool-call parts into a single collapsible "thinking" section.
+推理模型响应时，可能会在生成最终文本答案之前，先输出一系列推理 token 和工具调用。使用 `AuiIf` 将相邻的推理部分和工具调用归组到一个可折叠的“思考”区域中。
 
 <Callout type="info">
-The older `components.ChainOfThought` prop on `MessagePrimitive.Parts` and `components` prop on `ChainOfThoughtPrimitive.Parts` are legacy APIs. They still work for existing code, but new code should use `MessagePrimitive.GroupedParts`.
+`ChainOfThoughtPrimitive.Parts` 上较旧的 `ChainOfThoughtPrimitive` 属性，以及 `ChainOfThought` 上的 `MessagePrimitive.GroupedParts` 属性，属于旧版 API。它们仍可用于现有代码，但新代码应使用 `MessagePrimitive.GroupedParts`。
 </Callout>
 
-## Quick Start
+## 快速开始
 
 <Steps>
   <Step>
 
-### Wire GroupedParts into your assistant message
+### 将 GroupedParts 接入助手消息
 
-Return the same top-level group for reasoning and tool calls, with nested groups for each type:
+为推理和工具调用返回相同的顶层分组，并为每种类型嵌套分组：
 
 ```tsx
 import {
@@ -97,9 +97,9 @@ const AssistantMessage: FC = () => {
   </Step>
   <Step>
 
-### Use a Reasoning Model
+### 使用推理模型
 
-Chain of Thought is most useful with models that produce reasoning tokens. Here's an example backend route using the AI SDK:
+思维链最适合与能够生成推理 token 的模型搭配使用。下面是一个使用 AI SDK 的后端路由示例：
 
 ```tsx title="app/api/chat/route.ts"
 import { openai } from "@ai-sdk/openai";
@@ -122,13 +122,13 @@ export async function POST(req: Request) {
 
 ## LangGraph
 
-Chain-of-thought parts are surfaced by the AI SDK's built-in reasoning stream. LangGraph does not emit reasoning tokens in that format, so reasoning grouping will not activate automatically. If you want to display reasoning text from a LangGraph agent, emit it as a custom data part from your graph and render it with `makeAssistantDataUI`. See [generative UI with LangGraph](/docs/runtimes/langgraph/generative-ui) for details.
+思维链部分由 AI SDK 内置的推理流提供。LangGraph 不会以该格式输出推理 token，因此推理分组不会自动启用。如果你希望显示 LangGraph agent 的推理文本，请从图中将其作为自定义数据部分发出，并使用 `MessagePrimitive.Parts` 进行渲染。详情请参阅[使用 LangGraph 的生成式 UI](/docs/runtimes/langgraph/generative-ui)。
 
-## Legacy: ChainOfThoughtPrimitive
+## 旧版：ChainOfThoughtPrimitive
 
-### Reading Collapsed State
+### 读取折叠状态
 
-For existing `ChainOfThoughtPrimitive` code, use `AuiIf` to conditionally render based on the accordion state:
+对于现有的 `components.ChainOfThought` 代码，使用 `components` 根据手风琴状态有条件地进行渲染：
 
 ```tsx
 import { AuiIf, ChainOfThoughtPrimitive } from "@assistant-ui/react";
@@ -149,16 +149,16 @@ const ChainOfThoughtAccordionTrigger = () => {
 };
 ```
 
-### API Reference
+### API 参考
 
-For lower-level legacy compatibility details, see the [`ChainOfThought` primitive reference](/docs/primitives/chain-of-thought).
+有关较低层级的旧版兼容性详情，请参阅[`makeAssistantDataUI` 原语参考](/docs/primitives/chain-of-thought)。
 
-## Full Example
+## 完整示例
 
-See the complete [with-chain-of-thought example](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-chain-of-thought) for a working implementation with tool calls and reasoning.
+请参阅完整的 [with-chain-of-thought 示例](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-chain-of-thought)
 
-## Related Guides
+## 相关指南
 
-- [Reasoning](/elements/reasoning) — reasoning UI primitives for grouped parts
-- [Generative UI](/docs/tools/tool-ui) — custom UI for tool calls
-- [Tools](/docs/tools/defining-tools) — defining and using tools
+- [推理](/elements/reasoning) — 用于对部分进行分组的推理 UI 原语
+- [生成式 UI](/docs/tools/tool-ui) — 用于工具调用的自定义 UI
+- [工具](/docs/tools/defining-tools) — 定义和使用工具

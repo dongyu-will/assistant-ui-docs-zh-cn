@@ -1,41 +1,41 @@
 ---
 title: AI SDK
-description: Add cloud persistence to your existing AI SDK app with a single hook.
+description: 只需使用一个 hook，即可为现有的 AI SDK 应用添加云端持久化。
 ---
 
-## Overview
+## 概览
 
-The `@assistant-ui/cloud-ai-sdk` package provides a single hook that adds full message and thread persistence to any [AI SDK](https://sdk.vercel.ai/) application:
+`@assistant-ui/cloud-ai-sdk` 软件包提供了一个单独的 hook，可为任何 [AI SDK](https://sdk.vercel.ai/) 应用添加完整的消息和线程持久化功能：
 
-- **`useCloudChat`** — wraps `useChat` with automatic cloud persistence and built-in thread management
+- **`useCloudChat`** — 包装 `useChat`，提供自动云端持久化和内置线程管理
 
-This hook works with any React UI. You keep full control of your components.
+此 hook 适用于任何 React UI。你可以完全控制自己的组件。
 
 <Callout type="tip">
-  See [AI SDK + assistant-ui](/docs/cloud/ai-sdk-assistant-ui) for the full integration with assistant-ui's primitives and runtime.
+  有关与 assistant-ui 原语和运行时的完整集成，请参阅 [AI SDK + assistant-ui](/docs/cloud/ai-sdk-assistant-ui)。
 </Callout>
 
-## Prerequisites
+## 前置条件
 
 <Callout type="info">
-  You need an assistant-cloud account to follow this guide. [Sign up here](https://cloud.assistant-ui.com/) to get started.
+  要按照本指南操作，你需要一个 Assistant Cloud 账户。[点击此处注册](https://cloud.assistant-ui.com/)
 </Callout>
 
-## Setup
+## 设置
 
 <Steps>
 
 <Step>
 
-### Create a Cloud Project
+### 创建 Cloud 项目
 
-Create a new project in the [assistant-cloud dashboard](https://cloud.assistant-ui.com/) and from the settings page, copy your **Frontend API URL** (`https://proj-[ID].assistant-api.com`).
+在 [assistant-cloud 控制台](https://cloud.assistant-ui.com/) 中创建一个新项目，然后在设置页面复制你的 **Frontend API URL**（`https://proj-[ID].assistant-api.com`）。
 
 </Step>
 
 <Step>
 
-### Configure Environment Variables
+### 配置环境变量
 
 <PlatformTabs>
 <Tab value="React">
@@ -65,7 +65,7 @@ ASSISTANT_BASE_URL=https://proj-[YOUR-ID].assistant-api.com
 
 <Step>
 
-### Install Dependencies
+### 安装依赖
 
 <PlatformTabs>
 <Tab value="React">
@@ -89,7 +89,7 @@ ASSISTANT_BASE_URL=https://proj-[YOUR-ID].assistant-api.com
 
 <Step>
 
-### Integrate
+### 集成
 
 <PlatformTabs>
 <Tab value="React">
@@ -272,30 +272,30 @@ export function Chat() {
 
 </Steps>
 
-That's it. Messages persist automatically as they complete, and switching threads loads the full history.
+就是这样。消息会在完成后自动持久化，切换线程时会加载完整的历史记录。
 
-## API Reference
+## API 参考
 
 ### `useCloudChat(options?)`
 
-Wraps AI SDK's `useChat` with automatic cloud persistence and built-in thread management. Messages are persisted as they finish streaming. Thread creation is automatic on the first message — the hook will auto-create the thread, select it, refresh the thread list, and generate a title after the first response.
+封装 AI SDK 的 `useChat`，提供自动云端持久化和内置线程管理。消息会在流式传输结束时持久化。首次发送消息时会自动创建线程——此钩子会自动创建线程、选中该线程、刷新线程列表，并在首次响应后生成标题。
 
-#### Configuration Modes
+#### 配置模式
 
-**1. Zero-config** — Set `NEXT_PUBLIC_ASSISTANT_BASE_URL` env var, call with no args:
+**1. 零配置** — 设置 `NEXT_PUBLIC_ASSISTANT_BASE_URL` 环境变量，无参数调用：
 
 ```tsx
 const chat = useCloudChat();
 ```
 
-**2. Custom cloud instance** — For authenticated users or custom configuration:
+**2. 自定义云端实例** — 适用于已认证用户或自定义配置：
 
 ```tsx
 const cloud = new AssistantCloud({ baseUrl, authToken });
 const chat = useCloudChat({ cloud });
 ```
 
-**3. External thread management** — When threads need to be accessed from a separate component or you need custom thread options like `includeArchived`:
+**3. 外部线程管理** — 当线程需要从独立组件中访问，或需要使用 `includeArchived` 等自定义线程选项时：
 
 ```tsx
 // In a context provider or parent component
@@ -305,85 +305,85 @@ const myThreads = useThreads({ cloud, includeArchived: true });
 const chat = useCloudChat({ threads: myThreads });
 ```
 
-#### Parameters
+#### 参数
 
-| Parameter | Type | Description |
+| 参数 | 类型 | 描述 |
 |-----------|------|-------------|
-| `options.cloud` | `AssistantCloud` | Cloud instance (optional — auto-creates anonymous instance from `NEXT_PUBLIC_ASSISTANT_BASE_URL` env var if not provided) |
-| `options.threads` | `UseThreadsResult` | External thread management from `useThreads()`. Use when you need thread operations in a separate component or custom thread options like `includeArchived` |
-| `options.onSyncError` | `(error: Error) => void` | Callback invoked when a sync error occurs |
+| `options.cloud` | `AssistantCloud` | 云端实例（可选——如果未提供，则根据 `NEXT_PUBLIC_ASSISTANT_BASE_URL` 环境变量自动创建匿名实例） |
+| `options.threads` | `UseThreadsResult` | 来自 `useThreads()` 的外部线程管理。在需要于独立组件中执行线程操作，或需要使用 `includeArchived` 等自定义线程选项时使用 |
+| `options.onSyncError` | `(error: Error) => void` | 发生同步错误时调用的回调 |
 
-A subset of [AI SDK `useChat` options](https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat) are also accepted (those defined on `ChatInit`). Some options available on `useChat` such as `experimental_throttle` and `resume` are not supported.
+同时接受部分 [AI SDK `useChat` 选项](https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat) `ChatInit` 中定义的选项）。`useChat` 上提供的某些选项（例如 `experimental_throttle` 和 `resume`）不受支持。
 
-**Returns:** `UseCloudChatResult`
+**返回值：** `UseCloudChatResult`
 
-| Value | Type | Description |
+| 值 | 类型 | 描述 |
 |-------|------|-------------|
-| `messages` | `UIMessage[]` | Chat messages (from AI SDK) |
-| `status` | `string` | Chat status: `"ready"`, `"submitted"`, `"streaming"`, or `"error"` |
-| `sendMessage` | `(message, options?) => Promise<void>` | Send a message (auto-creates thread if needed) |
-| `stop` | `() => void` | Stop the current stream |
-| `threads` | `UseThreadsResult` | Thread management (see below) |
+| `messages` | `UIMessage[]` | 聊天消息（来自 AI SDK） |
+| `status` | `string` | 聊天状态：`"ready"`、`"submitted"`、`"streaming"` 或 `"error"` |
+| `sendMessage` | `(message, options?) => Promise<void>` | 发送消息（如有需要会自动创建线程） |
+| `stop` | `() => void` | 停止当前流式传输 |
+| `threads` | `UseThreadsResult` | 线程管理（见下文） |
 
-Plus all other properties from AI SDK's [`UseChatHelpers`](https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat).
+以及 AI SDK 的 [`UseChatHelpers`](https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat). 中的所有其他属性。
 
-**Thread management (`threads`):**
+**线程管理（`threads`）：**
 
-| Value | Type | Description |
+| 值 | 类型 | 描述 |
 |-------|------|-------------|
-| `threads.cloud` | `AssistantCloud` | The cloud instance used for thread operations |
-| `threads.threads` | `CloudThread[]` | Threads sorted by recency; includes archived threads when supplied by `useThreads({ includeArchived: true })` |
-| `threads.threadId` | `string \| null` | Current thread ID (`null` for a new unsaved chat) |
-| `threads.selectThread` | `(id: string \| null) => void` | Switch threads or pass `null` for a new chat |
-| `threads.isLoading` | `boolean` | `true` during initial load or refresh |
-| `threads.error` | `Error \| null` | Last error, if any |
-| `threads.refresh` | `() => Promise<boolean>` | Re-fetch the thread list |
-| `threads.get` | `(id: string) => Promise<CloudThread \| null>` | Fetch a single thread by ID |
-| `threads.create` | `(options?: \{ externalId?: string \}) => Promise<CloudThread \| null>` | Create a new thread |
-| `threads.delete` | `(id: string) => Promise<boolean>` | Delete a thread |
-| `threads.rename` | `(id: string, title: string) => Promise<boolean>` | Rename a thread |
-| `threads.archive` | `(id: string) => Promise<boolean>` | Archive a thread |
-| `threads.unarchive` | `(id: string) => Promise<boolean>` | Unarchive a thread |
-| `threads.generateTitle` | `(threadId: string) => Promise<string \| null>` | Generate a title using AI |
+| `threads.cloud` | `AssistantCloud` | 用于线程操作的云端实例 |
+| `threads.threads` | `CloudThread[]` | 按最近使用时间排序的线程；当 `useThreads({ includeArchived: true })` 提供归档线程时，也会包含这些线程 |
+| `threads.threadId` | `string \| null` | 当前线程 ID（新建且尚未保存的聊天为 `null`） |
+| `threads.selectThread` | `(id: string \| null) => void` | 切换线程，或传入 `null` 以开始新聊天 |
+| `threads.isLoading` | `boolean` | 初始加载或刷新期间的 `true` |
+| `threads.error` | `Error \| null` | 最近一次错误（如果有） |
+| `threads.refresh` | `() => Promise<boolean>` | 重新获取线程列表 |
+| `threads.get` | `(id: string) => Promise<CloudThread \| null>` | 根据 ID 获取单个线程 |
+| `threads.create` | `(options?: \{ externalId?: string \}) => Promise<CloudThread \| null>` | 创建新线程 |
+| `threads.delete` | `(id: string) => Promise<boolean>` | 删除线程 |
+| `threads.rename` | `(id: string, title: string) => Promise<boolean>` | 重命名线程 |
+| `threads.archive` | `(id: string) => Promise<boolean>` | 归档线程 |
+| `threads.unarchive` | `(id: string) => Promise<boolean>` | 取消归档线程 |
+| `threads.generateTitle` | `(threadId: string) => Promise<string \| null>` | 使用 AI 生成标题 |
 
 ### `useThreads(options)`
 
-Thread list management for use with `useCloudChat`. Call this explicitly and pass to `useCloudChat({ threads })` when you need access to thread operations outside the chat context (e.g., in a separate sidebar component).
+用于 `useCloudChat` 的线程列表管理。需要在聊天上下文之外（例如独立的侧边栏组件中）访问线程操作时，显式调用此函数，并将其传递给 `useCloudChat({ threads })`。
 
 ```tsx
 const myThreads = useThreads({ cloud: myCloud });
 const { messages, sendMessage } = useCloudChat({ threads: myThreads });
 ```
 
-`useThreads` requests 20 threads per page and follows Cloud cursors until all matching threads are loaded. With `includeArchived`, active and archived pages load concurrently and the complete list is committed after both finish.
+`useThreads` 每页请求 20 个线程，并沿着 Cloud 游标继续请求，直到加载所有匹配的线程。使用 `includeArchived` 时，活动线程和归档线程的页面会并发加载，并在两者都完成后提交完整列表。
 
-**Parameters:**
+**参数：**
 
-| Parameter | Type | Description |
+| 参数 | 类型 | 描述 |
 |-----------|------|-------------|
-| `options.cloud` | `AssistantCloud` | Cloud client instance |
-| `options.includeArchived` | `boolean` | Include archived threads (default: `false`) |
-| `options.enabled` | `boolean` | Enable thread fetching (default: `true`) |
+| `options.cloud` | `AssistantCloud` | Cloud 客户端实例 |
+| `options.includeArchived` | `boolean` | 是否包含归档线程（默认值：`false`） |
+| `options.enabled` | `boolean` | 是否启用线程获取（默认值：`true`） |
 
-**Returns:** `UseThreadsResult` — same shape as `threads` from `useCloudChat()`.
+**返回值：** `UseThreadsResult` — 形状与 `threads` 中的 `useCloudChat()` 相同。
 
-## Telemetry
+## 遥测
 
-The `useCloudChat` hook automatically reports run telemetry to Assistant Cloud after each assistant response. This includes:
+`useCloudChat` hook 会在每次助手响应后，自动将运行遥测报告发送到 Assistant Cloud。其中包括：
 
-**Automatically captured:**
-- `status` — `"completed"` or `"incomplete"` based on response content
-- `tool_calls` — Tool invocations with name, arguments, and results. MCP tool calls are explicitly tagged with `tool_source: "mcp"`
-- `total_steps` — Number of reasoning/tool steps in the response
-- `output_text` — Full response text (truncated at 50K characters)
+**自动捕获：**
+- `status` — 根据响应内容确定的 `"completed"` 或 `"incomplete"`
+- `tool_calls` — 包含名称、参数和结果的工具调用。MCP 工具调用会明确标记为 `tool_source: "mcp"`
+- `total_steps` — 响应中的推理/工具步骤数量
+- `output_text` — 完整的响应文本（最多 50K 个字符）
 
-**Requires route configuration:**
-- `model_id` — The model used for the response
-- `input_tokens` / `output_tokens` — Token usage statistics
-- `reasoning_tokens` — Tokens used for chain-of-thought reasoning (e.g. GPT-5.6 Luna or other reasoning models)
-- `cached_input_tokens` — Input tokens served from the provider's prompt cache
+**需要配置路由：**
+- `model_id` — 用于响应的模型
+- `input_tokens` / `output_tokens` — Token 使用统计
+- `reasoning_tokens` — 链式思考推理所使用的 Token（例如 GPT-5.6 Luna 或其他推理模型）
+- `cached_input_tokens` — 从提供商提示词缓存中提供的输入 Token
 
-To capture model and usage data, configure the `messageMetadata` callback in your AI SDK route:
+若要捕获模型和使用量数据，请在 AI SDK 路由中配置 `messageMetadata` 回调：
 
 ```tsx title="app/api/chat/route.ts"
 import { streamText } from "ai";
@@ -416,12 +416,12 @@ export async function POST(req: Request) {
 ```
 
 <Callout type="info">
-  The standalone hook captures message metadata when it is JSON-serializable, but it does not capture `duration_ms`, per-step breakdowns (`steps`), or `"error"` status. Those require the full runtime integration available via [`useChatRuntime`](/docs/cloud/ai-sdk-assistant-ui).
+  独立 hook 会在消息元数据可序列化为 JSON 时捕获这些元数据，但不会捕获 `duration_ms`、每个步骤的细分数据（`steps`）或 `"error"` 状态。这些功能需要通过 [`useChatRuntime`](/docs/cloud/ai-sdk-assistant-ui) 提供的完整运行时集成。
 </Callout>
 
-### Customizing Reports
+### 自定义报告
 
-Use the `beforeReport` hook to enrich or filter telemetry:
+使用 `beforeReport` hook 来丰富或筛选遥测数据：
 
 ```tsx
 const cloud = new AssistantCloud({
@@ -436,15 +436,15 @@ const cloud = new AssistantCloud({
 });
 ```
 
-Return `null` from `beforeReport` to skip reporting a specific run. To disable telemetry entirely, pass `telemetry: false`.
+从 `beforeReport` 返回 `null`，即可跳过特定运行的报告。若要完全禁用遥测，请传入 `telemetry: false`。
 
-### Sub-Agent Model Tracking
+### 子代理模型跟踪
 
-In multi-agent setups where tool calls delegate to a different model (e.g., the main run uses GPT but a tool invokes Gemini), you can track the delegated model's usage by passing sampling call data through `messageMetadata`.
+在多代理设置中，如果工具调用委托给不同的模型（例如主运行使用 GPT，而工具调用 Gemini），可以通过 `messageMetadata` 传递采样调用数据，以跟踪受委托模型的使用情况。
 
-**Step 1: Collect sampling data on the server**
+**步骤 1：在服务器上收集采样数据**
 
-Use `createSamplingCollector` and `wrapSamplingHandler` from `assistant-cloud` to capture LLM calls made during tool execution:
+使用 `assistant-cloud` 中的 `createSamplingCollector` 和 `wrapSamplingHandler`，捕获工具执行期间发起的 LLM 调用：
 
 ```ts title="app/api/chat/route.ts"
 import { streamText } from "ai";
@@ -496,14 +496,14 @@ export async function POST(req: Request) {
 }
 ```
 
-**Step 2: That's it.** The telemetry reporter automatically reads `samplingCalls` from message metadata and attaches the data to matching tool calls in the report. The Cloud dashboard will show each delegated model in the model distribution chart with its own token and cost breakdown.
+**步骤 2：就是这样。** 遥测报告器会自动从消息元数据中读取 `samplingCalls`，并将数据附加到报告中匹配的工具调用上。Cloud 仪表板会在模型分布图表中显示每个受委托的模型，并分别展示其 Token 和成本明细。
 
 <Callout type="info">
-  For MCP tools that use the sampling protocol, `wrapSamplingHandler` can wrap the MCP client's sampling handler directly to capture all nested LLM calls transparently.
+  对于使用采样协议的 MCP 工具，`wrapSamplingHandler` 可以直接包装 MCP 客户端的采样处理器，从而透明地捕获所有嵌套的 LLM 调用。
 </Callout>
 
 <Callout type="tip">
-  **On older versions** that don't yet read `samplingCalls` from metadata, use `beforeReport` to inject the data manually:
+  **在较旧的版本中**，如果尚未从元数据中读取 `samplingCalls`，请使用 `beforeReport` 手动注入数据：
 
   ```ts
   telemetry: {
@@ -518,9 +518,9 @@ export async function POST(req: Request) {
   ```
 </Callout>
 
-## Authentication
+## 身份验证
 
-The React example above uses anonymous mode for quick demos. For production apps with user accounts, pass an explicit cloud instance with a token from your auth provider:
+上面的 React 示例使用匿名模式以便快速演示。对于拥有用户账户的生产应用，请传入一个显式的云实例，并使用身份验证提供商提供的令牌：
 
 <PlatformTabs>
 <Tab value="React">
@@ -595,10 +595,10 @@ function Chat() {
 </Tab>
 </PlatformTabs>
 
-See the [Cloud Authorization](/docs/cloud/authorization) guide for other auth providers.
+如需了解其他身份验证提供商，请参阅[云授权](/docs/cloud/authorization)指南。
 
-## Next Steps
+## 后续步骤
 
-- If you want pre-built UI components, see [AI SDK + assistant-ui](/docs/cloud/ai-sdk-assistant-ui) for the full integration
-- Learn about [user authentication](/docs/cloud/authorization) for multi-user applications
-- Check out the [complete example](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-cloud-standalone) on GitHub
+- 如果你需要预构建的 UI 组件，请参阅 [AI SDK + assistant-ui](/docs/cloud/ai-sdk-assistant-ui) 了解完整集成
+- 了解适用于多用户应用的[用户身份验证](/docs/cloud/authorization)
+- 查看 GitHub 上的[完整示例](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-cloud-standalone)

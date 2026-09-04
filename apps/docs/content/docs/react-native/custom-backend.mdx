@@ -1,13 +1,13 @@
 ---
-title: Custom Backend
-description: Connect your React Native app to your own backend API.
+title: 自定义后端
+description: 将你的 React Native 应用连接到自有后端 API。
 ---
 
-By default, `useLocalRuntime` manages threads and messages on-device. You can connect to your own backend in two ways depending on your needs.
+默认情况下，`useLocalRuntime` 会在设备端管理线程和消息。你可以根据需求，通过两种方式之一连接到自有后端。
 
-## Option 1: ChatModelAdapter only
+## 选项 1：仅使用 ChatModelAdapter
 
-The simplest approach — keep thread management local, but send messages to your backend for inference.
+最简单的方式——在本地管理线程，但将消息发送到后端进行推理。
 
 ```tsx title="adapters/my-chat-adapter.ts"
 import type { ChatModelAdapter } from "@assistant-ui/react-native";
@@ -48,20 +48,20 @@ export function useAppRuntime() {
 }
 ```
 
-This gives you:
+你将获得：
 
-- Streaming chat responses from your API
-- In-memory thread and message management
-- Automatic features like message editing, reloading, and branch switching
+- 来自 API 的流式聊天响应
+- 内存中的线程和消息管理
+- 消息编辑、重新加载和分支切换等自动功能
 
-## Option 2: Full backend thread management
+## 选项 2：由后端完整管理线程
 
-When you want your backend to own thread state (e.g. for cross-device sync, team sharing, or server-side history), implement a `RemoteThreadListAdapter`.
+如果你希望后端负责管理线程状态（例如实现跨设备同步、团队共享或服务端历史记录），请实现 `RemoteThreadListAdapter`。
 
 <Steps>
   <Step>
 
-### Implement the adapter
+### 实现适配器
 
 ```tsx title="adapters/my-thread-list-adapter.ts"
 import type { RemoteThreadListAdapter } from "@assistant-ui/react-native";
@@ -143,7 +143,7 @@ export const myThreadListAdapter: RemoteThreadListAdapter = {
   </Step>
   <Step>
 
-### Compose the runtime
+### 组合运行时
 
 ```tsx title="hooks/use-app-runtime.ts"
 import {
@@ -164,7 +164,7 @@ export function useAppRuntime() {
   </Step>
   <Step>
 
-### Use in your app
+### 在应用中使用
 
 ```tsx title="app/index.tsx"
 import { AssistantRuntimeProvider } from "@assistant-ui/react-native";
@@ -183,25 +183,25 @@ export default function App() {
   </Step>
 </Steps>
 
-## Adapter methods
+## 适配器方法
 
-| Method | Description |
+| 方法 | 描述 |
 |--------|-------------|
-| `list()` | Return all threads on mount |
-| `initialize(localId)` | Create a thread server-side, return `{ remoteId }` |
-| `rename(remoteId, title)` | Persist title changes |
-| `archive(remoteId)` | Mark thread as archived |
-| `unarchive(remoteId)` | Restore archived thread |
-| `delete(remoteId)` | Permanently remove thread |
-| `fetch(remoteId)` | Fetch single thread metadata |
-| `generateTitle(remoteId, unstable_messages)` | Return an `AssistantStream` with the generated title |
+| `list()` | 挂载时返回所有线程 |
+| `initialize(localId)` | 在服务端创建线程，并返回 `{ remoteId }` |
+| `rename(remoteId, title)` | 持久化标题更改 |
+| `archive(remoteId)` | 将线程标记为已归档 |
+| `unarchive(remoteId)` | 恢复已归档的线程 |
+| `delete(remoteId)` | 永久删除线程 |
+| `fetch(remoteId)` | 获取单个线程的元数据 |
+| `generateTitle(remoteId, unstable_messages)` | 返回包含生成标题的 `AssistantStream` |
 
-## Which option to choose?
+## 应选择哪个选项？
 
-| | Option 1: ChatModelAdapter | Option 2: RemoteThreadListAdapter |
+| | 选项 1：ChatModelAdapter | 选项 2：RemoteThreadListAdapter |
 |---|---|---|
-| **Thread storage** | In-memory | Your backend |
-| **Message storage** | In-memory | In-memory (can add history adapter for server-side) |
-| **Cross-device sync** | No | Yes |
-| **Setup complexity** | Minimal | Moderate |
-| **Best for** | Single-device apps, prototypes | Production apps with user accounts |
+| **线程存储** | 内存中 | 你的后端 |
+| **消息存储** | 内存中 | 内存中（可添加历史记录适配器以支持服务端存储） |
+| **跨设备同步** | 否 | 是 |
+| **设置复杂度** | 最低 | 中等 |
+| **适用场景** | 单设备应用、原型 | 带用户账户的生产应用 |

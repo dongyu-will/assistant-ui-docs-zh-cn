@@ -1,32 +1,32 @@
 ---
-title: Claude Clone
-description: Open-source Claude clone in React — warm cream theme, serif typography, hover-only action bars, and a clean minimal-shadow composer styled after claude.ai.
+title: Claude 克隆版
+description: 使用 React 构建的开源 Claude 克隆版——采用暖奶油色主题、衬线字体、仅悬停时显示的操作栏，以及仿照 claude.ai 设计的简洁极简阴影输入框。
 ---
 
-## Overview
+## 概览
 
-The Claude Clone demonstrates how to customize assistant-ui to match Anthropic's Claude interface. The design leans on Claude's signature warm cream background, serif typography, and a deliberately minimal chrome — no shadows, no avatars, just a thin border on the composer and bubbles that fade into the page.
+Claude 克隆版展示了如何自定义 assistant-ui，使其匹配 Anthropic 的 Claude 界面。设计采用 Claude 标志性的暖奶油色背景、衬线字体和刻意保持极简的界面装饰——没有阴影，没有头像，只有输入框上的细边框，以及融入页面的气泡。
 
-## Features
+## 功能
 
-- **Warm Cream Background**: `#F0ECE0` light, `#2b2a27` dark — a warmer Anthropic-style cream
-- **Serif Throughout**: `font-serif` on every surface for the editorial feel
-- **Sparkle Heading**: Centered "How can I help you today?" with the orange `#c96442` Sparkle icon
-- **Borderless Composer**: Just `border-[#E5E0D6]` and no shadow — matches claude.ai's stripped-down look
-- **Functional Model Picker**: Sonnet 4.5 / Opus 4.7 / Haiku 4.5 dropdown with "More options"
-- **Mode Tabs**: Write / Learn / Code / From Drive / From Calendar — `rounded-lg` chips with thin borders
-- **Hover-only Action Bars**: User Edit/Copy and Assistant Copy/👍/👎/Reload only appear on hover
-- **Four-State Primary Action**: Cancel, StopDictation, Send, Dictate (orange `#c96442` accent)
+- **暖奶油色背景**：`#F0ECE0` 浅色，`#2b2a27` 深色——更偏暖色的 Anthropic 风格奶油色
+- **全局衬线字体**：所有界面都使用 `font-serif`，营造编辑风格
+- **Sparkle 标题**：居中的“今天我能帮你做什么？”以及橙色的 `#c96442` Sparkle 图标
+- **无边框输入框**：仅使用 `border-[#E5E0D6]`，不带阴影——契合 claude.ai 的极简外观
+- **可用的模型选择器**：包含 Sonnet 4.5 / Opus 4.7 / Haiku 4.5 的下拉菜单，并提供“更多选项”
+- **模式标签页**：写作 / 学习 / 代码 / 来自云端硬盘 / 来自日历——带细边框的 `rounded-lg` 标签
+- **仅悬停时显示的操作栏**：用户的编辑/复制和助手的复制/👍/👎/重新加载操作仅在悬停时显示
+- **四状态主要操作**：Cancel、StopDictation、Send、Dictate（橙色 `#c96442` 强调色）
 
-## Quick Start
+## 快速开始
 
 ```bash
 npx assistant-ui add thread
 ```
 
-## Code
+## 代码
 
-The empty state centers the heading + composer + mode tabs together. The chat state uses a sticky composer with a fade-out gradient over the cream background:
+空状态会将标题、输入框和模式标签页组合并居中显示。聊天状态使用粘性输入框，并在奶油色背景上叠加淡出渐变：
 
 ```tsx
 import {
@@ -81,9 +81,9 @@ const Composer = () => (
 );
 ```
 
-### Hover-only Action Bars
+### 仅悬停时显示的操作栏
 
-Both user and assistant action bars use opacity + group-hover to stay out of the way:
+用户和助手的操作栏都使用不透明度与 group-hover，避免干扰界面：
 
 ```tsx
 <MessagePrimitive.Root className="group/message">
@@ -101,26 +101,26 @@ Both user and assistant action bars use opacity + group-hover to stay out of the
 </MessagePrimitive.Root>
 ```
 
-### Color Palette
+### 配色
 
-| Element | Light | Dark |
+| 元素 | 浅色 | 深色 |
 |---------|-------|------|
-| Background | `#F0ECE0` | `#2b2a27` |
-| Composer surface | `white` | `#1f1e1b` |
-| Composer border | `#E5E0D6` | `#3d3a35` |
-| User bubble | `#E5E0D6` | `#393937` |
-| Primary text | `#1a1a18` | `#eee` |
-| Muted text | `#5b5950` | `#a3a098` |
-| Primary action (orange) | `#c96442` | `#c96442` |
+| 背景 | `#F0ECE0` | `#2b2a27` |
+| 输入框表面 | `white` | `#1f1e1b` |
+| 输入框边框 | `#E5E0D6` | `#3d3a35` |
+| 用户气泡 | `#E5E0D6` | `#393937` |
+| 主要文本 | `#1a1a18` | `#eee` |
+| 次要文本 | `#5b5950` | `#a3a098` |
+| 主要操作（橙色） | `#c96442` | `#c96442` |
 
-### Styling Details
+### 样式细节
 
-- **Typography**: `font-serif` everywhere; assistant message uses `leading-[1.65rem]` for a calm reading rhythm
-- **No Shadows**: Composer relies on `border-[#E5E0D6]` only — claude.ai's signature flat surface
-- **User Bubble**: `rounded-2xl bg-[#E5E0D6] max-w-[80%]` right-aligned
-- **Assistant Message**: full-width plain serif, no bubble, no avatar — text sits on the cream background directly
-- **Mode Tabs**: `rounded-lg border border-[#E5E0D6] bg-transparent` so they blend into the cream
+- **字体**：所有界面都使用 `font-serif`；助手消息使用 `leading-[1.65rem]`，营造舒缓的阅读节奏
+- **无阴影**：输入框仅依赖 `border-[#E5E0D6]`——这是 claude.ai 标志性的扁平表面
+- **用户气泡**：`rounded-2xl bg-[#E5E0D6] max-w-[80%]`，靠右对齐
+- **助手消息**：全宽的普通衬线文本，没有气泡，也没有头像——文字直接显示在奶油色背景上
+- **模式标签页**：使用 `rounded-lg border border-[#E5E0D6] bg-transparent`，使其自然融入奶油色背景
 
-## Source
+## 源码
 
 <SourceLink href="https://github.com/assistant-ui/assistant-ui/blob/main/apps/docs/components/pages/examples/claude.tsx" />

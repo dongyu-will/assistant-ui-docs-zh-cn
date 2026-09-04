@@ -1,29 +1,29 @@
 ---
 title: LocalRuntime
-description: Quickest path to a working chat. Handles state while you handle the API.
+description: 实现可用聊天的最快路径。由它处理状态，你只需处理 API。
 ---
 
-`LocalRuntime` is the simplest way to connect a custom backend. You implement a single `ChatModelAdapter` (one `run` function) and the runtime handles everything else: messages, threads, branching, editing, regeneration, cancellation.
+`LocalRuntime` 是连接自定义后端的最简单方式。你只需实现一个 `ChatModelAdapter`（一个 `run` 函数），运行时会处理其他所有事项：消息、线程、分支、编辑、重新生成和取消。
 
-State lives inside the runtime by default. Multi-thread persistence and shared adapters are added via the standard interfaces, see [adapters](/docs/runtimes/concepts/adapters) and [threads](/docs/runtimes/concepts/threads).
+默认情况下，状态保存在运行时内部。多线程持久化和共享适配器通过标准接口添加，参见 [适配器](/docs/runtimes/concepts/adapters) 和 [线程](/docs/runtimes/concepts/threads)。
 
-## When to use it
+## 适用场景
 
-Pick `LocalRuntime` when:
+在以下情况下选择 `LocalRuntime`：
 
-- You want assistant-ui to manage chat state for you.
-- Your backend exposes a function-call shaped API (REST, OpenAI SDK, your own model client).
-- Branching, editing, and regeneration should work without you writing extra code.
-- You want to compose adapters (attachments, speech, feedback, history, suggestions).
+- 希望由 assistant-ui 为你管理聊天状态。
+- 后端提供函数调用形式的 API（REST、OpenAI SDK 或你自己的模型客户端）。
+- 希望无需编写额外代码即可支持分支、编辑和重新生成。
+- 希望组合使用适配器（附件、语音、反馈、历史记录和建议）。
 
-If you already keep messages in redux, zustand, tanstack-query, or another store, use [`ExternalStoreRuntime`](/docs/runtimes/custom/external-store) instead.
+如果你已经将消息保存在 redux、zustand、tanstack-query 或其他存储中，请改用 [`ExternalStoreRuntime`](/docs/runtimes/custom/external-store)。
 
-## Quickstart
+## 快速开始
 
 <Steps>
 <Step>
 
-### Create a project
+### 创建项目
 
 <PlatformTabs>
 <Tab value="React">
@@ -56,7 +56,7 @@ npm init -y
 </Step>
 <Step>
 
-### Install dependencies
+### 安装依赖
 
 <PlatformTabs>
 <Tab value="React">
@@ -79,7 +79,7 @@ npm init -y
 </Step>
 <Step>
 
-### Add the Thread component
+### 添加 Thread 组件
 
 <PlatformTabs>
 <Tab value="React">
@@ -91,12 +91,12 @@ npx assistant-ui@latest add thread
 </Tab>
 <Tab value="React Native">
 
-Use your React Native thread component from the [React Native setup](/docs/react-native).
+使用 [React Native 设置](/docs/react-native)中的 React Native 线程组件。
 
 </Tab>
 <Tab value="React Ink">
 
-Use your terminal thread component from the [Ink setup](/docs/ink).
+使用 [Ink 设置](/docs/ink)中的终端线程组件。
 
 </Tab>
 </PlatformTabs>
@@ -104,9 +104,9 @@ Use your terminal thread component from the [Ink setup](/docs/ink).
 </Step>
 <Step>
 
-### Define a `MyRuntimeProvider`
+### 定义 `MyRuntimeProvider`
 
-Replace the `MyModelAdapter` body with your backend call.
+将 `MyModelAdapter` 的函数体替换为你的后端调用。
 
 <PlatformTabs>
 <Tab value="React">
@@ -230,7 +230,7 @@ export function MyRuntimeProvider({
 </Step>
 <Step>
 
-### Wrap your app
+### 包装应用
 
 <PlatformTabs>
 <Tab value="React">
@@ -291,7 +291,7 @@ export function App() {
 </Step>
 <Step>
 
-### Render the Thread
+### 渲染 Thread
 
 <PlatformTabs>
 <Tab value="React">
@@ -336,9 +336,9 @@ render(<App />);
 </Step>
 </Steps>
 
-## Streaming responses
+## 流式响应
 
-Declare `run` as an `async *` generator and yield the full cumulative content on each iteration:
+将 `run` 声明为 `async *` 生成器，并在每次迭代中 yield 完整的累积内容：
 
 ```tsx
 import {
@@ -370,13 +370,13 @@ const MyModelAdapter: ChatModelAdapter = {
 };
 ```
 
-Each yield replaces the previous content. Yield the full state every time, not deltas.
+每次 yield 都会替换之前的内容。每次都要 yield 完整状态，而不是增量。
 
-### Only the last part streams
+### 只有最后一个部分进行流式传输
 
-A text or reasoning part reports `status.type === "running"` only while it is the last part of the message. Every earlier one reads as complete, and the components that react to streaming follow that status: the reasoning disclosure auto-opens and pins its live preview while its part is running, and part status indicators resolve the same way. Tool-call parts are exempt, since their status comes from whether they have a result.
+文本或推理部分只有在消息的最后一个部分时才会报告 `status.type === "running"`。之前的每个部分都会被视为已完成，响应流式传输的组件也会遵循这一状态：推理展开面板会在其部分运行时自动打开，并固定显示实时预览；部分状态指示器也会以相同方式完成。工具调用部分不受此限制，因为其状态取决于是否已有结果。
 
-That makes an empty trailing part destructive. Yielding `[reasoning, text("")]` to reserve the text slot marks the reasoning part complete the moment the empty text part appears, even though reasoning is still streaming, and nothing in the UI signals why. Add a part on its first token instead of reserving it:
+这使得末尾的空部分具有破坏性。yield `[reasoning, text("")]` 以预留文本槽位时，空文本部分一出现，就会将推理部分标记为已完成，即使推理仍在流式传输，而 UI 中不会说明原因。不要预留部分，而应在其收到第一个 token 时添加：
 
 ```tsx
 let reasoning = "";
@@ -398,11 +398,11 @@ for await (const chunk of stream) {
 }
 ```
 
-Guard every text or reasoning part this way, not just the trailing one. An empty part that is never filled also renders as an empty block, and whichever part ends up last is the only one that can report `running`.
+应以这种方式保护每个文本或推理部分，而不仅是末尾部分。始终未被填充的空部分也会渲染为空块，而最终位于末尾的部分是唯一能够报告 `running` 的部分。
 
-### Streaming with tool calls
+### 使用工具调用进行流式传输
 
-Accumulate tool calls in a `Map` outside the streaming loop so they persist across chunks:
+在流式循环外部的 `Map` 中累积工具调用，使其能够跨数据块持久存在：
 
 ```tsx
 async *run({ messages, abortSignal, context }) {
@@ -439,11 +439,11 @@ async *run({ messages, abortSignal, context }) {
 }
 ```
 
-If you build the `content` array fresh from the current chunk each iteration, tool calls from earlier chunks will disappear when a later chunk carries only text. The Map outside the loop is the fix.
+如果每次迭代都根据当前数据块重新创建 `content` 数组，那么当后续数据块只包含文本时，之前数据块中的工具调用就会消失。解决办法是将 Map 放在循环外部。
 
-## Tool calling
+## 工具调用
 
-`LocalRuntime` supports OpenAI-compatible function calling. Register tools through the provider's `config` so the runtime exposes them to your adapter via `context.tools`:
+`LocalRuntime` 支持兼容 OpenAI 的函数调用。通过提供商的 `config` 注册工具，这样运行时就会通过 `context.tools` 将工具暴露给你的适配器：
 
 ```tsx title="app/toolkit.tsx"
 "use generative";
@@ -482,11 +482,11 @@ function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-See the [tools guide](/docs/tools/defining-tools) for advanced patterns.
+有关高级模式，请参见[工具指南](/docs/tools/defining-tools)。
 
-### Human-in-the-loop tools
+### 人在回路工具
 
-Tools listed in `unstable_humanToolNames` are not executed by code. The run pauses on the tool call and the user supplies the result through the tool UI:
+`unstable_humanToolNames` 中列出的工具不会由代码执行。运行会在工具调用处暂停，用户通过工具 UI 提供结果：
 
 ```ts
 const runtime = useLocalRuntime(MyModelAdapter, {
@@ -494,7 +494,7 @@ const runtime = useLocalRuntime(MyModelAdapter, {
 });
 ```
 
-The pause is driven by the message status your adapter returns; `LocalRuntime` never sets it for you. When the model requests a human tool call, end the run with `status: { type: "requires-action", reason: "tool-calls" }`. Without that status, the runtime marks the message complete and nothing waits. Only return it while a listed tool call is missing its result: unresolved tool calls that are not listed do not hold the run, so the runtime would invoke your adapter again immediately.
+暂停由适配器返回的消息状态驱动；`LocalRuntime` 不会为你设置该状态。当模型请求人在回路工具调用时，使用 `status: { type: "requires-action", reason: "tool-calls" }` 结束运行。没有该状态，运行时会将消息标记为已完成，不会等待任何内容。只有在列出的工具调用缺少结果时才返回该状态：未列出的未解决工具调用不会阻止运行，因此运行时会立即再次调用你的适配器。
 
 ```tsx
 const MyModelAdapter: ChatModelAdapter = {
@@ -533,13 +533,13 @@ const MyModelAdapter: ChatModelAdapter = {
 };
 ```
 
-The full loop:
+完整流程如下：
 
-1. **The run pauses.** While a listed tool call has no result, the runtime stops invoking your adapter. The unresolved tool call part reports `status.type === "requires-action"` to its renderer.
-2. **The user responds.** The tool UI completes the call with `addResult(...)`. The stock [`ToolFallback`](/elements/tool-fallback) component handles this out of the box: in the requires-action state it shows Allow and Deny buttons that record the decision as the tool result.
-3. **The run resumes.** Once every listed tool call has a result, the runtime invokes your adapter again. The resumed call receives the same `messages` array as before (it ends at the user message; the in-progress assistant message is not part of it), so read the recorded results from `unstable_getMessage().content` as shown above. Content returned by the resumed call is appended to the same assistant message.
+1. **运行暂停。** 当列出的工具调用没有结果时，运行时会停止调用你的适配器。未解决的工具调用部分会向其渲染器报告 `status.type === "requires-action"`。
+2. **用户响应。** 工具 UI 使用 `addResult(...)` 完成调用。内置的 [`ToolFallback`](/elements/tool-fallback) 组件开箱即用地处理此流程：在 requires-action 状态下，它会显示 Allow 和 Deny 按钮，并将决定记录为工具结果。
+3. **运行恢复。** 当每个列出的工具调用都有结果后，运行时会再次调用你的适配器。恢复后的调用会接收与之前相同的 `messages` 数组（该数组截止于用户消息；正在进行中的助手消息不属于其中的一部分），因此应像上面所示，从 `unstable_getMessage().content` 中读取已记录的结果。恢复调用返回的内容会追加到同一条助手消息中。
 
-For a custom confirmation UI, register a human tool whose `render` completes the call with `addResult`. The shape of the result payload is yours to define; the adapter receives it verbatim and translates it for your backend:
+如需自定义确认 UI，请注册一个人在回路工具，其 `render` 使用 `addResult` 完成调用。结果载荷的结构由你定义；适配器会原样接收它，并将其转换为后端所需的格式：
 
 ```tsx
 const toolkit = defineToolkit({
@@ -571,11 +571,11 @@ const toolkit = defineToolkit({
 });
 ```
 
-`unstable_humanToolNames` is unstable; see [stability](/docs/runtimes/concepts/stability).
+`unstable_humanToolNames` 尚不稳定；请参见[稳定性](/docs/runtimes/concepts/stability)。
 
-### Approval gates
+### 审批门
 
-The [server-side approval gate](/docs/tools/tool-ui#server-side-approval-gates) is also supported on `LocalRuntime`, for actions your backend executes after the user authorizes them. Where a human tool asks the user to supply the tool result, an approval gate asks the user to allow or block an action the adapter performs. Emit `approval: { id }` on the tool call part and end the run with the same `requires-action` status:
+[服务端审批门](/docs/tools/tool-ui#server-side-approval-gates)同样支持 `LocalRuntime`，适用于用户授权后由后端执行的操作。人在回路工具要求用户提供工具结果，而审批门要求用户允许或阻止适配器执行的操作。在工具调用部分发出 `approval: { id }`，并使用相同的 `requires-action` 状态结束运行：
 
 ```tsx
 return {
@@ -593,18 +593,18 @@ return {
 };
 ```
 
-A tool call with a pending approval pauses the run, whether or not the tool is listed in `unstable_humanToolNames`. Always emit gates in the pending state (`approval: { id }` with no `approved` field); a part that arrives already decided is treated as resolved and the runtime invokes the adapter again immediately. The stock [`ToolFallback`](/elements/tool-fallback) Allow and Deny buttons, or a custom renderer calling `respondToApproval({ approved, reason? })`, record the decision:
+带有待处理审批的工具调用会暂停运行，无论该工具是否列在 `unstable_humanToolNames` 中。始终以待处理状态发出审批门（`approval: { id }`，且不包含 `approved` 字段）；已经带有决定的部分会被视为已解决，运行时会立即再次调用适配器。内置 [`ToolFallback`](/elements/tool-fallback) 的 Allow 和 Deny 按钮，或调用 `respondToApproval({ approved, reason? })` 的自定义渲染器，会记录该决定：
 
-- **Deny** sets `approval.approved: false` and synthesizes an error result (`{ error: reason || "Tool approval denied" }` with `isError: true`), so the model sees the denial.
-- **Allow** sets `approval.approved: true` and leaves the result empty; performing the action is your adapter's job.
+- **Deny** 设置 `approval.approved: false`，并合成错误结果（`{ error: reason || "Tool approval denied" }`，其中包含 `isError: true`），使模型能够看到拒绝。
+- **Allow** 设置 `approval.approved: true`，并保持结果为空；执行操作由你的适配器负责。
 
-Once every pending approval on the message is decided and every listed human tool has a result, the runtime invokes your adapter again. Read the decisions from `unstable_getMessage().content`, perform the approved actions, and return the follow-up response. A tool call that carries an approval is owned by the gate: it does not additionally require a result, even when its name is listed in `unstable_humanToolNames`.
+当消息中的所有待处理审批都已决定，且列出的每个人在回路工具都有结果后，运行时会再次调用你的适配器。从 `unstable_getMessage().content` 中读取决定，执行已批准的操作，并返回后续响应。携带审批的工具调用由审批门负责：即使其名称列在 `unstable_humanToolNames` 中，也不需要额外的结果。
 
-## Resuming a run
+## 恢复运行
 
-`resumeRun` reconnects to an in-progress assistant run. Useful for page refresh, network reconnect, tab backgrounding, or thread switching when the backend is still generating.
+`resumeRun` 会重新连接到正在进行的助手运行。适用于页面刷新、网络重连、标签页转入后台，或后端仍在生成内容时切换线程。
 
-Unlike `startRun` (which uses the `ChatModelAdapter`), `resumeRun` requires a `stream` parameter; you provide the async generator that produces the response.
+不同于 `startRun`（使用 `ChatModelAdapter`），`resumeRun` 要求提供 `stream` 参数；你需要提供用于生成响应的异步生成器。
 
 ```tsx
 import { useAui } from "@assistant-ui/react";
@@ -628,7 +628,7 @@ aui.thread.resumeRun({
 });
 ```
 
-A common pattern is to check whether the backend is still running on mount, then reconnect:
+一种常见模式是在挂载时检查后端是否仍在运行，然后重新连接：
 
 ```tsx
 function useStreamReconnect(threadId: string) {
@@ -652,9 +652,9 @@ function useStreamReconnect(threadId: string) {
 }
 ```
 
-## Queueing messages during a run
+## 运行期间将消息加入队列
 
-Set `unstable_enableMessageQueue` to keep the composer usable while a run is in progress. A message sent during a queued run steers by default — it lands in the steer lane, ahead of previously queued items; `send({ steer: false })` queues a follow-up behind them instead. Pending items are held in `composer.queue` and drain once the run settles.
+将 `unstable_enableMessageQueue` 设置为 true，可以在运行进行期间保持输入框可用。在排队运行期间发送的消息默认会进行 steer——它会进入 steer 队列，位于之前已排队的项目之前；`send({ steer: false })` 则会将后续消息排在它们之后。待处理项目会保存在 `composer.queue` 中，并在运行结束后逐个处理。
 
 ```tsx
 const runtime = useLocalRuntime(MyModelAdapter, {
@@ -662,11 +662,11 @@ const runtime = useLocalRuntime(MyModelAdapter, {
 });
 ```
 
-Render the pending messages with [`ComposerPrimitive.Queue`](/docs/api-reference/primitives/composer) and [`QueueItemPrimitive`](/docs/api-reference/primitives/queue-item).
+使用 [`ComposerPrimitive.Queue`](/docs/api-reference/primitives/composer) 和 [`QueueItemPrimitive`](/docs/api-reference/primitives/queue-item) 渲染待处理消息。
 
-## Adapters
+## 适配器
 
-Attachments, speech, feedback, history, and suggestions are wired through the standard adapter contracts, see [adapters](/docs/runtimes/concepts/adapters):
+附件、语音、反馈、历史记录和建议通过标准适配器契约接入，请参见[适配器](/docs/runtimes/concepts/adapters)：
 
 ```tsx
 const runtime = useLocalRuntime(MyModelAdapter, {
@@ -680,16 +680,16 @@ const runtime = useLocalRuntime(MyModelAdapter, {
 });
 ```
 
-## Multi-thread
+## 多线程
 
-`LocalRuntime` supports multi-thread either via [AssistantCloud](/docs/cloud) or via a custom `RemoteThreadListAdapter`. See [threads](/docs/runtimes/concepts/threads) for the contract and full examples.
+`LocalRuntime` 支持通过 [AssistantCloud](/docs/cloud) 或自定义 `RemoteThreadListAdapter` 实现多线程。有关契约和完整示例，请参见[线程](/docs/runtimes/concepts/threads)。
 
 ```tsx
 // managed (see "AssistantCloud" in /docs/runtimes/concepts/threads for cloud setup)
 const runtime = useLocalRuntime(MyModelAdapter, { cloud });
 ```
 
-## Integration examples
+## 集成示例
 
 ### OpenAI
 
@@ -725,9 +725,9 @@ const OpenAIAdapter: ChatModelAdapter = {
 };
 ```
 
-For local development on a ChatGPT Plus or Pro plan, the same client can run without a real API key by pointing `baseURL` at a local OAuth proxy and passing a placeholder `apiKey`; see [ChatGPT Subscription](/docs/guides/chatgpt-subscription#openai-compatible-proxy).
+在 ChatGPT Plus 或 Pro 方案上进行本地开发时，只需将 `baseURL` 指向本地 OAuth 代理，并传入占位的 `apiKey`，同一个客户端无需真实 API 密钥即可运行；请参见 [ChatGPT Subscription](/docs/guides/chatgpt-subscription#openai-compatible-proxy)。
 
-### Custom REST API
+### 自定义 REST API
 
 ```tsx
 const CustomAPIAdapter: ChatModelAdapter = {
@@ -751,25 +751,25 @@ const CustomAPIAdapter: ChatModelAdapter = {
 };
 ```
 
-## Best practices
+## 最佳实践
 
-1. **Always pass `abortSignal`** to `fetch` and SDK calls so cancel works:
+1. **始终将 `abortSignal` 传递给 `fetch` 和 SDK 调用**，以确保取消功能正常工作：
    ```tsx
    fetch(url, { signal: abortSignal });
    ```
-2. **Handle errors gracefully.** Swallow `AbortError` (it is the user cancelling); rethrow others to surface in the UI.
-3. **Yield cumulative state, not deltas.** Each yield replaces the previous content; if you yield deltas the UI flickers.
-4. **Accumulate tool calls outside the streaming loop**, otherwise they vanish on the first text-only chunk.
+2. **妥善处理错误。** 忽略 `AbortError`（它表示用户正在取消操作）；重新抛出其他错误，使其显示在 UI 中。
+3. **Yield 累积状态，而不是增量。** 每次 yield 都会替换之前的内容；如果 yield 增量，UI 会闪烁。
+4. **在流式循环外部累积工具调用**，否则它们会在第一个纯文本数据块中消失。
 
-## Troubleshooting
+## 故障排除
 
-**Messages not appearing.** Ensure your adapter returns the correct shape: `{ content: [{ type: "text", text: "..." }] }`.
+**消息未显示。** 确保适配器返回正确的结构：`{ content: [{ type: "text", text: "..." }] }`。
 
-**Streaming not working.** Use `async *run` (with the asterisk). A plain `async run` cannot yield.
+**流式传输不起作用。** 使用 `async *run`（带星号）。普通的 `async run` 无法 yield。
 
-**Tool UI flickers and disappears.** state is being reset between chunks. Accumulate tool calls in a `Map` declared outside the `for await` loop.
+**工具 UI 闪烁并消失。** 状态在数据块之间被重置。将工具调用累积在 `Map` 中，并在 `for await` 循环外部声明它。
 
-## API reference
+## API 参考
 
 ### `ChatModelAdapter`
 
@@ -780,7 +780,7 @@ const CustomAPIAdapter: ChatModelAdapter = {
       name: "run",
       type: "ChatModelRunOptions => ChatModelRunResult | AsyncGenerator<ChatModelRunResult>",
       description:
-        "Function that sends messages to your API and returns the response.",
+        "向你的 API 发送消息并返回响应的函数。",
       required: true,
     },
   ]}
@@ -794,51 +794,51 @@ const CustomAPIAdapter: ChatModelAdapter = {
     {
       name: "messages",
       type: "readonly ThreadMessage[]",
-      description: "The conversation history to send to your API.",
+      description: "要发送给你的 API 的对话历史。",
       required: true,
     },
     {
       name: "runConfig",
       type: "RunConfig",
       description:
-        "Run configuration with optional custom metadata. RunConfig is { readonly custom?: Record<string, unknown> }.",
+        "带有可选自定义元数据的运行配置。RunConfig 是 { readonly custom?: Record<string, unknown> }。",
       required: true,
     },
     {
       name: "abortSignal",
       type: "AbortSignal",
-      description: "Signal to cancel the request if user interrupts.",
+      description: "用户中断时用于取消请求的信号。",
       required: true,
     },
     {
       name: "context",
       type: "ModelContext",
-      description: "Additional context including configuration and tools.",
+      description: "包含配置和工具的其他上下文。",
       required: true,
     },
     {
       name: "unstable_assistantMessageId",
       type: "string | Undefined",
       description:
-        "ID of the assistant message being generated. Useful for tracking or updating specific messages.",
+        "正在生成的助手消息 ID。适用于跟踪或更新特定消息。",
     },
     {
       name: "unstable_threadId",
       type: "string | Undefined",
       description:
-        "Current thread/conversation identifier. Useful for passing to your backend API.",
+        "当前线程/对话标识符。适用于传递给后端 API。",
     },
     {
       name: "unstable_parentId",
       type: "string | Null | Undefined",
       description:
-        "ID of the parent message this response is replying to. null if this is the first message.",
+        "此响应所回复的父消息 ID。如果这是第一条消息，则为 null。",
     },
     {
       name: "unstable_getMessage",
       type: "() => ThreadMessage",
       description:
-        "Returns the current assistant message being generated. Useful during streaming.",
+        "返回当前正在生成的助手消息。适用于流式传输期间。",
     },
   ]}
 />
@@ -851,52 +851,52 @@ const CustomAPIAdapter: ChatModelAdapter = {
     {
       name: "initialMessages",
       type: "readonly ThreadMessageLike[]",
-      description: "Pre-populate the thread with messages.",
+      description: "预先使用消息填充线程。",
     },
     {
       name: "maxSteps",
       type: "number",
       description:
-        "Maximum number of sequential tool calls before requiring user input.",
+        "要求用户输入前允许的连续工具调用最大次数。",
       default: "2",
     },
     {
       name: "cloud",
       type: "AssistantCloud",
       description:
-        "Enable Assistant Cloud integration for multi-thread support and persistence.",
+        "启用 Assistant Cloud 集成，以支持多线程和持久化。",
     },
     {
       name: "adapters",
       type: "LocalRuntimeAdapters",
       description:
-        "Capability adapters. UI features automatically enable based on which adapters are provided. See /docs/runtimes/concepts/adapters.",
+        "能力适配器。UI 功能会根据所提供的适配器自动启用。参见 /docs/runtimes/concepts/adapters。",
     },
     {
       name: "unstable_humanToolNames",
       type: "string[]",
       description:
-        "Tool names that pause the run until the user supplies a result via addResult (unstable).",
+        "在用户通过 addResult 提供结果前暂停运行的工具名称（尚不稳定）。",
     },
   ]}
 />
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="ExternalStoreRuntime"
-    description="Bring your own state store."
+    description="使用你自己的状态存储。"
     href="/docs/runtimes/custom/external-store"
   />
   <Card
-    title="Adapters"
-    description="Attachments, speech, feedback, history, suggestions."
+    title="适配器"
+    description="附件、语音、反馈、历史记录和建议。"
     href="/docs/runtimes/concepts/adapters"
   />
   <Card
-    title="Threads"
-    description="Cloud, custom database, ExternalStore-based."
+    title="线程"
+    description="云端、自定义数据库、基于 ExternalStore。"
     href="/docs/runtimes/concepts/threads"
   />
 </Cards>

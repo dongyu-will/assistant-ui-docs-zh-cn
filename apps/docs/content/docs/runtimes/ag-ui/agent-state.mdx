@@ -1,11 +1,11 @@
 ---
-title: Agent state
-description: Read and optimistically update agent-owned state with useAgUiState and useAgUiSetState over AG-UI.
+title: Agent 状态
+description: 通过 AG-UI 使用 useAgUiState 读取助手拥有的状态，并使用 useAgUiSetState 乐观地更新状态。
 ---
 
-`useAgUiState` mirrors the state your AG-UI agent owns. It updates live while the agent runs. `useAgUiSetState` lets you apply optimistic local updates that are sent with the next run.
+`useAgUiState` 会镜像 AG-UI agent 所拥有的状态，并在 agent 运行期间实时更新。`useAgUiSetState` 可用于应用乐观的本地更新，这些更新会随下一次运行一起发送。
 
-## Basic usage
+## 基本用法
 
 ```tsx
 import { useAgUiState, useAgUiSetState } from "@assistant-ui/react-ag-ui";
@@ -26,9 +26,9 @@ const isRunning = useAuiState((s) => s.thread.isRunning);
 // isRunning: boolean                (whether the thread is currently running)
 ```
 
-## Example
+## 示例
 
-Render agent state beside the chat and push an optimistic update from a control in your UI:
+在聊天旁边渲染 agent 状态，并通过 UI 中的控件推送一次乐观更新：
 
 ```tsx
 "use client";
@@ -81,44 +81,44 @@ export function ResearchAssistant() {
 }
 ```
 
-The panel re-renders as `STATE_SNAPSHOT` and `STATE_DELTA` events arrive. The button updates the local snapshot immediately; that value is included as the `state` field of the next run input.
+当 `STATE_SNAPSHOT` 和 `STATE_DELTA` 事件到达时，面板会重新渲染。按钮会立即更新本地快照；该值会作为下一次运行输入中的 `state` 字段传入。
 
-## How state is synced
+## 状态如何同步
 
-The AG-UI protocol delivers agent state on the wire:
+AG-UI 协议会通过传输层传递 agent 状态：
 
-- `STATE_SNAPSHOT` replaces the full client-side snapshot.
-- `STATE_DELTA` applies a JSON Patch to the current snapshot.
+- `STATE_SNAPSHOT` 替换完整的客户端快照。
+- `STATE_DELTA` 对当前快照应用 JSON Patch。
 
-The runtime applies both client-side, so `useAgUiState` always reflects the latest merged snapshot. Calling the setter from `useAgUiSetState` updates that same local snapshot. On the next run, the runtime automatically includes it as the `state` field of the run input.
+运行时会在客户端应用这两种事件，因此 `useAgUiState` 始终反映合并后的最新快照。从 `useAgUiSetState` 调用 setter 会更新同一个本地快照。下一次运行时，运行时会自动将其作为运行输入中的 `state` 字段包含在内。
 
-This works with any AG-UI agent (Mastra, Pydantic AI, CrewAI, LangGraph via AG-UI adapters, and other AG-UI-compliant servers).
+这适用于任何 AG-UI agent（Mastra、Pydantic AI、CrewAI、通过 AG-UI 适配器接入的 LangGraph，以及其他符合 AG-UI 的服务器）。
 
-## Write-back timing
+## 回写时机
 
-`useAgUiSetState` is optimistic and local first. The value reaches the agent only when the next run starts. It is not a live channel into a run that is already in progress. Use it to stage preferences, filters, or other agent-owned fields that the next turn should see.
+`useAgUiSetState` 会先在本地进行乐观更新。只有下一次运行开始时，该值才会到达 agent。它不是连接到已经在进行中的运行的实时通道。你可以使用它暂存偏好设置、筛选条件，或其他希望下一轮看到的 agent 所有字段。
 
-## Relationship to other state
+## 与其他状态的关系
 
-Keep the three state layers distinct:
+请区分以下三层状态：
 
-- **Your app state** stays yours (React state, URL, a store). assistant-ui does not own it.
-- **`useAuiState`** reads assistant-ui's client state (messages, composer, thread status).
-- **`useAgUiState` / `useAgUiSetState`** mirror state the **agent** owns, synced over the AG-UI wire via snapshots and deltas.
+- **你的应用状态**仍由你管理（React 状态、URL、状态存储）。assistant-ui 不会拥有它。
+- **`useAuiState`** 读取 assistant-ui 的客户端状态（消息、输入框、线程状态）。
+- **`useAgUiState` / `useAgUiSetState`** 镜像 **agent** 所拥有的状态，并通过快照和增量在 AG-UI 传输层上同步。
 
-Use `useAgUiState` and `useAgUiSetState` for fields your agent maintains as shared state on the protocol. Use `useAuiState` for UI that depends on the chat thread itself. Use your own state for everything else.
+对于 agent 通过协议维护为共享状态的字段，请使用 `useAgUiState` 和 `useAgUiSetState`。对于依赖聊天线程本身的 UI，请使用 `useAuiState`。其他所有状态都使用你自己的状态管理。
 
-## Next
+## 下一步
 
 <Cards>
   <Card
-    title="Runtime options"
-    description="useAgUiRuntime options, adapters, supported events."
+    title="运行时选项"
+    description="useAgUiRuntime 选项、适配器和支持的事件。"
     href="/docs/runtimes/ag-ui/runtime-options"
   />
   <Card
-    title="Quickstart"
-    description="Minimal HttpAgent + useAgUiRuntime setup."
+    title="快速入门"
+    description="最小化的 HttpAgent + useAgUiRuntime 设置。"
     href="/docs/runtimes/ag-ui/quickstart"
   />
 </Cards>

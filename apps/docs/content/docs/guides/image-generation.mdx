@@ -1,17 +1,17 @@
 ---
-title: Image Generation
-description: Generate images in your backend and render them inline in an assistant-ui thread.
+title: 图像生成
+description: 在后端生成图像，并将其内联渲染到 assistant-ui 会话线程中。
 ---
 
-Image generation needs no dedicated primitive. Generate the image wherever you already run model calls (a route handler or a tool), store the result as an `ImageMessagePart`, and render it with the `@assistant-ui/ui` `Image` component.
+图像生成不需要专用原语。在已有模型调用的位置（路由处理器或工具）生成图像，将结果存储为 `ImageMessagePart`，然后使用 `@assistant-ui/ui` `Image` 组件渲染。
 
 <Callout type="info">
-  This covers non-streaming generation, rendering, and actions. Streaming partial images and multi-image galleries are out of scope.
+  本页涵盖非流式生成、渲染和操作。流式传输部分图像以及多图画廊不在讨论范围内。
 </Callout>
 
-## Generate in your backend
+## 在后端生成
 
-Call your provider from a server route. With the AI SDK that is `generateImage`; return the image as a data URI (or an object-store URL) plus any provider metadata you want to keep.
+从服务器路由调用你的提供商。使用 AI SDK 时，对应的是 `generateImage`；将图像以 data URI（或对象存储 URL）以及你希望保留的提供商元数据返回。
 
 ```ts
 // app/api/image/route.ts
@@ -37,11 +37,11 @@ export async function POST(req: Request) {
 }
 ```
 
-The model provider is irrelevant to rendering; swap `openai.image(...)` for any AI SDK image model.
+模型提供商与渲染无关；将 `openai.image(...)` 替换为任意 AI SDK 图像模型即可。
 
-## Store it as an `ImageMessagePart`
+## 将其存储为 `ImageMessagePart`
 
-An `ImageMessagePart` only needs `image` (a `data:` URI, an `https://` URL, or a `blob:` URL) plus an optional `filename`. Keep any provenance you want to display, the prompt, a revised prompt, a model id, in your own component state or in message metadata; the part itself stays minimal.
+`ImageMessagePart` 只需要 `image`（`data:` URI、`https://` URL 或 `blob:` URL）以及可选的 `filename`。将你希望展示的来源信息、提示词、修订后的提示词、模型 ID 等内容保存在自己的组件状态或消息元数据中；该部分本身保持精简。
 
 ```ts
 const part: ImageMessagePart = {
@@ -50,15 +50,15 @@ const part: ImageMessagePart = {
 };
 ```
 
-## Render with the `Image` component
+## 使用 `Image` 组件渲染
 
-The `Image` component in `@assistant-ui/ui` handles the render states for you:
+`Image` 组件位于 `@assistant-ui/ui` 中，可为你处理各种渲染状态：
 
-1. **Running** (`status.type === "running"`) renders a spinner.
-2. **Content filter** (`status.type === "incomplete"` with `reason: "content-filter"`) renders an error card with no `<img src>`.
-3. **Complete** renders a zoomable `<img>` with optional `Image.Actions`.
+1. **运行中**（`status.type === "running"`）会渲染一个加载指示器。
+2. **内容过滤**（`status.type === "incomplete"`，以及 `reason: "content-filter"`）会渲染一个不带 `<img src>` 的错误卡片。
+3. **完成**状态会渲染一个可缩放的 `<img>`，并可选择性地包含 `Image.Actions`。
 
-`Image.Actions` provides download and copy buttons, plus a regenerate button when you pass an `onRegenerate` callback. Wire it to the same generation flow you used above; debounce, rate limiting, and confirmation are your call.
+`Image.Actions` 提供下载和复制按钮；传入 `onRegenerate` 回调后，还会提供重新生成按钮。将其连接到上文使用的同一生成流程；防抖、速率限制和确认逻辑由你决定。
 
 ```tsx
 import { Image } from "@assistant-ui/ui";
@@ -69,6 +69,6 @@ import { Image } from "@assistant-ui/ui";
 </>;
 ```
 
-## Example
+## 示例
 
-A complete Next.js example (with a mock fallback when `OPENAI_API_KEY` is unset) lives in [`examples/with-image-generation`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-image-generation).
+完整的 Next.js 示例（当 `OPENAI_API_KEY` 未设置时使用 mock 回退）位于[`examples/with-image-generation`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-image-generation).

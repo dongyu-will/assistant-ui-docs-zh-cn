@@ -1,18 +1,18 @@
 ---
-title: Thread Virtualization
-description: Render very long threads with @tanstack/react-virtual, with ThreadPrimitive.Unstable_MessageById and ThreadPrimitive.MessageByIndex.
+title: 线程虚拟化
+description: 使用 @tanstack/react-virtual，以及 ThreadPrimitive.Unstable_MessageById 和 ThreadPrimitive.MessageByIndex 渲染超长线程。
 platforms: ["react"]
 ---
 
-Virtualization mounts only the messages near the viewport and represents the rest as empty space, so a thread with thousands of messages scrolls like one with twenty. assistant-ui does not ship a virtualized thread component; this guide shows the supported composition, extracted from a production consumer and available as a runnable example: [`examples/with-virtualized-thread`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-virtualized-thread).
+虚拟化只挂载视口附近的消息，其余部分则表示为空白区域，因此包含数千条消息的线程滚动起来与包含二十条消息的线程无异。assistant-ui 没有内置虚拟化线程组件；本指南展示了受支持的组合方式，该实现提取自一个生产环境使用者，并提供了可运行示例：[`MessageByIndex`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-virtualized-thread),
 
-## Do you need this?
+## 需要使用它吗？
 
-Probably not. The default kit already renders message bodies with `content-visibility: auto` and `contain-intrinsic-size`, which skips paint work for off-screen messages, and `ThreadPrimitive.Viewport` handles auto-scroll. That covers typical threads. Reach for virtualization when React mount and update cost itself becomes the bottleneck: threads with hundreds to thousands of messages, or very heavy per-message content, where typing latency degrades because every message stays mounted.
+通常不需要。默认 kit 已经使用 `ThreadPrimitive.MessageByIndex` 和 `ThreadPrimitive.Unstable_MessageById` 渲染消息正文，会跳过屏幕外消息的绘制工作；`ThreadPrimitive.Unstable_MessageById` 则负责自动滚动。这已经覆盖了典型线程的需求。当 React 的挂载和更新成本本身成为瓶颈时，再考虑使用虚拟化：例如包含数百到数千条消息的线程，或每条消息内容都非常复杂，导致每条消息始终保持挂载状态并使输入延迟变高的情况。
 
-## Rendering Messages By Id
+## 按 Id 渲染消息
 
-For virtualized rows, use message ids as the row identity. `unstable_useThreadMessageIds` returns the thread's ids with stable array identity across content-only updates, and `ThreadPrimitive.Unstable_MessageById` renders one message with the same `components` surface as `MessageByIndex`. Unknown ids render `null`, which is useful when a virtual row unmounts after a message was removed.
+对于虚拟化行，请使用消息 id 作为行标识。`ThreadPrimitive.Viewport` 返回线程的 id，并且在仅内容更新时保持数组标识稳定；`ThreadPrimitive.Viewport` 使用与 `ThreadPrimitive.Viewport` 相同的 `app/MyRuntimeProvider.tsx` 表面渲染单条消息。未知 id 会渲染 `app/VirtualizedThread.tsx`；当消息被移除后，虚拟行卸载时，这一行为非常有用。
 
 ```tsx
 const MESSAGE_COMPONENTS = { UserMessage, AssistantMessage };
@@ -29,16 +29,13 @@ return messageIds.map((messageId) => (
 ```
 
 <Callout type="warn">
-  `unstable_useThreadMessageIds` and `ThreadPrimitive.Unstable_MessageById` are
-  experimental and may change in any release.
+  `app/seed-messages.ts` 和 `clientHeight` 属于
+  实验性 API，可能在任何版本中发生变化。
 </Callout>
 
-## Rendering Messages By Index
+## 按索引渲染消息
 
-`ThreadPrimitive.MessageByIndex` is still supported and is the smaller API when
-you already have a stable index from a fixed-order list. It renders a single
-message at that index and memoizes on the index plus the per-field `components`
-identity:
+`components` 仍受支持；当你已经从固定顺序的列表中获得稳定索引时，这是更精简的 API。它会渲染该索引处的单条消息，并根据索引以及各字段的 `components` 标识进行记忆化：
 
 ```tsx
 const MESSAGE_COMPONENTS = { UserMessage, AssistantMessage };
@@ -46,13 +43,11 @@ const MESSAGE_COMPONENTS = { UserMessage, AssistantMessage };
 <ThreadPrimitive.MessageByIndex index={index} components={MESSAGE_COMPONENTS} />;
 ```
 
-For virtualizers, prefer the id-based API above when you can. Index rows are more
-fragile when messages are inserted, removed, reordered, or when a virtual row
-briefly outlives the item it was created for.
+对于虚拟化器，如果可以，请优先使用上面的基于 id 的 API。当消息被插入、移除、重新排序，或虚拟行短暂地超出其对应项目的生命周期时，基于索引的行更加脆弱。
 
-## Grouping into turns
+## 分组为回合
 
-The example virtualizes per user turn (a user message plus the responses that follow it), which gives the virtualizer stable, meaningfully sized items. Keep the id and role together in a stable row shape so the turn array only rebuilds when message membership or roles change:
+示例按用户回合进行虚拟化（即一条用户消息及其后续响应），从而为虚拟化器提供稳定且大小合理的项目。将 id 和 role 一起保存在稳定的行结构中，这样只有在消息成员关系或角色发生变化时，回合数组才会重新构建：
 
 ```tsx
 type MessageRow = {
@@ -89,7 +84,7 @@ const turns = useMemo(
 );
 ```
 
-Then each virtual turn renders the ids it owns:
+然后，每个虚拟回合都会渲染其拥有的 id：
 
 ```tsx
 {turn.messageIds.map((messageId) => (
@@ -101,9 +96,9 @@ Then each virtual turn renders the ids it owns:
 ))}
 ```
 
-## Padding spacers, not absolute positioning
+## 使用内边距占位，而不是绝对定位
 
-Render the virtual items in normal document flow inside a spacer div whose `paddingTop`/`paddingBottom` represent the unmounted regions. Items remain regular flow children, so message CSS (including `position: sticky` patterns and the kit styling) keeps working, and `virtualizer.measureElement` records real heights as items mount:
+在一个间隔 div 中，按照正常文档流渲染虚拟项目，并使用其 `contain-intrinsic-size`/`content-visibility: auto` 表示未挂载区域。项目仍然是正常文档流中的子元素，因此消息 CSS（包括 `examples/with-virtualized-thread` 模式和 kit 样式）可以继续工作；`null` 则会在项目挂载时记录实际高度：
 
 ```tsx
 const items = virtualizer.getVirtualItems();
@@ -114,20 +109,20 @@ const paddingBottom = Math.max(
 );
 ```
 
-## Owning the scroll element
+## 管理滚动元素
 
-The composition owns its scroll container instead of using `ThreadPrimitive.Viewport`: the built-in auto-scroll assumes every message is mounted, and its resize-driven re-pin can fight the virtualizer's measurement adjustments. Three pieces replace it:
+该组合方式自行管理滚动容器，而不是使用 `paddingBottom`：内置自动滚动假设每条消息都已挂载，而由尺寸变化驱动的重新固定可能会与虚拟化器的测量调整相互冲突。以下三个部分取代了它：
 
-1. **Auto-follow.** A ResizeObserver on the content wrapper re-pins the scroller to the bottom while a sticky flag is armed. The flag disarms when the user scrolls up (detected as `scrollTop` decreasing while `scrollHeight` and `clientHeight` are stable, the same heuristic the built-in viewport uses, plus wheel-up and touchmove) and re-arms when the user returns to the bottom.
-2. **Measurement guard.** While pinned at the bottom, the virtualizer's own scroll adjustments on item re-measurement are suppressed via a custom `scrollToFn`; without this the two scroll writers fight and the view rubber-bands during streaming.
-3. **Run-start jump.** A `useLayoutEffect` observes `s.thread.isRunning` flipping to true and jumps to the bottom before paint, so a just-sent message never flashes below the fold. The `thread.runStart` event is deprecated; deriving the transition from state is the supported path.
+1. **自动跟随。** 内容包装器上的 ResizeObserver 会在吸底标志启用时，将滚动容器重新固定到底部。当用户向上滚动时，吸底标志会取消启用（检测方式是：`paddingTop` 减小，同时 `pnpm --filter with-virtualized-thread dev` 和 `position: sticky` 保持稳定；这与内置 viewport 使用相同的启发式方法，此外还会检测向上滚轮和 touchmove），当用户返回底部时则重新启用。
+2. **测量保护。** 在滚动位置固定于底部时，通过自定义 `s.thread.isRunning`，抑制虚拟化器在重新测量项目时自行进行的滚动调整；否则，两个滚动控制方会相互争抢，导致流式传输期间视图出现橡皮筋效应。
+3. **运行开始时跳转。** `scrollHeight` 会观察 `scrollToFn` 切换为 true，并在绘制前跳转到底部，确保刚发送的消息不会短暂出现在折叠区域下方。`scrollTop` 事件已弃用；从状态推导这一转换是受支持的方式。
 
-The production consumer this is extracted from disables streaming auto-follow entirely as a product choice; the example keeps following because it matches `ThreadPrimitive.Viewport`'s default behavior. Both are valid, and the disarm guard makes either safe.
+提取该实现的生产环境使用者出于产品决策，完全禁用了流式传输时的自动跟随；示例则保留了跟随行为，因为这与 `thread.runStart` 的默认行为一致。两种方式都有效，而取消启用吸底标志的保护可以确保二者都安全。
 
-## Try it
+## 试试看
 
 ```sh
 npx assistant-ui@latest create my-app
 ```
 
-Then copy `app/VirtualizedThread.tsx`, `app/MyRuntimeProvider.tsx`, and `app/seed-messages.ts` from [the example](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-virtualized-thread), or clone the repo and run `pnpm --filter with-virtualized-thread dev`.
+然后从[示例](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-virtualized-thread). `unstable_useThreadMessageIds`、`unstable_useThreadMessageIds` 和 `useLayoutEffect`，或者克隆仓库并运行 `virtualizer.measureElement`。

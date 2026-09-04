@@ -1,57 +1,57 @@
 ---
-title: Mastra Integration
-description: Wire the Mastra TypeScript agent framework into a React chat UI with assistant-ui — full streaming, tool calling, multi-agent support, and thread management.
+title: Mastra 集成
+description: 使用 assistant-ui 将 Mastra TypeScript 智能体框架接入 React 聊天界面，支持完整的流式输出、工具调用、多智能体和线程管理。
 ---
 
 import { MastraIcon } from "@/components/icons/mastra";
 import { VercelIcon } from "@/components/icons/vercel";
 
-[Mastra](https://mastra.ai/) is an open-source TypeScript agent framework. It provides primitives for AI applications: agents with memory and tool calling, deterministic LLM workflows, RAG, model routing, workflow graphs, and automated evals.
+[Mastra](https://mastra.ai/) 是一个开源的 TypeScript 智能体框架。它为 AI 应用提供了多种原语：支持记忆和工具调用的智能体、确定性的 LLM 工作流、RAG、模型路由、工作流图以及自动化评估。
 
 <Callout type="info">
-This is an integration guide, not a runtime adapter. assistant-ui does not ship a `@assistant-ui/react-mastra` package. You wire up Mastra through the standard [AI SDK runtime](/docs/runtimes/ai-sdk/v7) by routing your API endpoint through Mastra's agent stream.
+这是一份集成指南，而不是运行时适配器。assistant-ui 不提供 `@assistant-ui/react-mastra` 包。你可以通过标准的 [AI SDK 运行时](/docs/runtimes/ai-sdk/v7)接入 Mastra，让 API 端点通过 Mastra 的智能体流处理请求。
 </Callout>
 
-## Pick a pattern
+## 选择一种模式
 
-| Pattern | When to pick |
+| 模式 | 适用场景 |
 | --- | --- |
-| [Full-stack](/docs/integrations/frameworks/mastra/full-stack) | One Next.js app: API routes call Mastra in-process. Simpler deployment, single repo. |
-| [Separate server](/docs/integrations/frameworks/mastra/separate-server) | Mastra runs as its own service; the Next.js frontend hits its API. Independent scaling, clearer separation of concerns. |
+| [全栈](/docs/integrations/frameworks/mastra/full-stack) | 单个 Next.js 应用：API 路由在进程内调用 Mastra。部署更简单，代码库也更集中。 |
+| [独立服务器](/docs/integrations/frameworks/mastra/separate-server) | Mastra 作为独立服务运行；Next.js 前端调用其 API。支持独立扩展，职责分离更清晰。 |
 
-Both use the same client-side `useChatRuntime` from [`@assistant-ui/ai-sdk`](/docs/runtimes/ai-sdk/v7). The only difference is where the Mastra agent lives.
+两种模式都使用来自 [`@assistant-ui/ai-sdk`](/docs/runtimes/ai-sdk/v7) 的相同客户端 `useChatRuntime`。唯一的区别在于 Mastra 智能体的运行位置。
 
-## Architecture
+## 架构
 
-Mastra integrates at the LLM-client layer on the server. assistant-ui talks to your API route via the AI SDK runtime; the route calls `agent.stream(messages)` and returns the result wrapped in a UI message stream. The client side is built on [`ExternalStoreRuntime`](/docs/runtimes/custom/external-store) through the AI SDK adapter.
+Mastra 在服务器端的 LLM 客户端层进行集成。assistant-ui 通过 AI SDK 运行时与 API 路由通信；该路由调用 `agent.stream(messages)`，并将结果封装在 UI 消息流中返回。客户端则通过 AI SDK 适配器构建于 [`ExternalStoreRuntime`](/docs/runtimes/custom/external-store) 之上。
 
-Shared adapters (attachments, speech, feedback, history) work the same way described in [adapters](/docs/runtimes/concepts/adapters). Multi-thread support uses [AssistantCloud](/docs/cloud) or a [custom thread list](/docs/runtimes/concepts/threads).
+共享适配器（附件、语音、反馈、历史记录）的工作方式与 [适配器](/docs/runtimes/concepts/adapters)中所述相同。多线程支持使用 [AssistantCloud](/docs/cloud) 或[自定义线程列表](/docs/runtimes/concepts/threads)。
 
-## Requirements
+## 要求
 
-- A Next.js project, or another framework that can run AI SDK route handlers.
-- Model API keys (OpenAI, Anthropic, etc.) configured in your environment.
-- Node 18 or newer.
+- 一个 Next.js 项目，或其他能够运行 AI SDK 路由处理程序的框架。
+- 在环境中配置模型 API 密钥（OpenAI、Anthropic 等）。
+- Node 18 或更高版本。
 
-## Next
+## 下一步
 
 <Cards>
   <Card
     icon={<MastraIcon width={20} height={20} />}
-    title="Full-stack integration"
-    description="Run Mastra inside your Next.js API routes."
+    title="全栈集成"
+    description="在 Next.js API 路由中运行 Mastra。"
     href="/docs/integrations/frameworks/mastra/full-stack"
   />
   <Card
     icon={<MastraIcon width={20} height={20} />}
-    title="Separate server integration"
-    description="Run Mastra as a standalone server, frontend connects via API."
+    title="独立服务器集成"
+    description="将 Mastra 作为独立服务器运行，前端通过 API 连接。"
     href="/docs/integrations/frameworks/mastra/separate-server"
   />
   <Card
     icon={<VercelIcon width={20} height={20} />}
-    title="AI SDK runtime"
-    description="The runtime that handles the client side of this integration."
+    title="AI SDK 运行时"
+    description="处理此集成客户端部分的运行时。"
     href="/docs/runtimes/ai-sdk/v7"
   />
 </Cards>

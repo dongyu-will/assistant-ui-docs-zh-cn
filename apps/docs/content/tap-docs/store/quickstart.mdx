@@ -1,19 +1,19 @@
 ---
-title: Quickstart
-description: Install Store and connect your first Tap resource to React.
+title: 快速开始
+description: 安装 Store，并将你的第一个 Tap 资源连接到 React。
 ---
 
-Store (`@assistant-ui/store`) connects Tap resources to React with scoped, type-safe state management.
+Store (`@assistant-ui/store`) 将 Tap 资源连接到 React，并提供带作用域的类型安全状态管理。
 
-## Installation
+## 安装
 
 ```sh
 npm install @assistant-ui/store @assistant-ui/tap
 ```
 
-## Define your scope types
+## 定义作用域类型
 
-Register your scopes by augmenting the `ScopeRegistry` interface. This gives you type safety across all Store hooks.
+通过扩展 `ScopeRegistry` 接口来注册作用域。这会为所有 Store hooks 提供类型安全。
 
 ```ts title="lib/store/counter-scope.ts"
 import "@assistant-ui/store";
@@ -30,9 +30,9 @@ declare module "@assistant-ui/store" {
 }
 ```
 
-## Create a resource
+## 创建资源
 
-Define a Tap resource that returns `ClientOutput<"counter">`. This connects the resource's methods to the scope type you just registered.
+定义一个返回 `ClientOutput<"counter">` 的 Tap 资源。这会将资源的方法连接到你刚刚注册的作用域类型。
 
 ```ts title="lib/store/counter-store.ts"
 import { resource } from "@assistant-ui/tap";
@@ -57,9 +57,9 @@ const useCounterResource = ({
 export const CounterResource = resource(useCounterResource);
 ```
 
-## Use it in React
+## 在 React 中使用
 
-Use `AuiProvider` to create a store and provide it to the tree, and `useAuiState` to subscribe to state.
+使用 `AuiProvider` 创建 store 并将其提供给组件树，使用 `useAuiState` 订阅状态。
 
 ```tsx title="app/CounterApp.tsx"
 "use client";
@@ -96,17 +96,17 @@ export const CounterDisplay = () => {
 };
 ```
 
-`useAuiState((s) => s.counter.count)` subscribes to just the `count` value, so the component only re-renders when it changes.
+`useAuiState((s) => s.counter.count)` 只订阅 `count` 值，因此只有在该值发生变化时，组件才会重新渲染。
 
-`aui.counter` exposes the scope's methods, so `aui.counter.increment()` calls the `increment` method you defined in the resource.
+`aui.counter` 会公开作用域的方法，因此 `aui.counter.increment()` 会调用你在资源中定义的 `increment` 方法。
 
-## Next steps
+## 下一步
 
 <Cards>
-  <Card title="Scopes" href="/tap/docs/store/scopes">
-    Nest scopes with Derived and AuiProvider.
+  <Card title="作用域" href="/tap/docs/store/scopes">
+    使用 Derived 和 AuiProvider 嵌套作用域。
   </Card>
-  <Card title="Events" href="/tap/docs/store/events">
-    Emit and subscribe to typed events.
+  <Card title="事件" href="/tap/docs/store/events">
+    发送和订阅类型化事件。
   </Card>
 </Cards>

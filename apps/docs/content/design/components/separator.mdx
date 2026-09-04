@@ -1,8 +1,8 @@
 ---
 title: "Separator"
-description: "A hairline between things, horizontal or vertical."
+description: "事物之间的细线，可水平或垂直。"
 links:
-  - label: Source
+  - label: 官方原文
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/separator.tsx
   - label: Base UI Separator
     url: https://base-ui.com/react/components/separator
@@ -22,11 +22,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.SeparatorSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="separator" />
 
-## Usage
+## 用法
 
 ```tsx
 import { Separator } from "@/components/ui/separator";
@@ -42,11 +42,11 @@ export function Example() {
 }
 ```
 
-## API Reference
+## API 参考
 
 ### Separator
 
-Wraps Base UI's Separator.
+封装 Base UI 的 Separator。
 
 <ParametersTable
   type="SeparatorProps"
@@ -55,12 +55,12 @@ Wraps Base UI's Separator.
       name: "orientation",
       type: '"horizontal" | "vertical"',
       default: '"horizontal"',
-      description: "The axis of the line. A vertical separator needs a bounded height from its row.",
+      description: "线条的轴向。垂直分隔线需要从所在行获取有界高度。",
     },
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes.",
+      description: "附加的 CSS 类。",
     },
   ]}
 />

@@ -1,18 +1,18 @@
 ---
-title: "Handoff"
-description: "Control passing between agents, with the reason and what came along."
+title: "交接"
+description: "控制权在助手之间传递，并说明原因和随之传递的内容。"
 ---
 
-A handoff marks the moment control passes from one agent to another: which agent had it, which one has it now, why, and what context carried over. It is presentational throughout; you decide when a handoff happens and supply every field.
+交接标志着控制权从一个助手传递到另一个助手的时刻：之前由哪个助手控制、现在由哪个助手控制、交接原因，以及传递了哪些上下文。整个组件仅负责展示；你可以决定何时发生交接，并提供所有字段。
 
-## Getting started
+## 开始使用
 
 <StandaloneMode>
 
 <Steps>
   <Step>
 
-### Render a handoff in progress
+### 渲染正在进行的交接
 
 ```tsx title="app/handoff.tsx"
 "use client";
@@ -35,9 +35,9 @@ export function RoutingHandoff() {
   </Step>
   <Step>
 
-### Settle it once the new agent takes over
+### 新助手接管后完成交接
 
-`settled` only controls styling; flip it from wherever your app learns the target agent has actually started responding.
+`settled` 仅控制样式；当你的应用通过某种方式获知目标助手确实已开始响应时，从那里切换它。
 
 ```tsx
 "use client";
@@ -64,7 +64,7 @@ export function RoutingHandoff() {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="agent-handoff">
@@ -78,19 +78,19 @@ export function RoutingHandoff() {
 </div>
 ```
 
-Before `settled`, the arrow and the `to` pill read in blue to mark the handoff as in transit, while the `from` pill stays at full opacity. Once `settled`, the `from` pill dims, the arrow turns gray, and the `to` pill switches to the neutral pill style at full opacity, since it is now the current speaker. Both transitions animate over 500ms. `carried` is required, not optional: pass an empty array to render no "carried over" section at all rather than an empty one.
+在 `settled` 之前，箭头和 `to` 标签以蓝色显示，表示交接正在传递中，而 `from` 标签保持完全不透明。`settled` 后，`from` 标签变暗，箭头变为灰色，`to` 标签切换为完全不透明的中性标签样式，因为它现在是当前发言者。两种过渡都会以 500ms 的时长执行动画。`carried` 是必需的，而不是可选项：传入空数组即可完全不渲染“传递内容”部分，而不是渲染一个空部分。
 
-## Examples
+## 示例
 
-### Handoff with no carried context
+### 不包含传递上下文的交接
 
 ```tsx
 <AgentHandoff from="Planner" to="Executor" reason="Plan is complete." carried={[]} settled />
 ```
 
-### Wiring settled to your own event
+### 将完成状态连接到你自己的事件
 
-Nothing about the component listens for anything; `setSettled(true)` belongs wherever your app already knows the handoff finished, such as a websocket message or a state machine transition:
+组件不会监听任何事件；`setSettled(true)` 应放在应用已知交接完成的位置，例如 websocket 消息或状态机转换：
 
 ```tsx
 useEffect(() => {
@@ -103,29 +103,29 @@ useEffect(() => {
 }, []);
 ```
 
-### Restyle the handoff
+### 重新设置交接样式
 
-The `from` pill always uses the shared `field` surface; the `to` pill switches to `field` once `settled` and reads as a blue tint before that. The "carried over" label uses `mono`.
+`from` 标签始终使用共享的 `field` 表面；`to` 标签在 `settled` 后切换为 `field`，在此之前显示为蓝色调。“传递内容”标签使用 `mono`。
 
 ```tsx
 <AgentHandoff className="max-w-md gap-3" {...rest} />
 ```
 
-## API reference
+## API 参考
 
 <StandaloneMode>
 
 ### AgentHandoff
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `from` | `string` | required | Agent that had control. |
-| `to` | `string` | required | Agent taking control. |
-| `reason` | `string` | required | Shown below the pills. |
-| `carried` | `readonly string[]` | required | Context items listed under "carried over". Pass `[]` to render none. |
-| `settled` | `boolean` | required | Switches between the in-transit and settled styling. |
-| `className` | `string` | | Merged onto the root. |
+| `from` | `string` | 必需 | 之前拥有控制权的助手。 |
+| `to` | `string` | 必需 | 接管控制权的助手。 |
+| `reason` | `string` | 必需 | 显示在标签下方。 |
+| `carried` | `readonly string[]` | 必需 | 列在“传递内容”下的上下文项。传入 `[]` 可不渲染任何内容。 |
+| `settled` | `boolean` | 必需 | 在传递中和已完成样式之间切换。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

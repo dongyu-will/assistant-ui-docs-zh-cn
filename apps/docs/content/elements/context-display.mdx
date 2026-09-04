@@ -1,22 +1,22 @@
 ---
-title: "Context display"
-description: "Model context usage as a ring, bar, or text value with a detailed hover view."
+title: "上下文显示"
+description: "以环形、条形或文本值的形式显示模型上下文使用量，并在悬停时查看详细信息。"
 ---
 
-Context display turns a model's token usage into a small gauge with three faces: a ring, a bar, or a plain text fraction, each opening the same tooltip breakdown on hover. With a runtime it reads usage off the latest assistant message; standalone you hand it a usage object yourself.
+上下文显示会将模型的 token 使用量转换为一个小型仪表盘，提供三种形式：环形、条形或纯文本分数；悬停时它们都会打开相同的工具提示明细。在运行时中，它会读取最新助手消息中的使用量；在独立模式下，则由你自行传入 usage 对象。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-Runtime usage needs two things: your server actually returning token counts, and a preset mounted somewhere in the UI.
+运行时使用量需要满足两点：你的服务器确实返回 token 计数，并且在 UI 的某处挂载一个预设组件。
 
 <Steps>
   <Step>
 
-### Forward token usage from your route handler
+### 从路由处理程序转发 token 使用量
 
-`useThreadTokenUsage()` reads usage off the latest assistant message's `metadata`, so your AI SDK route has to attach it. Return `usage` on the `finish` step and `modelId` on `finish-step` through `messageMetadata`:
+`useThreadTokenUsage()` 会从最新助手消息的 `metadata` 中读取使用量，因此你的 AI SDK 路由必须附加该信息。在 `finish` 步骤中返回 `usage`，并通过 `messageMetadata` 在 `finish-step` 上返回 `modelId`：
 
 ```tsx title="app/api/chat/route.ts"
 import { streamText, convertToModelMessages } from "ai";
@@ -38,14 +38,14 @@ export async function POST(req: Request) {
 }
 ```
 
-Without this step every preset reads a total of zero and the tooltip's breakdown stays empty.
+如果省略此步骤，每个预设组件读取到的总量都会是零，工具提示中的明细也会保持为空。
 
   </Step>
   <Step>
 
-### Mount a preset
+### 挂载预设组件
 
-Pick `Ring`, `Bar`, or `Text` and pass your model's `modelContextWindow`. Each preset fetches usage internally through `useThreadTokenUsage()` and restarts its running total whenever the active thread's id changes.
+选择 `Ring`、`Bar` 或 `Text`，并传入模型的 `modelContextWindow`。每个预设都会通过 `useThreadTokenUsage()` 在内部获取使用量，并在当前线程的 id 发生变化时重新开始累计总量。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { ContextDisplay } from "@/components/assistant-ui/elements/context-display.aui";
@@ -59,7 +59,7 @@ function ThreadFooter() {
 }
 ```
 
-`Thread` does not mount a preset by default; place one in a footer, the composer rail, or a sidebar.
+`Thread` 默认不会挂载预设组件；请将其放置在页脚、输入框侧栏或侧边栏中。
 
   </Step>
 </Steps>
@@ -68,12 +68,12 @@ function ThreadFooter() {
 
 <StandaloneMode>
 
-Standalone, every preset and the composable `Root` take a `usage` object as a prop instead of reading one from a runtime, plus an optional `resetKey` to restart the running total yourself (a thread id, for instance) when you switch conversations.
+在独立模式下，每个预设组件和可组合的 `Root` 都会将 `usage` 对象作为 prop，而不是从运行时中读取；此外还可以传入可选的 `resetKey`，以便在切换对话时自行重新开始累计总量（例如传入线程 id）。
 
 <Steps>
   <Step>
 
-### Pass usage as a prop
+### 将使用量作为 prop 传入
 
 ```tsx title="app/usage-badge.tsx"
 import { ContextDisplayBar } from "@/components/assistant-ui/elements/context-display";
@@ -93,9 +93,9 @@ export function UsageBadge() {
 
 </StandaloneMode>
 
-## Anatomy
+## 组成结构
 
-Every preset is the same shape: a trigger wrapped in a shared tooltip.
+每个预设组件的结构都相同：一个包裹在共享工具提示中的触发器。
 
 ```tsx
 <button data-slot="context-display-trigger">
@@ -111,13 +111,13 @@ Every preset is the same shape: a trigger wrapped in a shared tooltip.
 </div>
 ```
 
-The breakdown only lists segments with a nonzero token count, so a usage object that carries only `totalTokens` shows the summary line with no rows underneath it. Percent is clamped to 100 even when usage exceeds the context window. The running total is sticky rather than reactive to every update: it only moves when the incoming total is itself nonzero, or when `resetKey` changes. A momentary usage of `undefined` (or zero) between turns does not flash the number back down, but a changed `resetKey` snaps it immediately to whatever the new usage reports.
+明细只会列出 token 计数不为零的分段，因此仅包含 `totalTokens` 的 usage 对象会显示摘要行，但下方没有任何行。即使使用量超过上下文窗口，百分比也会限制为 100。累计总量具有粘滞性，而不是对每次更新做出反应：只有当传入的总量本身不为零，或 `resetKey` 发生变化时，它才会更新。在两次交互之间短暂出现 `undefined`（或零）的使用量时，数字不会闪回较低值；但当 `resetKey` 发生变化时，数字会立即跳转到新使用量报告的值。
 
-## Examples
+## 示例
 
-### Three presets
+### 三种预设组件
 
-Each preset wraps `Root`, `Trigger`, and `Content` with one specific visual. `Ring` draws an SVG donut with a percent label, `Bar` draws a fill bar with a token count beside it, and `Text` prints a plain fraction with no severity color at all. `Ring` and `Bar` both shift color at the same two thresholds: the default tone below 65% usage, amber from 65% to 85%, and red above 85%.
+每个预设组件都会以一种特定的视觉形式包装 `Root`、`Trigger` 和 `Content`。`Ring` 绘制带百分比标签的 SVG 圆环，`Bar` 绘制旁边带 token 计数的填充条，而 `Text` 则显示纯文本分数，完全不使用严重程度颜色。`Ring` 和 `Bar` 都会在相同的两个阈值处切换颜色：使用量低于 65% 时使用默认色调，65% 到 85% 时使用琥珀色，高于 85% 时使用红色。
 
 <RuntimeMode>
 
@@ -127,7 +127,7 @@ Each preset wraps `Root`, `Trigger`, and `Content` with one specific visual. `Ri
 <ContextDisplay.Text modelContextWindow={128000} />
 ```
 
-Any preset also accepts `usage` directly. Supplying it skips the internal `useThreadTokenUsage()` fetch and, along with it, the automatic thread-id reset key. This is useful when you already have usage from elsewhere and want to drive the badge yourself without giving up the runtime wiring for anything else on the page.
+任何预设组件也可以直接接收 `usage`。传入该值后会跳过内部的 `useThreadTokenUsage()` 获取，同时也会跳过自动的 thread-id 重置键。当你已经从其他地方获得使用量，并希望自行驱动徽章，同时又不想放弃页面其他部分的运行时连接时，这种方式非常有用。
 
 </RuntimeMode>
 
@@ -141,9 +141,9 @@ Any preset also accepts `usage` directly. Supplying it skips the internal `useTh
 
 </StandaloneMode>
 
-### Compose your own visual
+### 组合自定义视觉样式
 
-`Root`, `Trigger`, and `Content` are exported on their own for a fully custom trigger visual. `Root` computes the shared percent and segment breakdown for `Content`'s tooltip, but that computation is internal to the module. A custom child passed to `Trigger` renders whatever you put there, so pair it with your own `modelContextWindow`/usage math rather than expecting it to read `Root`'s numbers.
+`Root`、`Trigger` 和 `Content` 都会单独导出，用于创建完全自定义的触发器视觉样式。`Root` 会为 `Content` 的工具提示计算共享百分比和分段明细，但该计算逻辑位于模块内部。传给 `Trigger` 的自定义子项会渲染你放入其中的任意内容，因此应将其与自己的 `modelContextWindow`/usage 计算配合使用，而不要期待它读取 `Root` 的数值。
 
 <RuntimeMode>
 
@@ -160,47 +160,47 @@ Any preset also accepts `usage` directly. Supplying it skips the internal `useTh
 
 <StandaloneMode>
 
-Standalone, pass `usage` on `Root` the same way as the presets above; `Trigger` and `Content` take the same props either way.
+在独立模式下，以与上述预设组件相同的方式，将 `usage` 传给 `Root`；无论使用哪种模式，`Trigger` 和 `Content` 接收的 props 都相同。
 
 </StandaloneMode>
 
-### Restyle the trigger
+### 重新设置触发器样式
 
-Both lanes take `className` on the trigger, and `side` controls which edge the popover opens toward.
+两种模式中的触发器都接收 `className`，而 `side` 控制弹出层朝哪个边缘打开。
 
 ```tsx
 <ContextDisplay.Bar className="px-1" side="bottom" modelContextWindow={128000} />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Preset props (Ring, Bar, Text)
+### 预设组件 props（Ring、Bar、Text）
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `modelContextWindow` | `number` | required | Token limit used to compute the percentage. |
-| `className` | `string` | | Merged onto the trigger. |
-| `side` | `"top" \| "bottom" \| "left" \| "right"` | `"top"` | Tooltip placement. |
-| `usage` | `TokenUsage` | | Supply usage directly to skip the internal fetch; when set, the preset also skips its automatic thread-id reset key. |
+| `modelContextWindow` | `number` | required | 用于计算百分比的 token 上限。 |
+| `className` | `string` | | 合并到触发器上。 |
+| `side` | `"top" \| "bottom" \| "left" \| "right"` | `"top"` | 工具提示的位置。 |
+| `usage` | `TokenUsage` | | 直接提供使用量以跳过内部获取；设置后，预设组件也会跳过自动的 thread-id 重置键。 |
 
-### Composable Root
+### 可组合 Root
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `modelContextWindow` | `number` | Token limit used to compute the percentage. |
-| `children` | `ReactNode` | Required; typically `Trigger` and `Content`. |
-| `usage` | `TokenUsage` | Same override behavior as on the presets above. |
+| `modelContextWindow` | `number` | 用于计算百分比的 token 上限。 |
+| `children` | `ReactNode` | 必需；通常为 `Trigger` 和 `Content`。 |
+| `usage` | `TokenUsage` | 与上述预设组件相同的覆盖行为。 |
 
-`Trigger` and `Content` take the exact same props in both lanes; see their tables under Standalone below.
+`Trigger` 和 `Content` 在两种模式下接收完全相同的 props；请参阅下方独立模式中的对应表格。
 
-### Thread state
+### 线程状态
 
 | Selector | Type | Description |
 |----------|------|-------------|
-| `useThreadTokenUsage()` | `ThreadTokenUsage \| undefined` | Usage extracted from the latest assistant message that carries any, read from `metadata.usage`, a legacy `metadata.custom.usage`, or summed across `metadata.steps`. |
-| `s.threadListItem.id` | `string` | Used internally as each preset's reset key, so switching threads restarts the running total. |
+| `useThreadTokenUsage()` | `ThreadTokenUsage \| undefined` | 从最新的、包含任意使用量信息的助手消息中提取使用量；读取来源包括 `metadata.usage`、旧版 `metadata.custom.usage`，或对 `metadata.steps` 中的值求和。 |
+| `s.threadListItem.id` | `string` | 在内部用作每个预设组件的重置键，因此切换线程时会重新开始累计总量。 |
 
 </RuntimeMode>
 
@@ -210,22 +210,22 @@ Both lanes take `className` on the trigger, and `side` controls which edge the p
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `modelContextWindow` | `number` | required | Token limit used to compute the percentage. |
-| `usage` | `TokenUsage` | | `{ totalTokens?, inputTokens?, cachedInputTokens?, outputTokens?, reasoningTokens? }`. |
-| `resetKey` | `string` | | Changing this snaps the running total to the current usage immediately, bypassing the sticky behavior described in Anatomy. |
+| `modelContextWindow` | `number` | required | 用于计算百分比的 token 上限。 |
+| `usage` | `TokenUsage` | | `{ totalTokens?, inputTokens?, cachedInputTokens?, outputTokens?, reasoningTokens? }`。 |
+| `resetKey` | `string` | | 更改此值会立即将累计总量跳转到当前使用量，绕过组成结构中所述的粘滞行为。 |
 
 ### Trigger
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `className` | `string` | Merged onto the button. |
-| `children` | `ReactNode` | The visual shown inside the tooltip trigger. |
+| `className` | `string` | 合并到按钮上。 |
+| `children` | `ReactNode` | 工具提示触发器内部显示的视觉内容。 |
 
 ### Content
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `side` | `"top" \| "bottom" \| "left" \| "right"` | `"top"` | Tooltip placement. |
-| `className` | `string` | | Merged onto the popover. |
+| `side` | `"top" \| "bottom" \| "left" \| "right"` | `"top"` | 工具提示的位置。 |
+| `className` | `string` | | 合并到弹出层上。 |
 
 </StandaloneMode>

@@ -1,22 +1,22 @@
 ---
-title: "Dictation"
-description: "The mic morphs the input into a live waveform, then lands the transcript as text."
+title: "听写"
+description: "麦克风会将输入框变为实时波形，随后将听写文本写入输入框。"
 ---
 
-Tapping the mic swaps the text input for a live waveform while a person talks, then settles into a brief "Transcribing" state before the words land as text. With a runtime this is backed by a `DictationAdapter`, most commonly the browser's own speech recognition; standalone you drive the recording flag and the elapsed timer yourself.
+点击麦克风后，用户讲话时文本输入框会替换为实时波形，随后进入短暂的“正在转写”状态，最后将文字写入输入框。在运行时中，这由 `DictationAdapter` 提供支持，最常见的是浏览器自身的语音识别功能；单独使用时，则需要自行控制录音标志和已用时计时器。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-Dictation is opt-in, the same way attachments are: without a `DictationAdapter` configured, `s.thread.capabilities.dictation` is `false` and `ComposerPrimitive.Dictate` renders disabled.
+听写与附件一样是可选功能：如果未配置 `DictationAdapter`，则 `s.thread.capabilities.dictation` 为 `false`，并且 `ComposerPrimitive.Dictate` 会以禁用状态渲染。
 
 <Steps>
   <Step>
 
-### Configure a dictation adapter
+### 配置听写适配器
 
-assistant-ui ships a `WebSpeechDictationAdapter` over the browser's `SpeechRecognition` API; check `.isSupported()` before relying on it, since it is not available in every browser:
+assistant-ui 提供了基于浏览器 `SpeechRecognition` API 的 `WebSpeechDictationAdapter`；在依赖它之前，请检查 `.isSupported()`，因为并非所有浏览器都支持该功能：
 
 ```tsx title="app/chat-provider.tsx"
 import { useLocalRuntime, WebSpeechDictationAdapter } from "@assistant-ui/react";
@@ -33,7 +33,7 @@ const runtime = useLocalRuntime(chatModel, {
   </Step>
   <Step>
 
-### Start, show, and stop
+### 开始、显示和停止
 
 ```tsx title="components/assistant-ui/elements/composer-voice.tsx"
 "use client";
@@ -64,7 +64,7 @@ export function DictationControl() {
 }
 ```
 
-`StopDictation` only renders enabled while `s.composer.dictation` is non-null (like `Send` and `Cancel`, it never unmounts on its own); the `AuiIf` pair above mounts only the relevant button, the same swap `Thread`'s own composer makes. `Dictate` starts a session through the configured adapter and writes recognized speech straight into `s.composer.text` as it arrives.
+只有当 `s.composer.dictation` 不为 null 时，`StopDictation` 才会渲染为启用状态（与 `Send` 和 `Cancel` 一样，它不会自行卸载）；上面的 `AuiIf` 组合只会挂载相关按钮，这与 `Thread` 自带的输入框所执行的切换相同。`Dictate` 会通过已配置的适配器启动会话，并在识别到语音后将其直接写入 `s.composer.text`。
 
   </Step>
 </Steps>
@@ -73,12 +73,12 @@ export function DictationControl() {
 
 <StandaloneMode>
 
-Standalone, `ComposerVoice` and `ComposerVoiceButton` only render a recording state you already hold; nothing here touches the microphone. You own starting the browser's recognition API (or any other capture) and feeding `recording` and `seconds` from it.
+单独使用时，`ComposerVoice` 和 `ComposerVoiceButton` 只会渲染你已经持有的录音状态；这里的任何内容都不会操作麦克风。你需要自行启动浏览器的语音识别 API（或其他采集方式），并通过它为 `recording` 和 `seconds` 提供数据。
 
 <Steps>
   <Step>
 
-### Hold the recording state
+### 保存录音状态
 
 ```tsx title="app/chat-box.tsx"
 "use client";
@@ -126,16 +126,16 @@ export function VoiceInput() {
   </Step>
   <Step>
 
-### Swap the input for the waveform
+### 将输入框替换为波形
 
-`ComposerVoice` is meant to replace `ComposerInput` while active, not sit beside it, as above; `active` stays `true` through the settling phase so the timer's "Transcribing" state has somewhere to render before the view falls back to plain text.
+`ComposerVoice` 在激活时应替换 `ComposerInput`，而不是像上面那样与其并列显示；在状态稳定期间，`active` 会保持为 `true`，这样计时器的“正在转写”状态就有位置进行渲染，之后视图才会回退为普通文本。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 组成结构
 
 ```tsx
 <div data-slot="composer-voice" data-recording={/* true while capturing */}>
@@ -145,11 +145,11 @@ export function VoiceInput() {
 </div>
 ```
 
-The two states are not "recording" and "idle": they are "recording" and "settling". `ComposerVoice` has no third, blank state, so mounting it always implies a capture is either happening or just finished; the bars themselves ripple from a sine wave seeded by the bar's index and the elapsed seconds, so the pattern shifts continuously rather than looping.
+这两种状态不是“录音”和“空闲”，而是“录音”和“稳定中”。`ComposerVoice` 没有第三种空白状态，因此挂载它始终意味着采集正在进行或刚刚结束；这些条形本身由以条形索引和已用秒数为种子的正弦波产生波动，因此图案会持续变化，而不是循环播放。
 
-## Examples
+## 示例
 
-### Checking support before offering the mic
+### 在提供麦克风前检查支持情况
 
 <RuntimeMode>
 
@@ -157,15 +157,15 @@ The two states are not "recording" and "idle": they are "recording" and "settlin
 const dictationAvailable = WebSpeechDictationAdapter.isSupported();
 ```
 
-Configuring the adapter only when this is `true` (as in Getting started) is enough; `s.thread.capabilities.dictation` then reflects it automatically, so the mic button never needs its own support check.
+仅在 `true` 时配置适配器（如“快速开始”中所示）即可；`s.thread.capabilities.dictation` 会自动反映这一点，因此麦克风按钮无需单独检查支持情况。
 
 </RuntimeMode>
 
-### Overlaying the live transcript
+### 覆盖显示实时转写文本
 
 <RuntimeMode>
 
-`ComposerVoice` shows a timer, not the words being spoken; layer `ComposerPrimitive.DictationTranscript` on top (or beside it) to show the interim transcript as it streams in, before it commits to `s.composer.text`:
+`ComposerVoice` 显示的是计时器，而不是正在说出的文字；可以将 `ComposerPrimitive.DictationTranscript` 叠加在其上方（或放在旁边），以便在临时转写文本流入时显示它，并在最终提交到 `s.composer.text` 之前持续更新：
 
 ```tsx
 <ComposerPrimitive.DictationTranscript className="text-foreground/55 absolute inset-x-3 bottom-full text-sm" />
@@ -173,46 +173,46 @@ Configuring the adapter only when this is `true` (as in Getting started) is enou
 
 </RuntimeMode>
 
-### Restyle the waveform
+### 重新设置波形样式
 
-Both lanes render the same shape; the pulsing dot, the bars, the timer, and the shimmer label each take their own classes, so recoloring the recording state does not require touching the settling state.
+两个通道渲染相同的形状；脉动圆点、条形、计时器和闪烁标签分别使用各自的 class，因此重新设置录音状态的颜色无需修改稳定状态。
 
 ```tsx
 <ComposerVoice recording={recording} seconds={seconds} className="gap-4" />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### ComposerPrimitive
 
-| Part | Renders | Notes |
+| 部件 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `Dictate` | `button` | Starts a session via the configured `DictationAdapter`; disabled without one. |
-| `StopDictation` | `button` | Only renders enabled while `s.composer.dictation` is non-null. |
-| `DictationTranscript` | `span` | Renders the live interim transcript; renders nothing while there is none. |
+| `Dictate` | `button` | 通过已配置的 `DictationAdapter` 启动会话；未配置时处于禁用状态。 |
+| `StopDictation` | `button` | 仅当 `s.composer.dictation` 不为 null 时才会渲染为启用状态。 |
+| `DictationTranscript` | `span` | 渲染实时临时转写文本；没有文本时不渲染任何内容。 |
 
 ### WebSpeechDictationAdapter
 
-| Option | Type | Default | Description |
+| 选项 | 类型 | 默认值 | 描述 |
 |--------|------|---------|-------------|
-| `language` | `string` | `navigator.language` | BCP 47 language tag passed to `SpeechRecognition`. |
-| `continuous` | `boolean` | `true` | Keeps listening across pauses instead of stopping after one utterance. |
-| `interimResults` | `boolean` | `true` | Emits partial results as speech is recognized, not only final ones. |
+| `language` | `string` | `navigator.language` | 传递给 `SpeechRecognition` 的 BCP 47 语言标签。 |
+| `continuous` | `boolean` | `true` | 在暂停期间继续监听，而不是在一次话语后停止。 |
+| `interimResults` | `boolean` | `true` | 在识别语音时发出部分结果，而不仅仅是最终结果。 |
 
-`WebSpeechDictationAdapter.isSupported()` is a static method; the adapter itself throws if constructed and used where `SpeechRecognition` is unavailable.
+`WebSpeechDictationAdapter.isSupported()` 是一个静态方法；如果在 `SpeechRecognition` 不可用的环境中构造并使用该适配器，适配器本身会抛出错误。
 
-### Composer state
+### 输入框状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.composer.dictation` | `{ status; transcript?: string; inputDisabled?: boolean } \| undefined` | Non-null exactly while a dictation session is active or finishing. |
-| `s.thread.capabilities.dictation` | `boolean` | Whether a `DictationAdapter` is configured. |
-| `aui.composer.startDictation()` | `() => void` | Starts a session; throws if no adapter is configured. |
-| `aui.composer.stopDictation()` | `() => void` | Stops the current session and commits the final transcript. |
+| `s.composer.dictation` | `{ status; transcript?: string; inputDisabled?: boolean } \| undefined` | 仅在听写会话处于活动状态或正在完成时不为 null。 |
+| `s.thread.capabilities.dictation` | `boolean` | 是否配置了 `DictationAdapter`。 |
+| `aui.composer.startDictation()` | `() => void` | 启动会话；未配置适配器时抛出错误。 |
+| `aui.composer.stopDictation()` | `() => void` | 停止当前会话并提交最终转写文本。 |
 
-`status` is `{ type: "starting" \| "running" }` while listening, or `{ type: "ended", reason: "stopped" \| "cancelled" \| "error" }` once it finishes; there is no elapsed-seconds field, so a live counter like `ComposerVoice`'s is timed separately from `status` (a `setInterval` gated on `s.composer.dictation != null`, mirroring the standalone example).
+`status` 在监听时为 `{ type: "starting" \| "running" }`，完成后为 `{ type: "ended", reason: "stopped" \| "cancelled" \| "error" }`；它没有已用秒数字段，因此类似 `ComposerVoice` 的实时计数器需要与 `status` 分开计时（一个由 `s.composer.dictation != null` 控制的 `setInterval`，与单独使用示例相对应）。
 
 </RuntimeMode>
 
@@ -220,16 +220,16 @@ Both lanes render the same shape; the pulsing dot, the bars, the timer, and the 
 
 ### ComposerVoice
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `recording` | `boolean` | required | Selects the animated-bars-and-timer state versus the flat-bars-and-shimmer state. |
-| `seconds` | `number` | required | Shown as `0:SS` while `recording` is `true`. |
-| `className` | `string` | | Merged onto the root. |
+| `recording` | `boolean` | 必填 | 选择“动态条形和计时器”状态，或“静态条形和闪烁”状态。 |
+| `seconds` | `number` | 必填 | 当 `recording` 为 `true` 时显示为 `0:SS`。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### ComposerVoiceButton
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `active` | `boolean` | required | Swaps the mic icon for a filled stop icon and the ghost style for the ink style. |
+| `active` | `boolean` | 必填 | 将麦克风图标替换为实心停止图标，并将幽灵样式替换为墨色样式。 |
 
 </StandaloneMode>

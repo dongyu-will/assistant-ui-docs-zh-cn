@@ -1,20 +1,20 @@
 ---
-title: "Computer use"
-description: "The screen the agent is driving, with a cursor trail and what it is doing right now."
+title: "计算机使用"
+description: "助手正在操作的屏幕，其中显示光标轨迹以及它当前正在执行的操作。"
 ---
 
-A browser chrome frame around whatever the agent is looking at, with a cursor that moves to each action and a fading trail behind it. With a runtime this is a composition of grouped tool calls, not a shipped primitive; standalone you pass the steps and the active index in.
+围绕助手所查看内容的浏览器窗口框架，光标会移动到每个操作的位置，并在其后留下逐渐淡出的轨迹。在运行时中，这是由多个工具调用分组组合而成的，而不是随产品提供的原语；单独使用时，你需要传入步骤和当前索引。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-There's no built-in "computer use" tool. This is a `computer` tool you define yourself, one call per action, rendered together by grouping consecutive calls to it.
+没有内置的“计算机使用”工具。这是一个由你自行定义的 `computer` 工具，每次操作调用一次，并通过将对它的连续调用分组来统一渲染。
 
 <Steps>
   <Step>
 
-### Define the action as a tool call
+### 将操作定义为工具调用
 
 ```tsx title="app/computer-toolkit.tsx"
 "use client";
@@ -43,12 +43,12 @@ const toolkit = defineToolkit({
 });
 ```
 
-`action`, `target`, `x`, and `y` are this example's own parameters schema, not a built-in shape; a computer-use provider's real tool defines whatever fields it needs.
+`action`、`target`、`x` 和 `y` 是本示例自定义的参数 schema，而不是内置结构；计算机使用提供商的实际工具可以定义它所需的任意字段。
 
   </Step>
   <Step>
 
-### Group consecutive actions into one screen
+### 将连续操作分组到同一个屏幕中
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { MessagePrimitive } from "@assistant-ui/react";
@@ -75,7 +75,7 @@ function AssistantMessage() {
 }
 ```
 
-`groupBy` branches on `part.toolName` here instead of `groupPartByType`'s part-type map, because the grouping key isn't the part type, it's which tool was called. The group wrapper is `position: relative`; each `ComputerStepMarker` positions itself `absolute` inside it, so consecutive calls lay out as a trail with no extra plumbing.
+`groupBy` 在这里根据 `part.toolName` 进行分支，而不是使用 `groupPartByType` 的 part 类型映射，因为分组键不是 part 类型，而是被调用的工具。分组包装器是 `position: relative`；每个 `ComputerStepMarker` 会在其中使用 `absolute` 定位自身，因此连续调用会直接排列成轨迹，无需额外的连接逻辑。
 
   </Step>
 </Steps>
@@ -84,12 +84,12 @@ function AssistantMessage() {
 
 <StandaloneMode>
 
-Standalone, the element is a controlled component: you own the step list, which one is active, and the screen content underneath the trail.
+单独使用时，该元素是一个受控组件：步骤列表、当前激活的步骤，以及轨迹下方的屏幕内容，都由你管理。
 
 <Steps>
   <Step>
 
-### Hold the steps and the active index
+### 保存步骤和当前索引
 
 ```tsx title="app/screen.tsx"
 "use client";
@@ -115,7 +115,7 @@ export function Screen() {
   </Step>
   <Step>
 
-### Advance as the run streams
+### 随运行时的流式传输推进
 
 ```tsx
 useEffect(() => {
@@ -124,14 +124,14 @@ useEffect(() => {
 }, []);
 ```
 
-`activeIndex` is clamped into range internally, so it's safe to keep incrementing past the last step.
+`activeIndex` 会在内部限制到有效范围内，因此安全起见，你可以继续递增到最后一个步骤之后。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="computer-use">
@@ -141,15 +141,15 @@ useEffect(() => {
 </div>
 ```
 
-`activeIndex` clamps into `0…steps.length - 1`, so a negative or out-of-range index still resolves to a real step rather than nothing. The trail is the two steps before the active one plus the active one itself, at opacity `0.18 * (i + 1)`, fading in toward the cursor's full-opacity mark. With zero steps there's no cursor and no footer, only the header and `children`.
+`activeIndex` 会将索引限制在 `0…steps.length - 1` 范围内，因此负数或超出范围的索引仍会解析为实际步骤，而不是空值。轨迹由当前激活步骤之前的两个步骤以及当前激活步骤本身组成，透明度为 `0.18 * (i + 1)`，并逐渐向光标完全不透明的标记淡入。步骤数为零时，不会显示光标或页脚，只显示页眉和 `children`。
 
-## Examples
+## 示例
 
-### Provide the screen content
+### 提供屏幕内容
 
 <RuntimeMode>
 
-The group wrapper from step two is where a live screen goes, alongside the markers `children` supplies through `MessagePrimitive.GroupedParts`:
+第二步中的分组包装器就是放置实时屏幕的位置，同时还可以使用 `children` 通过 `MessagePrimitive.GroupedParts` 提供的标记：
 
 ```tsx
 case "group-computer":
@@ -165,7 +165,7 @@ case "group-computer":
 
 <StandaloneMode>
 
-`children` is required, not optional: the frame has nothing to show underneath the trail until you pass it.
+`children` 是必需的，而不是可选项：在传入它之前，框架在轨迹下方没有任何内容可显示。
 
 ```tsx
 <ComputerUse url={url} steps={steps} activeIndex={activeIndex}>
@@ -175,30 +175,30 @@ case "group-computer":
 
 </StandaloneMode>
 
-### Fade the marker as the call settles
+### 随调用完成逐渐淡出标记
 
 <RuntimeMode>
 
-`ComputerStepMarker` above already reads `status?.type`; a call still `"running"` gets the full-opacity cursor treatment, and one that finished settles into a dimmer trail dot the next call's marker renders past.
+上面的 `ComputerStepMarker` 已经读取 `status?.type`；仍处于 `"running"` 状态的调用会使用完全不透明的光标样式，而已完成的调用则会变成较暗的轨迹圆点，供下一次调用的标记继续经过。
 
 </RuntimeMode>
 
-### Restyle the frame
+### 重新设置框架样式
 
-Both lanes take `className` on the root. The chrome uses the shared `field`, `mono`, and `paper` tokens; the traffic-light dots and cursor color are literal Tailwind classes on the element itself, so restyling those means editing the component's className strings directly rather than a shared token.
+两个层级都会在根元素上接收 `className`。窗口框架使用共享的 `field`、`mono` 和 `paper` token；交通灯圆点和光标颜色则是元素自身上的 Tailwind 类，因此要重新设置这些样式，需要直接编辑组件的 className 字符串，而不是修改共享 token。
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-There's no dedicated computer-use primitive: this is `MessagePrimitive.GroupedParts` plus an ordinary tool-call renderer, so the table below names the render props that pattern reads, not a shipped API surface.
+没有专用的计算机使用原语：这是 `MessagePrimitive.GroupedParts` 加上普通的工具调用渲染器，因此下表列出的是该模式读取的渲染 props，而不是随产品提供的 API 表面。
 
-### Render props used
+### 使用的渲染 props
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `args` | your tool's `TArgs` | Whatever parameters schema you declare; `action`/`target`/`x`/`y` above is one convention, not a built-in shape. |
-| `status` | `ToolCallMessagePartStatus` | Read `status?.type === "running"` to distinguish the in-progress call from settled ones. |
+| `args` | 你的工具的 `TArgs` | 你声明的任意参数 schema；上面的 `action`/`target`/`x`/`y` 是一种约定，而不是内置结构。 |
+| `status` | `ToolCallMessagePartStatus` | 读取 `status?.type === "running"`，以区分正在进行的调用和已完成的调用。 |
 
 </RuntimeMode>
 
@@ -206,23 +206,23 @@ There's no dedicated computer-use primitive: this is `MessagePrimitive.GroupedPa
 
 ### ComputerUse
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `url` | `string` | required | Shown in the chrome's address field. |
-| `steps` | `readonly ComputerStep[]` | required | The actions to trail through. |
-| `activeIndex` | `number` | required | Index of the current step; clamped into range. |
-| `children` | `ReactNode` | required | The screen content, rendered beneath the trail and cursor. |
-| `className` | `string` | | Merged onto the root. |
+| `url` | `string` | 必填 | 显示在窗口框架的地址栏中。 |
+| `steps` | `readonly ComputerStep[]` | 必填 | 要沿其绘制轨迹的操作。 |
+| `activeIndex` | `number` | 必填 | 当前步骤的索引，会被限制在有效范围内。 |
+| `children` | `ReactNode` | 必填 | 屏幕内容，会渲染在轨迹和光标下方。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### ComputerStep
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | React key. |
-| `action` | `string` | Shown in the footer, e.g. `"click"`. |
-| `target` | `string` | What the action acted on. |
-| `x`, `y` | `number` | Position as a percentage of the frame, `0…100`. |
+| 字段 | 类型 | 描述 |
+|------|------|-------------|
+| `id` | `string` | React key。 |
+| `action` | `string` | 显示在页脚中，例如 `"click"`。 |
+| `target` | `string` | 操作所作用的对象。 |
+| `x`、`y` | `number` | 相对于框架的百分比位置，`0…100`。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` props 都会转发到根元素。
 
 </StandaloneMode>

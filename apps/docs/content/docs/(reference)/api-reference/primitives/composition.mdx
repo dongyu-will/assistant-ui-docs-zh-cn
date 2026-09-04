@@ -1,13 +1,13 @@
 ---
-title: Composition
-description: How to compose primitives with custom components using asChild.
+title: 组合
+description: 如何使用 asChild 将原语与自定义组件组合。
 ---
 
 {/* api-reference:skip-auto-generation */}
 
-`assistant-ui` primitives are composable. This means that all props are forwarded, classes are merged, and event handlers are chained.
+`assistant-ui` 原语支持组合。这意味着所有 props 都会被转发，类名会被合并，事件处理函数会被串联。
 
-Most primitives come with a default HTML element (usually `div` or `button`). If you already have a custom component, you can use the `asChild` prop to replace it:
+大多数原语都带有一个默认的 HTML 元素（通常是 `div` 或 `button`）。如果你已经有一个自定义组件，可以使用 `asChild` prop 来替换它：
 
 ```tsx
 // use the primitive's <button> element
@@ -19,4 +19,4 @@ Most primitives come with a default HTML element (usually `div` or `button`). If
 </Composer.Send>;
 ```
 
-Learn more on [Radix's composition guide](https://www.radix-ui.com/primitives/docs/guides/composition).
+详细信息请参阅 [Radix 的组合指南](https://www.radix-ui.com/primitives/docs/guides/composition).

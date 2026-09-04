@@ -1,20 +1,20 @@
 ---
-title: "Thread list"
-description: "Runtime-backed conversation switching with search, active selection, and thread actions."
+title: "线程列表"
+description: "由运行时支持的会话切换，包含搜索、活动选择和线程操作。"
 ---
 
-Thread list is the conversation switcher: a new-thread button, search once there is something to search, and every past thread grouped by day with rename, archive, and delete. With a runtime it reads and writes the thread list directly; standalone you pass in the rows and report which one is active.
+线程列表是会话切换器：包含新线程按钮、在有内容可搜索后显示的搜索框，以及按日期分组的所有历史线程，并支持重命名、归档和删除。在运行时中，它会直接读取和写入线程列表；在独立模式下，你需要传入行数据，并报告当前活动的行。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-`ThreadList` takes no props: mount it anywhere inside a runtime provider and it reads and writes the thread list on its own.
+`ThreadList`不接收任何 props：将其挂载到运行时提供程序中的任意位置，它会自行读取和写入线程列表。
 
 <Steps>
   <Step>
 
-### Use it directly
+### 直接使用
 
 ```tsx title="app/sidebar.tsx"
 import { ThreadList } from "@/components/assistant-ui/elements/thread-list.aui";
@@ -28,7 +28,7 @@ export function Sidebar() {
 }
 ```
 
-[Thread list sidebar](/elements/thread-list-sidebar) already pairs this with a full collapsible sidebar shell, if that is what you need instead of a bare panel.
+[线程列表侧边栏](/elements/thread-list-sidebar)已经将此组件与完整的可折叠侧边栏外壳配套使用；如果你需要的不是一个简单面板，可以使用它。
 
   </Step>
 </Steps>
@@ -37,12 +37,12 @@ export function Sidebar() {
 
 <StandaloneMode>
 
-Standalone, the element is a controlled row list: you hold the threads and the active index, it renders rows and reports clicks. There is no built-in new-thread button or search; both stay outside the element.
+在独立模式下，该元素是一个受控的行列表：由你持有线程和活动索引，它负责渲染行并报告点击事件。元素本身没有内置的新线程按钮或搜索功能；两者都需要放在元素外部。
 
 <Steps>
   <Step>
 
-### Hold the thread state
+### 管理线程状态
 
 ```tsx title="app/sidebar.tsx"
 "use client";
@@ -75,7 +75,7 @@ export function Sidebar() {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="aui_thread-list-root">
@@ -93,23 +93,23 @@ export function Sidebar() {
 </div>
 ```
 
-Runtime, the search box only renders once at least one thread exists, and it filters case-insensitively against each thread's title, falling back to matching "New Chat" for untitled ones; no match shows "No threads found" instead of the list. Rows group under Today, Yesterday, and Earlier by `lastMessageAt`, but only when at least one visible thread actually carries a timestamp, otherwise the list renders flat with no group labels. The active thread carries `data-active` and `aria-current`. Rename swaps a row's trigger for an inline input in place (Enter commits, Escape cancels, blur commits); it never navigates away from the list.
+在运行时中，只有至少存在一个线程时才会渲染搜索框；它会针对每个线程的标题执行不区分大小写的过滤。对于没有标题的线程，则会匹配 "New Chat"；没有匹配结果时，会显示 "No threads found"，而不是线程列表。行会根据`lastMessageAt`归入 Today、Yesterday 和 Earlier 分组，但只有当至少一个可见线程实际带有时间戳时才会分组；否则列表将以扁平形式渲染，不显示分组标签。活动线程带有`data-active`和`aria-current`。重命名时，行的触发器会原地替换为内联输入框（Enter 提交、Escape 取消、失去焦点提交）；它不会离开列表进行导航。
 
-Standalone, the element renders a single static "Today" label above every row regardless of the actual dates, since it has no timestamps to group by, and it has no new-thread control or search of its own. Its rename and delete icons are presentational: they render on hover but carry no click handler, since this file is copied into your project specifically so you attach your own.
+在独立模式下，由于没有可用于分组的时间戳，该元素会在每一行上方渲染一个固定的 "Today" 标签，而不考虑实际日期；它本身也没有新线程控件或搜索功能。它的重命名和删除图标仅用于展示：会在悬停时显示，但不带点击处理程序，因为该文件会被复制到你的项目中，由你自行添加处理逻辑。
 
-## Examples
+## 示例
 
-### Search
+### 搜索
 
 <RuntimeMode>
 
-Search is built in and needs no wiring; it appears once the thread list is non-empty and narrows to matching titles as you type.
+搜索功能内置，无需额外连接；线程列表非空后会显示搜索框，并随着输入内容缩小到匹配的标题。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-There is no search input in the element itself. Filter the array you already hold before passing it in:
+该元素本身没有搜索输入框。在传入数组之前，先过滤你已经持有的数组：
 
 ```tsx
 <ThreadList
@@ -123,11 +123,11 @@ There is no search input in the element itself. Filter the array you already hol
 
 </StandaloneMode>
 
-### Renaming
+### 重命名
 
 <RuntimeMode>
 
-The more menu's Rename item is already wired. To rename without going through the menu, call the same method it uses:
+更多菜单中的 Rename 项已经完成连接。若不通过菜单进行重命名，可以调用它使用的同一个方法：
 
 ```tsx
 const aui = useAui();
@@ -138,53 +138,53 @@ aui.threads.item({ id: threadId }).rename("Q3 planning");
 
 <StandaloneMode>
 
-The pencil icon ships unwired. Give it a click handler that swaps the row into an editable state the way the runtime lane does, since the file is yours once it is copied in.
+铅笔图标默认未连接。为它添加点击处理程序，使其像运行时实现那样将行切换为可编辑状态，因为复制该文件后，它就属于你的项目。
 
 </StandaloneMode>
 
-### Restyle
+### 重新设置样式
 
-Both lanes take `className` on the root. Standalone, the active row's fill and the trailing timestamp use the shared `field` and `mono` tokens from `surfaces.tsx`, so restyling those two tokens restyles every element that uses them.
+两种模式都会在根元素上接收`className`。在独立模式下，活动行的填充色和末尾时间戳使用来自`surfaces.tsx`的共享`field`和`mono`令牌，因此重新设置这两个令牌的样式，就会重新设置所有使用它们的元素。
 
 ```tsx
 <ThreadList className="max-w-[280px]" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### ThreadListPrimitive
 
-| Part | Renders | Notes |
+| 部件 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `Root` | `div` | Provides the thread list's keyboard focus group. |
-| `New` | `button` | Switches to the runtime's placeholder new thread. Carries `data-active` while already on it. |
-| `ItemByIndex` | no fixed element | Renders one item at `index` through a `components.ThreadListItem` you supply. `ThreadList` groups these by day itself rather than using the simpler `Items` primitive, which renders every item ungrouped for a list with no day headers. |
+| `Root` | `div` | 提供线程列表的键盘焦点组。 |
+| `New` | `button` | 切换到运行时的占位新线程。已处于该线程时会带有`data-active`。 |
+| `ItemByIndex` | 无固定元素 | 通过你提供的`components.ThreadListItem`在`index`处渲染一个项目。`ThreadList`会自行按日期对这些项目分组，而不是使用更简单的`Items`原语；后者会在没有日期标题的列表中渲染所有未分组的项目。 |
 
-### ThreadListItemPrimitive and ThreadListItemMorePrimitive
+### ThreadListItemPrimitive 和 ThreadListItemMorePrimitive
 
-| Part | Renders | Notes |
+| 部件 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `ThreadListItemPrimitive.Root` | `div` | Carries `data-active` / `aria-current` for the main thread. |
-| `ThreadListItemPrimitive.Trigger` | `button` | Switches to this thread. |
-| `ThreadListItemPrimitive.Title` | text | The thread's title; `fallback` renders when it has none yet. |
-| `ThreadListItemPrimitive.Archive` | `button` | Archives the thread. Accepts `asChild`. |
-| `ThreadListItemPrimitive.Delete` | `button` | Deletes the thread. Accepts `asChild`. |
-| `ThreadListItemMorePrimitive.Root` | no fixed element | `sharedFocusGroup` folds the menu into the list's own keyboard navigation instead of a standalone modal dropdown. |
-| `ThreadListItemMorePrimitive.Trigger` / `.Content` / `.Item` | `button` / menu / menu item | The overflow menu shell. |
+| `ThreadListItemPrimitive.Root` | `div` | 为主线程携带`data-active`/`aria-current`。 |
+| `ThreadListItemPrimitive.Trigger` | `button` | 切换到此线程。 |
+| `ThreadListItemPrimitive.Title` | 文本 | 线程标题；尚无标题时会渲染`fallback`。 |
+| `ThreadListItemPrimitive.Archive` | `button` | 归档线程。接受`asChild`。 |
+| `ThreadListItemPrimitive.Delete` | `button` | 删除线程。接受`asChild`。 |
+| `ThreadListItemMorePrimitive.Root` | 无固定元素 | `sharedFocusGroup`会将菜单折叠到列表自身的键盘导航中，而不是使用独立的模态下拉菜单。 |
+| `ThreadListItemMorePrimitive.Trigger` / `.Content` / `.Item` | `button` / 菜单 / 菜单项 | 溢出菜单外壳。 |
 
-### Thread list state
+### 线程列表状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|--------------|
-| `s.threads.threadIds` | `readonly string[]` | Ids in display order. |
-| `s.threads.threadItems` | `readonly ThreadListItemState[]` | One state object per id, including `title` and `lastMessageAt`. |
-| `s.threads.isLoading` | `boolean` | True while the list itself is still loading. |
-| `s.threadListItem.id` | `string` | Id of the item in scope, inside `ItemByIndex`. |
-| `s.threadListItem.title` | `string \| undefined` | Undefined until the runtime names the thread. |
-| `s.threadListItem.isRunning` | `boolean` | Whether this thread has a run in progress, even if it is not the open one. |
-| `aui.threads.item({ id }).rename(title)` | `(title: string) => void` | Renames a thread by id without going through the more menu. |
+| `s.threads.threadIds` | `readonly string[]` | 按显示顺序排列的 ID。 |
+| `s.threads.threadItems` | `readonly ThreadListItemState[]` | 每个 ID 对应一个状态对象，其中包括`title`和`lastMessageAt`。 |
+| `s.threads.isLoading` | `boolean` | 列表本身仍在加载时为 true。 |
+| `s.threadListItem.id` | `string` | `ItemByIndex`内部当前作用域中项目的 ID。 |
+| `s.threadListItem.title` | `string \| undefined` | 在运行时为线程命名之前为 undefined。 |
+| `s.threadListItem.isRunning` | `boolean` | 此线程是否正在执行 run，即使它不是当前打开的线程。 |
+| `aui.threads.item({ id }).rename(title)` | `(title: string) => void` | 按 ID 重命名线程，无需经过更多菜单。 |
 
 </RuntimeMode>
 
@@ -192,21 +192,21 @@ Both lanes take `className` on the root. Standalone, the active row's fill and t
 
 ### ThreadList
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `threads` | `readonly ThreadItem[]` | required | The rows to render, in order. |
-| `activeIndex` | `number` | required | Index of the highlighted row. |
-| `onActiveIndexChange` | `(index: number) => void` | | Called with the clicked row's index. |
-| `className` | `string` | | Merged onto the root. |
+| `threads` | `readonly ThreadItem[]` | 必填 | 要按顺序渲染的行。 |
+| `activeIndex` | `number` | 必填 | 高亮行的索引。 |
+| `onActiveIndexChange` | `(index: number) => void` | | 使用点击行的索引调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其他所有`div` props 都会转发到根元素。
 
 ### ThreadItem
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|--------------|
-| `title` | `string` | Row label. |
-| `time` | `string` | Trailing timestamp text, already formatted. |
-| `unread` | `boolean \| undefined` | Shows a dot before the timestamp when true and the row is not active. |
+| `title` | `string` | 行标签。 |
+| `time` | `string` | 末尾的时间戳文本，已经过格式化。 |
+| `unread` | `boolean \| undefined` | 为 true 且该行不是活动行时，会在时间戳前显示一个圆点。 |
 
 </StandaloneMode>

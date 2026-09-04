@@ -1,37 +1,37 @@
 ---
 title: Auth.js (next-auth)
-description: Gate the chat route and scope thread persistence to the signed-in user with Auth.js v5.
+description: 使用 Auth.js v5 保护聊天路由，并将线程持久化范围限定为已登录用户。
 ---
 
-[Auth.js](https://authjs.dev/) (formerly NextAuth) is the dominant OSS auth library in the Next.js ecosystem. This page covers using it with assistant-ui *without* AssistantCloud: session-cookie auth, server-side `auth()` checks on the API route, and per-user scoping on a custom thread list.
+[Auth.js](https://authjs.dev/) NextAuth）是 Next.js 生态中占主导地位的开源身份验证库。本页面介绍如何在不使用 AssistantCloud 的情况下将其与 assistant-ui 结合使用：基于会话 Cookie 的身份验证、在 API 路由上进行服务端 `auth()` 检查，以及在自定义线程列表中按用户进行数据隔离。
 
-If you use AssistantCloud, see [cloud authorization](/docs/cloud) instead; cloud handles JWT exchange for you.
+如果你使用 AssistantCloud，请改为参阅[云授权](/docs/cloud)；云端会为你处理 JWT 交换。
 
-## How it works
+## 工作原理
 
 ```mermaid
 flowchart LR
     browser["browser"] --> routes["/api/chat<br/>/api/threads/*"] --> auth["auth() returns session"] --> scope["scope queries by<br/>session.user.id"] --> db["database"]
 ```
 
-Three places auth touches the integration:
+身份验证会影响集成的三个部分：
 
-1. **API routes** (`/api/chat`, `/api/threads/*`) call `auth()` server-side, return 401 if no session, then scope DB queries by `session.user.id`.
-2. **`RemoteThreadListAdapter`** does nothing auth-specific; the cookie travels with the `fetch` calls automatically (same origin).
-3. **Reload-on-auth**: if the session resolves after the initial render, call `aui.threads.reload()` so the list re-fetches with the new identity.
+1. **API 路由**（`/api/chat`、`/api/threads/*`）在服务端调用 `auth()`，如果没有会话则返回 401，然后根据 `session.user.id` 限定数据库查询范围。
+2. **`RemoteThreadListAdapter`** 不执行任何特定于身份验证的操作；Cookie 会随 `fetch` 调用自动传递（同源）。
+3. **身份验证后重新加载**：如果会话在初始渲染完成后才解析，请调用 `aui.threads.reload()`，以便列表使用新的身份重新获取数据。
 
-## Setup
+## 设置
 
-This guide assumes you already have Auth.js configured. If not, follow the [Auth.js installation guide](https://authjs.dev/getting-started/installation?framework=Next.js) first; the steps below pick up after `auth.ts` exports `{ handlers, signIn, signOut, auth }`.
+本指南假设你已经配置了 Auth.js。如果还没有，请先参阅 [Auth.js 安装指南](https://authjs.dev/getting-started/installation?framework=Next.js) `auth.ts` 导出 `{ handlers, signIn, signOut, auth }` 之后开始。
 
 <Steps>
 <Step>
 
-### Populate `session.user.id`
+### 填充 `session.user.id`
 
-By default, Auth.js v5 does **not** include a stable `id` on `session.user`; only `email`, `name`, and `image` are exposed. Without this step, the scoping queries below all run with `userId: undefined` and silently match every row.
+默认情况下，Auth.js v5 **不会**在 `id` 上包含稳定的 `session.user`；只会公开 `email`、`name` 和 `image`。如果不执行此步骤，下面的作用域查询都会使用 `userId: undefined`，并且会静默匹配每一行。
 
-Add `jwt` and `session` callbacks to your Auth.js config so the user id flows through. For the JWT session strategy:
+将 `jwt` 和 `session` 回调添加到 Auth.js 配置中，让用户 ID 传递下去。对于 JWT 会话策略：
 
 ```ts title="auth.ts"
 import NextAuth from "next-auth";
@@ -51,14 +51,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 });
 ```
 
-If you use the database session strategy, replace the `jwt`/`session` pair with a single `session` callback that copies from the `user` argument: `session.user.id = user.id`. See [Auth.js: extending the session](https://authjs.dev/guides/extending-the-session) for the full pattern.
+如果使用数据库会话策略，请将 `jwt`/`session` 回调对替换为单个 `session` 回调，从 `user` 参数复制：`session.user.id = user.id`。完整模式请参阅 [Auth.js：扩展会话](https://authjs.dev/guides/extending-the-session)
 
 </Step>
 <Step>
 
-### Gate the chat route
+### 保护聊天路由
 
-Add an `auth()` check to the existing AI SDK route. Return 401 before calling the model so unauthenticated traffic doesn't burn provider credits.
+在现有的 AI SDK 路由中添加 `auth()` 检查。在调用模型前返回 401，避免未认证的流量消耗服务商额度。
 
 ```ts title="app/api/chat/route.ts"
 import { auth } from "@/auth";
@@ -82,9 +82,10 @@ export async function POST(req: Request) {
 </Step>
 <Step>
 
-### Scope thread queries by user
+### 按用户限定线程查询范围
 
-If you also use [custom thread persistence](/docs/integrations/persistence/custom-adapter), every thread-list endpoint must filter by `session.user.id`. Without scoping, any signed-in user can list everyone's threads.
+如果还使用了[自定义线程持久化](/docs/integrations/persistence/custom-adapter，每个线程列表端点都必须按 `session.user.id` 进行筛选。如果不限定范围，任何已登录用户都可以列出所有人的线程。
+
 
 ```ts title="app/api/threads/route.ts"
 import { auth } from "@/auth";
@@ -106,16 +107,16 @@ export async function GET() {
 }
 ```
 
-Apply the same pattern to `POST`, `PATCH`, and `DELETE` handlers. Always verify ownership before mutating.
+对 `POST`、`PATCH` 和 `DELETE` 处理器应用相同模式。执行变更前始终验证所有权。
 
 </Step>
 <Step>
 
-### Reload threads after async auth
+### 异步认证后重新加载线程
 
-The first render of `<MyProvider>` may run before `auth()` resolves on the client. The thread list will be empty until the user refreshes. Drop a small effect into the layout to call `aui.threads.reload()` once the session resolves.
+`<MyProvider>` 的首次渲染可能会在客户端的 `auth()` 解析完成前执行。在线程列表为空之前，用户需要刷新页面。将一个小型 effect 添加到布局中，在会话解析完成后调用 `aui.threads.reload()`。
 
-`useSession` requires `<SessionProvider>` higher in the tree. Wrap your root layout's client subtree once:
+`useSession` 要求在组件树更高层存在 `<SessionProvider>`。只需在根布局的客户端子树外包裹一次：
 
 ```tsx title="app/providers.tsx"
 "use client";
@@ -127,7 +128,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 }
 ```
 
-Then inside the assistant runtime provider, mount a small effect:
+然后在助手运行时提供程序中挂载一个小型 effect：
 
 ```tsx title="app/components/ReloadOnAuth.tsx"
 "use client";
@@ -146,46 +147,46 @@ export function ReloadOnAuth() {
 }
 ```
 
-`reload()` discards in-flight responses from superseded calls, so it is safe to invoke on every auth transition.
+`reload()` 会丢弃由后续调用取代的进行中响应，因此可以安全地在每次认证状态转换时调用它。
 
 </Step>
 <Step>
 
-### Run and verify
+### 运行并验证
 
-Sign in. Check:
+登录。检查以下内容：
 
-- `/api/chat` returns `200` with a streaming response when authenticated; `401` when not.
-- `/api/threads` returns only the current user's threads.
-- A second user (incognito tab, different account) sees a different thread list.
-- Signing out and back in does not show the previous user's threads even briefly; if it does, `ReloadOnAuth` isn't mounted or isn't watching the right session field.
+- 已认证时，`/api/chat` 返回带有流式响应的 `200`；未认证时返回 `401`。
+- `/api/threads` 只返回当前用户的线程。
+- 第二个用户（隐身标签页或其他账户）会看到不同的线程列表。
+- 退出登录后重新登录，不应哪怕短暂显示之前用户的线程；如果出现这种情况，说明 `ReloadOnAuth` 未挂载，或没有监听正确的会话字段。
 
 </Step>
 </Steps>
 
-## Notes
+## 注意事项
 
-- **Same-origin cookies.** Browser cookies travel automatically when frontend and API are on the same origin. If you split the API onto a different host, set `credentials: "include"` on every `fetch` and configure CORS on the API.
-- **Edge runtime.** `auth()` runs in Edge contexts only when your DB adapter is edge-compatible. If you use Prisma, Drizzle-over-`pg`, or another non-edge adapter together with Edge route handlers or pre-Next.js 16 middleware, follow Auth.js's [split-config pattern](https://authjs.dev/guides/edge-compatibility): keep a shared `auth.config.ts` without the adapter, instantiate the full `auth.ts` with the adapter elsewhere, and import only the config-instantiated `auth` inside middleware. Next.js 16+ runs `proxy.ts` on Node, so this workaround is generally unnecessary there.
-- **Roles and orgs.** For B2B SaaS where admins see all threads under an org, add `orgId` to the `threads` table, store the user's role in the session via the Auth.js callbacks, and gate `list()` accordingly. The pattern is the same; the `where` clause just gets richer.
-- **OAuth providers.** This page is provider-agnostic. The same `auth()` pattern works whether you wired GitHub, Google, credentials, or a passkey provider in `auth.ts`.
+- **同源 Cookie。** 当前端和 API 位于同一源时，浏览器会自动发送 Cookie。如果将 API 拆分到其他主机，请在每个 `credentials: "include"` 上设置 `fetch`，并在 API 上配置 CORS。
+- **Edge 运行时。** `auth()` 仅在数据库适配器兼容 Edge 时，才能在 Edge 上下文中运行。如果你使用 Prisma、基于 `pg` 的 Drizzle，或其他不兼容 Edge 的适配器，同时又使用 Edge 路由处理器或 Next.js 16 之前版本的 middleware，请遵循 Auth.js 的[拆分配置模式](https://authjs.dev/guides/edge-compatibility): `auth.config.ts`，在其他位置实例化包含适配器的完整 `auth.ts`，并在 middleware 中仅导入由配置实例化的 `auth`。Next.js 16+ 会在 Node 上运行 `proxy.ts`，因此通常不需要此变通方案。
+- **角色和组织。** 对于管理员可以查看组织下所有线程的 B2B SaaS，请将 `orgId` 添加到 `threads` 表中，通过 Auth.js 回调将用户角色存储在会话中，并据此控制 `list()` 的访问。模式保持不变；只是 `where` 子句会更加复杂。
+- **OAuth 提供商。** 本页面与提供商无关。无论你是在 `auth()` 中配置 GitHub、Google、凭据还是 passkey 提供商，都可以使用相同的 `auth.ts` 模式。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
-    title="Custom thread persistence"
-    description="The persistence story this page assumes; required for per-user threads outside AssistantCloud."
+    title="自定义线程持久化"
+    description="本页面所采用的持久化方案；在 AssistantCloud 之外实现按用户划分的线程时所必需。"
     href="/docs/integrations/persistence/custom-adapter"
   />
   <Card
     title="AssistantCloud"
-    description="The managed alternative; cloud handles JWT exchange with Clerk, Auth0, Supabase, Firebase."
+    description="托管式替代方案；云端负责与 Clerk、Auth0、Supabase、Firebase 进行 JWT 交换。"
     href="/docs/cloud"
   />
   <Card
-    title="Threads (concepts)"
-    description="The full RemoteThreadListAdapter contract and reload-on-auth pattern."
+    title="线程（概念）"
+    description="完整的 RemoteThreadListAdapter 契约和身份验证后重新加载模式。"
     href="/docs/runtimes/concepts/threads"
   />
 </Cards>

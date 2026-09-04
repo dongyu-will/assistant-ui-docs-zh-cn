@@ -1,31 +1,31 @@
 ---
-title: Multi-Agent Chat UI
-description: Render sub-agent conversations and handoffs inside tool calls. Build supervisor and multi-agent patterns in a React chat UI with assistant-ui.
+title: 多代理聊天 UI
+description: 在工具调用中渲染子代理对话和交接。在基于 React 的聊天 UI 中使用 assistant-ui 构建监督器和多代理模式。
 platforms: ["react"]
 ---
 
-In a multi-agent (orchestrator) architecture, a main agent invokes sub-agents via tool calls. Each sub-agent may produce its own conversation (user/assistant messages, tool calls, etc.). assistant-ui supports rendering these nested conversations using the `MessagePartPrimitive.Messages` primitive.
+在多代理（或编排器）架构中，主代理通过工具调用来调用子代理。每个子代理都可以生成自己的对话（用户/助手消息、工具调用等）。assistant-ui 支持使用 `MessagePartPrimitive.Messages` 原语渲染这些嵌套对话。
 
-## Overview
+## 概览
 
-When a tool call includes a `messages` field (`ToolCallMessagePart.messages`), it represents a sub-agent's conversation history. `MessagePartPrimitive.Messages` reads this field from the current tool call part and renders it as a nested thread.
+当工具调用包含 `messages` 字段（`ToolCallMessagePart.messages`）时，它表示子代理的对话历史。`MessagePartPrimitive.Messages` 会从当前工具调用部分读取此字段，并将其渲染为嵌套线程。
 
-Key behaviors:
+主要行为：
 
-- **Scope inheritance** — Parent toolkit renderers are available in sub-agent messages. A `Tools({ toolkit })` registration at the top level works inside sub-agent conversations too.
-- **Recursive** — Sub-agent messages can contain tool calls that themselves have nested messages. Just use `MessagePartPrimitive.Messages` again.
-- **Read-only** — Sub-agent messages are rendered in a readonly context. No editing, branching, or composing.
+- **作用域继承** — 父级工具包渲染器可用于子代理消息。在顶层注册的 `Tools({ toolkit })` 同样适用于子代理对话。
+- **递归嵌套** — 子代理消息可以包含自身带有嵌套消息的工具调用。只需再次使用 `MessagePartPrimitive.Messages`。
+- **只读** — 子代理消息会在只读上下文中渲染。不支持编辑、分支或输入。
 
 <Callout type="info">
-  This renders a sub-agent's **messages**. To visualize a sub-agent's **execution trace** instead (timing, span hierarchy, waterfalls), see [react-o11y](/docs/utilities/react-o11y), which renders observability spans as collapsible trees and timelines.
+  这里渲染的是子代理的**消息**。如果要可视化子代理的**执行轨迹**（计时、跨度层级、瀑布图），请参阅 [react-o11y](/docs/utilities/react-o11y)，它会将可观测性跨度渲染为可折叠的树和时间线。
 </Callout>
 
-## Quick Start
+## 快速开始
 
 <Steps>
   <Step>
 
-### Register a Tool UI for the Sub-Agent
+### 为子代理注册工具 UI
 
 ```tsx
 import {
@@ -57,9 +57,9 @@ const toolkit = defineToolkit({
   </Step>
   <Step>
 
-### Provide the Messages from the Backend
+### 从后端提供消息
 
-The sub-agent's conversation has to reach `ToolCallMessagePart.messages`. AI SDK and LangGraph backends populate it from the tool result; an AG-UI backend emits the protocol's subagent lifecycle events and the runtime assembles it.
+子代理的对话必须传递到 `ToolCallMessagePart.messages`。AI SDK 和 LangGraph 后端会从工具结果中填充该字段；AG-UI 后端则会发出协议定义的子代理生命周期事件，并由运行时将其组装起来。
 
 <Tabs items={["AI SDK", "LangGraph", "AG-UI"]}>
 <Tab value="AI SDK">
@@ -83,7 +83,7 @@ tools: {
 </Tab>
 <Tab value="LangGraph">
 
-With `@assistant-ui/react-langgraph`, use `unstable_createLangGraphStream` and set `unstable_allowCancellation: true` to wire up the stop button. When your graph runs a subgraph, the subgraph's messages appear on `ToolCallMessagePart.messages` automatically once you handle the `onSubgraphValues` / `onSubgraphUpdates` events.
+使用 `@assistant-ui/react-langgraph` 时，请使用 `unstable_createLangGraphStream` 并设置 `unstable_allowCancellation: true`，以连接停止按钮。当图运行子图时，只要处理 `onSubgraphValues` / `onSubgraphUpdates` 事件，子图的消息就会自动显示在 `ToolCallMessagePart.messages` 上。
 
 ```ts title="runtime.ts"
 import {
@@ -120,29 +120,29 @@ const runtime = useLangGraphRuntime({
 });
 ```
 
-See [LangGraph Streaming](/docs/runtimes/langgraph/streaming) for the full event handler reference.
+完整的事件处理器参考请参阅 [LangGraph 流式传输](/docs/runtimes/langgraph/streaming)。
 
 </Tab>
 <Tab value="AG-UI">
 
-With `@assistant-ui/react-ag-ui` there is no `messages` field to populate: the runtime builds the nesting from the protocol's own subagent lifecycle. A backend running the agents-as-tools pattern emits `SUBAGENT_STARTED` naming the spawning call as `parentToolCallId`, tags every event that subagent produces with its `subagentRunId`, and closes the run with `SUBAGENT_FINISHED` or `SUBAGENT_ERROR`. The runtime groups each run into one nested assistant message and attaches it to that call's `ToolCallMessagePart.messages`, so the tool UI above renders it unchanged.
+使用 `@assistant-ui/react-ag-ui` 时，无需填充 `messages` 字段：运行时会根据协议自身的子代理生命周期构建嵌套关系。采用 agents-as-tools 模式的后端会发出 `SUBAGENT_STARTED`，将生成该调用的调用命名为 `parentToolCallId`；为该子代理生成的每个事件添加其 `subagentRunId`；并使用 `SUBAGENT_FINISHED` 或 `SUBAGENT_ERROR` 结束运行。运行时会将每次运行归组为一条嵌套助手消息，并将其附加到该调用的 `ToolCallMessagePart.messages` 上，因此上面的工具 UI 会原样渲染它。
 
-The subagent's `name`, `description`, `result`, `interruptIds`, and `errorCode` ride on the nested message's `metadata.custom.agui`. A run whose `parentToolCallId` names no reachable call has nowhere to nest and renders in the parent thread instead.
+子代理的 `name`、`description`、`result`、`interruptIds` 和 `errorCode` 会随嵌套消息的 `metadata.custom.agui` 一起传递。若某次运行的 `parentToolCallId` 未命名任何可访问的调用，则没有可嵌套的位置，消息会改为渲染在父线程中。
 
-See [AG-UI Subagents](/docs/runtimes/ag-ui/runtime-options#subagents) for the full behavior, the comparison with LangChain's discovery-hook shape, and two limitations (nesting does not survive a reload, and nested human-in-the-loop has no resume path).
+完整行为、与 LangChain discovery-hook 形式的比较，以及两个限制（重新加载后嵌套关系不会保留，嵌套的人在回路没有恢复路径），请参阅 [AG-UI 子代理](/docs/runtimes/ag-ui/runtime-options#subagents)。
 
 </Tab>
 </Tabs>
 
 <Callout type="info">
-  The key requirement is that the tool result's corresponding
-  `ToolCallMessagePart` includes a `messages` array of `ThreadMessage` objects.
+  关键要求是，工具结果对应的
+  `ToolCallMessagePart` 包含一个由 `ThreadMessage` 对象组成的 `messages` 数组。
 </Callout>
 
   </Step>
   <Step>
 
-### Register the Tool UI Component
+### 注册工具 UI 组件
 
 ```tsx
 function App() {
@@ -158,13 +158,13 @@ function App() {
   </Step>
 </Steps>
 
-## Subgraph Namespace Events
+## 子图命名空间事件
 
-When using LangGraph, subgraph events (`onSubgraphValues` / `onSubgraphUpdates` / `onSubgraphError`, plus the `namespace` on `onMessageChunk`) carry a `namespace` that identifies which sub-agent emitted them, letting you attribute messages and state to specific sub-agents. See [LangGraph Streaming](/docs/runtimes/langgraph/streaming) for the full reference.
+使用 LangGraph 时，子图事件（`onSubgraphValues` / `onSubgraphUpdates` / `onSubgraphError`，以及 `onMessageChunk` 上的 `namespace`）会携带一个 `namespace`，用于标识发出事件的子代理，从而可以将消息和状态归属到特定的子代理。完整参考请参阅 [LangGraph 流式传输](/docs/runtimes/langgraph/streaming)。
 
-## Recursive Sub-Agents
+## 递归子代理
 
-If a sub-agent's tool calls also have nested messages, the same pattern applies recursively:
+如果子代理的工具调用也包含嵌套消息，则同样的模式会递归应用：
 
 ```tsx
 const toolkit = defineToolkit({
@@ -207,7 +207,7 @@ const toolkit = defineToolkit({
 
 ## ReadonlyThreadProvider
 
-For advanced use cases where you have a `ThreadMessage[]` array and want to render it as a thread outside of a tool call context, use `ReadonlyThreadProvider` directly:
+对于更高级的使用场景，如果你有一个 `ThreadMessage[]` 数组，并希望在工具调用上下文之外将其渲染为线程，可以直接使用 `ReadonlyThreadProvider`：
 
 ```tsx
 import {
@@ -234,14 +234,14 @@ function SubConversation({
 }
 ```
 
-`ReadonlyThreadProvider` inherits the parent's tool UI registrations and model context through scope inheritance.
+`ReadonlyThreadProvider` 会通过作用域继承机制继承父级的工具 UI 注册和模型上下文。
 
-## Related
+## 相关内容
 
-- [Generative UI](/docs/tools/tool-ui) — Creating tool call UIs
-- [react-o11y](/docs/utilities/react-o11y) — Visualize sub-agent execution as collapsible span trees, waterfalls, and call timelines
-- [MessagePartPrimitive](/docs/api-reference/primitives/message-part) — API reference for message part primitives
-- [Sub-Agent Model Tracking](/docs/cloud/ai-sdk#sub-agent-model-tracking) — Track delegated model usage and costs in the Cloud dashboard
-- [AG-UI Subagents](/docs/runtimes/ag-ui/runtime-options#subagents) — Nested subagent messages attributed from the AG-UI event stream
-- [LangGraph Streaming](/docs/runtimes/langgraph/streaming) — Event handlers, subgraph events, and message metadata
-- [LangGraph Generative UI](/docs/runtimes/langgraph/generative-ui) — Structured UI components emitted by your graph
+- [生成式 UI](/docs/tools/tool-ui) — 创建工具调用 UI
+- [react-o11y](/docs/utilities/react-o11y) — 将子代理执行可视化为可折叠的跨度树、瀑布图和调用时间线
+- [MessagePartPrimitive](/docs/api-reference/primitives/message-part) — 消息部分原语 API 参考
+- [子代理模型跟踪](/docs/cloud/ai-sdk#sub-agent-model-tracking) — 在 Cloud 控制台中跟踪委派模型的用量和成本
+- [AG-UI 子代理](/docs/runtimes/ag-ui/runtime-options#subagents) — 根据 AG-UI 事件流归属嵌套的子代理消息
+- [LangGraph 流式传输](/docs/runtimes/langgraph/streaming) — 事件处理器、子图事件和消息元数据
+- [LangGraph 生成式 UI](/docs/runtimes/langgraph/generative-ui) — 由图发出的结构化 UI 组件

@@ -1,15 +1,15 @@
 ---
-title: Primitives
-description: Composable React Native components for building chat UIs.
+title: 原语
+description: 用于构建聊天 UI 的可组合 React Native 组件。
 ---
 
-Primitives are thin wrappers around React Native components (`View`, `TextInput`, `FlatList`, `Pressable`) that integrate with the assistant-ui runtime. They accept all standard React Native props and add runtime-aware behavior.
+原语是对 React Native 组件（`View`、`TextInput`、`FlatList`、`Pressable` 的轻量封装，并与 assistant-ui 运行时集成。它们接受所有标准 React Native 属性，并添加感知运行时的行为。
 
-Primitives are accessed via namespace imports (e.g. `ThreadPrimitive.Root`, `ComposerPrimitive.Input`), matching the pattern used in `@assistant-ui/react`.
+原语通过命名空间导入访问（例如 `ThreadPrimitive.Root`、`ComposerPrimitive.Input`），与 `@assistant-ui/react` 中使用的模式一致。
 
-Many primitives share their core logic with `@assistant-ui/react` via `@assistant-ui/core/react` — only the UI layer (View/Pressable/Text vs DOM elements) differs.
+许多原语通过 `@assistant-ui/core/react` 与 `@assistant-ui/react` 共享核心逻辑——只有 UI 层（View/Pressable/Text 与 DOM 元素）不同。
 
-## Thread
+## 线程
 
 ```tsx
 import { AuiIf, ThreadPrimitive } from "@assistant-ui/react-native";
@@ -17,7 +17,7 @@ import { AuiIf, ThreadPrimitive } from "@assistant-ui/react-native";
 
 ### ThreadPrimitive.Root
 
-Container `View` for the thread area.
+线程区域的容器 `View`。
 
 ```tsx
 <ThreadPrimitive.Root style={{ flex: 1 }}>
@@ -25,15 +25,15 @@ Container `View` for the thread area.
 </ThreadPrimitive.Root>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `...rest` | `ViewProps` | Standard React Native View props |
+| `...rest` | `ViewProps` | 标准 React Native View 属性 |
 
 ### ThreadPrimitive.Messages
 
-Deprecated `FlatList`-based message list kept for backwards compatibility. It uses `ThreadPrimitive.MessagesFlatList` internally, but keeps the previous no-auto-scroll default so existing apps with custom scroll handling do not change behavior on upgrade.
+基于已弃用的 `FlatList` 的消息列表，为向后兼容而保留。它在内部使用 `ThreadPrimitive.MessagesFlatList`，但保留之前默认不自动滚动的行为，因此现有应用中自定义的滚动处理不会因升级而改变行为。
 
-Use `ThreadPrimitive.MessagesFlatList` for new React Native threads.
+对于新的 React Native 线程，请使用 `ThreadPrimitive.MessagesFlatList`。
 
 ```tsx
 <ThreadPrimitive.Messages>
@@ -41,7 +41,7 @@ Use `ThreadPrimitive.MessagesFlatList` for new React Native threads.
 </ThreadPrimitive.Messages>
 ```
 
-You can also provide role-specific components:
+你也可以提供特定角色的组件：
 
 ```tsx
 <ThreadPrimitive.Messages>
@@ -52,14 +52,14 @@ You can also provide role-specific components:
 </ThreadPrimitive.Messages>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `components` | `MessageComponents` | Component map — provide either a `Message` component (used for all roles) or role-specific `UserMessage`, `AssistantMessage`, and optionally `SystemMessage`. Edit composers can be set via `EditComposer` or role-specific variants (`UserEditComposer`, `AssistantEditComposer`, `SystemEditComposer`). |
-| `...rest` | `ThreadPrimitive.MessagesFlatList` props | Same props as `ThreadPrimitive.MessagesFlatList`, with the auto-scroll options defaulting to `false` on this deprecated wrapper |
+| `components` | `MessageComponents` | 组件映射——提供 `Message` 组件（用于所有角色），或提供特定角色的 `UserMessage`、`AssistantMessage`，以及可选的 `SystemMessage`。编辑输入框可以通过 `EditComposer` 或特定角色的变体（`UserEditComposer`、`AssistantEditComposer`、`SystemEditComposer`）进行设置。 |
+| `...rest` | `ThreadPrimitive.MessagesFlatList` 属性 | 与 `ThreadPrimitive.MessagesFlatList` 具有相同的属性，但在此已弃用的封装组件中，自动滚动选项默认设置为 `false` |
 
 ### ThreadPrimitive.MessagesFlatList
 
-Canonical React Native message viewport backed by `FlatList`. It scopes each row to its message, forwards refs to the underlying `FlatList`, and handles scroll-to-bottom behavior for common chat flows.
+基于 `FlatList` 的标准 React Native 消息视口。它将每一行限定在对应的消息范围内，将 ref 转发到底层的 `FlatList`，并处理常见聊天流程中的滚动到底部行为。
 
 ```tsx
 <ThreadPrimitive.MessagesFlatList autoScroll>
@@ -67,21 +67,21 @@ Canonical React Native message viewport backed by `FlatList`. It scopes each row
 </ThreadPrimitive.MessagesFlatList>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `children` | `({ message }) => ReactNode` | Render function for each message |
-| `components` | `MessageComponents` | Component map alternative to `children` |
-| `autoScroll` | `boolean` | Automatically keeps the list at the bottom while it is already near the bottom. Defaults to `true` |
-| `scrollToBottomOnRunStart` | `boolean` | Scrolls to the bottom when a run starts. Defaults to `true` |
-| `scrollToBottomOnInitialize` | `boolean` | Scrolls to the bottom when messages first appear. Defaults to `true` |
-| `scrollToBottomOnThreadSwitch` | `boolean` | Scrolls to the bottom when switching threads. Defaults to `true` |
-| `...rest` | `FlatListProps` | Standard FlatList props, except `data`, `renderItem`, and `children` |
+| `children` | `({ message }) => ReactNode` | 每条消息的渲染函数 |
+| `components` | `MessageComponents` | `children` 的组件映射替代方案 |
+| `autoScroll` | `boolean` | 当列表已经接近底部时，自动使列表保持在底部。默认为 `true` |
+| `scrollToBottomOnRunStart` | `boolean` | 在运行开始时滚动到底部。默认为 `true` |
+| `scrollToBottomOnInitialize` | `boolean` | 消息首次出现时滚动到底部。默认为 `true` |
+| `scrollToBottomOnThreadSwitch` | `boolean` | 切换线程时滚动到底部。默认为 `true` |
+| `...rest` | `FlatListProps` | 标准 FlatList 属性，但不包括 `data`、`renderItem` 和 `children` |
 
-The built-in auto-scroll behavior assumes the default, non-inverted `FlatList` direction.
+内置的自动滚动行为假定使用默认的非反转 `FlatList` 方向。
 
 ### ThreadPrimitive.MessageByIndex
 
-Renders a single message at a specific index in the thread. Provides message context so that `useAuiState((s) => s.message)` works inside the rendered component. This component is shared from `@assistant-ui/core/react`.
+在指定索引处渲染单条消息。提供消息上下文，使 `useAuiState((s) => s.message)` 可以在渲染的组件中正常工作。此组件共享自 `@assistant-ui/core/react`。
 
 ```tsx
 <ThreadPrimitive.MessageByIndex
@@ -93,14 +93,14 @@ Renders a single message at a specific index in the thread. Provides message con
 />
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `index` | `number` | Zero-based index of the message to render |
-| `components` | `MessageComponents` | Same component map as `ThreadPrimitive.Messages` |
+| `index` | `number` | 要渲染的消息的从零开始的索引 |
+| `components` | `MessageComponents` | 与 `ThreadPrimitive.Messages` 相同的组件映射 |
 
 ### ThreadPrimitive.Empty
 
-Renders its children only when the thread is empty (no messages and not loading). Deprecated in favor of `AuiIf`.
+仅在线程为空（没有消息且未加载）时渲染其子元素。已弃用，建议使用 `AuiIf`。
 
 ```tsx
 <ThreadPrimitive.Empty>
@@ -115,7 +115,7 @@ Renders its children only when the thread is empty (no messages and not loading)
 
 ### ThreadPrimitive.If
 
-Conditional rendering based on thread state. Deprecated in favor of `AuiIf`.
+根据线程状态进行条件渲染。已弃用，建议使用 `AuiIf`。
 
 ```tsx
 <ThreadPrimitive.If empty>
@@ -132,14 +132,14 @@ Conditional rendering based on thread state. Deprecated in favor of `AuiIf`.
 </AuiIf>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `empty` | `boolean` | Renders children when thread emptiness matches this value |
-| `running` | `boolean` | Renders children when thread running state matches this value |
+| `empty` | `boolean` | 在线程是否为空与此值匹配时渲染子元素 |
+| `running` | `boolean` | 在线程运行状态与此值匹配时渲染子元素 |
 
 ### ThreadPrimitive.Suggestion
 
-`Pressable` that inserts or sends a hard-coded suggestion prompt. Unlike `SuggestionPrimitive.Trigger`, this component does not require a suggestion context — the prompt is passed directly as a prop.
+`Pressable`，用于插入或发送硬编码的建议提示词。与 `SuggestionPrimitive.Trigger` 不同，此组件不需要建议上下文——提示词直接通过属性传入。
 
 ```tsx
 <ThreadPrimitive.Suggestion prompt="What can you help me with?" send>
@@ -147,16 +147,16 @@ Conditional rendering based on thread state. Deprecated in favor of `AuiIf`.
 </ThreadPrimitive.Suggestion>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `prompt` | `string` | The text to send or insert into the composer |
-| `send` | `boolean` | When true, sends the prompt immediately; when false, inserts into composer (default: false) |
-| `clearComposer` | `boolean` | Whether to replace composer text (default: true) |
-| `...rest` | `PressableProps` | Standard Pressable props (except `onPress`) |
+| `prompt` | `string` | 要发送或插入输入框的文本 |
+| `send` | `boolean` | 为 true 时立即发送提示词；为 false 时将其插入输入框（默认值：false） |
+| `clearComposer` | `boolean` | 是否替换输入框文本（默认值：true） |
+| `...rest` | `PressableProps` | 标准 Pressable 属性（不包括 `onPress`） |
 
 ### ThreadPrimitive.Suggestions
 
-Renders all suggestions using the provided component configuration. This component is shared from `@assistant-ui/core/react`.
+使用提供的组件配置渲染所有建议。此组件共享自 `@assistant-ui/core/react`。
 
 ```tsx
 <ThreadPrimitive.Suggestions>
@@ -164,13 +164,13 @@ Renders all suggestions using the provided component configuration. This compone
 </ThreadPrimitive.Suggestions>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `components` | `{ Suggestion: ComponentType }` | Component to render for each suggestion |
+| `components` | `{ Suggestion: ComponentType }` | 用于渲染每条建议的组件 |
 
 ### ThreadPrimitive.SuggestionByIndex
 
-Renders a single suggestion at the specified index, providing suggestion context. This component is shared from `@assistant-ui/core/react`.
+在指定索引处渲染单条建议，并提供建议上下文。此组件共享自 `@assistant-ui/core/react`。
 
 ```tsx
 <ThreadPrimitive.SuggestionByIndex
@@ -179,14 +179,14 @@ Renders a single suggestion at the specified index, providing suggestion context
 />
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `index` | `number` | Zero-based index of the suggestion to render |
-| `components` | `{ Suggestion: ComponentType }` | Component to render for the suggestion |
+| `index` | `number` | 要渲染的建议的从零开始的索引 |
+| `components` | `{ Suggestion: ComponentType }` | 用于渲染建议的组件 |
 
 ### AuiIf
 
-Conditional rendering based on assistant state. Replaces the deprecated `ThreadPrimitive.Empty`, `ThreadPrimitive.If`, `MessagePrimitive.If`, and `ComposerPrimitive.If`.
+根据助手状态进行条件渲染。替代已弃用的 `ThreadPrimitive.Empty`、`ThreadPrimitive.If`、`MessagePrimitive.If` 和 `ComposerPrimitive.If`。
 
 ```tsx
 import { AuiIf } from "@assistant-ui/react-native";
@@ -200,11 +200,11 @@ import { AuiIf } from "@assistant-ui/react-native";
 </AuiIf>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `condition` | `(state) => boolean` | Selector that determines whether children are rendered |
+| `condition` | `(state) => boolean` | 用于确定是否渲染子元素的选择器 |
 
-## Composer
+## 输入框
 
 ```tsx
 import {
@@ -215,7 +215,7 @@ import {
 
 ### ComposerPrimitive.Root
 
-Container `View` for the composer area.
+用于输入框区域的容器 `View`。
 
 ```tsx
 <ComposerPrimitive.Root style={styles.composerContainer}>
@@ -225,7 +225,7 @@ Container `View` for the composer area.
 
 ### ComposerPrimitive.Input
 
-`TextInput` wired to the composer runtime. Value and `onChangeText` are managed automatically.
+`TextInput`，已连接到输入框运行时。值和 `onChangeText` 会自动管理。
 
 ```tsx
 <ComposerPrimitive.Input
@@ -235,14 +235,14 @@ Container `View` for the composer area.
 />
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `submitMode` | `"enter" \| "none"` | Whether Enter sends the message on web (default: `"enter"`) |
-| `...rest` | `TextInputProps` | Standard TextInput props (except `value`, `onChangeText`) |
+| `submitMode` | `"enter" \| "none"` | 在 Web 上按 Enter 是否发送消息（默认值：`"enter"`） |
+| `...rest` | `TextInputProps` | 标准 TextInput 属性（`value`、`onChangeText` 除外） |
 
 ### ComposerPrimitive.Send
 
-`Pressable` that sends the current message. Automatically disabled when the composer is empty.
+`Pressable`，用于发送当前消息。输入框为空时会自动禁用。
 
 ```tsx
 <ComposerPrimitive.Send style={styles.sendButton}>
@@ -252,7 +252,7 @@ Container `View` for the composer area.
 
 ### ComposerPrimitive.Cancel
 
-`Pressable` that cancels the current run. Automatically disabled when no run is active.
+`Pressable`，用于取消当前运行。没有活动运行时会自动禁用。
 
 ```tsx
 <ComposerPrimitive.Cancel style={styles.cancelButton}>
@@ -262,7 +262,7 @@ Container `View` for the composer area.
 
 ### ComposerPrimitive.Attachments
 
-Renders composer attachments using the provided component configuration.
+使用提供的组件配置渲染输入框附件。
 
 ```tsx
 <ComposerPrimitive.Attachments>
@@ -274,13 +274,13 @@ Renders composer attachments using the provided component configuration.
 </ComposerPrimitive.Attachments>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `components` | `{ Image?, Document?, File?, Attachment? }` | Component renderers by attachment type |
+| `components` | `{ Image?, Document?, File?, Attachment? }` | 按附件类型提供的组件渲染器 |
 
 ### ComposerPrimitive.AddAttachment
 
-`Pressable` for triggering attachment addition. The actual file picker must be implemented by the consumer (e.g. using `expo-document-picker` or `expo-image-picker`).
+`Pressable`，用于触发添加附件。文件选择器必须由使用者实现（例如使用 `expo-document-picker` 或 `expo-image-picker`）。
 
 ```tsx
 <ComposerPrimitive.AddAttachment>
@@ -290,7 +290,7 @@ Renders composer attachments using the provided component configuration.
 
 ### ComposerPrimitive.Queue
 
-Renders all queued composer items. Each item is wrapped in a `QueueItemByIndexProvider`, so `QueueItemPrimitive.*` can read item state and call queue actions inside the render prop. Backed by the shared `ComposerPrimitiveQueue` from `@assistant-ui/core/react`.
+渲染所有排队中的输入框项目。每个项目都会包装在 `QueueItemByIndexProvider` 中，因此 `QueueItemPrimitive.*` 可以读取项目状态，并在渲染属性中调用队列操作。其基于来自 `@assistant-ui/core/react` 的共享 `ComposerPrimitiveQueue`。
 
 ```tsx
 <ComposerPrimitive.Queue>
@@ -308,13 +308,13 @@ Renders all queued composer items. Each item is wrapped in a `QueueItemByIndexPr
 </ComposerPrimitive.Queue>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `children` | `(value: { queueItem: QueueItemState }) => ReactNode` | Render function called for each queue item |
+| `children` | `(value: { queueItem: QueueItemState }) => ReactNode` | 为每个队列项目调用的渲染函数 |
 
 ### ComposerPrimitive.Quote
 
-Renders the active composer quote preview. Children are only rendered while `s.composer.quote` is set, so this acts as both a container and a gate.
+渲染当前输入框引用的预览。仅当设置了 `s.composer.quote` 时才会渲染子元素，因此它同时充当容器和门控组件。
 
 ```tsx
 <ComposerPrimitive.Quote>
@@ -328,27 +328,27 @@ Renders the active composer quote preview. Children are only rendered while `s.c
 </ComposerPrimitive.Quote>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `children` | `ReactNode` | Quote preview content; only rendered when a quote is set |
-| `...rest` | `ViewProps` | Standard React Native View props |
+| `children` | `ReactNode` | 引用预览内容；仅在设置引用时渲染 |
+| `...rest` | `ViewProps` | 标准 React Native View 属性 |
 
 ### ComposerPrimitive.QuoteText
 
-Renders the quoted text from `s.composer.quote?.text`. Pass `children` to override the displayed value.
+渲染来自 `s.composer.quote?.text` 的引用文本。传入 `children` 可覆盖显示的值。
 
 ```tsx
 <ComposerPrimitive.QuoteText />
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `children` | `ReactNode` | Override content; defaults to `s.composer.quote?.text` |
-| `...rest` | `TextProps` | Standard React Native Text props |
+| `children` | `ReactNode` | 覆盖内容；默认为 `s.composer.quote?.text` |
+| `...rest` | `TextProps` | 标准 React Native Text 属性 |
 
 ### ComposerPrimitive.QuoteDismiss
 
-`Pressable` that clears the active quote by calling `aui.composer.setQuote(undefined)`.
+`Pressable`，通过调用 `aui.composer.setQuote(undefined)` 清除当前引用。
 
 ```tsx
 <ComposerPrimitive.QuoteDismiss>
@@ -356,14 +356,14 @@ Renders the quoted text from `s.composer.quote?.text`. Pass `children` to overri
 </ComposerPrimitive.QuoteDismiss>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `children` | `PressableProps["children"]` | Button content, including Pressable render-function children |
-| `...rest` | `Omit<PressableProps, "onPress">` | Standard React Native Pressable props except `onPress` |
+| `children` | `PressableProps["children"]` | 按钮内容，包括 Pressable 渲染函数子元素 |
+| `...rest` | `Omit<PressableProps, "onPress">` | 标准 React Native Pressable 属性，但不包括 `onPress` |
 
 ### ComposerPrimitive.AttachmentByIndex
 
-Renders a single composer attachment at the specified index. Useful for building custom attachment layouts.
+渲染指定索引处的单个输入框附件。适用于构建自定义附件布局。
 
 ```tsx
 <ComposerPrimitive.AttachmentByIndex
@@ -375,14 +375,14 @@ Renders a single composer attachment at the specified index. Useful for building
 />
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `index` | `number` | Zero-based index of the attachment to render |
-| `components` | `{ Image?, Document?, File?, Attachment? }` | Component renderers by attachment type |
+| `index` | `number` | 要渲染的附件的从零开始的索引 |
+| `components` | `{ Image?, Document?, File?, Attachment? }` | 按附件类型提供的组件渲染器 |
 
 ### ComposerPrimitive.EditInput
 
-`TextInput` wired to the edit composer runtime. Used inside an edit composer to allow editing an existing message. Value and `onChangeText` are managed automatically.
+`TextInput`，已连接到编辑输入框运行时。在编辑输入框中使用它可以编辑现有消息。值和 `onChangeText` 会自动管理。
 
 ```tsx
 <ComposerPrimitive.EditInput
@@ -392,13 +392,13 @@ Renders a single composer attachment at the specified index. Useful for building
 />
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `...rest` | `TextInputProps` | Standard TextInput props (except `value`, `onChangeText`) |
+| `...rest` | `TextInputProps` | 标准 TextInput 属性（`value`、`onChangeText` 除外） |
 
 ### ComposerPrimitive.EditSend
 
-`Pressable` that confirms and submits a message edit. Automatically disabled when the composer is empty.
+`Pressable`，用于确认并提交消息编辑。输入框为空时会自动禁用。
 
 ```tsx
 <ComposerPrimitive.EditSend style={styles.sendButton}>
@@ -408,7 +408,7 @@ Renders a single composer attachment at the specified index. Useful for building
 
 ### ComposerPrimitive.EditCancel
 
-`Pressable` that cancels an in-progress message edit and returns to the original message.
+`Pressable`，用于取消正在进行的消息编辑并返回原始消息。
 
 ```tsx
 <ComposerPrimitive.EditCancel style={styles.cancelButton}>
@@ -416,9 +416,9 @@ Renders a single composer attachment at the specified index. Useful for building
 </ComposerPrimitive.EditCancel>
 ```
 
-### Conditional Rendering (Composer)
+### 条件渲染（输入框）
 
-Use `AuiIf` for conditional rendering based on composer state:
+使用 `AuiIf` 根据输入框状态进行条件渲染：
 
 ```tsx
 <AuiIf condition={(s) => s.composer.isEditing}>
@@ -430,7 +430,7 @@ Use `AuiIf` for conditional rendering based on composer state:
 </AuiIf>
 ```
 
-## Message
+## 消息
 
 ```tsx
 import { MessagePrimitive } from "@assistant-ui/react-native";
@@ -438,7 +438,7 @@ import { MessagePrimitive } from "@assistant-ui/react-native";
 
 ### MessagePrimitive.Root
 
-Container `View` for a single message.
+单条消息的容器 `View`。
 
 ```tsx
 <MessagePrimitive.Root style={styles.messageBubble}>
@@ -448,7 +448,7 @@ Container `View` for a single message.
 
 ### MessagePrimitive.Content
 
-Renders message content parts using render-prop functions instead of the component-map approach used by `MessagePrimitive.Parts`. Each part type receives a `part` object and its `index`. Registered toolkit renderers are automatically dispatched and take priority over `renderToolCall`.
+使用 render-prop 函数渲染消息内容部分，而不是采用 `MessagePrimitive.Parts` 使用的组件映射方式。每种部分类型都会接收一个 `part` 对象及其 `index`。已注册的工具包渲染器会自动分发，并优先于 `renderToolCall`。
 
 ```tsx
 <MessagePrimitive.Content
@@ -462,19 +462,19 @@ Renders message content parts using render-prop functions instead of the compone
 />
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `renderText` | `(props: { part, index }) => ReactElement` | Renderer for text parts (default: React Native `<Text>`) |
-| `renderToolCall` | `(props: { part, index }) => ReactElement` | Fallback renderer for tool-call parts not handled by registered tool UIs |
-| `renderImage` | `(props: { part, index }) => ReactElement` | Renderer for image parts |
-| `renderReasoning` | `(props: { part, index }) => ReactElement` | Renderer for reasoning parts |
-| `renderSource` | `(props: { part, index }) => ReactElement` | Renderer for source parts |
-| `renderFile` | `(props: { part, index }) => ReactElement` | Renderer for file parts |
-| `renderData` | `(props: { part, index }) => ReactElement` | Fallback renderer for data parts not handled by registered data UIs |
+| `renderText` | `(props: { part, index }) => ReactElement` | 文本部分的渲染器（默认：React Native `<Text>`） |
+| `renderToolCall` | `(props: { part, index }) => ReactElement` | 未由已注册工具 UI 处理的工具调用部分的后备渲染器 |
+| `renderImage` | `(props: { part, index }) => ReactElement` | 图像部分的渲染器 |
+| `renderReasoning` | `(props: { part, index }) => ReactElement` | 推理部分的渲染器 |
+| `renderSource` | `(props: { part, index }) => ReactElement` | 来源部分的渲染器 |
+| `renderFile` | `(props: { part, index }) => ReactElement` | 文件部分的渲染器 |
+| `renderData` | `(props: { part, index }) => ReactElement` | 未由已注册数据 UI 处理的数据部分的后备渲染器 |
 
-#### Rendering Markdown
+#### 渲染 Markdown
 
-`MessagePrimitive.Content` renders text parts with React Native's `<Text>` by default, so markdown syntax is displayed as plain text. To render markdown, install a React Native markdown renderer and pass it through `renderText`:
+`MessagePrimitive.Content` 默认使用 React Native 的 `<Text>` 渲染文本部分，因此 Markdown 语法会以纯文本形式显示。要渲染 Markdown，请安装 React Native Markdown 渲染器，并通过 `renderText` 传入：
 
 <InstallCommand npm={["react-native-markdown-display"]} />
 
@@ -497,7 +497,7 @@ const AssistantMessage = () => {
 
 ### MessagePrimitive.Parts
 
-Renders message content parts via a `components` prop. Tool call and data parts automatically render registered toolkit renderers and data UIs (via `useAssistantDataUI`), falling back to components provided here. A default `Text` component using React Native's `<Text>` is provided out of the box.
+通过 `components` 属性渲染消息内容部分。工具调用和数据部分会自动渲染已注册的工具包渲染器和数据 UI（通过 `useAssistantDataUI`），未匹配时则回退到此处提供的组件。默认提供使用 React Native 的 `<Text>` 的 `Text` 组件。
 
 ```tsx
 <MessagePrimitive.Parts>
@@ -510,29 +510,29 @@ Renders message content parts via a `components` prop. Tool call and data parts 
 </MessagePrimitive.Parts>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `components` | `object` | Component map for rendering each part type. See below. |
+| `components` | `object` | 用于渲染每种部分类型的组件映射。请参见下文。 |
 
-**`components` fields:**
+**`components` 字段：**
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `Text` | `TextMessagePartComponent` | Text part renderer (default: React Native `<Text>`) |
-| `Image` | `ImageMessagePartComponent` | Image part renderer |
-| `Reasoning` | `ReasoningMessagePartComponent` | Reasoning part renderer |
-| `Source` | `SourceMessagePartComponent` | Source part renderer |
-| `File` | `FileMessagePartComponent` | File part renderer |
-| `Unstable_Audio` | `Unstable_AudioMessagePartComponent` | Audio part renderer (deprecated, render `audio/*` from `File`) |
-| `tools` | `{ by_name?, Fallback? }` or `{ Override }` | Tool call rendering config — use `by_name` to map tool names to components, `Fallback` for unregistered tools, or `Override` to handle all tool calls |
-| `data` | `{ by_name?, Fallback? }` | Data part rendering config — use `by_name` to map data event names, `Fallback` for unmatched events |
-| `Empty` | `EmptyMessagePartComponent` | Component shown for empty messages |
-| `Quote` | `QuoteMessagePartComponent` | Component for rendering quoted message references |
-| `ChainOfThought` | `ComponentType` | Groups all reasoning and tool-call parts into a single component (mutually exclusive with `Reasoning`/`tools`/`ToolGroup`/`ReasoningGroup`) |
+| `Text` | `TextMessagePartComponent` | 文本部分渲染器（默认：React Native `<Text>`） |
+| `Image` | `ImageMessagePartComponent` | 图像部分渲染器 |
+| `Reasoning` | `ReasoningMessagePartComponent` | 推理部分渲染器 |
+| `Source` | `SourceMessagePartComponent` | 来源部分渲染器 |
+| `File` | `FileMessagePartComponent` | 文件部分渲染器 |
+| `Unstable_Audio` | `Unstable_AudioMessagePartComponent` | 音频部分渲染器（已弃用，请从 `File` 渲染 `audio/*`） |
+| `tools` | `{ by_name?, Fallback? }` 或 `{ Override }` | 工具调用渲染配置——使用 `by_name` 将工具名称映射到组件，使用 `Fallback` 处理未注册的工具，或使用 `Override` 处理所有工具调用 |
+| `data` | `{ by_name?, Fallback? }` | 数据部分渲染配置——使用 `by_name` 映射数据事件名称，使用 `Fallback` 处理未匹配的事件 |
+| `Empty` | `EmptyMessagePartComponent` | 用于显示空消息的组件 |
+| `Quote` | `QuoteMessagePartComponent` | 用于渲染引用消息的组件 |
+| `ChainOfThought` | `ComponentType` | 将所有推理和工具调用部分组合到单个组件中（与 `Reasoning`/`tools`/`ToolGroup`/`ReasoningGroup` 互斥） |
 
 ### MessagePrimitive.PartByIndex
 
-Renders a single message part at the specified index, providing part context. Useful for building custom part layouts outside of `MessagePrimitive.Parts`. This component is shared from `@assistant-ui/core/react`.
+渲染指定索引处的单个消息部分，并提供部分上下文。适用于在 `MessagePrimitive.Parts` 之外构建自定义部分布局。此组件从 `@assistant-ui/core/react` 共享。
 
 ```tsx
 <MessagePrimitive.PartByIndex
@@ -544,14 +544,14 @@ Renders a single message part at the specified index, providing part context. Us
 />
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `index` | `number` | Zero-based index of the message part to render |
-| `components` | `object` | Same component map as `MessagePrimitive.Parts` |
+| `index` | `number` | 要渲染的消息部分的从零开始的索引 |
+| `components` | `object` | 与 `MessagePrimitive.Parts` 相同的组件映射 |
 
-### Conditional Rendering (Message)
+### 条件渲染（消息）
 
-Use `AuiIf` for conditional rendering based on message properties:
+使用 `AuiIf` 根据消息属性进行条件渲染：
 
 ```tsx
 <AuiIf condition={(s) => s.message.role === "user"}>
@@ -565,7 +565,7 @@ Use `AuiIf` for conditional rendering based on message properties:
 
 ### MessagePrimitive.Attachments
 
-Renders user message attachments using the provided component configuration.
+使用提供的组件配置渲染用户消息附件。
 
 ```tsx
 <MessagePrimitive.Attachments>
@@ -576,13 +576,13 @@ Renders user message attachments using the provided component configuration.
 </MessagePrimitive.Attachments>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `components` | `{ Image?, Document?, File?, Attachment? }` | Component renderers by attachment type |
+| `components` | `{ Image?, Document?, File?, Attachment? }` | 按附件类型提供的组件渲染器 |
 
 ### MessagePrimitive.AttachmentByIndex
 
-Renders a single message attachment at the specified index. Useful for building custom attachment layouts outside of `MessagePrimitive.Attachments`.
+渲染指定索引处的单个消息附件。适用于在 `MessagePrimitive.Attachments` 之外构建自定义附件布局。
 
 ```tsx
 <MessagePrimitive.AttachmentByIndex
@@ -594,22 +594,22 @@ Renders a single message attachment at the specified index. Useful for building 
 />
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `index` | `number` | Zero-based index of the attachment to render |
-| `components` | `{ Image?, Document?, File?, Attachment? }` | Component renderers by attachment type |
+| `index` | `number` | 要渲染的附件的从零开始的索引 |
+| `components` | `{ Image?, Document?, File?, Attachment? }` | 按附件类型提供的组件渲染器 |
 
-## Attachment
+## 附件
 
 ```tsx
 import { AttachmentPrimitive } from "@assistant-ui/react-native";
 ```
 
-Primitives for rendering individual attachments (inside `ComposerPrimitive.Attachments` or `MessagePrimitive.Attachments`).
+用于渲染单个附件的原语（位于 `ComposerPrimitive.Attachments` 或 `MessagePrimitive.Attachments` 内）。
 
 ### AttachmentPrimitive.Root
 
-Container `View` for an attachment.
+附件的容器 `View`。
 
 ```tsx
 <AttachmentPrimitive.Root style={styles.attachment}>
@@ -619,7 +619,7 @@ Container `View` for an attachment.
 
 ### AttachmentPrimitive.Name
 
-`Text` component displaying the attachment filename.
+用于显示附件文件名的 `Text` 组件。
 
 ```tsx
 <AttachmentPrimitive.Name style={styles.filename} />
@@ -627,7 +627,7 @@ Container `View` for an attachment.
 
 ### AttachmentPrimitive.Thumb
 
-`Text` component displaying the file extension (e.g. `.pdf`), or the attachment type (e.g. `image`) when the filename has no extension (including leading-dot names like `.env`). If you pass `children`, they override that text.
+用于显示文件扩展名（例如 `.pdf`）的 `Text` 组件；如果文件名没有扩展名（包括以点开头的名称，例如 `.env`），则显示附件类型（例如 `image`）。如果传入 `children`，则会覆盖该文本。
 
 ```tsx
 <AttachmentPrimitive.Thumb style={styles.extension} />
@@ -635,7 +635,7 @@ Container `View` for an attachment.
 
 ### AttachmentPrimitive.Remove
 
-`Pressable` that removes the attachment from the composer.
+用于从输入框中移除附件的 `Pressable`。
 
 ```tsx
 <AttachmentPrimitive.Remove>
@@ -649,24 +649,24 @@ Container `View` for an attachment.
 import { QueueItemPrimitive } from "@assistant-ui/react-native";
 ```
 
-Primitives for rendering individual queued composer items. Use inside a `ComposerPrimitive.Queue` render prop, where the queue item context is set up by `QueueItemByIndexProvider`.
+用于渲染单个排队输入框项的原语。在 `ComposerPrimitive.Queue` render prop 中使用，其中队列项上下文由 `QueueItemByIndexProvider` 设置。
 
 ### QueueItemPrimitive.Text
 
-Renders the queue item's text with React Native `<Text>`. Pass `children` to override the displayed value.
+使用 React Native `<Text>` 渲染队列项文本。传入 `children` 可覆盖显示的值。
 
 ```tsx
 <QueueItemPrimitive.Text />
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `children` | `ReactNode` | Override content; defaults to the text parts of `s.queueItem.parts` |
-| `...rest` | `TextProps` | Standard React Native Text props |
+| `children` | `ReactNode` | 覆盖内容；默认为 `s.queueItem.parts` 的文本部分 |
+| `...rest` | `TextProps` | 标准 React Native Text 属性 |
 
 ### QueueItemPrimitive.Remove
 
-`Pressable` that removes the queue item by calling `aui.queueItem.remove()`.
+`Pressable`，通过调用 `aui.queueItem.remove()` 移除队列项。
 
 ```tsx
 <QueueItemPrimitive.Remove>
@@ -674,14 +674,14 @@ Renders the queue item's text with React Native `<Text>`. Pass `children` to ove
 </QueueItemPrimitive.Remove>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `children` | `PressableProps["children"]` | Button content, including Pressable render-function children |
-| `...rest` | `Omit<PressableProps, "onPress">` | Standard React Native Pressable props except `onPress` |
+| `children` | `PressableProps["children"]` | 按钮内容，包括 Pressable render-function children |
+| `...rest` | `Omit<PressableProps, "onPress">` | 标准 React Native Pressable 属性，但 `onPress` 除外 |
 
 ### QueueItemPrimitive.Steer
 
-`Pressable` that promotes the queue item to run next by calling `aui.queueItem.steer()`.
+`Pressable`，通过调用 `aui.queueItem.steer()` 将队列项提升为下一个运行的项。
 
 ```tsx
 <QueueItemPrimitive.Steer>
@@ -689,10 +689,10 @@ Renders the queue item's text with React Native `<Text>`. Pass `children` to ove
 </QueueItemPrimitive.Steer>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `children` | `PressableProps["children"]` | Button content, including Pressable render-function children |
-| `...rest` | `Omit<PressableProps, "onPress">` | Standard React Native Pressable props except `onPress` |
+| `children` | `PressableProps["children"]` | 按钮内容，包括 Pressable render-function children |
+| `...rest` | `Omit<PressableProps, "onPress">` | 标准 React Native Pressable 属性，但 `onPress` 除外 |
 
 ## ActionBar
 
@@ -702,7 +702,7 @@ import { ActionBarPrimitive } from "@assistant-ui/react-native";
 
 ### ActionBarPrimitive.Copy
 
-`Pressable` that copies the message content. Pass a platform clipboard writer through `copyToClipboard`. Supports function-as-children for copy state feedback.
+`Pressable`，用于复制消息内容。通过 `copyToClipboard` 传入平台剪贴板写入器。支持使用函数作为子元素，以反馈复制状态。
 
 ```tsx
 import * as Clipboard from "expo-clipboard";
@@ -720,14 +720,14 @@ const copyToClipboard = async (text: string) => {
 </ActionBarPrimitive.Copy>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `copiedDuration` | `number` | Duration in ms to show "copied" state (default: 3000) |
-| `copyToClipboard` | `(text: string) => void \| Promise<void>` | Platform clipboard writer |
+| `copiedDuration` | `number` | 显示“已复制”状态的持续时间（单位：毫秒，默认值：3000） |
+| `copyToClipboard` | `(text: string) => void \| Promise<void>` | 平台剪贴板写入器 |
 
 ### ActionBarPrimitive.Edit
 
-`Pressable` that enters edit mode for a message.
+`Pressable`，用于进入消息的编辑模式。
 
 ```tsx
 <ActionBarPrimitive.Edit>
@@ -737,7 +737,7 @@ const copyToClipboard = async (text: string) => {
 
 ### ActionBarPrimitive.Reload
 
-`Pressable` that regenerates an assistant message.
+`Pressable`，用于重新生成助手消息。
 
 ```tsx
 <ActionBarPrimitive.Reload>
@@ -747,7 +747,7 @@ const copyToClipboard = async (text: string) => {
 
 ### ActionBarPrimitive.FeedbackPositive / ActionBarPrimitive.FeedbackNegative
 
-`Pressable` buttons for submitting message feedback.
+`Pressable`，用于提交消息反馈。
 
 ```tsx
 <ActionBarPrimitive.FeedbackPositive>
@@ -767,7 +767,7 @@ import { BranchPickerPrimitive } from "@assistant-ui/react-native";
 
 ### BranchPickerPrimitive.Previous / BranchPickerPrimitive.Next
 
-`Pressable` buttons to navigate between message branches.
+`Pressable` 用于在消息分支之间导航的按钮。
 
 ```tsx
 <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -785,7 +785,7 @@ import { BranchPickerPrimitive } from "@assistant-ui/react-native";
 
 ### BranchPickerPrimitive.Number / BranchPickerPrimitive.Count
 
-`Text` components displaying the current branch number and total count.
+`Text` 显示当前分支编号和总数的组件。
 
 ## ThreadList
 
@@ -795,7 +795,7 @@ import { ThreadListPrimitive } from "@assistant-ui/react-native";
 
 ### ThreadListPrimitive.Root
 
-Container `View` for the thread list.
+线程列表的容器 `View`。
 
 ```tsx
 <ThreadListPrimitive.Root style={styles.threadList}>
@@ -805,7 +805,7 @@ Container `View` for the thread list.
 
 ### ThreadListPrimitive.Items
 
-`FlatList` of thread IDs with runtime integration.
+带有运行时集成的线程 ID 列表 `FlatList`。
 
 ```tsx
 <ThreadListPrimitive.Items
@@ -815,14 +815,14 @@ Container `View` for the thread list.
 />
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `renderItem` | `(props: { threadId: string; index: number }) => ReactElement` | Thread item renderer |
-| `...rest` | `FlatListProps` | Standard FlatList props (except `data`, `renderItem`) |
+| `renderItem` | `(props: { threadId: string; index: number }) => ReactElement` | 线程项渲染器 |
+| `...rest` | `FlatListProps` | 标准 FlatList 属性（`data`、`renderItem` 除外） |
 
 ### ThreadListPrimitive.New
 
-`Pressable` that creates a new thread.
+用于创建新线程的 `Pressable`。
 
 ```tsx
 <ThreadListPrimitive.New style={styles.newThreadButton}>
@@ -836,11 +836,11 @@ Container `View` for the thread list.
 import { ThreadListItemPrimitive } from "@assistant-ui/react-native";
 ```
 
-Primitives for rendering individual thread list items.
+用于渲染单个线程列表项的原语。
 
 ### ThreadListItemPrimitive.Root
 
-Container `View` for a thread list item.
+线程列表项的容器 `View`。
 
 ```tsx
 <ThreadListItemPrimitive.Root style={styles.threadItem}>
@@ -850,19 +850,19 @@ Container `View` for a thread list item.
 
 ### ThreadListItemPrimitive.Title
 
-Renders the thread title text. Falls back to the provided fallback when title is empty. This component is shared from `@assistant-ui/core/react`.
+渲染线程标题文本。当标题为空时，使用提供的回退内容。此组件共享自 `@assistant-ui/core/react`。
 
 ```tsx
 <ThreadListItemPrimitive.Title fallback="New Chat" />
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `fallback` | `ReactNode` | Content to show when title is empty |
+| `fallback` | `ReactNode` | 标题为空时显示的内容 |
 
 ### ThreadListItemPrimitive.Trigger
 
-`Pressable` that switches to the thread.
+`Pressable`，用于切换到该线程。
 
 ```tsx
 <ThreadListItemPrimitive.Trigger>
@@ -872,7 +872,7 @@ Renders the thread title text. Falls back to the provided fallback when title is
 
 ### ThreadListItemPrimitive.Delete
 
-`Pressable` that deletes the thread.
+`Pressable`，用于删除该线程。
 
 ```tsx
 <ThreadListItemPrimitive.Delete>
@@ -882,7 +882,7 @@ Renders the thread title text. Falls back to the provided fallback when title is
 
 ### ThreadListItemPrimitive.Archive / ThreadListItemPrimitive.Unarchive
 
-`Pressable` buttons that archive or unarchive the thread.
+`Pressable`按钮，用于归档或取消归档该线程。
 
 ```tsx
 <ThreadListItemPrimitive.Archive>
@@ -894,17 +894,18 @@ Renders the thread title text. Falls back to the provided fallback when title is
 </ThreadListItemPrimitive.Unarchive>
 ```
 
-## Suggestion
+## 建议
+
 
 ```tsx
 import { SuggestionPrimitive } from "@assistant-ui/react-native";
 ```
 
-Primitives for rendering suggestions. Use inside a `SuggestionByIndexProvider` (from `@assistant-ui/core/react`).
+用于渲染建议的原语。在 `SuggestionByIndexProvider`（来自 `@assistant-ui/core/react`）中使用。
 
 ### SuggestionPrimitive.Title
 
-`Text` component displaying the suggestion title.
+`Text` 显示建议标题的组件。
 
 ```tsx
 <SuggestionPrimitive.Title style={styles.suggestionTitle} />
@@ -912,7 +913,7 @@ Primitives for rendering suggestions. Use inside a `SuggestionByIndexProvider` (
 
 ### SuggestionPrimitive.Description
 
-`Text` component displaying the suggestion description/label.
+`Text` 显示建议描述或标签的组件。
 
 ```tsx
 <SuggestionPrimitive.Description style={styles.suggestionDescription} />
@@ -920,7 +921,7 @@ Primitives for rendering suggestions. Use inside a `SuggestionByIndexProvider` (
 
 ### SuggestionPrimitive.Trigger
 
-`Pressable` that triggers the suggestion action (send or insert into composer).
+`Pressable` 触发建议操作（发送或插入输入框）。
 
 ```tsx
 <SuggestionPrimitive.Trigger send>
@@ -928,10 +929,10 @@ Primitives for rendering suggestions. Use inside a `SuggestionByIndexProvider` (
 </SuggestionPrimitive.Trigger>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `send` | `boolean` | When true, sends immediately; when false, inserts into composer |
-| `clearComposer` | `boolean` | Whether to clear/replace composer text (default: true) |
+| `send` | `boolean` | 为 true 时立即发送；为 false 时插入输入框 |
+| `clearComposer` | `boolean` | 是否清除或替换输入框文本（默认为 true） |
 
 ## ChainOfThought
 
@@ -939,11 +940,11 @@ Primitives for rendering suggestions. Use inside a `SuggestionByIndexProvider` (
 import { ChainOfThoughtPrimitive } from "@assistant-ui/react-native";
 ```
 
-Primitives for rendering chain of thought content (grouped reasoning and tool-call parts).
+用于渲染思维链内容的原语（分组的推理部分和工具调用部分）。
 
 ### ChainOfThoughtPrimitive.Root
 
-Container `View` for chain of thought content.
+用于容纳思维链内容的容器 `View`。
 
 ```tsx
 <ChainOfThoughtPrimitive.Root style={styles.chainOfThought}>
@@ -953,7 +954,7 @@ Container `View` for chain of thought content.
 
 ### ChainOfThoughtPrimitive.AccordionTrigger
 
-`Pressable` that toggles the collapsed state of the chain of thought.
+用于切换思维链折叠状态的 `Pressable`。
 
 ```tsx
 <ChainOfThoughtPrimitive.AccordionTrigger>
@@ -963,7 +964,7 @@ Container `View` for chain of thought content.
 
 ### ChainOfThoughtPrimitive.Parts
 
-Renders the parts within a chain of thought. Shared from `@assistant-ui/core/react`.
+渲染思维链中的各个部分。共享自 `@assistant-ui/core/react`。
 
 ```tsx
 <ChainOfThoughtPrimitive.Parts>

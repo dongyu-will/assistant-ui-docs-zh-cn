@@ -1,13 +1,13 @@
 ---
-title: Events
-description: Emit and subscribe to typed events.
+title: 事件
+description: 发出和订阅类型化事件。
 ---
 
-State tells you what things look like right now. Events tell you what just happened. Use events for side effects that respond to discrete actions: showing a toast, scrolling to a new message, firing analytics.
+状态描述当前事物的样子。事件描述刚刚发生了什么。对于响应离散操作的副作用，请使用事件，例如显示 toast、滚动到新消息或触发分析。
 
-## Declaring events
+## 声明事件
 
-Add an `events` field to your scope in `ScopeRegistry`. Event names follow the format `"scopeName.eventName"`:
+在 `ScopeRegistry` 的作用域中添加 `events` 字段。事件名称遵循 `"scopeName.eventName"` 格式：
 
 ```ts title="lib/store/counter-scope.ts"
 import "@assistant-ui/store";
@@ -28,11 +28,11 @@ declare module "@assistant-ui/store" {
 }
 ```
 
-Each event has a typed payload. Use `undefined` for events that carry no data.
+每个事件都有类型化载荷。对于不携带数据的事件，请使用 `undefined`。
 
-## Emitting events
+## 发出事件
 
-Call `useAssistantEmit()` inside a resource to get an emit function:
+在资源中调用 `useAssistantEmit()` 以获取事件发出函数：
 
 ```ts title="lib/store/counter-resource.ts"
 import { resource } from "@assistant-ui/tap";
@@ -59,11 +59,11 @@ const useCounterResource = (): ClientOutput<"counter"> => {
 const CounterResource = resource(useCounterResource);
 ```
 
-Events are delivered via microtask: they fire after the current state update settles, not mid-update. This means listeners always see consistent state.
+事件通过微任务传递：它们会在当前状态更新完成后触发，而不是在更新过程中触发。这意味着监听器始终能看到一致的状态。
 
-## Subscribing to events
+## 订阅事件
 
-Use `useAuiEvent` in any component inside an `AuiProvider`:
+在 `AuiProvider` 内的任意组件中使用 `useAuiEvent`：
 
 ```tsx
 import { useAuiEvent } from "@assistant-ui/store";
@@ -77,13 +77,13 @@ const CounterToast = () => {
 };
 ```
 
-The callback receives the typed payload. It's stable internally (via `useEffectEvent`), so you don't need to memoize it.
+回调会接收类型化载荷。它在内部是稳定的（通过 `useEffectEvent`），因此无需对其进行记忆化。
 
-## Event scoping
+## 事件作用域
 
-When you pass a string like `"counter.incremented"` to `useAuiEvent`, it listens for events from the `counter` scope **in your current context**. This is scope filtering: the listener only fires when the event comes from the specific scope instance you're inside.
+当你将类似 `"counter.incremented"` 的字符串传递给 `useAuiEvent` 时，它会监听**当前上下文中** `counter` 作用域发出的事件。这就是作用域过滤：只有当事件来自你所在的特定作用域实例时，监听器才会触发。
 
-This matters when there are multiple instances of the same scope. Consider a list of counters, each with its own `counter` scope:
+当同一作用域存在多个实例时，这一点很重要。请考虑一个计数器列表，其中每个计数器都有自己的 `counter` 作用域：
 
 ```
 App
@@ -92,13 +92,13 @@ App
   └ CounterItem (counter scope, id: "c")
 ```
 
-A `useAuiEvent("counter.incremented", ...)` inside `CounterItem "a"` only fires for that counter, not for "b" or "c". Each listener is scoped to its own instance.
+`CounterItem "a"` 内的 `useAuiEvent("counter.incremented", ...)` 只会针对该计数器触发，不会针对“b”或“c”触发。每个监听器都限定在自己的实例中。
 
-### Listening to child events
+### 监听子级事件
 
-If you try to listen to an event from a scope that isn't available in your component's context, Store throws an error. For example, if your component sits above the `counter` scope, `useAuiEvent("counter.incremented", ...)` will throw because there is no `counter` scope to filter against.
+如果你尝试监听组件上下文中不可用的作用域发出的事件，Store 会抛出错误。例如，如果你的组件位于 `counter` 作用域之上，`useAuiEvent("counter.incremented", ...)` 会抛出错误，因为不存在可用于过滤的 `counter` 作用域。
 
-To listen to events from child scopes, set `scope` to your own scope (the parent):
+要监听子级作用域发出的事件，请将 `scope` 设置为你自己的作用域（即父级作用域）：
 
 ```tsx
 // inside a component that has counterList but not counter
@@ -110,11 +110,11 @@ useAuiEvent(
 );
 ```
 
-This fires for `counter.incremented` events from any counter instance below the `counterList` scope. The `scope` field tells Store which level to filter at: any event emitted by a descendant of that scope instance will match.
+这会针对 `counterList` 作用域下方任意计数器实例发出的 `counter.incremented` 事件触发。`scope` 字段会告诉 Store 应在哪一层进行过滤：该作用域实例的任何后代发出的事件都会匹配。
 
-### Listening to sibling events
+### 监听同级事件
 
-There's no direct way to listen to events from a sibling scope. Instead, listen at a mutual parent (or `"*"`) and filter by metadata in the event payload:
+无法直接监听同级作用域发出的事件。相反，请在共同的父级作用域（或 `"*"`）处进行监听，并根据事件载荷中的元数据进行过滤：
 
 ```tsx
 // inside counter "a", listening for increments from any sibling
@@ -128,11 +128,11 @@ useAuiEvent(
 );
 ```
 
-Include whatever metadata you need for filtering in the event payload; Store doesn't provide sibling identity automatically.
+请将过滤所需的元数据包含在事件载荷中；Store 不会自动提供同级作用域的身份信息。
 
-### Wildcard scope
+### 通配符作用域
 
-Use `"*"` as the scope to listen to an event from any instance, regardless of your position in the tree:
+使用 `"*"` 作为作用域，可以监听来自任意实例的事件，不受你在树中的位置影响：
 
 ```tsx
 useAuiEvent(
@@ -143,9 +143,9 @@ useAuiEvent(
 );
 ```
 
-### Wildcard event
+### 通配符事件
 
-Use `"*"` as the event to listen to every event. The payload is wrapped with the event name:
+使用 `"*"` 作为事件，即可监听所有事件。载荷会与事件名称一起进行包装：
 
 ```tsx
 useAuiEvent("*", ({ event, payload }) => {
@@ -153,14 +153,14 @@ useAuiEvent("*", ({ event, payload }) => {
 });
 ```
 
-This is useful for debugging and logging.
+这对于调试和日志记录很有用。
 
-## Choosing a scoping pattern
+## 选择作用域模式
 
-| You want to... | Selector |
+| 你想要…… | 选择器 |
 | --- | --- |
-| Listen to events from your own scope | `"scope.event"` |
-| Listen to events from any child below you | `{ scope: "yourScope", event: "child.event" }` |
-| Listen to events from a sibling | `{ scope: "mutualParent", event: "sibling.event" }` + filter by payload |
-| Listen to events from anywhere | `{ scope: "*", event: "scope.event" }` |
-| Listen to all events (debugging) | `"*"` |
+| 监听自己作用域发出的事件 | `"scope.event"` |
+| 监听下方任意子级发出的事件 | `{ scope: "yourScope", event: "child.event" }` |
+| 监听同级作用域发出的事件 | `{ scope: "mutualParent", event: "sibling.event" }` + 根据载荷过滤 |
+| 监听来自任意位置的事件 | `{ scope: "*", event: "scope.event" }` |
+| 监听所有事件（调试） | `"*"` |

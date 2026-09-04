@@ -1,13 +1,13 @@
 ---
-title: Methods
-description: Access scope methods with useAui.
+title: 方法
+description: 使用 useAui 访问作用域方法。
 ---
 
-Methods are the imperative API of a scope. They're the functions your resource returns: `increment`, `send`, `delete`, or anything else. You access them through `useAui()`.
+方法是作用域的命令式 API。它们是资源返回的函数：`increment`、`send`、`delete`，或其他任何函数。你可以通过 `useAui()` 访问它们。
 
-## Defining methods
+## 定义方法
 
-First, register the method signatures in `ScopeRegistry`:
+首先，在 `ScopeRegistry` 中注册方法签名：
 
 ```ts title="lib/store/counter-scope.ts"
 import "@assistant-ui/store";
@@ -25,7 +25,7 @@ declare module "@assistant-ui/store" {
 }
 ```
 
-Then create a resource that implements them. The return type `ClientOutput<"counter">` ties the resource to the scope: TypeScript will error if the returned methods don't match the registry:
+然后创建一个实现这些方法的资源。返回类型 `ClientOutput<"counter">` 会将资源与作用域关联起来：如果返回的方法与注册表不匹配，TypeScript 会报错：
 
 ```ts title="lib/store/counter-resource.ts"
 import { resource } from "@assistant-ui/tap";
@@ -45,27 +45,27 @@ const useCounterResource = (): ClientOutput<"counter"> => {
 const CounterResource = resource(useCounterResource);
 ```
 
-Every function you return becomes a method on the scope. There's nothing special about them: they're plain functions that can call `useState` setters, trigger side effects, or do anything else.
+你返回的每个函数都会成为作用域上的一个方法。它们没有任何特殊之处：就是可以调用 `useState` setter、触发副作用或执行其他操作的普通函数。
 
 ## useAui
 
-Call `useAui()` with no arguments inside any `AuiProvider` to get the current store:
+在任何 `AuiProvider` 内无参数调用 `useAui()`，即可获取当前 store：
 
 ```tsx
 const aui = useAui();
 ```
 
-The returned client has an accessor for every scope available in the current context. The client is immutable: state updates never change its identity, while a structural change (a scope resolving to a different instance) produces a new client and re-renders consumers through React.
+返回的客户端为当前上下文中可用的每个作用域提供一个访问器。客户端是不可变的：状态更新不会改变其标识，而结构变化（某个作用域解析为不同的实例）会生成新的客户端，并通过 React 触发消费者重新渲染。
 
-## Scope accessors
+## 作用域访问器
 
-`aui.counter` is the scope accessor: it exposes the scope's methods plus `source`/`query`/`name` metadata. Its identity is stable per scope binding and changes when the binding changes:
+`aui.counter` 是作用域访问器：它会公开作用域的方法，以及 `source`/`query`/`name` 元数据。对于每个作用域绑定，其标识都保持稳定；绑定变化时，标识也会变化：
 
 ```tsx
 aui.counter.increment();
 ```
 
-When a derived scope switches which item it points to, the component re-renders with a new client and a new accessor. Access scopes at the point of use:
+当派生作用域切换其指向的项目时，组件会使用新的客户端和新的访问器重新渲染。在使用位置访问作用域：
 
 ```tsx
 const MessageActions = () => {
@@ -83,9 +83,9 @@ const MessageActions = () => {
 };
 ```
 
-### Don't read state during render
+### 不要在渲染期间读取状态
 
-`aui.counter.getState()` returns a snapshot without subscribing, so render output built from it goes stale. Use `useAuiState` to read state during render instead.
+`aui.counter.getState()` 会返回一个不订阅状态的快照，因此基于它构建的渲染输出会过时。应改用 `useAuiState` 在渲染期间读取状态。
 
 ```tsx
 const Counter = () => {
@@ -102,9 +102,9 @@ const Counter = () => {
 };
 ```
 
-## Checking if a scope exists
+## 检查作用域是否存在
 
-Accessing `aui.counter` never throws, and the accessor is always truthy — `if (aui.counter)` does not tell you anything. When the scope hasn't been provided by any `AuiProvider` above, the accessor still answers `source` (`null`), `query`, and `name`; calling it or reading any other property throws. Read the scope through `aui.optional`, which resolves to the same accessor when available and `undefined` when not:
+访问 `aui.counter` 永远不会抛出异常，并且访问器始终为真值 — `if (aui.counter)` 并不能说明任何问题。当作用域未由上方任何 `AuiProvider` 提供时，访问器仍然可以正常响应 `source`（`null`）、`query` 和 `name`；但调用它或读取任何其他属性都会抛出异常。通过 `aui.optional` 读取作用域：作用域可用时，它会解析为同一个访问器；不可用时则解析为 `undefined`：
 
 ```tsx
 const aui = useAui();
@@ -112,17 +112,17 @@ const aui = useAui();
 aui.optional.counter?.increment();
 ```
 
-This mirrors `s.optional` on the state side. The accessor metadata keeps working, and `aui.optional.counter` is `undefined` whenever the scope is not available, whether its accessor reports `source: null` or the scope is entirely absent from a hand-built parent chain.
+这与状态侧的 `s.optional` 相对应。访问器元数据仍然可用，并且无论访问器报告 `source: null`，还是作用域完全缺失于手动构建的父级链中，只要作用域不可用，`aui.optional.counter` 就是 `undefined`。
 
-## Subscribing to scope identity
+## 订阅作用域标识
 
 <Callout type="info">
-This is an advanced pattern. In the entire assistant-ui codebase, there are only two use cases for this.
+这是一种高级模式。在整个 assistant-ui 代码库中，只有两个使用场景。
 </Callout>
 
-Sometimes you need to know when the scope itself changes, for example to register/unregister with an external system when a derived scope switches to a different item.
+有时你需要知道作用域本身何时发生变化，例如当派生作用域切换到不同项目时，向外部系统注册或取消注册。
 
-Use `useAuiState` to subscribe to the scope identity:
+使用 `useAuiState` 订阅作用域标识：
 
 ```tsx
 const thread = useAuiState(() => aui.thread);
@@ -133,4 +133,4 @@ useEffect(() => {
 }, [thread]);
 ```
 
-`aui.thread` is a stable accessor per scope binding. When a derived scope switches which thread it points to, `useAuiState` detects the new accessor and re-renders, triggering the effect cleanup and re-registration.
+`aui.thread` 对于每个作用域绑定都是稳定的访问器。当派生作用域切换其指向的线程时，`useAuiState` 会检测到新的访问器并重新渲染，从而触发 effect 清理和重新注册。

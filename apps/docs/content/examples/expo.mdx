@@ -1,22 +1,22 @@
 ---
-title: Expo React Native AI Chat
-description: Native iOS and Android AI chat app with Expo — drawer navigation, thread persistence, and the assistant-ui React Native components for mobile.
+title: Expo React Native AI 聊天
+description: 使用 Expo 构建的原生 iOS 和 Android AI 聊天应用——支持抽屉式导航、线程持久化，以及适用于移动端的 assistant-ui React Native 组件。
 ---
 
-## Overview
+## 概述
 
-A full-featured React Native chat application built with Expo and `@assistant-ui/react-native`. It demonstrates drawer-based thread management, streaming OpenAI responses, and a polished native UI with dark mode support.
+一个使用 Expo 和 `@assistant-ui/react-native` 构建的功能完整的 React Native 聊天应用。该应用演示了基于抽屉的线程管理、OpenAI 响应的流式输出，以及支持深色模式的精致原生 UI。
 
-## Features
+## 功能
 
-- **Native UI**: Built with React Native primitives — no web views
-- **Drawer Navigation**: Swipeable sidebar for thread management
-- **Thread Management**: Create, switch, and browse conversations
-- **Streaming**: Real-time streaming via a server-side chat API endpoint
-- **Dark Mode**: Automatic light/dark theme support
-- **Keyboard Handling**: Proper `KeyboardAvoidingView` integration
+- **原生 UI**：使用 React Native 原语构建，不包含 WebView
+- **抽屉式导航**：可滑动的侧边栏，用于管理线程
+- **线程管理**：创建、切换和浏览对话
+- **流式传输**：通过服务端聊天 API 端点实现实时流式传输
+- **深色模式**：自动支持浅色和深色主题
+- **键盘处理**：正确集成 `KeyboardAvoidingView`
 
-## Quick Start
+## 快速开始
 
 ```bash
 # Clone the repo
@@ -33,11 +33,11 @@ echo 'OPENAI_API_KEY="sk-..."' > examples/with-expo/.env
 pnpm --filter with-expo start
 ```
 
-## Code
+## 代码
 
-### Runtime Setup
+### 运行时设置
 
-The runtime uses `useChatRuntime` from `@assistant-ui/ai-sdk` with an `AssistantChatTransport` that connects to a chat API endpoint:
+运行时使用来自 `@assistant-ui/ai-sdk` 的 `useChatRuntime`，并配合连接到聊天 API 端点的 `AssistantChatTransport`：
 
 ```tsx title="hooks/use-app-runtime.ts"
 import { useMemo } from "react";
@@ -68,11 +68,11 @@ export function useAppRuntime() {
 }
 ```
 
-The hosted docs endpoint issues signed anonymous sessions to browser demos. Native builds skip that browser-only bootstrap and should use the bundled API route or another backend intended for the app.
+托管文档端点会为浏览器演示签发经过签名的匿名会话。原生构建会跳过仅限浏览器的引导流程，应使用内置的 API 路由，或使用专为该应用准备的其他后端。
 
-### App Layout
+### 应用布局
 
-`AssistantRuntimeProvider` wraps the Expo Router drawer layout inside a `GestureHandlerRootView`. The layout also handles font loading, theming, a "New Chat" button in the header, and tool registration via the provider's `config`:
+`AssistantRuntimeProvider` 将 Expo Router 抽屉布局封装在 `GestureHandlerRootView` 中。该布局还负责字体加载、主题设置、页眉中的“新建聊天”按钮，以及通过 provider 的 `config` 注册工具：
 
 ```tsx title="app/_layout.tsx"
 import {
@@ -164,16 +164,16 @@ export default function ChatPage() {
 }
 ```
 
-### Key Architecture
+### 核心架构
 
-| Layer | Purpose |
+| 层 | 用途 |
 |-------|---------|
-| `useChatRuntime` | Creates a runtime backed by an `AssistantChatTransport` connecting to a chat API endpoint |
-| `AssistantRuntimeProvider` | Provides the runtime to the entire app (thread and composer scopes are set up automatically) |
-| `useAuiState((s) => s.thread)` | Reactive thread state access with selector for fine-grained re-renders |
-| `useAuiState((s) => s.composer)` | Reactive composer state access |
-| Primitives | `ThreadMessages`, `ComposerInput`, `MessageContent`, etc. |
+| `useChatRuntime` | 创建一个由连接到聊天 API 端点的 `AssistantChatTransport` 支持的运行时 |
+| `AssistantRuntimeProvider` | 向整个应用提供运行时（线程和输入框作用域会自动设置） |
+| `useAuiState((s) => s.thread)` | 响应式访问线程状态，并通过选择器实现细粒度重新渲染 |
+| `useAuiState((s) => s.composer)` | 响应式访问输入框状态 |
+| 原语 | `ThreadMessages`、`ComposerInput`、`MessageContent` 等 |
 
-## Source
+## 源码
 
 <SourceLink href="https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-expo" />

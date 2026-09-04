@@ -1,20 +1,20 @@
 ---
-title: "Error state"
-description: "A quiet failure banner with a retry path, not a modal in your face."
+title: "错误状态"
+description: "安静的失败提示条，提供重试路径，而不是直接弹到你面前的模态框。"
 ---
 
-When a reply fails, this sits where the message would have been: a quiet red banner naming what went wrong with a retry button, or, while retrying, a single spinning line reading "Retrying". With a runtime the failure and the retry both come from the message itself; standalone you hold the title, detail, and retry state yourself.
+当回复失败时，它会显示在原本消息所在的位置：一条安静的红色提示条，说明出错原因并提供重试按钮；重试期间则显示一行带旋转动画的“正在重试”。在运行时中，失败和重试都来自消息本身；单独使用时，则需要自行管理标题、详情和重试状态。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-An assistant message that failed mid-run carries its error on `s.message.status`; `MessagePrimitive.Error` only renders its children while one is present, so you never need to check for it yourself.
+在运行中途失败的助手消息会在 `s.message.status` 上携带错误；`MessagePrimitive.Error` 仅在错误存在时渲染其子项，因此你无需自行检查错误是否存在。
 
 <Steps>
   <Step>
 
-### Render the failed message
+### 渲染失败的消息
 
 ```tsx title="components/assistant-ui/elements/error-state.tsx"
 "use client";
@@ -34,14 +34,14 @@ export function MessageError() {
 }
 ```
 
-`ErrorPrimitive.Root` renders as `role="alert"`; `ErrorPrimitive.Message` reads the error itself (`s.message.status.type === "incomplete" && s.message.status.reason === "error"`) and falls back to `String(error)` when you don't pass children, so there's a single message string here rather than a separate title and detail.
+`ErrorPrimitive.Root` 会渲染为 `role="alert"`；`ErrorPrimitive.Message` 会自行读取错误（`s.message.status.type === "incomplete" && s.message.status.reason === "error"`），如果不传入子项，则回退到 `String(error)`，因此这里使用的是单条消息文本，而不是单独的标题和详情。
 
   </Step>
   <Step>
 
-### Wire the retry button
+### 接入重试按钮
 
-`ActionBarPrimitive.Reload` calls `aui.message.reload()`, which re-runs from this message's parent and is disabled while the thread is already running:
+`ActionBarPrimitive.Reload` 会调用 `aui.message.reload()`，从该消息的父级重新运行；在线程已经运行时，该按钮会被禁用：
 
 ```tsx
 import { ActionBarPrimitive } from "@assistant-ui/react";
@@ -60,12 +60,12 @@ import { RefreshCwIcon } from "lucide-react";
 
 <StandaloneMode>
 
-Standalone, `ErrorState` switches its whole layout on `retrying`: a two-line alert with a title and detail, or a single spinning status line.
+单独使用时，`ErrorState` 会根据 `retrying` 切换整个布局：显示带标题和详情的两行提示，或显示一行带旋转动画的状态文本。
 
 <Steps>
   <Step>
 
-### Hold the failure and drive retry
+### 保存失败状态并驱动重试
 
 ```tsx title="app/reply-error.tsx"
 "use client";
@@ -98,16 +98,16 @@ export function ReplyError() {
   </Step>
   <Step>
 
-### Drop it once the retry lands
+### 重试成功后移除
 
-There's no built-in success state; unmount `ErrorState` (as above, on `failed` turning false) once the retried request comes back clean, so the banner gives way to the reply it stood in for.
+没有内置的成功状态；重试请求成功返回后（如上所述，在 `failed` 变为 false 时）卸载 `ErrorState`，让原本占据消息位置的提示条被回复替代。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="error-state" role="alert">
@@ -120,21 +120,21 @@ There's no built-in success state; unmount `ErrorState` (as above, on `failed` t
 </div>
 ```
 
-While `retrying` is true, the whole layout swaps to a single row with `role="status"` instead of `role="alert"`: a spinning refresh icon and a shimmering "Retrying" label, no title, detail, or button. Both states share the `error-state` slot and fade in over 300ms whenever the component (re)mounts, since `key="error"`/`key="retrying"` force a fresh mount on each switch. At runtime there's only one such state: `ErrorPrimitive.Root` is always `role="alert"`, and there's no shipped "retrying" sub-state. Reproduce it yourself by watching `s.thread.isRunning` for the message you just reloaded, and falling back to the error banner again if the new attempt also fails.
+当 `retrying` 为 true 时，整个布局会切换为单行，并使用 `role="status"` 代替 `role="alert"`：显示旋转的刷新图标和带闪烁效果的“正在重试”标签，不显示标题、详情或按钮。两种状态共享 `error-state` 插槽，并且每次组件挂载或重新挂载时都会以 300ms 的淡入效果显示，因为 `key="error"`/`key="retrying"` 会在每次切换时强制重新挂载。运行时中只有一个这样的状态：`ErrorPrimitive.Root` 始终为 `role="alert"`，并没有随附的“正在重试”子状态。你可以自行监听刚刚重新加载的消息的 `s.thread.isRunning`，并在新的尝试也失败时再次回退到错误提示条，从而复现该状态。
 
-## Examples
+## 示例
 
-### While retrying
+### 重试期间
 
 <StandaloneMode>
 
-Flip `retrying` around the async call in `onRetry`, as shown in "Hold the failure and drive retry"; the banner swaps to the status line for exactly as long as the promise is pending.
+如“保存失败状态并驱动重试”中所示，在 `onRetry` 的异步调用周围切换 `retrying`；只要 promise 处于 pending 状态，提示条就会切换为状态文本。
 
 </StandaloneMode>
 
 <RuntimeMode>
 
-Reloading is fire-and-forget from the button's point of view; watch `s.thread.isRunning` if you want your own "Retrying" line while the new attempt streams in:
+从按钮的角度看，重新加载是触发后即返回的操作；如果希望在新尝试进行流式传输时显示自定义的“正在重试”文本，请监听 `s.thread.isRunning`：
 
 ```tsx
 const retrying = useAuiState((s) => s.thread.isRunning);
@@ -142,11 +142,11 @@ const retrying = useAuiState((s) => s.thread.isRunning);
 
 </RuntimeMode>
 
-### Where the error text comes from
+### 错误文本的来源
 
 <RuntimeMode>
 
-`useMessageError()` returns the same string `ErrorPrimitive.Message` falls back to: the run's `status.error`, coerced to a string, an `error.message` when the error is object-shaped, or `"An error occurred"` when neither is available. Call it directly if you need the text outside `MessagePrimitive.Error`.
+`useMessageError()` 返回的字符串与 `ErrorPrimitive.Message` 的回退值相同：运行的 `status.error`（会被强制转换为字符串）；当错误为对象形式时使用 `error.message`；两者都不可用时使用 `"An error occurred"`。如果需要在 `MessagePrimitive.Error` 之外获取文本，可以直接调用它。
 
 ```tsx
 const error = useMessageError();
@@ -156,38 +156,38 @@ const error = useMessageError();
 
 <StandaloneMode>
 
-`title` and `detail` are just the two strings you pass; split your caught error into a short title and a longer detail however makes sense for your source (a fetch error's `name` and `message`, for instance).
+`title` 和 `detail` 只是你传入的两段文本；可以根据错误来源，按照合理方式将捕获的错误拆分为简短标题和较长详情，例如使用请求错误的 `name` 和 `message`。
 
 </StandaloneMode>
 
-### Restyle the banner
+### 重新设置提示条样式
 
-Both lanes take `className` on the root; the failure banner's red tint and the retrying row's shimmer are the only two visual states to restyle.
+两种状态都会在根元素上接收 `className`；需要重新设置样式的只有两种视觉状态：失败提示条的红色色调，以及重试行的闪烁效果。
 
 ```tsx
 <ErrorState className="max-w-none" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### MessagePrimitive and ErrorPrimitive
+### MessagePrimitive 和 ErrorPrimitive
 
-| Part | Renders | Notes |
+| 部件 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `MessagePrimitive.Error` | fragment | Renders children only while the message carries an error. |
-| `ErrorPrimitive.Root` | `div` | `role="alert"`. |
-| `ErrorPrimitive.Message` | `span` | The error text; pass children to override the default fallback. |
-| `ActionBarPrimitive.Reload` | `button` | Regenerates the message; disabled while the thread is already running. |
+| `MessagePrimitive.Error` | fragment | 仅当消息携带错误时渲染子项。 |
+| `ErrorPrimitive.Root` | `div` | `role="alert"`。 |
+| `ErrorPrimitive.Message` | `span` | 错误文本；传入子项可覆盖默认回退值。 |
+| `ActionBarPrimitive.Reload` | `button` | 重新生成消息；在线程已经运行时被禁用。 |
 
-### Message state
+### 消息状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.message.status?.type` | `"running" \| "complete" \| "incomplete" \| "requires-action"` | `"incomplete"` with `reason: "error"` is what a failed run looks like. |
-| `useMessageError()` | `() => string \| undefined` | The error text, or `undefined` when the message didn't fail. |
-| `aui.message.reload(config?)` | `(config?: { runConfig?: RunConfig }) => void` | Retries by regenerating this message. |
+| `s.message.status?.type` | `"running" \| "complete" \| "incomplete" \| "requires-action"` | `"incomplete"` 与 `reason: "error"` 一起描述运行失败时的状态。 |
+| `useMessageError()` | `() => string \| undefined` | 错误文本；消息未失败时为 `undefined`。 |
+| `aui.message.reload(config?)` | `(config?: { runConfig?: RunConfig }) => void` | 通过重新生成此消息来重试。 |
 
 </RuntimeMode>
 
@@ -195,14 +195,14 @@ Both lanes take `className` on the root; the failure banner's red tint and the r
 
 ### ErrorState
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `title` | `string` | required | The short failure headline. |
-| `detail` | `string` | required | The longer explanation shown under the title. |
-| `retrying` | `boolean` | required | Swaps the whole layout to the single spinning status line. |
-| `onRetry` | `() => void` | required | Called when the retry button is pressed. |
-| `className` | `string` | | Merged onto the root. |
+| `title` | `string` | 必填 | 简短的失败标题。 |
+| `detail` | `string` | 必填 | 显示在标题下方的较长说明。 |
+| `retrying` | `boolean` | 必填 | 将整个布局切换为一行带旋转动画的状态文本。 |
+| `onRetry` | `() => void` | 必填 | 点击重试按钮时调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props (excluding `role`, which the component sets itself) are forwarded to the root.
+所有其他 `div` props（不包括由组件自行设置的 `role`）都会转发到根元素。
 
 </StandaloneMode>

@@ -1,33 +1,33 @@
 ---
-title: AG-UI Agent Runtime
-description: Wire AG-UI (Agent-User Interaction) protocol agents into a React chat UI with assistant-ui — bidirectional events, generative UI, and human-in-the-loop.
+title: AG-UI Agent 运行时
+description: 使用 assistant-ui 将 AG-UI（Agent-User Interaction）协议代理接入 React 聊天 UI，实现双向事件、生成式 UI 和人在回路。
 ---
 
-`@assistant-ui/react-ag-ui` is a runtime adapter for the [AG-UI (Agent-User Interaction) protocol](https://github.com/ag-ui-protocol/ag-ui). It lets your assistant-ui frontend speak to any AG-UI-compliant agent server, including CopilotKit-based backends.
+`@assistant-ui/react-ag-ui` 是 [AG-UI（Agent-User Interaction）协议](https://github.com/ag-ui-protocol/ag-ui). 的运行时适配器。它让你的 assistant-ui 前端能够与任何符合 AG-UI 的代理服务器通信，包括基于 CopilotKit 的后端。
 
-## When to use it
+## 适用场景
 
-Pick the AG-UI runtime when:
+在以下情况下选择 AG-UI 运行时：
 
-- Your backend implements the AG-UI protocol (e.g. CopilotKit agents, custom AG-UI servers).
-- You want streaming text, thinking events, reasoning events, tool calls, and state snapshots in one protocol.
-- You need agent-side state synchronization via `STATE_SNAPSHOT` and `STATE_DELTA` events.
-- Your backend runs subagents and you want each run rendered as a nested conversation under the tool call that spawned it.
+- 你的后端实现了 AG-UI 协议（例如 CopilotKit 代理、自定义 AG-UI 服务器）。
+- 你希望通过一个协议获得流式文本、思考事件、推理事件、工具调用和状态快照。
+- 你需要通过 `STATE_SNAPSHOT` 和 `STATE_DELTA` 事件同步代理端状态。
+- 你的后端运行子代理，并且希望将每次运行渲染为发起该运行的工具调用下的嵌套会话。
 
-If your backend is not AG-UI-compliant, see [picking a runtime](/docs/runtimes/pick-a-runtime) for alternatives.
+如果你的后端不符合 AG-UI，请参阅[选择运行时](/docs/runtimes/pick-a-runtime)了解其他选项。
 
-## Architecture
+## 架构
 
-`@assistant-ui/react-ag-ui` is layered on `ExternalStoreRuntime` (see [architecture](/docs/runtimes/concepts/architecture)). The runtime owns AG-UI event parsing and message reconstruction; you provide an `HttpAgent` from `@ag-ui/client` and the adapter handles the wire protocol.
+`@assistant-ui/react-ag-ui` 构建于 `ExternalStoreRuntime` 之上（参见[架构](/docs/runtimes/concepts/architecture)）。运行时负责 AG-UI 事件解析和消息重建；你只需从 `@ag-ui/client` 提供一个 `HttpAgent`，适配器会处理线协议。
 
-Shared adapters (attachments, speech, dictation, feedback, history) work the same way described in [adapters](/docs/runtimes/concepts/adapters).
+共享适配器（附件、语音、听写、反馈、历史记录）的工作方式与[适配器](/docs/runtimes/concepts/adapters)中描述的相同。
 
-## Requirements
+## 要求
 
-- An AG-UI-compatible agent server.
-- React 18 or 19.
+- 一个兼容 AG-UI 的代理服务器。
+- React 18 或 19。
 
-## Install
+## 安装
 
 <PlatformTabs>
 <Tab value="React">
@@ -47,25 +47,25 @@ Shared adapters (attachments, speech, dictation, feedback, history) work the sam
 </Tab>
 </PlatformTabs>
 
-## Example
+## 示例
 
-[`examples/with-ag-ui`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-ag-ui) shows a complete reference implementation. Or scaffold one directly:
+[`examples/with-ag-ui`](https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-ag-ui) 展示了一个完整的参考实现。或者直接创建一个脚手架：
 
 ```sh
 npx assistant-ui@latest create my-app -e with-ag-ui
 ```
 
-## Next
+## 后续阅读
 
 <Cards>
   <Card
-    title="Quickstart"
-    description="Minimal HttpAgent + useAgUiRuntime setup."
+    title="快速开始"
+    description="最小化的 HttpAgent + useAgUiRuntime 设置。"
     href="/docs/runtimes/ag-ui/quickstart"
   />
   <Card
-    title="Runtime options"
-    description="useAgUiRuntime options, adapters, events, thread list."
+    title="运行时选项"
+    description="useAgUiRuntime 选项、适配器、事件和线程列表。"
     href="/docs/runtimes/ag-ui/runtime-options"
   />
 </Cards>

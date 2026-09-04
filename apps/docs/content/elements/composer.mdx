@@ -1,20 +1,20 @@
 ---
-title: "Composer"
-description: "The unified input: attachments, commands, mentions, models, voice, and context in one surface."
+title: "输入框"
+description: "统一输入界面：在一个区域中处理附件、命令、提及、模型、语音和上下文。"
 ---
 
-The composer is the rounded bar where a person writes the next message: a growing text field with a toolbar underneath for attachments, the active model, and a send button that swaps to a stop button mid-run. With a runtime the bar reads and writes the thread's live composer state; standalone you hold that state yourself.
+输入框是用于编写下一条消息的圆角栏：它包含一个会不断扩展的文本字段，下方工具栏用于处理附件、当前模型，以及在运行期间切换为停止按钮的发送按钮。在运行时中，该输入框会读写线程的实时输入框状态；独立使用时，则需要自行管理该状态。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-Every assistant-ui runtime carries a composer scoped to the active thread (or to a message being edited): a place to hold the draft text, staged attachments, and the send and cancel actions. Build the bar from `ComposerPrimitive`, the same primitives the `Thread` element renders internally, and pair them with the shared surface tokens from `surfaces.tsx` to match this catalog's look.
+每个 assistant-ui 运行时都会为当前线程（或正在编辑的消息）提供一个输入框：用于保存草稿文本、暂存的附件，以及发送和取消操作。使用 `ComposerPrimitive` 中的原语构建输入框栏，这些原语正是 `Thread` 元素内部渲染的同一组原语；再配合 `surfaces.tsx` 中共享的界面样式令牌，即可匹配本目录的外观。
 
 <Steps>
   <Step>
 
-### Compose the bar
+### 组合输入框栏
 
 ```tsx title="components/assistant-ui/elements/composer-bar.tsx"
 "use client";
@@ -61,14 +61,14 @@ export function ComposerBar() {
 }
 ```
 
-`ComposerPrimitive.Root` renders a `<form>` that submits on Enter (Shift+Enter for a newline) and sends whatever text and attachments are staged. `AuiIf` swaps `Send` for `Cancel` the moment the thread starts running, the same swap `Thread`'s own composer makes.
+`ComposerPrimitive.Root` 会渲染一个 `<form>`，按 Enter 提交（Shift+Enter 换行），并发送已暂存的所有文本和附件。线程开始运行后，`AuiIf` 会立即将 `Send` 替换为 `Cancel`，这与 `Thread` 自带输入框所执行的切换相同。
 
   </Step>
   <Step>
 
-### Add the rest as you need it
+### 按需添加其余功能
 
-Attachments, the `/` and `@` menus, the model trigger, and dictation are each their own primitives layered onto this same bar. See [Attachments](/elements/composer-attachments), [Slash commands](/elements/composer-slash-commands), [Mentions](/elements/composer-mentions), [Models](/elements/composer-model-picker), and [Dictation](/elements/composer-voice) for each piece's own wiring. The `Thread` element ships a complete composer built from these same primitives, so installing [Thread](/elements/thread) gives you a working bar without assembling one yourself; this element is for building your own bar, or for a surface `Thread` does not cover, such as a compact inline composer.
+附件、`/` 和 `@` 菜单、模型触发器以及听写，都是叠加到同一输入框栏上的独立原语。有关各个部分的接线方式，请参阅[附件](/elements/composer-attachments)、[斜杠命令](/elements/composer-slash-commands)、[提及](/elements/composer-mentions)、[模型](/elements/composer-model-picker)和[听写](/elements/composer-voice)。`Thread` 元素提供了一个由这些原语构建的完整输入框，因此安装 [Thread](/elements/thread) 后即可获得可用的输入框栏，无需自行组装；该元素适合用于构建自定义输入框，或用于 `Thread` 未覆盖的界面，例如紧凑的内联输入框。
 
   </Step>
 </Steps>
@@ -77,12 +77,12 @@ Attachments, the `/` and `@` menus, the model trigger, and dictation are each th
 
 <StandaloneMode>
 
-Standalone, `Composer` and its children are presentational: they render the shape and animate the visible states, but hold no text, attachments, or run status of their own. You own that state and pass it down as props and event handlers.
+独立使用时，`Composer` 及其子元素仅负责呈现：它们渲染外形并为可见状态添加动画，但自身不保存文本、附件或运行状态。你需要自行管理这些状态，并通过 props 和事件处理器向下传递。
 
 <Steps>
   <Step>
 
-### Hold the composer state
+### 管理输入框状态
 
 ```tsx title="app/chat-box.tsx"
 "use client";
@@ -125,16 +125,16 @@ export function ChatBox() {
   </Step>
   <Step>
 
-### Read the toolbar's own behavior
+### 了解工具栏自身的行为
 
-`ComposerAttachButton` disables itself automatically when it receives no `onClick`, so an unwired button never renders as clickable. `ComposerSend` never disables itself; it only changes appearance between an inert-looking fill (`!idle`), the ink send button (`idle`), and the ink stop button (`streaming`), so a caller that wants an actually-disabled send button passes `disabled` through `...props`.
+`ComposerAttachButton` 在未接收到 `onClick` 时会自动禁用，因此未接线的按钮不会呈现为可点击状态。`ComposerSend` 永远不会自行禁用；它只会在看起来不可用的填充色（`!idle`）、墨色发送按钮（`idle`）和墨色停止按钮（`streaming`）之间改变外观。因此，如果调用方希望发送按钮真正处于禁用状态，需要通过 `...props` 传入 `disabled`。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="composer">
@@ -152,15 +152,15 @@ export function ChatBox() {
 </div>
 ```
 
-`ComposerBar` is the only piece with real visual state of its own: `dragActive` tints it and rounds its corners into a drop target. Every other piece here is a plain, unstyled-by-default building block; the composition (what sits in the toolbar, whether the model trigger or voice button appears) is up to the page that assembles them.
+`ComposerBar` 是唯一拥有真实视觉状态的部分：`dragActive` 会为其着色，并将其边角变为圆角投放目标。这里的其他部分默认都是简单、无样式的构建块；具体组合方式（工具栏中放置哪些内容、是否显示模型触发器或语音按钮）由组装它们的页面决定。
 
-## Examples
+## 示例
 
-### Swapping send for cancel
+### 将发送按钮替换为取消按钮
 
 <RuntimeMode>
 
-`AuiIf` mounts exactly one of the two, matching how `Thread`'s own composer switches them; a runtime with the queue capability enabled would still let a send reach the queue while running, so that composition unmounts `Send` a beat before the button's own `canSend` logic would otherwise have kept it live:
+`AuiIf` 只会挂载两个按钮中的一个，这与 `Thread` 自带输入框的切换方式一致；启用了队列能力的运行时在运行期间仍会允许发送操作进入队列，因此该组合会提前一拍卸载 `Send`，否则按钮自身的 `canSend` 逻辑会让它继续保持活动状态：
 
 ```tsx
 <ComposerActions>
@@ -181,7 +181,7 @@ export function ChatBox() {
 
 <StandaloneMode>
 
-A single `ComposerSend` swaps its own icon; drive `streaming` from whatever you consider "in flight":
+单个 `ComposerSend` 会切换自身的图标；根据你认为处于“进行中”的状态来驱动 `streaming`：
 
 ```tsx
 <ComposerActions>
@@ -191,41 +191,41 @@ A single `ComposerSend` swaps its own icon; drive `streaming` from whatever you 
 
 </StandaloneMode>
 
-### Restyle the bar
+### 重新设置输入框栏样式
 
-Every piece here takes `className`, and the rounded corners, borders, and hover states all come from the shared `paper`, `ghostButton`, and `inkButton` tokens in `surfaces.tsx`. Restyling those tokens restyles every element in the catalog that uses them, not just the composer.
+这里的每个部分都接受 `className`；圆角、边框和悬停状态都来自 `surfaces.tsx` 中共享的 `paper`、`ghostButton` 和 `inkButton` 令牌。重新设置这些令牌的样式，会影响目录中所有使用它们的元素，而不仅仅是输入框。
 
 ```tsx
 <ComposerBar className="max-w-2xl rounded-2xl p-4" />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### ComposerPrimitive
 
-| Part | Renders | Notes |
+| 部件 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `Root` | `form` | Sends on submit, which `Input` triggers on Enter; `compact` collapses it to a single row while the text holds at most one line and there are no attachments, quote, queued messages, or active dictation. |
-| `Input` | auto-resizing `textarea` | Controlled by the runtime; disabled while the thread is disabled or dictation is active. `submitMode` (`"enter"` \| `"ctrlEnter"` \| `"none"`) controls Enter's behavior. |
-| `Send` | `button` | Disabled while `!s.composer.canSend`, and also while the thread is running unless it has the queue capability. |
-| `Cancel` | `button` | Disabled while `!s.composer.canCancel`. |
-| `AddAttachment` | `button` | Opens a native file picker filtered by `attachmentAccept`; disabled only while the composer is not editable, so a pick made with no adapter configured opens the picker but silently fails to add the file. |
-| `AttachmentDropzone` | `div` (or `asChild`) | Sets `data-dragging="true"` while a file is dragged over; drops call `addAttachment` per file. |
+| `Root` | `form` | 提交时发送；`Input` 会在按下 Enter 时触发提交；当文本最多只有一行，且没有附件、引用、排队消息或正在进行的听写时，`compact` 会将其收缩为单行。 |
+| `Input` | 自动调整大小的 `textarea` | 由运行时控制；在线程被禁用或听写处于活动状态时禁用。`submitMode`（`"enter"` \| `"ctrlEnter"` \| `"none"`）控制 Enter 的行为。 |
+| `Send` | `button` | 在 `!s.composer.canSend` 期间禁用；在线程运行期间也会禁用，除非线程具备队列能力。 |
+| `Cancel` | `button` | 在 `!s.composer.canCancel` 期间禁用。 |
+| `AddAttachment` | `button` | 打开由 `attachmentAccept` 过滤的原生文件选择器；仅在输入框不可编辑时禁用，因此在未配置适配器的情况下进行选择，会打开选择器，但不会提示添加文件失败。 |
+| `AttachmentDropzone` | `div`（或 `asChild`） | 文件拖入时设置 `data-dragging="true"`；每个文件放下时都会调用 `addAttachment`。 |
 
-### Composer state
+### 输入框状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.composer.text` | `string` | The current draft text. |
-| `s.composer.isEmpty` | `boolean` | Whether the composer has no text and no attachments. |
-| `s.composer.canSend` | `boolean` | Whether `send()` would do anything right now. |
-| `s.composer.canCancel` | `boolean` | Whether `cancel()` would do anything right now. |
-| `s.composer.attachments` | `readonly Attachment[]` | Files staged on this composer; see [Attachments](/elements/composer-attachments). |
-| `s.thread.isRunning` | `boolean` | Whether the thread has a run in flight. |
-| `aui.composer.send(options?)` | `(options?: { startRun?: boolean; steer?: boolean }) => void` | Sends the staged text and attachments. |
-| `aui.composer.cancel()` | `() => void` | Cancels the current run, or exits edit mode. |
+| `s.composer.text` | `string` | 当前草稿文本。 |
+| `s.composer.isEmpty` | `boolean` | 输入框是否没有文本和附件。 |
+| `s.composer.canSend` | `boolean` | `send()` 当前是否会执行任何操作。 |
+| `s.composer.canCancel` | `boolean` | `cancel()` 当前是否会执行任何操作。 |
+| `s.composer.attachments` | `readonly Attachment[]` | 此输入框中暂存的文件；请参阅[附件](/elements/composer-attachments)。 |
+| `s.thread.isRunning` | `boolean` | 线程是否有正在进行的运行。 |
+| `aui.composer.send(options?)` | `(options?: { startRun?: boolean; steer?: boolean }) => void` | 发送暂存的文本和附件。 |
+| `aui.composer.cancel()` | `() => void` | 取消当前运行，或退出编辑模式。 |
 
 </RuntimeMode>
 
@@ -233,43 +233,43 @@ Every piece here takes `className`, and the rounded corners, borders, and hover 
 
 ### Composer
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `className` | `string` | | Merged onto the root `div`. |
+| `className` | `string` | | 合并到根 `div` 上。 |
 
-All other `div` props are forwarded.
+其他所有 `div` props 都会向下传递。
 
 ### ComposerBar
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `dragActive` | `boolean` | `false` | Tints the bar and dashes its border for a drop target. |
-| `className` | `string` | | Merged onto the root. |
+| `dragActive` | `boolean` | `false` | 为输入框栏着色，并将其边框设置为虚线，使其成为投放目标。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### ComposerInput
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `onSubmit` | `() => void` | | Called on Enter (not Shift+Enter, and not mid-IME composition). |
-| `className` | `string` | | Merged onto the `input`. |
+| `onSubmit` | `() => void` | | 在按下 Enter 时调用（Shift+Enter 以及输入法组合输入期间除外）。 |
+| `className` | `string` | | 合并到 `input` 上。 |
 
-All other `input` props are forwarded.
+其他所有 `input` props 都会向下传递。
 
 ### ComposerToolbar / ComposerActions
 
-Plain `div`s (`data-slot="composer-toolbar"` and `data-slot="composer-actions"`) that lay out their children in a row; both forward every `div` prop.
+普通的 `div`（`data-slot="composer-toolbar"` 和 `data-slot="composer-actions"`），用于将子元素按行排列；二者都会向下传递所有 `div` prop。
 
 ### ComposerAttachButton
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `onClick` | `() => void` | | Required for the button to render enabled; omitting it renders it disabled. |
+| `onClick` | `() => void` | | 按钮要呈现为启用状态必须提供；省略时按钮会呈现为禁用状态。 |
 
 ### ComposerSend
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `streaming` | `boolean` | required | Shows the stop icon and the ink fill. |
-| `idle` | `boolean` | required | Shows the ink fill when not streaming; a dim fill otherwise. |
+| `streaming` | `boolean` | 必填 | 显示停止图标和墨色填充。 |
+| `idle` | `boolean` | 必填 | 非流式传输时显示墨色填充；否则显示较暗的填充。 |
 
 </StandaloneMode>

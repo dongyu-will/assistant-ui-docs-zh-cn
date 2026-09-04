@@ -1,8 +1,8 @@
 ---
 title: "Dialog"
-description: "A modal sheet for decisions that need the page to wait."
+description: "用于需要页面等待用户做出决定的模态面板。"
 links:
-  - label: Source
+  - label: 官方原文
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/dialog.tsx
   - label: Base UI Dialog
     url: https://base-ui.com/react/components/dialog
@@ -22,11 +22,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.DialogSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="dialog" />
 
-## Usage
+## 使用
 
 ```tsx
 import {
@@ -60,9 +60,9 @@ export function Example() {
 }
 ```
 
-## API Reference
+## API 参考
 
-The parts wrap Base UI's Dialog primitives and accept their props.
+这些部件封装了 Base UI 的 Dialog 原语，并接受其 props。
 
 ### Dialog
 
@@ -72,28 +72,28 @@ The parts wrap Base UI's Dialog primitives and accept their props.
     {
       name: "open",
       type: "boolean",
-      description: "Controlled open state.",
+      description: "受控的打开状态。",
     },
     {
       name: "onOpenChange",
       type: "(open: boolean) => void",
-      description: "Called when the open state changes, including Escape and backdrop clicks.",
+      description: "打开状态发生变化时调用，包括按下 Escape 键和点击背景。",
     },
     {
       name: "defaultOpen",
       type: "boolean",
       default: "false",
-      description: "Uncontrolled initial open state.",
+      description: "非受控的初始打开状态。",
     },
   ]}
 />
 
-### Parts
+### 部件
 
-| Part | Description |
+| 部件 | 描述 |
 |------|-------------|
-| `DialogTrigger` | Opens the dialog; compose a control with `render`. |
-| `DialogContent` | The centered panel at the dialog radius. |
-| `DialogHeader` | Title and description stack. |
-| `DialogFooter` | Right-aligned action row. |
-| `DialogClose` | Wraps any control that should dismiss. |
+| `DialogTrigger` | 打开对话框；将控件与 `render` 组合使用。 |
+| `DialogContent` | 位于中央、采用对话框圆角的面板。 |
+| `DialogHeader` | 标题和描述的垂直堆叠区域。 |
+| `DialogFooter` | 右对齐的操作行。 |
+| `DialogClose` | 包装任何应关闭对话框的控件。 |

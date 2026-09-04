@@ -1,17 +1,17 @@
 ---
-title: Agent state
-description: Read and optimistically update graph state with useLangGraphState and useLangGraphSetState in LangGraph.
+title: Agent 状态
+description: 在 LangGraph 中使用 useLangGraphState 和 useLangGraphSetState 读取并乐观更新图状态。
 ---
 
-`useLangGraphState` mirrors the graph's values object that LangGraph streams to the client. It updates live while the agent runs (when the `values` stream mode is enabled). `useLangGraphSetState` lets you apply optimistic local updates that ride the next send.
+`useLangGraphState` 镜像 LangGraph 流式传输到客户端的图 values 对象。代理运行期间（启用 `values` 流式传输模式时），它会实时更新。`useLangGraphSetState` 允许你应用乐观的本地更新，并将其随下一次发送一并提交。
 
-## Enable the `values` stream mode
+## 启用 `values` 流式传输模式
 
 <Callout type="warn">
-The default stream setup does **not** include the `values` stream mode. Without it, `useLangGraphState` never receives live graph state.
+默认的流式传输设置**不**包含 `values` 流式传输模式。没有它，`useLangGraphState` 将永远无法接收实时图状态。
 </Callout>
 
-When you call `client.runs.stream` yourself, request `values` alongside the modes you already use:
+如果你自行调用 `client.runs.stream`，请在已有模式的基础上同时请求 `values`：
 
 ```ts
 client.runs.stream(threadId, assistantId, {
@@ -20,7 +20,7 @@ client.runs.stream(threadId, assistantId, {
 });
 ```
 
-If you use `unstable_createLangGraphStream`, its default stream modes do **not** include `values` either. Pass the option explicitly:
+如果你使用 `unstable_createLangGraphStream`，其默认流式传输模式也**不**包含 `values`。请显式传入该选项：
 
 ```ts
 const stream = unstable_createLangGraphStream({
@@ -30,7 +30,7 @@ const stream = unstable_createLangGraphStream({
 });
 ```
 
-## Basic usage
+## 基本用法
 
 ```tsx
 import {
@@ -54,9 +54,9 @@ const isRunning = useAuiState((s) => s.thread.isRunning);
 // isRunning: boolean                (whether the thread is currently running)
 ```
 
-## Example
+## 示例
 
-Render graph state beside the chat and stage an optimistic filter update:
+在聊天旁边渲染图状态，并暂存一个乐观的筛选器更新：
 
 ```tsx
 "use client";
@@ -116,15 +116,15 @@ export function CatalogAssistant() {
 }
 ```
 
-The panel tracks the latest `values` events from the graph. The button updates the local overlay immediately; that update object is merged into the run `input` on the next send so LangGraph applies it through the graph's state reducers and input schema.
+该面板会跟踪图发出的最新 `values` 事件。按钮会立即更新本地覆盖层；下一次发送时，该更新对象会合并到运行 `input` 中，以便 LangGraph 通过图的状态 reducer 和输入 schema 应用它。
 
-## How state is synced
+## 状态同步方式
 
-LangGraph state is the graph's values object. When `streamMode` includes `"values"`, each `values` event updates the client-side snapshot that `useLangGraphState` exposes.
+LangGraph 状态就是图的 values 对象。当 `streamMode` 包含 `"values"` 时，每个 `values` 事件都会更新客户端快照，而 `useLangGraphState` 会对外暴露该快照。
 
-The setter from `useLangGraphSetState` overlays that snapshot locally. On the next send, the runtime merges the update object into the run `input`, so LangGraph reduces it through the graph's state reducers and input schema.
+`useLangGraphSetState` 提供的 setter 会在本地覆盖该快照。下一次发送时，运行时会将更新对象合并到运行 `input` 中，因此 LangGraph 会通过图的状态 reducer 和输入 schema 对其进行归约。
 
-If you supply a custom `stream` callback, the staged update is available as `config.state`. Forward it into your run input yourself:
+如果你提供自定义的 `stream` 回调，暂存的更新可以通过 `config.state` 获取。请自行将它转发到运行输入中：
 
 ```ts
 const runtime = useLangGraphRuntime({
@@ -144,38 +144,38 @@ const runtime = useLangGraphRuntime({
 });
 ```
 
-The built-in path that uses the package helpers performs this merge for you. Custom `stream` callbacks must do it explicitly.
+使用包辅助函数的内置路径会替你执行此合并。自定义 `stream` 回调必须显式执行合并。
 
-## Write-back timing
+## 写回时机
 
-`useLangGraphSetState` is optimistic and local first. The value reaches the agent only when the next run starts. It is not a live channel into a run that is already in progress. Stage filters, preferences, or other graph fields that the next turn should apply through reducers; do not expect an in-flight run to observe mid-run setter calls.
+`useLangGraphSetState` 首先是乐观的本地更新。只有在下一次运行开始时，该值才会到达代理。它不是通往已经在运行中的运行的实时通道。请暂存筛选器、偏好设置或其他图字段，让下一轮通过 reducer 应用；不要期待正在运行的任务观察到运行中途的 setter 调用。
 
-## Relationship to other state
+## 与其他状态的关系
 
-Keep the three state layers distinct:
+请区分以下三个状态层：
 
-- **Your app state** stays yours (React state, URL, a store). assistant-ui does not own it.
-- **`useAuiState`** reads assistant-ui's client state (messages, composer, thread status).
-- **`useLangGraphState` / `useLangGraphSetState`** mirror state the **agent** (your LangGraph graph) owns, synced over the wire via `values` events.
+- **你的应用状态**仍归你所有（React 状态、URL、状态存储）。assistant-ui 不会管理它。
+- **`useAuiState`** 读取 assistant-ui 的客户端状态（消息、输入框、线程状态）。
+- **`useLangGraphState` / `useLangGraphSetState`** 镜像由**代理**（你的 LangGraph 图）所拥有的状态，并通过 `values` 事件在线路上传输并同步。
 
-Use `useLangGraphState` and `useLangGraphSetState` for fields that live in the graph state schema. Use `useAuiState` for UI that depends on the chat thread itself. Use your own state for everything else.
+对于位于图状态 schema 中的字段，请使用 `useLangGraphState` 和 `useLangGraphSetState`。对于依赖聊天线程本身的 UI，请使用 `useAuiState`。其他所有内容都使用你自己的状态。
 
-## Next
+## 接下来
 
 <Cards>
   <Card
-    title="Streaming"
-    description="Event handlers, message metadata, generative UI."
+    title="流式传输"
+    description="事件处理器、消息元数据和生成式 UI。"
     href="/docs/runtimes/langgraph/streaming"
   />
   <Card
-    title="Quickstart"
-    description="From-template and manual setup paths."
+    title="快速入门"
+    description="基于模板和手动设置的路径。"
     href="/docs/runtimes/langgraph/quickstart"
   />
   <Card
-    title="Generative UI"
-    description="Structured UI components emitted by your graph."
+    title="生成式 UI"
+    description="由你的图发出的结构化 UI 组件。"
     href="/docs/runtimes/langgraph/generative-ui"
   />
 </Cards>

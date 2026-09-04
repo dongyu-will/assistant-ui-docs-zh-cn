@@ -1,20 +1,20 @@
 ---
 title: "Canvas"
-description: "The thread steps aside and the document takes the room, still being written as you read."
+description: "线程退到一旁，让文档占据空间，并在你阅读时持续编写。"
 ---
 
-A canvas split sets a document beside the thread instead of inside it: the conversation narrows to a rail on one side, the document takes the rest of the room, and it keeps growing while you read. assistant-ui has no dedicated canvas or artifact primitive, so with a runtime this is composed from the same tool-call rendering every structured answer uses; standalone you hand the document's text and state to the pieces directly.
+Canvas 分栏会将文档放在 thread 旁边，而不是其中：对话在一侧收窄为消息栏，文档占据其余空间，并在你阅读时持续增长。assistant-ui 没有专用的 canvas 或 artifact 原语，因此在运行时中，这种模式由所有结构化回答都使用的相同工具调用渲染组成；单独使用时，则直接将文档的文本和状态传递给各个组件。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
 <Steps>
   <Step>
 
-### Render the document from a tool call
+### 从工具调用渲染文档
 
-A tool whose result is the document, its arguments streaming in as the model writes it, is what the still-being-written half of this pattern is built on. Register a renderer for it through `MessagePrimitive.Parts`:
+一个以文档作为结果的工具，其参数会随着模型编写文档而流式传输，这正是此模式中“持续编写”部分的基础。通过 `MessagePrimitive.Parts` 为它注册渲染器：
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 "use client";
@@ -43,14 +43,14 @@ function DocumentTool({ args, status }: ToolCallMessagePartProps<DocArgs>) {
 <MessagePrimitive.Parts components={{ tools: { by_name: { write_document: DocumentTool } } }} />
 ```
 
-`args` is a partial parse while the model is still streaming its call, fields can be missing or incomplete, so `useToolArgsStatus` is what tells you `content` specifically is still arriving rather than just checking the call's overall `status`.
+模型仍在流式传输工具调用时，`args` 是一个不完整的解析结果，字段可能缺失或不完整，因此 `useToolArgsStatus` 会告诉你 `content` 是否仍在传输，而不是只检查整个调用的 `status`。
 
   </Step>
   <Step>
 
-### Give the thread its own lane
+### 为 thread 分配独立区域
 
-The conversation half is an ordinary, narrower thread: the same `ThreadPrimitive.Viewport` and `.Messages`, styled with `CanvasSplitThread` and `CanvasSplitMessage` instead of a full-width layout:
+对话部分是一个普通但更窄的 thread：使用相同的 `ThreadPrimitive.Viewport` 和 `.Messages`，通过 `CanvasSplitThread` 和 `CanvasSplitMessage` 设置样式，而不是使用全宽布局：
 
 ```tsx
 <CanvasSplit>
@@ -76,12 +76,12 @@ The conversation half is an ordinary, narrower thread: the same `ThreadPrimitive
 
 <StandaloneMode>
 
-Standalone, the thread half and the document half are both yours to drive; nothing ties them together beyond sharing one `CanvasSplit` row.
+单独使用时，thread 部分和文档部分都由你驱动；除了共享同一个 `CanvasSplit` 行之外，它们之间没有其他关联。
 
 <Steps>
   <Step>
 
-### Lay out the two halves
+### 布局两个部分
 
 ```tsx title="app/canvas.tsx"
 "use client";
@@ -118,9 +118,9 @@ export function Canvas() {
   </Step>
   <Step>
 
-### Show it still being written
+### 显示持续编写状态
 
-Toggle `writing` while your own generation is in progress; the caret appends after whatever lines you've already rendered:
+在你自己的生成过程中切换 `writing`；插入符会追加到已经渲染的行之后：
 
 ```tsx
 <CanvasSplitBody writing={isGenerating}>
@@ -135,7 +135,7 @@ Toggle `writing` while your own generation is in progress; the caret appends aft
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="canvas-split">
@@ -147,11 +147,11 @@ Toggle `writing` while your own generation is in progress; the caret appends aft
 </div>
 ```
 
-Below `md`, the thread and the document stack vertically instead of splitting side by side; at `md` and up the layout becomes a row. `CanvasSplitHeader`'s copy and close buttons both disable themselves the same way `ChatPanelComposer`'s send button does, whenever `onCopy` or `onClose` is left `undefined`. `CanvasSplitBody`'s blinking caret is purely presentational: it renders whenever `writing` is true, appended after whatever `children` you pass, so it always trails the last line.
+在 `md` 以下，thread 和文档会垂直堆叠，而不是并排分栏；在 `md` 及以上时，布局会变为横向排列。无论 `onCopy` 还是 `onClose` 被置为 `undefined`，`CanvasSplitHeader` 的复制和关闭按钮都会像 `ChatPanelComposer` 的发送按钮一样自动禁用。`CanvasSplitBody` 的闪烁插入符纯粹用于展示：只要 `writing` 为 true 就会渲染，并追加到你传入的 `children` 之后，因此始终位于最后一行的末尾。
 
-## Examples
+## 示例
 
-### Copy and close
+### 复制和关闭
 
 ```tsx
 <CanvasSplitHeader
@@ -163,57 +163,57 @@ Below `md`, the thread and the document stack vertically instead of splitting si
 />
 ```
 
-Leaving `onCopy` or `onClose` out disables that button instead of hiding it, so the header's width stays stable whether or not either action is available.
+省略 `onCopy` 或 `onClose` 会禁用对应按钮，而不是将其隐藏，这样无论某个操作是否可用，标题栏的宽度都能保持稳定。
 
-### A document with no tool call
+### 不使用工具调用的文档
 
 <StandaloneMode>
 
-The document half never has to come from a tool: any state your app already tracks, a note being edited, a file being generated another way, can feed `CanvasSplitBody` directly, as in the layout above.
+文档部分不一定要来自工具：应用已经跟踪的任何状态、正在编辑的笔记，或通过其他方式生成的文件，都可以像上面的布局一样直接传给 `CanvasSplitBody`。
 
 </StandaloneMode>
 
 <RuntimeMode>
 
-The same is true with a runtime: `CanvasSplitDocument` and its children are plain components, so a document backed by application state instead of a tool call still composes with them exactly like the tool-call renderer above.
+运行时也是如此：`CanvasSplitDocument` 及其子组件都是普通组件，因此由应用状态而不是工具调用支持的文档，仍然可以像上面的工具调用渲染器一样与它们组合使用。
 
 </RuntimeMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Primitive parts
+### 原语部分
 
-| Part | Renders | Notes |
+| 部分 | 渲染内容 | 说明 |
 |------|---------|-------|
-| `MessagePrimitive.Parts` | children | `components.tools.by_name[toolName]` registers a renderer for that tool's calls. |
-| `ThreadPrimitive.Viewport` / `.Messages` | `div` / children | The thread rail; the same primitives as any other thread, just narrower. |
+| `MessagePrimitive.Parts` | children | `components.tools.by_name[toolName]` 会为该工具的调用注册渲染器。 |
+| `ThreadPrimitive.Viewport` / `.Messages` | `div` / children | thread 消息栏；与其他 thread 使用相同的原语，只是更窄。 |
 
-### Tool call part
+### 工具调用部分
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `args` | `TArgs` (partial while streaming) | The model's arguments so far. |
-| `status.type` | `"running" \| "complete" \| "incomplete"` | The call's own lifecycle, not per field. |
-| `useToolArgsStatus().propStatus` | `Partial<Record<keyof TArgs, "streaming" \| "complete">>` | Per-argument streaming state; call from inside the tool renderer. |
+| `args` | `TArgs`（流式传输期间为部分内容） | 模型目前已经生成的参数。 |
+| `status.type` | `"running" \| "complete" \| "incomplete"` | 调用自身的生命周期，而不是每个字段的生命周期。 |
+| `useToolArgsStatus().propStatus` | `Partial<Record<keyof TArgs, "streaming" \| "complete">>` | 每个参数的流式传输状态；在工具渲染器内部调用。 |
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-### CanvasSplit family
+### CanvasSplit 系列
 
-| Part | Renders | Props | Description |
+| 部分 | 渲染内容 | Props | 描述 |
 |------|---------|-------|-------------|
-| `CanvasSplit` | `div` | `className` | Root; stacks below `md`, splits row-wise at `md` and up. |
-| `CanvasSplitThread` | `div` | `className` | The narrow message rail. |
-| `CanvasSplitMessage` | `div` | `speaker: "user" \| "assistant"`, `className` | Right-aligned bubble for `"user"`, plain text for `"assistant"`. |
-| `CanvasSplitDocument` | `div` | `className` | The document column. |
-| `CanvasSplitHeader` | `div` | `title: string`, `version: number`, `saved: boolean`, `onCopy?`, `onClose?`, `className` | Copy and close buttons disable without their handler. |
-| `CanvasSplitBody` | `div` | `writing?: boolean`, `className` | Appends a blinking caret after `children` while `writing`. |
-| `CanvasSplitLine` | `p` | `heading?: boolean`, `className` | `heading` renders bolder, full-opacity text. |
+| `CanvasSplit` | `div` | `className` | 根部件；在 `md` 以下堆叠，在 `md` 及以上按行分栏。 |
+| `CanvasSplitThread` | `div` | `className` | 窄消息栏。 |
+| `CanvasSplitMessage` | `div` | `speaker: "user" \| "assistant"`、`className` | `"user"` 使用右对齐气泡，`"assistant"` 使用纯文本。 |
+| `CanvasSplitDocument` | `div` | `className` | 文档列。 |
+| `CanvasSplitHeader` | `div` | `title: string`、`version: number`、`saved: boolean`、`onCopy?`、`onClose?`、`className` | 没有对应处理器时，复制和关闭按钮会被禁用。 |
+| `CanvasSplitBody` | `div` | `writing?: boolean`、`className` | 在 `writing` 期间，将闪烁插入符追加到 `children` 之后。 |
+| `CanvasSplitLine` | `p` | `heading?: boolean`、`className` | `heading` 会渲染更粗且完全不透明的文本。 |
 
-All other props for each part forward to its root element.
+每个部分的其他 Props 都会转发到其根元素。
 
 </StandaloneMode>

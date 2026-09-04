@@ -1,9 +1,9 @@
 ---
-title: Meta
-description: Track scope origin with source and query.
+title: 元数据
+description: 通过 source 和 query 跟踪作用域来源。
 ---
 
-Every scope accessor has three metadata properties: `source` and `query` describe where a scope comes from, and `name` is the scope's own name. They are reserved — scope methods cannot use these names.
+每个作用域访问器都有三个元数据属性：`source` 和 `query` 描述作用域的来源，`name` 是作用域自身的名称。它们是保留名称——作用域方法不能使用这些名称。
 
 ```tsx
 aui.thread.source; // "root" | "parentScope" | null
@@ -11,9 +11,9 @@ aui.thread.query; // {} | { index: 0 } | null
 aui.thread.name; // "thread"
 ```
 
-## Root scopes
+## 根作用域
 
-When you fill a scope directly via a provider's `AuiConfig({ ... })`, it gets `source: "root"` and an empty `query`:
+当你通过 provider 的 `AuiConfig({ ... })` 直接填充作用域时，它会获得 `source: "root"` 和一个空的 `query`：
 
 ```tsx
 const config = AuiConfig({ thread: ThreadResource() });
@@ -24,11 +24,11 @@ aui.thread.source; // "root"
 aui.thread.query; // {}
 ```
 
-This is the default — the scope was provided directly, not derived from another scope.
+这是默认情况——该作用域是直接提供的，而不是从其他作用域派生而来。
 
-## Derived scopes
+## 派生作用域
 
-When a scope is created via `Derived`, its `source` points to the parent scope it was derived from, and `query` carries the lookup parameters:
+当通过 `Derived` 创建作用域时，其 `source` 会指向派生它的父作用域，而 `query` 则携带查找参数：
 
 ```tsx
 const aui = useAui();
@@ -46,7 +46,7 @@ aui.message.source; // "thread"
 aui.message.query; // { index: 0 }
 ```
 
-You can declare the expected meta shape in `ScopeRegistry`:
+你可以在 `ScopeRegistry` 中声明预期的元数据结构：
 
 ```ts
 declare module "@assistant-ui/store" {
@@ -61,11 +61,11 @@ declare module "@assistant-ui/store" {
 }
 ```
 
-This makes the `source` and `query` types precise — TypeScript will enforce that any `Derived` providing the `message` scope uses the correct source and query shape.
+这样可以明确 `source` 和 `query` 的类型——TypeScript 会强制要求，任何提供 `message` 作用域的 `Derived` 都必须使用正确的 source 和 query 结构。
 
-## Unavailable scopes
+## 不可用的作用域
 
-When a scope hasn't been provided by any `AuiProvider` above the current component, its accessor has `source: null` and `query: null`. `name` still answers; calling the accessor or reading any other property throws:
+当当前组件上方没有任何 `AuiProvider` 提供某个作用域时，其访问器的 `source: null` 和 `query: null`。`name` 仍会响应；调用该访问器或读取任何其他属性都会抛出异常：
 
 ```tsx
 aui.message.source; // null — no message scope in context
@@ -74,7 +74,7 @@ aui.message.name; // "message"
 aui.message.getState(); // throws
 ```
 
-The accessor itself is always truthy, so `if (aui.message)` does not tell you anything. Check availability through the `optional` view, which resolves an unavailable scope to `undefined`:
+访问器本身始终为真值，因此 `if (aui.message)` 无法提供任何信息。请通过 `optional` 视图检查可用性；对于不可用的作用域，它会解析为 `undefined`：
 
 ```tsx
 if (aui.optional.message) {
@@ -82,10 +82,10 @@ if (aui.optional.message) {
 }
 ```
 
-## Summary
+## 总结
 
-| `source` | Meaning |
+| `source` | 含义 |
 | --- | --- |
-| `"root"` | Scope was filled directly via `AuiConfig({ ... })` |
-| `"parentScope"` | Scope was derived from another scope via `Derived` |
-| `null` | Scope is not available in the current context |
+| `"root"` | 作用域通过 `AuiConfig({ ... })` 直接填充 |
+| `"parentScope"` | 作用域通过 `Derived` 从其他作用域派生而来 |
+| `null` | 作用域在当前上下文中不可用 |

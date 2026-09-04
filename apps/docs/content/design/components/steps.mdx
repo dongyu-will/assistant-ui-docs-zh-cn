@@ -1,8 +1,8 @@
 ---
-title: "Steps"
-description: "A numbered rail for processes that happen in order."
+title: "步骤"
+description: "用于按顺序执行的流程的编号轨道。"
 links:
-  - label: Source
+  - label: 来源
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/steps.tsx
 ---
 
@@ -18,11 +18,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.StepsSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="steps" />
 
-## Usage
+## 使用
 
 ```tsx
 import { Step, Steps } from "@/components/ui/steps";
@@ -38,14 +38,14 @@ export function Example() {
 }
 ```
 
-The numbers come from a CSS counter, so steps renumber themselves when one is added or removed.
+这些数字来自 CSS 计数器，因此添加或移除步骤时，步骤会自动重新编号。
 
-## API Reference
+## API 参考
 
 ### Steps
 
-The container; resets the counter. Accepts `div` props.
+容器组件；重置计数器。接受 `div` props。
 
 ### Step
 
-One entry on the rail; increments the counter and draws the connecting line to the next step. Accepts `div` props.
+轨道上的一个条目；递增计数器，并绘制连接到下一步骤的线。接受 `div` props。

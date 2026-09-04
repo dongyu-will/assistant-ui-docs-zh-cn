@@ -1,15 +1,15 @@
 ---
-title: API reference
-description: createAdkStream, server helpers, session adapter, threads, message editing.
+title: API 参考
+description: createAdkStream、服务器辅助函数、会话适配器、线程、消息编辑。
 ---
 
-Reference for the runtime's wire-up surface. Start with [quickstart](/docs/runtimes/google-adk/quickstart) if you have not already.
+运行时连接层的参考文档。如果你还没有阅读，请先从 [快速入门](/docs/runtimes/google-adk/quickstart) 开始。
 
 ## createAdkStream
 
-Creates an `AdkStreamCallback` that connects to an ADK endpoint via SSE. Supports two modes.
+创建一个通过 SSE 连接到 ADK 端点的 `AdkStreamCallback`。支持两种模式。
 
-**proxy mode** — POST to your own API route:
+**代理模式** — POST 到你自己的 API 路由：
 
 ```ts
 import { createAdkStream } from "@assistant-ui/react-google-adk";
@@ -17,7 +17,7 @@ import { createAdkStream } from "@assistant-ui/react-google-adk";
 const stream = createAdkStream({ api: "/api/chat" });
 ```
 
-**direct mode** — connect directly to an ADK server:
+**直连模式** — 直接连接到 ADK 服务器：
 
 ```ts
 const stream = createAdkStream({
@@ -27,16 +27,16 @@ const stream = createAdkStream({
 });
 ```
 
-| Option | Type | Description |
+| 选项 | 类型 | 描述 |
 | --- | --- | --- |
-| `api` | `string` | URL to POST to (proxy route or ADK server base URL). |
-| `appName` | `string?` | ADK app name (enables direct mode when set). |
-| `userId` | `string?` | ADK user ID (required with `appName`). |
-| `headers` | `Record<string, string>` or `() => ...` | Static or dynamic request headers. |
+| `api` | `string` | 要 POST 到的 URL（代理路由或 ADK 服务器基础 URL）。 |
+| `appName` | `string?` | ADK 应用名称（设置后启用直连模式）。 |
+| `userId` | `string?` | ADK 用户 ID（与 `appName` 一起使用时必需）。 |
+| `headers` | `Record<string, string>` 或 `() => ...` | 静态或动态请求标头。 |
 
-## Direct ADK server connection
+## 直连 ADK 服务器
 
-When connecting directly to an ADK server (without a proxy API route), use `createAdkSessionAdapter` to back your thread list with ADK sessions:
+直接连接 ADK 服务器时（不使用代理 API 路由），使用 `createAdkSessionAdapter`，通过 ADK 会话支持线程列表：
 
 ```tsx
 import {
@@ -64,22 +64,22 @@ const runtime = useAdkRuntime({
 });
 ```
 
-The session adapter maps ADK sessions to assistant-ui threads:
+会话适配器会将 ADK 会话映射到 assistant-ui 线程：
 
-- **`adapter`** is a `RemoteThreadListAdapter` that uses ADK's session REST API for thread CRUD.
-- **`load`** reconstructs messages from session events via `AdkEventAccumulator`.
-- **`artifacts`** are functions to fetch, list, and delete session artifacts (see [hooks → artifacts](/docs/runtimes/google-adk/hooks#artifacts)).
+- **`adapter`** 是一个 `RemoteThreadListAdapter`，使用 ADK 的会话 REST API 执行线程的增删改查。
+- **`load`** 通过 `AdkEventAccumulator` 从会话事件中重建消息。
+- **`artifacts`** 是用于获取、列出和删除会话构件的函数（参见 [钩子 → 构件](/docs/runtimes/google-adk/hooks#artifacts)）。
 
-| Option | Type | Description |
+| 选项 | 类型 | 描述 |
 | --- | --- | --- |
-| `apiUrl` | `string` | ADK server base URL. |
-| `appName` | `string` | ADK app name. |
-| `userId` | `string` | ADK user ID. |
-| `headers` | `Record<string, string>` or `() => ...` | Static or dynamic request headers. |
+| `apiUrl` | `string` | ADK 服务器基础 URL。 |
+| `appName` | `string` | ADK 应用名称。 |
+| `userId` | `string` | ADK 用户 ID。 |
+| `headers` | `Record<string, string>` 或 `() => ...` | 静态或动态请求标头。 |
 
-## Server helpers
+## 服务器辅助函数
 
-Server helpers live under the `/server` subpath:
+服务器辅助函数位于 `/server` 子路径下：
 
 ```ts
 import {
@@ -92,7 +92,7 @@ import {
 
 ### createAdkApiRoute
 
-One-liner API route handler that combines request parsing and SSE streaming:
+将请求解析和 SSE 流式传输结合起来的单行 API 路由处理器：
 
 ```ts
 export const POST = createAdkApiRoute({
@@ -103,20 +103,20 @@ export const POST = createAdkApiRoute({
 });
 ```
 
-Both `userId` and `sessionId` accept a static string or a function `(req: Request) => string` for dynamic resolution.
+`userId` 和 `sessionId` 都接受静态字符串或函数 `(req: Request) => string`，用于动态解析。
 
 ### adkEventStream
 
-Converts an `AsyncGenerator<Event>` from ADK's `Runner.runAsync()` into an SSE `Response`. Sends an initial `:ok` comment to keep connections alive through proxies.
+将来自 ADK `Runner.runAsync()` 的 `AsyncGenerator<Event>` 转换为 SSE `Response`。发送初始 `:ok` 注释，以便连接通过代理保持活动状态。
 
 ```ts
 const events = runner.runAsync({ userId, sessionId, newMessage });
 return adkEventStream(events);
 ```
 
-### parseAdkRequest and toAdkContent
+### parseAdkRequest 和 toAdkContent
 
-Lower-level helpers for custom API routes. `parseAdkRequest` parses incoming requests; `toAdkContent` converts to ADK's `Content` format. Supports user messages, tool results, `stateDelta`, `checkpointId`, and multimodal content:
+用于自定义 API 路由的底层辅助函数。`parseAdkRequest` 解析传入请求；`toAdkContent` 将其转换为 ADK 的 `Content` 格式。支持用户消息、工具结果、`stateDelta`、`checkpointId` 和多模态内容：
 
 ```ts
 const parsed = await parseAdkRequest(req);
@@ -134,15 +134,15 @@ const events = runner.runAsync({
 return adkEventStream(events);
 ```
 
-## Thread management
+## 线程管理
 
-Three options, picked by what you want to own. See [threads](/docs/runtimes/concepts/threads) for the general model.
+有三种选项，具体取决于你希望负责哪一部分。有关通用模型，请参阅 [线程](/docs/runtimes/concepts/threads)。
 
-### ADK session adapter
+### ADK 会话适配器
 
-Use `createAdkSessionAdapter` to persist threads via ADK's session API; see [Direct ADK server connection](#direct-adk-server-connection) above.
+使用 `createAdkSessionAdapter` 通过 ADK 的会话 API 持久化线程；参见上面的[直连 ADK 服务器](#direct-adk-server-connection)。
 
-### Custom thread management
+### 自定义线程管理
 
 ```ts
 const runtime = useAdkRuntime({
@@ -161,9 +161,9 @@ const runtime = useAdkRuntime({
 });
 ```
 
-### Cloud persistence
+### 云端持久化
 
-For persistent thread history via assistant-cloud, pass a `cloud` instance:
+如需通过 assistant-cloud 持久化线程历史记录，请传入一个 `cloud` 实例：
 
 ```ts
 const runtime = useAdkRuntime({
@@ -172,9 +172,9 @@ const runtime = useAdkRuntime({
 });
 ```
 
-## Message editing and regeneration
+## 消息编辑和重新生成
 
-Provide a `getCheckpointId` callback to enable edit and regenerate buttons:
+提供 `getCheckpointId` 回调，以启用编辑和重新生成按钮：
 
 ```ts
 const runtime = useAdkRuntime({
@@ -186,20 +186,20 @@ const runtime = useAdkRuntime({
 });
 ```
 
-When `getCheckpointId` is provided:
+提供 `getCheckpointId` 后：
 
-- **Edit buttons** appear on user messages.
-- **Regenerate buttons** appear on assistant messages.
+- **编辑按钮**会显示在用户消息上。
+- **重新生成按钮**会显示在助手消息上。
 
-The resolved `checkpointId` is passed to your `stream` callback via `config.checkpointId`.
+解析后的 `checkpointId` 会通过 `config.checkpointId` 传递给你的 `stream` 回调。
 
 <Callout type="info">
-Without `getCheckpointId`, edit and regenerate buttons will not appear. This is intentional; truncating client-side messages without forking from the correct server-side checkpoint would produce incorrect state.
+如果没有 `getCheckpointId`，编辑和重新生成按钮不会显示。这是有意为之；如果不从正确的服务器端检查点分叉，就在客户端截断消息会产生错误状态。
 </Callout>
 
-## Event handlers
+## 事件处理器
 
-Listen to streaming events:
+监听流式传输事件：
 
 ```ts
 const runtime = useAdkRuntime({
@@ -219,9 +219,9 @@ const runtime = useAdkRuntime({
 });
 ```
 
-## RunConfig and stateDelta
+## RunConfig 和 stateDelta
 
-Pass `AdkRunConfig` to control agent behavior, and `stateDelta` to mutate session state along with messages:
+传入 `AdkRunConfig` 以控制代理行为，并传入 `stateDelta`，以便与消息一同修改会话状态：
 
 ```ts
 import { useAdkSend } from "@assistant-ui/react-google-adk";
@@ -238,19 +238,19 @@ send(messages, {
 });
 ```
 
-`stateDelta` maps to ADK's `stateDelta` parameter on `/run_sse`.
+`stateDelta` 映射到 `/run_sse` 上 ADK 的 `stateDelta` 参数。
 
-## Next
+## 下一步
 
 <Cards>
   <Card
-    title="Hooks"
-    description="Tool confirmations, auth, input requests, artifacts, escalation, metadata."
+    title="钩子"
+    description="工具确认、身份验证、输入请求、构件、升级、元数据。"
     href="/docs/runtimes/google-adk/hooks"
   />
   <Card
-    title="Threads"
-    description="General model for multi-thread support across runtimes."
+    title="线程"
+    description="跨运行时支持多线程的通用模型。"
     href="/docs/runtimes/concepts/threads"
   />
 </Cards>

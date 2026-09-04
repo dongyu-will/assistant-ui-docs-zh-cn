@@ -1,8 +1,8 @@
 ---
-title: "Command Tabs"
-description: "One command in several dialects, with synced tabs and a copy button."
+title: "命令选项卡"
+description: "同一条命令的多种形式，带同步选项卡和复制按钮。"
 links:
-  - label: Source
+  - label: 官方原文
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/command-tabs.tsx
 ---
 
@@ -21,11 +21,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.CommandTabsSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="command-tabs" />
 
-## Usage
+## 用法
 
 ```tsx
 import { CommandTabs } from "@/components/ui/command-tabs";
@@ -43,19 +43,19 @@ export function Example() {
 }
 ```
 
-The command renders as Shiki-highlighted Bash; the copy button always copies the active dialect.
+该命令会以 Shiki 高亮的 Bash 形式渲染；复制按钮始终复制当前形式。
 
-## Examples
+## 示例
 
-### Synced instances
+### 同步实例
 
-Two blocks sharing a `storageKey` switch together, and the choice survives reloads. Every install command on this site shares one key.
+共享 `storageKey` 的两个代码块会一起切换，且选择会在重新加载后保留。本网站上的每条安装命令都共享同一个键。
 
 <PreviewCode file="components/pages/design/specimens" name="CommandTabsSyncSpecimen" base={<CommandTabsSyncSpecimen />}>
   <RadixSpecimens.CommandTabsSyncSpecimen />
 </PreviewCode>
 
-## API Reference
+## API 参考
 
 ### CommandTabs
 
@@ -66,22 +66,22 @@ Two blocks sharing a `storageKey` switch together, and the choice survives reloa
       name: "commands",
       type: "Record<string, string>",
       required: true,
-      description: "Tab label to command line, in display order.",
+      description: "选项卡标签到命令行的映射，按显示顺序排列。",
     },
     {
       name: "storageKey",
       type: "string",
-      description: "Persists the selected tab in localStorage and keeps every instance with the same key in sync.",
+      description: "将选中的选项卡持久化到 localStorage，并使具有相同键的所有实例保持同步。",
     },
     {
       name: "onValueChange",
       type: "(value: string) => void",
-      description: "Called when the user picks a tab.",
+      description: "用户选择选项卡时调用。",
     },
     {
       name: "className",
       type: "string",
-      description: "Additional CSS classes on the outer figure.",
+      description: "外层 figure 的附加 CSS 类。",
     },
   ]}
 />

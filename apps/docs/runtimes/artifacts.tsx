@@ -1,9 +1,11 @@
 "use client";
 
-import { type ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 import {
   AssistantRuntimeProvider,
+  CloudFileAttachmentAdapter,
   ModelContextClient as ModelContext,
+  SimpleImageAttachmentAdapter,
   Tools,
   useAui,
   type Toolkit,
@@ -44,9 +46,18 @@ export function ArtifactsRuntimeProvider({
   children: ReactNode;
 }) {
   const cloud = useAnonymousCloud();
-  const adapters = useSpeechAdapters({ dictation: true });
+  const speech = useSpeechAdapters({ dictation: true });
+  const adapters = useMemo(
+    () => ({
+      ...speech,
+      attachments: cloud
+        ? new CloudFileAttachmentAdapter(cloud)
+        : new SimpleImageAttachmentAdapter(),
+    }),
+    [cloud, speech],
+  );
   const runtime = useDocsChatRuntime({
-    cloud,
+    ...(cloud ? { cloud } : {}),
     adapters,
     sendAutomatically: true,
   });

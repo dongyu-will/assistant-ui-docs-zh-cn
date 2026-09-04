@@ -1,20 +1,20 @@
 ---
-title: Text-to-Speech for Chat
-description: Read AI chat messages aloud with the Web Speech API or a custom TTS adapter. Speech synthesis for React chat UIs, integrated with assistant-ui.
+title: 聊天文本转语音
+description: 使用 Web Speech API 或自定义 TTS 适配器朗读 AI 聊天消息。为 React 聊天 UI 提供语音合成功能，并与 assistant-ui 集成。
 platforms: ["react"]
 ---
 
 import { SpeechSample } from "@/components/pages/docs/samples/speech";
 
-assistant-ui supports text-to-speech via the `SpeechSynthesisAdapter` interface. When a speech adapter is configured, users can trigger playback for any assistant message.
+assistant-ui 通过 `SpeechSynthesisAdapter` 接口支持文本转语音。配置语音适配器后，用户可以触发任意助手消息的播放。
 
-Speech is the read-aloud mode: one message at a time, text to audio. For a live duplex conversation, see [Realtime Voice](/docs/guides/voice). For push-to-talk input into the composer, see [Dictation](/docs/guides/dictation).
+Speech 是朗读模式：一次朗读一条消息，将文本转换为音频。如需实时双工对话，请参阅 [Realtime Voice](/docs/guides/voice)。如需通过按住说话将语音输入到输入框，请参阅 [Dictation](/docs/guides/dictation)。
 
 <SpeechSample />
 
 ## SpeechSynthesisAdapter
 
-The adapter has a single method. The type lives in `@assistant-ui/core` and is re-exported from `@assistant-ui/react`:
+该适配器只有一个方法。其类型定义位于 `@assistant-ui/core`，并从 `@assistant-ui/react` 重新导出：
 
 ```tsx
 import type { SpeechSynthesisAdapter } from "@assistant-ui/react";
@@ -24,7 +24,7 @@ type SpeechSynthesisAdapter = {
 };
 ```
 
-`speak` receives the plain text of an assistant message and returns an `Utterance`:
+`speak` 接收助手消息的纯文本，并返回一个 `Utterance`：
 
 ```tsx
 namespace SpeechSynthesisAdapter {
@@ -46,7 +46,7 @@ namespace SpeechSynthesisAdapter {
 
 ## WebSpeechSynthesisAdapter
 
-The built-in adapter uses the browser's Web Speech API (`SpeechSynthesis` / `SpeechSynthesisUtterance`):
+内置适配器使用浏览器的 Web Speech API（`SpeechSynthesis` / `SpeechSynthesisUtterance`）：
 
 ```tsx
 import { WebSpeechSynthesisAdapter } from "@assistant-ui/react";
@@ -58,11 +58,11 @@ const runtime = useChatRuntime({
 });
 ```
 
-When a speech adapter is provided, `capabilities.speech` is set to `true` automatically.
+提供语音适配器后，`capabilities.speech` 会自动设置为 `true`。
 
-## UI: ActionBarPrimitive.Speak
+## UI：ActionBarPrimitive.Speak
 
-The default action bar does not include a speech button. Add `ActionBarPrimitive.Speak` and `ActionBarPrimitive.StopSpeaking` to your assistant message action bar:
+默认操作栏不包含语音按钮。将 `ActionBarPrimitive.Speak` 和 `ActionBarPrimitive.StopSpeaking` 添加到助手消息操作栏中：
 
 ```tsx
 import { ActionBarPrimitive, AuiIf } from "@assistant-ui/react";
@@ -87,11 +87,11 @@ const AssistantActionBar = () => {
 };
 ```
 
-`ActionBarPrimitive.Speak` is disabled when no speech adapter is configured. While playback is active, `message.speech` holds the current speech state so the UI can switch to `StopSpeaking`.
+未配置语音适配器时，`ActionBarPrimitive.Speak` 会被禁用。播放过程中，`message.speech` 保存当前语音状态，因此 UI 可以切换为 `StopSpeaking`。
 
-## Custom adapters
+## 自定义适配器
 
-Implement `SpeechSynthesisAdapter` to call any external TTS provider. Fetch audio from your API, play it with `HTMLAudioElement`, and drive utterance status through `subscribe`:
+实现 `SpeechSynthesisAdapter`，即可调用任意外部 TTS 提供商。从 API 获取音频，使用 `HTMLAudioElement` 播放，并通过 `subscribe` 驱动语音状态：
 
 ```tsx title="lib/custom-tts-adapter.ts"
 import type { SpeechSynthesisAdapter } from "@assistant-ui/react";
@@ -151,7 +151,7 @@ export class CustomTTSAdapter implements SpeechSynthesisAdapter {
 }
 ```
 
-Wire it on the same `adapters.speech` slot as the built-in adapter:
+将其配置到与内置适配器相同的 `adapters.speech` 插槽：
 
 ```tsx
 import { CustomTTSAdapter } from "@/lib/custom-tts-adapter";
@@ -163,10 +163,10 @@ const runtime = useChatRuntime({
 });
 ```
 
-Use this shape for any provider TTS (OpenAI, ElevenLabs, cloud speech APIs, and so on). Keep the server route responsible for API keys; the adapter only needs a URL that returns audio bytes.
+任何提供商的 TTS 都可以采用这种形式（例如 OpenAI、ElevenLabs、云语音 API 等）。请让服务器路由负责管理 API 密钥；适配器只需要一个返回音频字节的 URL。
 
-## Related guides
+## 相关指南
 
-- [Realtime Voice](/docs/guides/voice): duplex voice sessions with `RealtimeVoiceAdapter`, `createVoiceSession`, and the voice UI component.
-- [Dictation](/docs/guides/dictation): speech-to-text into the composer with `DictationAdapter` and `ComposerPrimitive.Dictate`.
-- [Speech and Dictation API reference](/docs/api-reference/voice/speech-dictation): generated type docs.
+- [Realtime Voice](/docs/guides/voice)：使用 `RealtimeVoiceAdapter`、`createVoiceSession` 和语音 UI 组件实现双工语音会话。
+- [Dictation](/docs/guides/dictation)：使用 `DictationAdapter` 和 `ComposerPrimitive.Dictate` 将语音转换为文本并输入到输入框。
+- [Speech and Dictation API reference](/docs/api-reference/voice/speech-dictation)：生成的类型文档。

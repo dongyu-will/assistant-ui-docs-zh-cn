@@ -1,22 +1,22 @@
 ---
-title: "Context"
-description: "A token ring in the rail fills as the conversation grows, warning near the limit."
+title: "上下文"
+description: "输入框组件栏中的令牌环会随着对话增长而填充，并在接近上限时发出警告。"
 ---
 
-A ring button that sits in the composer's rail. Hovering or focusing it opens a small breakdown of system, tool, and message tokens against the model's window, and the ring itself fills to match. With a runtime the running total comes from the thread's own token usage; standalone you compute and pass every number yourself.
+位于输入框组件栏中的环形按钮。悬停或聚焦时，它会打开一个小型明细面板，显示系统、工具和消息令牌相对于模型上下文窗口的使用情况，环本身也会相应填充。使用运行时（runtime）时，累计总数来自线程自身的令牌使用量；单独使用时，则需要自行计算并传入每个数值。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-With a runtime, assistant-ui does not track a system, tools, and messages split on its own. What it does track is per-turn usage: a `ChatModelAdapter` can report `inputTokens` and `outputTokens` for each generation step, and the thread carries that on every assistant message.
+使用运行时时，assistant-ui 不会自行跟踪系统、工具和消息的拆分情况。它跟踪的是每轮使用量：`ChatModelAdapter` 可以为每个生成步骤报告 `inputTokens` 和 `outputTokens`，线程会将这些信息附加到每条助手消息上。
 
 <Steps>
   <Step>
 
-### Read the running total
+### 读取累计总数
 
-Reduce every message's steps into a single count. Steps without a `usage` object (a provider that does not report it, or a message still streaming) contribute nothing.
+将每条消息的步骤归约为一个总数。没有 `usage` 对象的步骤（不报告该对象的提供商，或仍在流式传输的消息）不会计入总数。
 
 ```tsx title="components/assistant-ui/elements/composer-context-rail.tsx"
 "use client";
@@ -45,9 +45,9 @@ function useThreadTokensUsed(): number {
   </Step>
   <Step>
 
-### Feed the ring
+### 为令牌环提供数据
 
-`ComposerContext` expects a category breakdown, and the runtime does not meter tokens by category. Your system prompt and tool schemas cost roughly the same fixed amount on every turn, so treat those as constants you already know; the number that actually grows is the conversation, and that is the one real figure above. The values are read as thousands (the ring appends `k` without dividing), and the total is the active model's context window, which you already picked and the thread state does not expose.
+`ComposerContext` 需要类别明细，而运行时不会按类别统计令牌。系统提示词和工具 schema 在每轮的成本大致相同，可以将它们视为已知的常量；真正会增长的是对话，这也是上面唯一真实的数值。这里的值按千为单位读取（环会追加 `k`，不会进行除法换算），总数则是当前活动模型的上下文窗口大小；该大小已由你选择，线程状态不会将其暴露出来。
 
 ```tsx
 import { ComposerContext } from "@/components/assistant-ui/elements/composer";
@@ -71,7 +71,7 @@ export function ComposerContextRail() {
 }
 ```
 
-The reduction re-runs from an empty array on every new thread, so switching threads resets the ring without any extra bookkeeping.
+每个新线程都会从空数组重新执行归约，因此切换线程会重置令牌环，无需额外维护状态。
 
   </Step>
 </Steps>
@@ -80,14 +80,14 @@ The reduction re-runs from an empty array on every new thread, so switching thre
 
 <StandaloneMode>
 
-Standalone, `ComposerContext` is fully controlled by its one `usage` prop. Nothing in the element measures tokens; you own that math and pass the result in.
+单独使用时，`ComposerContext` 完全由它唯一的 `usage` prop 控制。该元素不会测量令牌；计算工作由你负责，并传入计算结果。
 
 <Steps>
   <Step>
 
-### Pass the breakdown
+### 传入明细
 
-The three category values and the total are read as thousands: `system: 12` reads as 12k, not 12 tokens.
+三个类别值和总数都按千为单位读取：`system: 12` 表示 12k，而不是 12 个令牌。
 
 ```tsx title="app/composer-rail.tsx"
 "use client";
@@ -106,7 +106,7 @@ export function ComposerRail() {
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="composer-context">
@@ -115,13 +115,13 @@ export function ComposerRail() {
 </div>
 ```
 
-The trigger is always a ring: an outer track and a foreground arc whose `stroke-dashoffset` follows `system + tools + messages` against `total`. A zero total is treated as zero fraction rather than dividing by it. Past 85 percent the ring, the percentage readout, and the trigger itself turn red. The detail panel opens on hover or keyboard focus through CSS group state; there is no `open` prop to control it, unlike `ComposerMenu`. Its three segments (System, Tools, Messages) have fixed colors at increasing opacity and are not restylable per segment; if you need arbitrary labeled categories with your own colors, use `Context breakdown` instead.
+触发器始终是一个环：包含外部轨道和前景弧线，其 `stroke-dashoffset` 根据 `system + tools + messages` 相对于 `total` 的比例变化。总数为 0 时会视为 0 比例，而不是进行除法运算。超过 85% 后，令牌环、百分比读数和触发器本身都会变成红色。明细面板通过 CSS group 状态在悬停或键盘聚焦时打开；它没有用于控制打开状态的 `open` prop，不同于 `ComposerMenu`。它的三个分段（System、Tools、Messages）使用不透明度逐渐增加的固定颜色，无法单独为各分段重新设置样式；如果你需要使用自定义颜色的任意带标签类别，请改用 `Context breakdown`。
 
-## Examples
+## 示例
 
-### Placing it in the toolbar
+### 将其放入工具栏
 
-The ring is sized to sit beside the send button, inside `ComposerActions`.
+令牌环的尺寸适合放在发送按钮旁边，并位于 `ComposerActions` 内。
 
 ```tsx
 <ComposerToolbar>
@@ -135,25 +135,25 @@ The ring is sized to sit beside the send button, inside `ComposerActions`.
 </ComposerToolbar>
 ```
 
-### Restyle the trigger
+### 重新设置触发器样式
 
-`className` merges onto the root, which wraps both the trigger button and the panel; style the ring's size through it.
+`className` 会合并到根元素上，而根元素同时包裹触发器按钮和面板；通过它设置令牌环的尺寸。
 
 ```tsx
 <ComposerContext className="[&_button]:size-9" usage={usage} />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Thread state
+### 线程状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.thread.messages` | `readonly MessageState[]` | Every message in the active thread. Each assistant message's `metadata.steps` is a `readonly ThreadStep[]`, and a step may carry `usage: { inputTokens: number; outputTokens: number }` when the model adapter reports it. |
+| `s.thread.messages` | `readonly MessageState[]` | 活动线程中的每条消息。每条助手消息的 `metadata.steps` 都是一个 `readonly ThreadStep[]`；当模型适配器报告令牌使用情况时，步骤可能会携带 `usage: { inputTokens: number; outputTokens: number }`。 |
 
-There is no selector for a category breakdown or for the model's context window size; both are derived or supplied as shown above.
+没有用于类别明细或模型上下文窗口大小的选择器；两者都会按照上文所示进行派生或提供。
 
 </RuntimeMode>
 
@@ -161,11 +161,11 @@ There is no selector for a category breakdown or for the model's context window 
 
 ### ComposerContext
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `usage` | `ComposerUsage` | required | System, tools, and message tokens, each read as thousands, against `total`. The ring fills from their sum and turns red past 85 percent; a zero total is treated as zero rather than dividing by it. |
-| `className` | `string` | | Merged onto the root. |
+| `usage` | `ComposerUsage` | 必填 | 系统、工具和消息令牌，均按千为单位读取，并与 `total` 对比。令牌环根据三者之和进行填充；超过 85% 时变成红色。总数为 0 时会视为 0，而不是进行除法运算。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-`ComposerUsage` is `{ system: number; tools: number; messages: number; total: number }`. All other `div` props are forwarded to the root.
+`ComposerUsage` 是 `{ system: number; tools: number; messages: number; total: number }`。所有其他 `div` props 都会转发到根元素。
 
 </StandaloneMode>

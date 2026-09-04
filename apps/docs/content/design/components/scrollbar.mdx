@@ -1,8 +1,8 @@
 ---
-title: "Scrollbar"
-description: "A quiet overlay scrollbar for panes that keep their own scroll."
+title: "滚动条"
+description: "适用于自行管理滚动的窗格的简洁覆盖式滚动条。"
 links:
-  - label: Docs
+  - label: 文档
     url: /docs/guides/scrollbar
 ---
 
@@ -13,10 +13,10 @@ import { ScrollbarSample } from "@/components/pages/docs/samples/scrollbar";
   <ScrollbarSample />
 </PreviewCode>
 
-## Installation
+## 安装
 
-The scrollbar ships with the assistant-ui thread styles. The docs page covers wiring it into your own scroll containers.
+滚动条随 assistant-ui 的 thread 样式一起提供。文档页面介绍了如何将其接入你自己的滚动容器。
 
-## Usage
+## 用法
 
-Any pane that owns its scroll, like a thread viewport or a sidebar, renders the overlay scrollbar instead of the native one so the hairline stays quiet until you scroll.
+任何自行管理滚动的窗格（例如 thread 视口或侧边栏）都会渲染覆盖式滚动条，而不是原生滚动条，因此只有在滚动时，这条细线才会显示。

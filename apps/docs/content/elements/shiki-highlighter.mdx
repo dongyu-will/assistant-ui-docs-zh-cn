@@ -1,20 +1,20 @@
 ---
-title: "Shiki highlighter"
-description: "Shiki code highlighting that defers tokenization until a message part settles."
+title: "Shiki 高亮器"
+description: "使用 Shiki 进行代码高亮，并将标记化延迟到消息部分稳定后执行。"
 ---
 
-SyntaxHighlighter tokenizes one fenced code block with Shiki, skipping highlighting entirely while `streaming` is true and rendering the same plain code Shiki will later tokenize. With a runtime it derives that flag from the active message part; standalone you pass `streaming` yourself.
+SyntaxHighlighter 使用 Shiki 为一个 fenced code block 进行标记化；当 `streaming` 为 true 时会完全跳过高亮，并渲染 Shiki 稍后将进行标记化的相同纯文本代码。在运行时中，它会从活动消息部分派生此标志；单独使用时，则由你自行传入 `streaming`。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-The kit wraps the base highlighter and reads whether the current message part is still running, so it never spends a Shiki pass on code that is about to change again.
+该工具包封装了基础高亮器，并读取当前消息部分是否仍在运行，因此不会将 Shiki 的处理时间浪费在即将再次变化的代码上。
 
 <Steps>
   <Step>
 
-### Add it to MarkdownText's components
+### 将其添加到 MarkdownText 的组件中
 
 ```tsx title="components/assistant-ui/elements/markdown-text.tsx"
 import { SyntaxHighlighter } from "./shiki-highlighter.aui";
@@ -26,7 +26,7 @@ const defaultComponents = memoizeMarkdownComponents({
 });
 ```
 
-Every fenced code block in an assistant message now highlights with Shiki, and skips tokenization for whichever block is still streaming.
+助手消息中的每个 fenced code block 现在都会使用 Shiki 进行高亮，并跳过仍在流式传输的代码块的标记化。
 
   </Step>
 </Steps>
@@ -35,12 +35,12 @@ Every fenced code block in an assistant message now highlights with Shiki, and s
 
 <StandaloneMode>
 
-Standalone, you own the streaming flag yourself.
+单独使用时，由你自行管理流式传输标志。
 
 <Steps>
   <Step>
 
-### Render code with a controlled streaming flag
+### 使用受控的流式传输标志渲染代码
 
 ```tsx
 import { SyntaxHighlighter } from "@/components/assistant-ui/elements/shiki-highlighter";
@@ -48,14 +48,14 @@ import { SyntaxHighlighter } from "@/components/assistant-ui/elements/shiki-high
 <SyntaxHighlighter language="tsx" code={code} streaming={isStreaming} />;
 ```
 
-While `streaming` is true, the code renders as plain, unhighlighted text in the same container; flip it to `false` once the source is final and it tokenizes.
+当 `streaming` 为 true 时，代码会在同一容器中以纯文本形式渲染，不进行高亮；源代码确定后，将其切换为 `false`，代码便会进行标记化。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div className="aui-shiki-base">
@@ -64,63 +64,63 @@ While `streaming` is true, the code renders as plain, unhighlighted text in the 
 </div>
 ```
 
-While `streaming`, the root also gets an `aui-shiki-streaming` class and renders the trimmed source as a plain `<pre><code>`. Once `streaming` is false, `useShikiHighlighter` tokenizes the code; until that resolves, the same plain fallback shows, so there is no flash of empty content between the two states.
+当 `streaming` 时，根元素还会获得 `aui-shiki-streaming` 类，并将去除首尾空白的源代码渲染为纯 `<pre><code>`。当 `streaming` 为 false 后，`useShikiHighlighter` 会对代码进行标记化；在此完成之前，会显示相同的纯文本回退内容，因此两种状态切换之间不会闪现空内容。
 
-## Examples
+## 示例
 
-### Set a fixed theme
+### 设置固定主题
 
 ```tsx
 <SyntaxHighlighter language="tsx" code={code} theme="github-dark-default" />
 ```
 
-The default is `{ dark: "github-dark-default", light: "github-light-default" }`. Pass a single theme name to fix one theme in both modes, or a `{ light, dark, ... }` map for multi-theme output.
+默认值为 `{ dark: "github-dark-default", light: "github-light-default" }`。传入单个主题名称，可在两种模式下固定使用同一个主题；也可以传入用于多主题输出的 `{ light, dark, ... }` 映射。
 
-### Tune the streaming delay
+### 调整流式传输延迟
 
 ```tsx
 <SyntaxHighlighter language="tsx" code={code} delay={0} />
 ```
 
-`delay` (default `150`) is how long, in milliseconds, `useShikiHighlighter` waits after the code last changed before tokenizing. The default absorbs the last few characters a smooth text reveal drains in after the underlying part has already settled.
+`delay`（默认值为 `150`）表示代码最后一次变化后，`useShikiHighlighter` 等待多少毫秒再进行标记化。默认值可以吸收平滑文本显示在底层消息部分已经稳定后逐渐输出的最后几个字符。
 
-### Restyle the container
+### 重新设置容器样式
 
-Both lanes take `className` on the root; the rendered `<pre>` picks up border, background, and padding from the fixed `aui-shiki-base` selectors.
+两条路径都会在根元素上接收 `className`；渲染出的 `<pre>` 会从固定的 `aui-shiki-base` 选择器中获取边框、背景和内边距样式。
 
 ```tsx
 <SyntaxHighlighter className="[&_pre]:rounded-none" language="tsx" code={code} />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Message part state
+### 消息部分状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `s.optional.part?.status.type === "running"` | `boolean` | Read with `useAuiState`. Forwarded as `streaming`. `true` while the current message part exists and is running. |
+| `s.optional.part?.status.type === "running"` | `boolean` | 使用 `useAuiState` 读取。转发为 `streaming`。当当前消息部分存在且正在运行时为 `true`。 |
 
-Every other prop below is forwarded unchanged. `node` and `components` (react-markdown's code-block wrapper props) are accepted for type compatibility with `MarkdownText`'s `SyntaxHighlighter` slot and otherwise unused.
+下面的其他所有 prop 都会原样转发。`node` 和 `components`（react-markdown 的代码块包装器 prop）会被接受，以便与 `MarkdownText` 的 `SyntaxHighlighter` 插槽保持类型兼容，但除此之外不会使用。
 
 </RuntimeMode>
 
 ### SyntaxHighlighter
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `code` | `string` | required | The code to highlight. Trimmed before rendering. |
-| `language` | `ShikiHighlighterProps["language"]` | required | Passed to `useShikiHighlighter`. |
-| `theme` | `ShikiHighlighterProps["theme"]` | `{ dark: "github-dark-default", light: "github-light-default" }` | A single theme name or a `{ light, dark, ... }` map. |
-| `streaming` | `boolean` | `false` | Skips tokenization and renders the plain code while `true`. |
-| `delay` | `number` | `150` | Milliseconds `useShikiHighlighter` waits after `code` last changed before tokenizing. |
-| `className` | `string` | | Merged onto the root. |
+| `code` | `string` | 必填 | 要高亮的代码。渲染前会去除首尾空白。 |
+| `language` | `ShikiHighlighterProps["language"]` | 必填 | 传递给 `useShikiHighlighter`。 |
+| `theme` | `ShikiHighlighterProps["theme"]` | `{ dark: "github-dark-default", light: "github-light-default" }` | 单个主题名称或 `{ light, dark, ... }` 映射。 |
+| `streaming` | `boolean` | `false` | 当 `true` 时跳过标记化并渲染纯文本代码。 |
+| `delay` | `number` | `150` | `useShikiHighlighter` 在 `code` 最后一次变化后等待的毫秒数，然后再进行标记化。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-Every other `react-shiki` option (`showLineNumbers`, `langStyle`, Shiki's own `codeToHast` options, and so on) forwards straight to `useShikiHighlighter`, except `addDefaultStyles` and `showLanguage`, which react-shiki uses only for its own default styling and language label; this component supplies neither, so both are accepted and ignored.
+其他所有 `react-shiki` 选项（`showLineNumbers`、`langStyle`、Shiki 自身的 `codeToHast` 选项等）都会直接转发给 `useShikiHighlighter`；但 `addDefaultStyles` 和 `showLanguage` 除外。react-shiki 仅使用它们提供自身的默认样式和语言标签；此组件不会提供这两项，因此它们会被接受但忽略。
 
 <StandaloneMode>
 
-Pass `streaming` yourself, as in the standalone step above; every other prop behaves identically to the runtime lane.
+如上面的单独使用步骤所示，自行传入 `streaming`；其他每个 prop 的行为都与运行时路径相同。
 
 </StandaloneMode>

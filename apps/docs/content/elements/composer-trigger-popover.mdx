@@ -1,20 +1,20 @@
 ---
-title: "Composer trigger popover"
-description: "A character-triggered picker for mentions, slash commands, and nested composer actions."
+title: "输入框触发弹出框"
+description: "用于提及、斜杠命令和嵌套输入框操作的字符触发选择器。"
 ---
 
-Composer trigger popover is the picker UI behind a character-triggered composer feature: type the trigger character and a positioned popover offers matching items, drilling into categories when the adapter has more than one. With a runtime, an adapter resolves items from live data and one of two behaviors decides what selecting an item does; standalone, the trigger detection watches the composer's live cursor position and text, so there is no equivalent outside a runtime.
+输入框触发弹出框是字符触发输入框功能背后的选择器 UI：输入触发字符后，定位的弹出框会提供匹配项；当适配器包含多个类别时，还可以进一步进入类别。在运行时中，适配器从实时数据解析项目，并由两种行为之一决定选择项目后的操作；单独使用时，触发检测会监视输入框的实时光标位置和文本，因此无法在运行时之外实现等效功能。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
 <Steps>
   <Step>
 
-### Wrap the composer
+### 包裹输入框
 
-Place `ComposerPrimitive.Unstable_TriggerPopoverRoot` around the composer. Any number of `ComposerTriggerPopover` declarations can live inside, each with its own trigger character, adapter, and behavior.
+将 `ComposerPrimitive.Unstable_TriggerPopoverRoot` 放在输入框外层。内部可以包含任意数量的 `ComposerTriggerPopover` 声明，每个声明都可以拥有自己的触发字符、适配器和行为。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { ComposerPrimitive } from "@assistant-ui/react";
@@ -33,9 +33,9 @@ const Composer = () => (
   </Step>
   <Step>
 
-### Declare a mention trigger
+### 声明提及触发器
 
-Pair `ComposerTriggerPopover` with `unstable_useMentionAdapter`, which spreads into an `{ adapter, directive }` bundle. Selecting an item writes a directive into the composer text.
+将 `ComposerTriggerPopover` 与 `unstable_useMentionAdapter` 配对，后者会展开为一个 `{ adapter, directive }` 配置包。选择项目后，会将指令写入输入框文本。
 
 ```tsx
 import { unstable_useMentionAdapter } from "@assistant-ui/react";
@@ -47,7 +47,7 @@ function MentionTrigger() {
 }
 ```
 
-With no `items` or `categories` passed, `unstable_useMentionAdapter` lists whatever tools are registered in model context. Render the mentions it inserts as chips in the sent message with [Directive text](/elements/directive-text).
+未传入 `items` 或 `categories` 时，`unstable_useMentionAdapter` 会列出模型上下文中注册的所有工具。使用[指令文本](/elements/directive-text)将其插入的提及渲染为已发送消息中的标签。
 
   </Step>
 </Steps>
@@ -56,11 +56,11 @@ With no `items` or `categories` passed, `unstable_useMentionAdapter` lists whate
 
 <StandaloneMode>
 
-Trigger detection reads the composer's live text and cursor position from the runtime, so there is no standalone lane: build a character-triggered popover from your own input's `onChange` / `onKeyDown` handlers and any popover primitive.
+触发检测会从运行时读取输入框的实时文本和光标位置，因此不存在单独使用的方式：你可以基于自己输入组件的 `onChange` / `onKeyDown` 处理器以及任意弹出框原语，构建字符触发的弹出框。
 
 </StandaloneMode>
 
-## Anatomy
+## 组成结构
 
 <RuntimeMode>
 
@@ -79,17 +79,17 @@ Trigger detection reads the composer's live text and cursor position from the ru
 </div>
 ```
 
-The two views are exclusive. Categories show only when the adapter reports at least one and the query is empty; typing narrows the visible categories by label. Anything else, from drilling into a category to a category-less adapter to a non-empty query, shows items: filtered locally against a category's items, or from `adapter.search(query)` (falling back to a manual cross-category filter when the adapter omits `search`). Backspace on an empty query returns from a drilled-into category to the list; it does nothing for a category-less adapter, since there is nothing to return to.
+这两个视图互斥。只有在适配器返回至少一个类别且查询为空时，才会显示类别；输入内容后，会根据标签缩小可见类别的范围。其他情况都会显示项目，包括进入某个类别、适配器没有类别，以及查询非空：项目会在类别的项目中进行本地过滤，或使用 `adapter.search(query)` 获取；当适配器未提供 `search` 时，则回退到手动跨类别过滤。在查询为空时按退格键，会从已进入的类别返回类别列表；对于没有类别的适配器，按退格键不会执行任何操作，因为没有可返回的视图。
 
 </RuntimeMode>
 
-## Examples
+## 示例
 
 <RuntimeMode>
 
-### Slash command
+### 斜杠命令
 
-Use [`unstable_useSlashCommandAdapter`](/docs/guides/slash-commands) to bundle commands (each with its own `execute`) into `{ adapter, action }`. By default a directive chip stays in the composer as an audit trail after the command runs; pass `removeOnExecute` to strip the `/command` text instead. `iconMap` maps each item's `metadata.icon` string to a component.
+使用 [`unstable_useSlashCommandAdapter`](/docs/guides/slash-commands) 将命令（每个命令都有自己的 `execute`）打包到 `{ adapter, action }` 中。默认情况下，命令执行后，指令标签会保留在输入框中作为审计记录；传入 `removeOnExecute` 则会改为移除 `/command` 文本。`iconMap` 会将每个项目的 `metadata.icon` 字符串映射到一个组件。
 
 ```tsx
 import {
@@ -116,9 +116,9 @@ function SlashTrigger() {
 }
 ```
 
-### Async items with a loading state
+### 带加载状态的异步项目
 
-`unstable_useLiveCompletionAdapter` bridges an async source (a server search, a gateway RPC) into the synchronous adapter shape, debouncing fetches and caching results per query. Its `isLoading` feeds the popover's own `isLoading` prop, which swaps the empty-items message for `loadingLabel` while a fetch is in flight.
+`unstable_useLiveCompletionAdapter` 会将异步数据源（例如服务器搜索或网关 RPC）桥接到同步适配器结构，同时对请求进行防抖，并按查询缓存结果。它的 `isLoading` 会传入弹出框自身的 `isLoading` 属性；请求进行期间，该属性会将“无项目”消息替换为 `loadingLabel`。
 
 ```tsx
 const mentions = unstable_useLiveCompletionAdapter({
@@ -133,9 +133,9 @@ const mentions = unstable_useLiveCompletionAdapter({
 />;
 ```
 
-### Custom query matching
+### 自定义查询匹配
 
-Whitespace closes a trigger query by default. Pass a stable `matcher` when a picker needs different syntax, such as multi-word names; the same matcher governs both the textarea and Lexical composer inputs.
+默认情况下，空白字符会关闭触发查询。当选择器需要不同的语法（例如支持多词名称）时，请传入稳定的 `matcher`；同一个匹配器同时适用于 textarea 和 Lexical 输入框。
 
 ```tsx
 import type { Unstable_TriggerMatcher } from "@assistant-ui/react";
@@ -157,9 +157,9 @@ const matchMultiWord: Unstable_TriggerMatcher = (text, triggerChar, cursorPositi
 <ComposerTriggerPopover char="@" matcher={matchMultiWord} {...mention} />;
 ```
 
-### Combining triggers
+### 组合多个触发器
 
-Multiple popovers share one `TriggerPopoverRoot`; each reads its own state from its `char`, so `@` and `/` never collide.
+多个弹出框共享一个 `TriggerPopoverRoot`；每个弹出框都会从自己的 `char` 中读取状态，因此 `@` 和 `/` 不会相互冲突。
 
 ```tsx
 <ComposerPrimitive.Unstable_TriggerPopoverRoot>
@@ -173,60 +173,60 @@ Multiple popovers share one `TriggerPopoverRoot`; each reads its own state from 
 
 </RuntimeMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
 ### ComposerTriggerPopover
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `char` | `string` | required | Trigger character, unique within the root. |
-| `matcher` | `Unstable_TriggerMatcher` | whitespace-terminated | Overrides trigger detection and the replaced text span. |
-| `adapter` | `Unstable_TriggerAdapter` | required | Supplies categories, items, and search. |
-| `directive` | `{ formatter?, onInserted? }` | | Inserts a directive chip on selection. Mutually exclusive with `action`. |
-| `action` | `{ formatter?, onExecute, removeOnExecute? }` | | Fires a handler on selection. Mutually exclusive with `directive`. |
-| `iconMap` | `Record<string, IconComponent>` | | Maps an item's or category's `metadata.icon` string to a component. |
-| `fallbackIcon` | `IconComponent` | `SparklesIcon` | Used when `iconMap` has no match. |
-| `backLabel` | `string` | `"Back"` | Label on the button that returns from items to categories. |
-| `emptyCategoriesLabel` | `string` | `"No items available"` | Shown when the adapter has no categories. |
-| `emptyItemsLabel` | `string` | `"No matching items"` | Shown when the current view's item list is empty. |
-| `isLoading` | `boolean` | `false` | Swaps `emptyItemsLabel` for `loadingLabel` while true. |
-| `loadingLabel` | `string` | `"Loading…"` | Shown in place of `emptyItemsLabel` while `isLoading`. |
+| `char` | `string` | 必填 | 触发字符，在根组件内必须唯一。 |
+| `matcher` | `Unstable_TriggerMatcher` | 以空白字符结束 | 覆盖触发检测和被替换的文本范围。 |
+| `adapter` | `Unstable_TriggerAdapter` | 必填 | 提供类别、项目和搜索功能。 |
+| `directive` | `{ formatter?, onInserted? }` | | 选择时插入指令标签。不能与 `action` 同时使用。 |
+| `action` | `{ formatter?, onExecute, removeOnExecute? }` | | 在选择时触发处理器。不能与 `directive` 同时使用。 |
+| `iconMap` | `Record<string, IconComponent>` | | 将项目或类别的 `metadata.icon` 字符串映射到组件。 |
+| `fallbackIcon` | `IconComponent` | `SparklesIcon` | 当 `iconMap` 没有匹配项时使用。 |
+| `backLabel` | `string` | `"Back"` | 从项目视图返回类别视图的按钮标签。 |
+| `emptyCategoriesLabel` | `string` | `"No items available"` | 适配器没有类别时显示。 |
+| `emptyItemsLabel` | `string` | `"No matching items"` | 当前视图的项目列表为空时显示。 |
+| `isLoading` | `boolean` | `false` | 为 true 时，将 `emptyItemsLabel` 替换为 `loadingLabel`。 |
+| `loadingLabel` | `string` | `"Loading…"` | 在 `isLoading` 期间替代 `emptyItemsLabel` 显示。 |
 
-All other props forward to the popover's root `div`.
+其他所有属性都会转发到弹出框根元素的 `div`。
 
 ### Unstable_TriggerAdapter
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `categories()` | `() => readonly Unstable_TriggerCategory[]` | Top-level categories. Return `[]` for a flat, search-only adapter. |
-| `categoryItems(id)` | `(categoryId: string) => readonly Unstable_TriggerItem[]` | Items inside a category. |
-| `search(query)` | `(query: string) => readonly Unstable_TriggerItem[]` | Optional. Without it, a category-less adapter's items come from a manual filter over `categoryItems` instead. |
+| `categories()` | `() => readonly Unstable_TriggerCategory[]` | 顶层类别。对于扁平的仅搜索适配器，返回 `[]`。 |
+| `categoryItems(id)` | `(categoryId: string) => readonly Unstable_TriggerItem[]` | 类别中的项目。 |
+| `search(query)` | `(query: string) => readonly Unstable_TriggerItem[]` | 可选。如果未提供，适配器无类别时的项目会改为通过对 `categoryItems` 手动过滤获取。 |
 
-`Unstable_TriggerItem` is `{ id, type, label, description?, metadata? }`; the directive formatter's default serialization writes `:type[label]{name=id}`, omitting `{name=…}` when `id` equals `label`.
+`Unstable_TriggerItem` 是 `{ id, type, label, description?, metadata? }`；指令格式化器的默认序列化会写入 `:type[label]{name=id}`，当 `id` 等于 `label` 时省略 `{name=…}`。
 
-### Adapter hooks
+### 适配器钩子
 
-| Hook | Returns | Description |
+| 钩子 | 返回值 | 描述 |
 |------|---------|-------------|
-| `unstable_useMentionAdapter(options?)` | `{ adapter, directive, iconMap?, fallbackIcon? }` | Flat or categorized mentions, optionally including tools registered in model context. |
-| `unstable_useSlashCommandAdapter({ commands, ... })` | `{ adapter, action, iconMap?, fallbackIcon? }` | Bundles commands with inline `execute` callbacks. |
-| `unstable_useLiveCompletionAdapter({ fetcher, ... })` | `{ adapter, isLoading }` | Debounces and caches an async source into a synchronous adapter. |
+| `unstable_useMentionAdapter(options?)` | `{ adapter, directive, iconMap?, fallbackIcon? }` | 扁平或分类的提及，可选择包含模型上下文中注册的工具。 |
+| `unstable_useSlashCommandAdapter({ commands, ... })` | `{ adapter, action, iconMap?, fallbackIcon? }` | 将命令与内联 `execute` 回调打包。 |
+| `unstable_useLiveCompletionAdapter({ fetcher, ... })` | `{ adapter, isLoading }` | 将异步数据源进行防抖和缓存，转换为同步适配器。 |
 
-### Keyboard navigation
+### 键盘导航
 
-| Key | Action |
+| 按键 | 操作 |
 |-----|--------|
-| `ArrowDown` / `ArrowUp` | Move the highlight, wrapping at either end |
-| `Enter` / `Tab` | Select the highlighted item, or drill into the highlighted category |
-| `Shift+Enter` | Passes through (composer inserts a newline) |
-| `Shift+Tab` | Passes through (native focus traversal) |
-| `Escape` | Close the popover |
-| `Backspace` | Return to categories, only while a category is active and the query is empty |
+| `ArrowDown` / `ArrowUp` | 移动高亮项，到达任一端时循环 |
+| `Enter` / `Tab` | 选择高亮项目，或进入高亮类别 |
+| `Shift+Enter` | 透传（输入框插入换行符） |
+| `Shift+Tab` | 透传（原生焦点遍历） |
+| `Escape` | 关闭弹出框 |
+| `Backspace` | 返回类别视图，仅在某个类别处于激活状态且查询为空时有效 |
 
-### Accessibility
+### 无障碍访问
 
-The popover implements the WAI-ARIA editable combobox pattern: the list has `role="listbox"` and each entry `role="option"` with `aria-selected`. While a popover is open, the composer's `ComposerPrimitive.Input` automatically receives `aria-controls`, `aria-expanded="true"`, `aria-haspopup="listbox"`, and `aria-activedescendant` pointing at the highlighted option; these are removed when it closes. Rendering `ComposerPrimitive.Input` outside a `TriggerPopoverRoot` adds none of these attributes.
+该弹出框实现了 WAI-ARIA 可编辑组合框模式：列表具有 `role="listbox"`，每个条目具有 `role="option"` 和 `aria-selected`。弹出框打开时，输入框的 `ComposerPrimitive.Input` 会自动接收 `aria-controls`、`aria-expanded="true"`、`aria-haspopup="listbox"` 和 `aria-activedescendant`，并指向高亮选项；弹出框关闭时，这些属性会被移除。在 `TriggerPopoverRoot` 外部渲染 `ComposerPrimitive.Input` 不会添加这些属性。
 
 </RuntimeMode>

@@ -1,38 +1,38 @@
 ---
-title: Claude Artifacts Example
-description: Open-source Claude Artifacts implementation in React — generate websites and components in a side panel from chat messages, built on assistant-ui.
+title: Claude Artifacts 示例
+description: 使用 React 实现的开源 Claude Artifacts——在聊天消息旁的侧边面板中生成网站和组件，基于 assistant-ui 构建。
 ---
 
-## Overview
+## 概述
 
-An open-source implementation of Claude Artifacts that allows users to generate interactive content like websites, documents, and applications directly within the chat interface. The AI generates HTML, CSS, and JavaScript code that renders in a live preview panel alongside the conversation.
+这是 Claude Artifacts 的开源实现，允许用户直接在聊天界面中生成网站、文档和应用等交互式内容。AI 会生成 HTML、CSS 和 JavaScript 代码，并在对话旁的实时预览面板中渲染。
 
-## Features
+## 功能
 
-- **Real-time Preview**: Generated artifacts render instantly in an isolated sandboxed iframe
-- **Code Generation**: Creates complete HTML, CSS, and JavaScript applications
-- **Interactive Elements**: Artifacts can include buttons, forms, and animations
-- **Iteration Support**: Ask the AI to modify and improve generated artifacts
-- **Safe Execution**: Code runs in a sandboxed iframe with scripts enabled but no access to the parent documentation page
-- **Export Options**: Download generated artifacts as standalone files
+- **实时预览**：生成的 Artifacts 会立即在隔离的沙盒 iframe 中渲染
+- **代码生成**：创建完整的 HTML、CSS 和 JavaScript 应用
+- **交互元素**：Artifacts 可以包含按钮、表单和动画
+- **迭代支持**：要求 AI 修改和改进生成的 Artifacts
+- **安全执行**：代码在启用脚本的沙盒 iframe 中运行，但无法访问父级文档页面
+- **导出选项**：将生成的 Artifacts 下载为独立文件
 
-## How It Works
+## 工作原理
 
-1. **Request**: Ask the AI to create something (e.g., "Create a calculator app")
-2. **Generation**: The AI generates the necessary HTML, CSS, and JavaScript
-3. **Rendering**: Code is safely rendered in an isolated preview panel
-4. **Iteration**: Request changes and see updates in real-time
+1. **请求**：要求 AI 创建某些内容（例如：“创建一个计算器应用”）
+2. **生成**：AI 生成所需的 HTML、CSS 和 JavaScript
+3. **渲染**：代码会在隔离的预览面板中安全渲染
+4. **迭代**：请求更改并实时查看更新结果
 
-## Use Cases
+## 使用场景
 
-- **Prototyping**: Quickly create UI mockups and interactive demos
-- **Learning**: Generate code examples to understand concepts
-- **Visualization**: Create charts, diagrams, and data visualizations
-- **Games**: Build simple browser games and interactive experiences
-- **Tools**: Generate calculators, converters, and utility applications
+- **原型设计**：快速创建 UI 模型和交互式演示
+- **学习**：生成代码示例以理解相关概念
+- **可视化**：创建图表、示意图和数据可视化
+- **游戏**：构建简单的浏览器游戏和交互式体验
+- **工具**：生成计算器、转换器和实用应用
 
-## Source
+## 源码
 
-The implementation for this example is available in the docs:
+此示例的实现可在文档中查看：
 
 <SourceLink href="https://github.com/assistant-ui/assistant-ui/tree/main/examples/with-artifacts" />

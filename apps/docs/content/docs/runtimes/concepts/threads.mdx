@@ -1,29 +1,29 @@
 ---
-title: Threads
-description: Single-thread, cloud, and custom-database thread management.
+title: 线程
+description: 单线程、云端和自定义数据库线程管理。
 ---
 
-Every assistant-ui runtime starts with a single in-memory thread. Multi-thread support is added through one of three mechanisms depending on which runtime you are using and where you want threads to live.
+每个 assistant-ui runtime 都从单个内存线程开始。根据你使用的 runtime 以及希望线程存储的位置，可以通过三种机制之一添加多线程支持。
 
-## Single thread (default)
+## 单线程（默认）
 
-With no thread configuration, the runtime renders one thread that resets when the page reloads. Fine for prototypes, demos, and stateless interactions.
+不配置线程时，runtime 会渲染一个线程，并在页面重新加载时重置。适合原型、演示和无状态交互。
 
-If you only want session persistence (single thread, durable across reloads), provide a [history adapter](/docs/runtimes/concepts/adapters#history-adapter) instead of going to multi-thread.
+如果你只需要会话持久化（单线程，重新加载后仍然保留），请提供一个[历史记录适配器](/docs/runtimes/concepts/adapters#history-adapter)，而不是切换到多线程。
 
-## Multi-thread paths
+## 多线程方案
 
-Three options. Choose based on what you want to own.
+共有三种选项。请根据你希望由谁负责管理来选择。
 
-| Path | Runtime | Who owns thread metadata | Best for |
+| 方案 | Runtime | 线程元数据的管理方 | 最适合 |
 | --- | --- | --- | --- |
-| AssistantCloud | LocalRuntime and adapters built on it | assistant-cloud | You want it managed; auth, sync, persistence handled |
-| RemoteThreadListRuntime | LocalRuntime and adapters built on it | Your database | You have your own backend and want full control |
-| ExternalStoreThreadListAdapter | ExternalStoreRuntime only | Your store | You keep state in redux, zustand, etc. |
+| AssistantCloud | LocalRuntime 及基于它构建的适配器 | assistant-cloud | 希望由服务托管；认证、同步和持久化均由服务处理 |
+| RemoteThreadListRuntime | LocalRuntime 及基于它构建的适配器 | 你的数据库 | 已有自己的后端并希望完全控制 |
+| ExternalStoreThreadListAdapter | 仅 ExternalStoreRuntime | 你的状态存储 | 使用 redux、zustand 等管理状态 |
 
 ## AssistantCloud
 
-`AssistantCloud` is the managed multi-thread service. Pass an instance to `useLocalRuntime` (or any adapter built on it) and threads, persistence, sync, and titles are handled for you.
+`AssistantCloud` 是托管式多线程服务。将实例传递给 `useLocalRuntime`（或任何基于它构建的适配器）后，线程、持久化、同步和标题都会由服务代为处理。
 
 ```tsx
 import { useLocalRuntime } from "@assistant-ui/react";
@@ -37,7 +37,7 @@ const cloud = new AssistantCloud({
 const runtime = useLocalRuntime(modelAdapter, { cloud });
 ```
 
-Framework adapters take `cloud` directly. `AISDKThreads({ cloud })` is the store-entry list for `AuiConfig` hosts. It mounts only the visible thread, so a switch cancels an in-flight run and that exchange is not persisted.
+框架适配器直接接收 `cloud`。`AISDKThreads({ cloud })` 是 `AuiConfig` 宿主的 store 条目列表。它只挂载可见线程，因此切换线程会取消正在进行的运行，且该次交互不会被持久化。
 
 ```tsx
 const runtime = useChatRuntime({ cloud });
@@ -46,13 +46,13 @@ const runtime = useLangGraphRuntime({ cloud /* stream, load, ... */ });
 const runtime = useAdkRuntime({ cloud, stream });
 ```
 
-See the [cloud documentation](/docs/cloud) for setup, auth, and self-host options.
+请参阅[云端文档](/docs/cloud)，了解设置、认证和自托管选项。
 
-## RemoteThreadListRuntime (custom database)
+## RemoteThreadListRuntime（自定义数据库）
 
-`useRemoteThreadListRuntime` lets you back the thread list with any database while keeping the per-thread runtime simple. You provide a `RemoteThreadListAdapter` describing how to list, create, rename, archive, and delete threads. Keep that adapter reference stable across renders (module scope or `useMemo`). Replacing it reloads the list and drops cached threads that are not in the replacement page.
+`useRemoteThreadListRuntime` 允许你使用任意数据库作为线程列表的后端，同时保持每个线程的 runtime 简单。你需要提供一个 `RemoteThreadListAdapter`，用于说明如何列出、创建、重命名、归档和删除线程。请确保该适配器引用在多次渲染之间保持稳定（放在模块作用域，或使用 `useMemo`）。替换适配器会重新加载列表，并丢弃不在替换页面中的缓存线程。
 
-Works with any `LocalRuntime`-based runtime, including framework adapters that build on it (`ai-sdk`, `react-google-adk`, `react-a2a`, `useDataStreamRuntime`).
+它适用于任何基于 `LocalRuntime` 的 runtime，包括基于它构建的框架适配器（`ai-sdk`、`react-google-adk`、`react-a2a`、`useDataStreamRuntime`）。
 
 ```tsx title="app/MyProvider.tsx"
 "use client";
@@ -131,14 +131,14 @@ export function MyProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-### Persisting messages
+### 持久化消息
 
-`RemoteThreadListAdapter` only manages thread metadata. Per-thread history and attachments are a separate seam with two faces:
+`RemoteThreadListAdapter` 只管理线程元数据。每个线程的历史记录和附件是独立的扩展点，提供两种使用方式：
 
-- `unstable_useAdapters` is a hook. The `RemoteThreadList` store entry calls it inside the client tree, so any `createAssistantClient` host gets the same adapters as a React hook host. `useRemoteThreadListRuntime` also calls it when `unstable_Provider` is omitted.
-- `unstable_Provider` is a React component. `useRemoteThreadListRuntime` renders it when present. The store entry ignores it.
+- `unstable_useAdapters` 是一个 hook。`RemoteThreadList` store 条目会在客户端树中调用它，因此任何 `createAssistantClient` 宿主都能获得与 React hook 宿主相同的适配器。`useRemoteThreadListRuntime` 也会在省略 `unstable_Provider` 时调用它。
+- `unstable_Provider` 是一个 React 组件。存在 `useRemoteThreadListRuntime` 时会渲染它。store 条目会忽略它。
 
-On the store entry, wrap the thread factory with `withKey` so the thread remounts on a switch. History adapters load once per mount. An unkeyed factory keeps one instance, and the next thread's messages never appear.
+在 store 条目中，使用 `withKey` 包装线程工厂，使线程在切换时重新挂载。历史记录适配器会在每次挂载时加载一次。不带 key 的工厂会一直复用同一个实例，因此下一个线程的消息永远不会出现。
 
 ```tsx
 import { withKey } from "@assistant-ui/tap";
@@ -150,7 +150,7 @@ threads: RemoteThreadList({
 }),
 ```
 
-Share one hook between both faces:
+在两种方式之间共享同一个 hook：
 
 ```tsx
 import {
@@ -201,12 +201,12 @@ const adapterWithHistory: RemoteThreadListAdapter = {
 ```
 
 <Callout type="warn">
-`unstable_Provider` must render `children` synchronously on first commit. Do not gate `children` behind a loading state, suspense, or `useEffect`. If you need to load data before the thread is usable, do it inside an always-rendered child (for example via the history adapter), not by withholding `children`.
+`unstable_Provider` 必须在首次提交时同步渲染 `children`。不要将 `children` 放在加载状态、Suspense 或 `useEffect` 之后。若需要在线程可用前加载数据，请在始终渲染的子组件中执行（例如通过历史记录适配器），而不是通过不渲染 `children` 来实现。
 </Callout>
 
-### Avoiding the first-message race
+### 避免首条消息竞争
 
-`append` may be called before the thread record exists in your backend. Always await `aui.threadListItem.initialize()` before writing:
+`append` 可能会在线程记录存在于后端之前被调用。写入前请始终等待 `aui.threadListItem.initialize()`：
 
 ```ts
 async append({ message, parentId }) {
@@ -215,9 +215,9 @@ async append({ message, parentId }) {
 }
 ```
 
-`initialize()` is safe to call multiple times. It always resolves to the same `remoteId` for the active thread.
+`initialize()` 可以安全地多次调用。它始终会解析为当前线程对应的同一个 `remoteId`。
 
-The same rule applies to a custom external store's dispatch. The runtime does not hold `onNew` or `onEdit` until the thread record exists (that would keep the user's message off screen for the whole roundtrip), so a handler that talks to a backend keyed by the remote identity must await `initialize()` itself:
+同样的规则也适用于自定义外部状态存储的 dispatch。在线程记录存在之前，runtime 不会持有 `onNew` 或 `onEdit`（否则用户消息会在整个往返过程中无法显示在屏幕上），因此，处理器如果要访问以远程身份为键的后端，必须自行等待 `initialize()`：
 
 ```ts
 onNew: async (message) => {
@@ -226,9 +226,9 @@ onNew: async (message) => {
 },
 ```
 
-### Reloading after async authentication
+### 异步认证后重新加载
 
-If your adapter depends on a user that resolves asynchronously (oidc, `next-auth`, `better-auth`), the initial `list()` may run before the user is available. Call `aui.threads.reload()` after auth completes:
+如果你的适配器依赖于异步解析的用户（oidc、`next-auth`、`better-auth`），初始的 `list()` 可能会在用户可用之前运行。认证完成后调用 `aui.threads.reload()`：
 
 ```tsx
 function ReloadOnAuth() {
@@ -241,11 +241,11 @@ function ReloadOnAuth() {
 }
 ```
 
-`reload()` discards in-flight responses from superseded calls, so it is safe to invoke on every auth transition. On the `RemoteThreadList` store entry, a recreated adapter object is a no-op until you call `reload()`. `reload()` against the same instance refreshes the list and keeps the open thread. `reload()` after a different adapter instance resets selection and cached records, then loads the replacement store.
+`reload()` 会丢弃已被后续调用取代的进行中响应，因此可以在每次认证状态切换时安全调用。在 `RemoteThreadList` store 条目中，重新创建适配器对象在调用 `reload()` 之前不会产生任何作用。对同一个实例调用 `reload()` 会刷新列表并保留当前打开的线程。对不同的适配器实例调用 `reload()` 会重置选中状态和缓存记录，然后加载替换后的状态存储。
 
-### Refetching the open thread
+### 重新获取当前打开的线程
 
-`reload()` against the same adapter instance re-runs `list()`, which refreshes thread list metadata only. It does not touch the messages of the thread the user is looking at. When the open thread's server state changes out of band, so that nothing arrives over the stream (a human-in-the-loop interrupt raised by another process, a stalled stream, a status change picked up by polling), call `aui.threads.reloadMainThread()`:
+对同一个适配器实例调用 `reload()` 会重新执行 `list()`，但只会刷新线程列表元数据，不会触碰用户当前正在查看的线程消息。当打开线程的服务器状态在带外发生变化，且没有任何内容通过流到达时（例如由其他进程引发的人机协作中断、流停滞，或通过轮询发现状态变化），请调用 `aui.threads.reloadMainThread()`：
 
 ```tsx
 function RefetchOnInterrupt({ status }: { status: string }) {
@@ -258,19 +258,19 @@ function RefetchOnInterrupt({ status }: { status: string }) {
 }
 ```
 
-What the promise means depends on the path. On the remount path, it resolves as soon as the replacement runtime attaches, which happens before that runtime's `load()` has started, so awaiting it does not mean the thread is fresh and a failed load cannot reach the caller. On the in-place path, it settles with the refetch itself and rejects when it fails, which is why the example above still handles the rejection.
+promise 的含义取决于具体方案。在重新挂载方案中，它会在替换后的 runtime 挂载后立即解析，这发生在该 runtime 的 `load()` 开始之前，因此等待它并不意味着线程已是最新状态，加载失败也不会传递给调用方。在原地更新方案中，它会随重新获取操作一起完成，并在失败时拒绝，这也是上面示例仍然处理拒绝的原因。
 
-A thread that has not been sent yet is left alone because it holds no remote state.
+尚未发送过的线程会保持不变，因为它不包含远程状态。
 
-What happens to a run in progress depends on the path. The remount path drops the runtime that was rendering the run; whether the run itself stops is up to that hook's unmount cleanup, which core cannot enforce. On the in-place path the runtime that declared the capability decides, since core does not stop the run for it. Either way this belongs on an event rather than a short timer: drive it from a state change like the one above, or skip the call while `useAuiState((s) => s.thread.isRunning)` is true.
+正在进行的运行会发生什么取决于具体方案。重新挂载方案会丢弃负责渲染该运行的 runtime；运行本身是否停止取决于该 hook 的卸载清理逻辑，核心无法强制执行。在原地更新方案中，由声明该能力的 runtime 自行决定，因为核心不会替它停止运行。无论哪种方式，都应由事件触发，而不是使用短计时器：由上面这样的状态变化驱动，或者在 `useAuiState((s) => s.thread.isRunning)` 为 true 时跳过调用。
 
-How the refetch happens depends on the runtime, in one of three ways. When it declares the capability, the thread runtime is reused: composer drafts survive, existing messages stay rendered while the fresh state loads, and the returned promise settles with the refetch, rejecting if it fails. A remote thread list without the capability remounts the runtime hook instead, which re-runs `load()` at the cost of discarding unsent composer input, and resolves once the new runtime attaches. The single and in-memory thread lists have no hook to remount: they take the in-place path when their tap `ExternalThread` was given `onRefetchThread`, and resolve without doing anything when it was not.
+重新获取的方式取决于 runtime，共有三种。当 runtime 声明该能力时，会复用线程 runtime：编辑器草稿会保留，现有消息会在加载最新状态期间继续渲染，返回的 promise 会随重新获取操作完成，并在失败时拒绝。不具备该能力的远程线程列表会改为重新挂载 runtime hook，从而重新执行 `load()`，代价是丢弃尚未发送的编辑器输入；它会在新 runtime 挂载后解析。单线程和内存线程列表没有可供重新挂载的 hook：如果其 tap `ExternalThread` 获得了 `onRefetchThread`，则采用原地更新方案；如果没有，则直接解析且不执行任何操作。
 
-`useAuiState((s) => s.thread.capabilities.refetchThread)` reports which of those you would get, in place or not. It is not a signal for whether to offer a refresh at all: it is false on the remount path, where the call still does the work, and false again where the call does nothing.
+`useAuiState((s) => s.thread.capabilities.refetchThread)` 会报告你将获得哪种行为，以及是否会原地更新。它不是决定是否提供刷新功能的信号：在调用仍会执行工作的重新挂载方案中，它为 false；在调用不会执行任何操作的情况下，它同样为 false。
 
-Both the LangGraph and Google ADK adapters register the in-place refetch capability when their runtime hook receives a `load` function; without one they fall back to the remount path. The Eve adapter registers it when the installed `eve` exposes `resume()` (0.44.1 and later), with no option to pass; on older releases it falls back like any other adapter, which for the single and in-memory thread lists it is usually paired with means the call resolves without doing anything. A refetch that lands during a run also settles differently across the three: LangGraph and Google ADK issue the load right away, so the promise settles at fetch latency and each decides on arrival how much of the snapshot a racing run leaves standing, while Eve queues the replay behind the in-flight turn, so its promise settles only once that turn parks. Other remote adapters take the remount path unless they provide the capability themselves.
+LangGraph 和 Google ADK 适配器都会在 runtime hook 接收到 `load` 函数时注册原地重新获取能力；没有该函数时则退回重新挂载方案。Eve 适配器会在已安装的 `eve` 暴露 `resume()`（0.44.1 及更高版本）时注册该能力，且没有可传入的选项；在旧版本中，它会像其他适配器一样退回，在单线程和内存线程列表中通常表现为调用解析但不执行任何操作。运行期间发生重新获取时，三者的完成方式也不同：LangGraph 和 Google ADK 会立即发起加载，因此 promise 会在获取延迟后完成，并由各自的实现决定到达时竞态运行会保留快照中的哪些内容；Eve 则会将重放排在正在进行的轮次之后，因此 promise 只有在该轮次暂停后才会完成。其他远程适配器会采用重新挂载方案，除非它们自行提供该能力。
 
-For an external store runtime, declare it with `onRefetchThread`, which is unrelated to `onReload` (that one re-generates an assistant message); the tap `ExternalThread` accepts the same prop:
+对于外部状态存储 runtime，使用 `onRefetchThread` 声明该能力。它与 `onReload` 无关（后者会重新生成一条 assistant 消息）；tap `ExternalThread` 接受相同的 prop：
 
 ```ts
 useExternalStoreRuntime({
@@ -282,9 +282,9 @@ useExternalStoreRuntime({
 });
 ```
 
-### Paginating the thread list
+### 对线程列表分页
 
-If your backend returns thread pages, return a `nextCursor` from `list()` and consume `aui.threads.hasMore` plus `aui.threads.loadMore()` in the UI. The runtime threads `params.after` back through `list()` on every `loadMore()`; the initial call passes no `params`, so treat a missing `after` as "first page". `reload()` resets the cursor so the next load starts from page 1 again.
+如果后端返回线程分页数据，请从 `nextCursor` 返回一个 `list()`，并在 UI 中使用 `aui.threads.hasMore` 和 `aui.threads.loadMore()`。runtime 会在每次 `params.after` 时，通过 `list()` 将线程 `loadMore()` 传回；初始调用不会传递 `params`，因此应将缺少 `after` 视为“第一页”。`reload()` 会重置游标，使下一次加载再次从第 1 页开始。
 
 ```ts title="threadListAdapter.ts (excerpt)"
 async list({ after } = {}) {
@@ -303,7 +303,7 @@ async list({ after } = {}) {
 },
 ```
 
-For a button-driven UI, drop `<ThreadListPrimitive.LoadMore>` at the bottom of your list. It ships disabled while the runtime is loading or when no `nextCursor` is available. To trigger it on scroll instead, wrap the same primitive in an `IntersectionObserver` at the application layer; assistant-ui leaves visibility-driven loading to userland by design.
+对于按钮驱动的 UI，将 `<ThreadListPrimitive.LoadMore>` 放在列表底部。runtime 正在加载或没有可用的 `nextCursor` 时，它会处于禁用状态。如果希望改为通过滚动触发，请在应用层将同一个原语包装在 `IntersectionObserver` 中；assistant-ui 按设计将基于可见性的加载交由用户代码处理。
 
 ```tsx title="ThreadList.tsx"
 import {
@@ -329,13 +329,13 @@ export function ThreadList() {
 }
 ```
 
-A few invariants worth knowing when wiring a custom UI on top of `loadMore()`:
+在 `loadMore()` 之上构建自定义 UI 时，需要了解以下几个不变量：
 
-- **Empty-string cursors collapse to "no more pages".** `nextCursor: ""` is treated the same as `nextCursor: undefined`, so an off-by-one in your backend that returns an empty cursor will not loop forever.
-- **Concurrent `loadMore()` calls are deduped.** The runtime keeps a single in-flight promise per page, so calling `loadMore()` from a sentinel and a button at the same time issues only one network request.
-- **Page errors are swallowed.** If `list({ after })` rejects, the cursor is preserved and the next `loadMore()` retries with the same `after` value. The promise returned to the caller resolves regardless. Surface adapter errors yourself if you need user-visible feedback.
+- **空字符串游标会被视为“没有更多页面”。** `nextCursor: ""` 会被视为与 `nextCursor: undefined` 相同，因此后端因页码偏移错误而返回空游标时，也不会无限循环。
+- **并发的 `loadMore()` 调用会去重。** runtime 会为每个页面保留一个进行中的 promise，因此同时从哨兵和按钮调用 `loadMore()` 时，只会发出一个网络请求。
+- **页面错误会被吞掉。** 如果 `list({ after })` 被拒绝，游标会被保留，下一次 `loadMore()` 会使用相同的 `after` 值重试。无论如何，返回给调用方的 promise 都会解析。如果需要向用户显示反馈，请自行处理适配器错误。
 
-### Adapter contract
+### 适配器契约
 
 <ParametersTable
   type="RemoteThreadListAdapter"
@@ -344,77 +344,77 @@ A few invariants worth knowing when wiring a custom UI on top of `loadMore()`:
       name: "list",
       type: "(params?: { after?: string }) => Promise<{ threads: RemoteThreadMetadata[]; nextCursor?: string }>",
       description:
-        "Hydrate threads on mount. Each thread must include status and remoteId; title, externalId, and custom are optional. Return a `nextCursor` to enable `aui.threads.loadMore()`; the runtime will pass it back as `params.after` on the next call.",
+        "在挂载时加载线程。每个线程必须包含 status 和 remoteId；title、externalId 和 custom 为可选字段。返回一个 `nextCursor` 以启用 `aui.threads.loadMore()`；runtime 会在下一次调用时将其作为 `params.after` 传回。",
       required: true,
     },
     {
       name: "initialize",
       type: "(localId: string) => Promise<{ remoteId: string; externalId?: string }>",
       description:
-        "Create a new remote record when the user starts a conversation. Return the canonical ids.",
+        "用户开始对话时创建新的远程记录。返回规范化的 ID。",
       required: true,
     },
     {
       name: "rename",
       type: "(remoteId: string, title: string) => Promise<void>",
-      description: "Persist title changes from the UI.",
+      description: "持久化 UI 中的标题更改。",
       required: true,
     },
     {
       name: "updateCustom",
       type: "(remoteId: string, custom: Record<string, unknown> | undefined) => Promise<void>",
       description:
-        "Optional. Persist replacement custom metadata from `aui.threadListItem.updateCustom(custom)`.",
+        "可选。持久化来自 `aui.threadListItem.updateCustom(custom)` 的替换自定义元数据。",
     },
     {
       name: "archive",
       type: "(remoteId: string) => Promise<void>",
-      description: "Mark thread archived.",
+      description: "将线程标记为已归档。",
       required: true,
     },
     {
       name: "unarchive",
       type: "(remoteId: string) => Promise<void>",
-      description: "Restore an archived thread.",
+      description: "恢复已归档的线程。",
       required: true,
     },
     {
       name: "delete",
       type: "(remoteId: string) => Promise<void>",
-      description: "Permanently remove the thread.",
+      description: "永久删除线程。",
       required: true,
     },
     {
       name: "fetch",
       type: "(threadId: string) => Promise<RemoteThreadMetadata>",
-      description: "Fetch metadata for a single thread when switching.",
+      description: "切换线程时获取单个线程的元数据。",
       required: true,
     },
     {
       name: "generateTitle",
       type: "(remoteId: string, messages: readonly ThreadMessage[]) => Promise<AssistantStream>",
       description:
-        "Stream a title back. Use createAssistantStream and controller.appendText.",
+        "以流的形式返回标题。使用 createAssistantStream 和 controller.appendText。",
       required: true,
     },
     {
       name: "unstable_Provider",
       type: "RemoteThreadListProviderComponent",
       description:
-        "Optional React wrapper rendered around each active thread by useRemoteThreadListRuntime when present. Inject thread-scoped adapters here. Omit it to let that host use unstable_useAdapters.",
+        "可选的 React 包装器；存在时，useRemoteThreadListRuntime 会在每个活动线程外部渲染它。在此处注入线程作用域的适配器。省略它可让该宿主使用 unstable_useAdapters。",
     },
     {
       name: "unstable_useAdapters",
       type: "() => RuntimeAdapters | null | undefined",
       description:
-        "Optional hook called by the RemoteThreadList store entry, and by useRemoteThreadListRuntime when unstable_Provider is omitted. Per-thread history requires the thread factory to be keyed with withKey.",
+        "可选 hook，由 RemoteThreadList store 条目调用；省略 unstable_Provider 时，useRemoteThreadListRuntime 也会调用它。每个线程的历史记录都要求使用 withKey 为线程工厂设置 key。",
     },
   ]}
 />
 
-### Custom metadata
+### 自定义元数据
 
-`RemoteThreadMetadata` includes an optional `custom?: Record<string, unknown>` slot for backend-specific fields (timestamps, owner ids, workspace ids, tags, model name). Whatever you return from `list()` and `fetch()` flows through to the thread list item state and is reachable from any UI primitive via `useAuiState`.
+`RemoteThreadMetadata` 包含一个可选的 `custom?: Record<string, unknown>` 插槽，用于存放后端专用字段（时间戳、所有者 ID、工作区 ID、标签、模型名称）。你从 `list()` 和 `fetch()` 返回的任何内容，都会传递到线程列表项状态中，并可通过 `useAuiState` 从任何 UI 原语访问。
 
 ```ts
 type MyThreadMetadata = RemoteThreadMetadata & {
@@ -440,11 +440,11 @@ function ThreadListItemMeta() {
 }
 ```
 
-`custom` is preserved across `rename`, `archive`, `unarchive`, and `generateTitle`. To replace it from your UI, implement `RemoteThreadListAdapter.updateCustom` and call `aui.threadListItem.updateCustom(custom)`. The cloud adapter persists this through `cloud.threads.update(threadId, { metadata })`. If your adapter mutates thread metadata through a separate application path, return the updated values from `fetch()` or call `aui.threads.reload()` to re-run `list()`.
+`custom` 会在 `rename`、`archive`、`unarchive` 和 `generateTitle` 之间保留。要从 UI 中替换它，请实现 `RemoteThreadListAdapter.updateCustom` 并调用 `aui.threadListItem.updateCustom(custom)`。cloud 适配器会通过 `cloud.threads.update(threadId, { metadata })` 持久化该数据。如果你的适配器通过独立的应用路径修改线程元数据，请从 `fetch()` 返回更新后的值，或调用 `aui.threads.reload()` 重新执行 `list()`。
 
 ## ExternalStoreThreadListAdapter
 
-For `ExternalStoreRuntime` users only. Wires multi-thread support into an external state store.
+仅适用于 `ExternalStoreRuntime` 用户。将多线程支持接入外部状态存储。
 
 ```tsx
 const threadListAdapter: ExternalStoreThreadListAdapter = {
@@ -478,36 +478,36 @@ const runtime = useExternalStoreRuntime({
 });
 ```
 
-Unlike `RemoteThreadListAdapter`, this adapter is synchronous and inline. You keep thread metadata and messages in your own store; the runtime just renders what you provide.
+与 `RemoteThreadListAdapter` 不同，此适配器是同步且内联的。你需要在自己的状态存储中维护线程元数据和消息；runtime 只会渲染你提供的内容。
 
 <Callout type="warn">
-The runtime's `currentThreadId` and your store's selected thread must stay in sync. Mismatched thread ids cause messages to appear in the wrong thread or vanish entirely. Centralize thread id state in a context, never in component-local state.
+runtime 的 `currentThreadId` 必须与你的状态存储中选中的线程保持同步。线程 ID 不匹配会导致消息显示在线程中，或完全消失。请在 context 中集中管理线程 ID 状态，不要放在组件本地状态中。
 </Callout>
 
-## Choosing
+## 如何选择
 
-Ask three questions in order:
+请依次回答以下三个问题：
 
-1. **Do you want it managed?** Use `AssistantCloud`. You do not write database code.
-2. **Do you have your own backend?** Use `RemoteThreadListRuntime` if you are on `LocalRuntime` (or any adapter built on it). You implement the adapter, you own the data.
-3. **Are you on `ExternalStoreRuntime`?** Use `ExternalStoreThreadListAdapter`. Threads live in your store next to messages.
+1. **希望由服务托管吗？** 使用 `AssistantCloud`。无需编写数据库代码。
+2. **有自己的后端吗？** 如果使用 `RemoteThreadListRuntime`（或任何基于它构建的适配器），请使用 `LocalRuntime`。由你实现适配器并负责数据。
+3. **使用 `ExternalStoreRuntime` 吗？** 使用 `ExternalStoreThreadListAdapter`。线程与消息一起存储在你的状态存储中。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
-    title="Adapters"
-    description="The shared adapter contracts (attachments, history, speech, feedback)."
+    title="适配器"
+    description="共享的适配器契约（附件、历史记录、语音、反馈）。"
     href="/docs/runtimes/concepts/adapters"
   />
   <Card
-    title="Architecture"
-    description="The three-layer runtime model and how threads flow through it."
+    title="架构"
+    description="三层 runtime 模型，以及线程如何在其中流转。"
     href="/docs/runtimes/concepts/architecture"
   />
   <Card
     title="AssistantCloud"
-    description="The managed multi-thread service."
+    description="托管式多线程服务。"
     href="/docs/cloud"
   />
 </Cards>

@@ -1,20 +1,20 @@
 ---
-title: "Chart"
-description: "Area, line, and bars, with points landing one at a time as the series streams in."
+title: "图表"
+description: "面积图、折线图和柱状图，随着序列流式传输，数据点逐个呈现。"
 ---
 
-A chart draws a label, a headline value, and an optional delta above a small SVG series, with points landing one at a time as they become available. With a runtime the series streams straight out of the tool call's arguments; standalone you control how much of it is visible.
+图表会在小型 SVG 序列上方绘制标签、主要数值和可选的变化值，数据点会在可用时逐个呈现。在运行时中，序列会直接从工具调用的参数中流式传输出来；单独使用时，你可以控制显示其中多少内容。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-A chart's series usually comes from the same tool call that produces its headline value, so it renders through that tool's `render` field. Because `args` is a best-effort parse of the JSON the model is still writing, `args.points` holds however many elements have streamed in so far; pass its length straight through as `visibleCount` and the chart reveals points as they arrive.
+图表的序列通常来自生成主要数值的同一个工具调用，因此会通过该工具的 `render` 字段进行渲染。由于 `args` 是对模型仍在编写的 JSON 进行的尽力解析，`args.points` 会保存目前已流式传输的元素数量；将其长度直接作为 `visibleCount` 传入，图表就会随着数据到达逐个显示数据点。
 
 <Steps>
   <Step>
 
-### Render the tool call
+### 渲染工具调用
 
 ```tsx title="components/assistant-ui/elements/plot-metric-tool-ui.tsx"
 "use client";
@@ -46,7 +46,7 @@ export const PlotMetricToolUI: ToolCallMessagePartComponent<
   </Step>
   <Step>
 
-### Register the tool
+### 注册工具
 
 ```tsx title="app/toolkit.ts"
 import { defineToolkit } from "@assistant-ui/react";
@@ -80,7 +80,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-See [Tool UI](/docs/tools/tool-ui) for backend-defined tools and approval gates.
+有关后端定义的工具和审批门，请参阅[工具 UI](/docs/tools/tool-ui)。
 
   </Step>
 </Steps>
@@ -89,12 +89,12 @@ See [Tool UI](/docs/tools/tool-ui) for backend-defined tools and approval gates.
 
 <StandaloneMode>
 
-Standalone, `points` is the full series and `visibleCount` is how much of it to draw. Grow `visibleCount` on a timer to replay a stream.
+单独使用时，`points` 是完整序列，`visibleCount` 表示要绘制其中多少内容。在计时器上递增 `visibleCount`，即可重放一次流式传输。
 
 <Steps>
   <Step>
 
-### Hold the series
+### 暂存序列
 
 ```tsx title="app/runs-chart.tsx"
 "use client";
@@ -122,7 +122,7 @@ export function RunsChart() {
   </Step>
   <Step>
 
-### Reveal points on a timer
+### 按计时器显示数据点
 
 ```tsx
 useEffect(() => {
@@ -137,7 +137,7 @@ useEffect(() => {
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="chart">
@@ -147,66 +147,66 @@ useEffect(() => {
 </div>
 ```
 
-`visibleCount` clamps to `1…points.length`, so the chart always draws at least one point and never overruns the array. In the `line` and `area` variants only the last visible point gets a filled dot; in `bars` only the last visible bar is tinted, the rest read as muted. `delta`'s color follows its own leading character: a minus sign or an en or em dash reads as falling and tints red, anything else reads as rising and tints green; omit `delta` to hide it entirely.
+`visibleCount` 会限制在 `1…points.length` 范围内，因此图表始终至少绘制一个数据点，并且不会超出数组范围。在 `line` 和 `area` 变体中，只有最后一个可见数据点会显示实心圆点；在 `bars` 中，只有最后一个可见柱状条会着色，其余柱状条显示为柔和色。`delta` 的颜色取决于其开头的字符：减号、短破折号或长破折号表示下降，并显示为红色；其他字符表示上升，并显示为绿色；省略 `delta` 即可完全隐藏它。
 
-## Examples
+## 示例
 
-### Choosing a variant
+### 选择变体
 
-`variant` decides how the series draws. The label, value, and delta stay in the same place regardless.
+`variant` 决定序列的绘制方式。无论选择哪种方式，标签、数值和变化值都保持在相同位置。
 
-| Variant | Draws |
+| 变体 | 绘制内容 |
 |---------|-------|
-| `"area"` (default) | A filled gradient under the line, plus the line itself. |
-| `"line"` | The line only, no fill. |
-| `"bars"` | One bar per visible point instead of a line. |
+| `"area"`（默认） | 折线下方的填充渐变，以及折线本身。 |
+| `"line"` | 仅绘制折线，不进行填充。 |
+| `"bars"` | 每个可见数据点对应一个柱状条，而不是绘制折线。 |
 
 ```tsx
 <Chart variant="bars" /* ... */ />
 ```
 
-### Restyle the chart
+### 重新设置图表样式
 
-Both lanes take `className` on the root. The label and value read from the shared `mono` and `paper` tokens in `surfaces.tsx`; the series itself is drawn with fixed blue fill and stroke classes in `chart.tsx`, so recoloring the line or bars means editing that file directly.
+两种变体都会在根元素上接收 `className`。标签和数值从 `surfaces.tsx` 中共享的 `mono` 和 `paper` token 读取；序列本身使用 `chart.tsx` 中固定的蓝色填充和描边类进行绘制，因此要重新设置折线或柱状条的颜色，需要直接编辑该文件。
 
 ```tsx
 <Chart className="max-w-none" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool-call render props
+### 工具调用渲染属性
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `args` | `TArgs` | Parsed arguments. Partial while the model is still streaming them. |
-| `argsText` | `string` | Raw JSON argument text streamed by the model. |
-| `result` | `TResult \| undefined` | The tool's return value once it completes. `undefined` while running. |
-| `status` | `ToolCallMessagePartStatus` | `status.type` is `"running"`, `"requires-action"`, `"complete"`, or `"incomplete"`. |
-| `toolName` | `string` | Name of the tool the model called. |
-| `toolCallId` | `string` | Stable id for this invocation. |
-| `isError` | `boolean \| undefined` | Whether `result` represents a tool execution error. |
+| `args` | `TArgs` | 已解析的参数。模型仍在流式传输参数时，该值是不完整的。 |
+| `argsText` | `string` | 模型流式传输的原始 JSON 参数文本。 |
+| `result` | `TResult \| undefined` | 工具完成后返回的值。运行期间为 `undefined`。 |
+| `status` | `ToolCallMessagePartStatus` | `status.type` 的值为 `"running"`、`"requires-action"`、`"complete"` 或 `"incomplete"`。 |
+| `toolName` | `string` | 模型调用的工具名称。 |
+| `toolCallId` | `string` | 此次调用的稳定 ID。 |
+| `isError` | `boolean \| undefined` | `result` 是否表示工具执行错误。 |
 
-Register the renderer on a toolkit entry's `render` field and attach the toolkit with `Tools({ toolkit })`. See [Tool UI](/docs/tools/tool-ui) for the full render-prop surface, including `addResult`, human tools, and approval gates.
+在工具包条目的 `render` 字段上注册渲染器，并使用 `Tools({ toolkit })` 附加工具包。有关完整的渲染属性范围（包括 `addResult`、人工工具和审批门），请参阅[工具 UI](/docs/tools/tool-ui)。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-### Chart
+### 图表
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `label` | `string` | required | Caption above the value. |
-| `value` | `string` | required | The headline number, already formatted. |
-| `delta` | `string` | | Optional change indicator. A leading `-`, `−`, or `–` reads as falling; anything else reads as rising. |
-| `points` | `readonly number[]` | required | The full series. |
-| `visibleCount` | `number` | required | How many points from the start of `points` to draw. Clamped to `1…points.length`. |
-| `variant` | `"area" \| "line" \| "bars"` | `"area"` | How the series draws. |
-| `className` | `string` | | Merged onto the root. |
+| `label` | `string` | 必填 | 数值上方的标题。 |
+| `value` | `string` | 必填 | 已完成格式化的主要数值。 |
+| `delta` | `string` | | 可选的变化指示器。以 `-`、`−` 或 `–` 开头表示下降；其他情况表示上升。 |
+| `points` | `readonly number[]` | 必填 | 完整序列。 |
+| `visibleCount` | `number` | 必填 | 要从 `points` 开头绘制的数据点数量。限制在 `1…points.length` 范围内。 |
+| `variant` | `"area" \| "line" \| "bars"` | `"area"` | 序列的绘制方式。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

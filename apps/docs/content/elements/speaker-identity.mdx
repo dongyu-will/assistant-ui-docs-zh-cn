@@ -1,20 +1,20 @@
 ---
-title: "Speaker identity"
-description: "Who is talking, once a thread holds more than a user and one model."
+title: "说话者身份"
+description: "当一个线程中不再只有一位用户和一个模型时，谁在发言。"
 ---
 
-SpeakerIdentity rows each turn with an icon and tone keyed to who or what produced it: you, the assistant, a subagent, or a tool. With a runtime the user, assistant, and tool distinctions come straight from message and part data; standalone you assemble the list yourself.
+SpeakerIdentity 会为每个回合添加图标和色调，具体取决于产生该回合的对象：你、助手、子代理或工具。使用运行时（runtime）时，用户、助手和工具之间的区别直接来自消息和部分数据；单独使用时，则需要自行组装列表。
 
-## Getting started
+## 入门
 
 <RuntimeMode>
 
-`s.message.role` gives you the user/assistant split directly. Tool calls live as parts inside an assistant message's `content`, each with a `toolName` and, when the runtime tracks it, a `timing`. A nested subagent run shows up as a tool call's own `messages` field, a real part of `ToolCallMessagePart` for exactly this case. assistant-ui has no fixed "agent name" concept beyond that: a display name for a particular agent or model is something you attach yourself through the message's open `metadata.custom` bag.
+`s.message.role` 会直接提供用户/助手的区分。工具调用作为部分存在于助手消息的 `content` 中，每个部分都有一个 `toolName`，并且在运行时进行跟踪时还会有一个 `timing`。嵌套的子代理运行会显示为工具调用自身的 `messages` 字段；对于这种情况，它正是 `ToolCallMessagePart` 的一个真实部分。除了这一点，assistant-ui 没有固定的“代理名称”概念：特定代理或模型的显示名称，需要你自行通过消息的开放式 `metadata.custom` 数据包附加。
 
 <Steps>
   <Step>
 
-### Turn a top-level message into a row
+### 将顶层消息转换为行
 
 ```tsx title="components/assistant-ui/elements/speaker-list.tsx"
 "use client";
@@ -48,12 +48,12 @@ function messageTurn(message: ThreadMessage): SpeakerTurn {
 }
 ```
 
-`agentName` and `model` above are an example convention, not a built-in field; your own multi-agent backend decides what it stashes in `metadata.custom` and under which keys.
+上面的 `agentName` 和 `model` 是一种示例约定，并非内置字段；你自己的多代理后端决定在 `metadata.custom` 中存储哪些内容，以及使用哪些键。
 
   </Step>
   <Step>
 
-### Add tool calls and nested subagents
+### 添加工具调用和嵌套子代理
 
 ```tsx
 import type { ToolCallMessagePart } from "@assistant-ui/react";
@@ -87,7 +87,7 @@ function turnsFor(message: ThreadMessage): SpeakerTurn[] {
 }
 ```
 
-Which argument is worth showing as a tool row's `text` is tool-specific; `argsText` (the raw streamed JSON) is a safe generic fallback, but a `read_file` tool's path or a `search` tool's query is usually more readable when you have `toolName` to switch on.
+工具行的 `text` 应该显示哪个参数，取决于具体工具；`argsText`（原始流式 JSON）是安全的通用后备方案，但如果你有 `toolName` 可以进行判断，通常显示 `read_file` 工具的路径或 `search` 工具的查询会更易读。
 
   </Step>
 </Steps>
@@ -96,12 +96,12 @@ Which argument is worth showing as a tool row's `text` is tool-specific; `argsTe
 
 <StandaloneMode>
 
-Standalone, SpeakerIdentity takes a flat list of turns; you decide what counts as a turn and how they're ordered.
+单独使用时，SpeakerIdentity 接收一个扁平的回合列表；哪些内容算作一个回合，以及它们的排序方式，都由你决定。
 
 <Steps>
   <Step>
 
-### Build the turn list
+### 构建回合列表
 
 ```tsx title="app/session.tsx"
 import { SpeakerIdentity, type SpeakerTurn } from "@/components/assistant-ui/elements/speaker-identity";
@@ -118,7 +118,7 @@ const TURNS: SpeakerTurn[] = [
   </Step>
   <Step>
 
-### Append as the session progresses
+### 随会话进展追加
 
 ```tsx
 setTurns((prev) => [...prev, { id: crypto.randomUUID(), kind: "tool", name: "read_file", text: path }]);
@@ -129,7 +129,7 @@ setTurns((prev) => [...prev, { id: crypto.randomUUID(), kind: "tool", name: "rea
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="speaker-identity">
@@ -137,29 +137,29 @@ setTurns((prev) => [...prev, { id: crypto.randomUUID(), kind: "tool", name: "rea
 </div>
 ```
 
-Each `kind` maps to a fixed icon and tone: `user` and `subagent` share a neutral tint, `agent` is the only one tinted blue, and `tool` reads dimmest of the four. `subagent` is the one kind whose badge renders as a full circle instead of a rounded square, echoing that it stands in for a whole nested conversation rather than a single speaker.
+每个 `kind` 都映射到固定的图标和色调：`user` 和 `subagent` 共享中性色调，`agent` 是唯一使用蓝色色调的类型，而 `tool` 在四者中显示得最暗。`subagent` 是唯一一种徽章会渲染为完整圆形而非圆角方形的类型，这也体现了它代表的是整个嵌套会话，而不是单个说话者。
 
-## Examples
+## 示例
 
-### Restyle the badges
+### 重新设置徽章样式
 
-Both lanes take `className` on the root. `detail` reads the shared `mono` surface from `surfaces.tsx`.
+两条轨道都会在根元素上接收 `className`。`detail` 会从 `surfaces.tsx` 读取共享的 `mono` 表面。
 
 ```tsx
 <SpeakerIdentity className="gap-4" turns={turns} />
 ```
 
-### A thread with only one voice
+### 只有一种声音的线程
 
 <RuntimeMode>
 
-Most threads never produce a `subagent` or `tool` row; `turnsFor` above still returns a plain two-kind list (`user`, `agent`) for them, since the loop over `content` simply finds nothing to add.
+大多数线程都不会产生 `subagent` 或 `tool` 行；对于这些线程，上面的 `turnsFor` 仍会返回一个简单的两类型列表（`user`、`agent`），因为遍历 `content` 时根本找不到可添加的内容。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-Passing turns of a single `kind` works the same as a mixed list; the icon and tone are looked up per row, not chosen once for the whole list.
+传入只包含单个 `kind` 的回合，其工作方式与混合列表相同；图标和色调会按行查找，而不是为整个列表统一选择一次。
 
 ```tsx
 <SpeakerIdentity turns={turns.filter((t) => t.kind === "user" || t.kind === "agent")} />
@@ -167,19 +167,19 @@ Passing turns of a single `kind` works the same as a mixed list; the icon and to
 
 </StandaloneMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Message state
+### 消息状态
 
-| Selector / field | Type | Description |
+| 选择器 / 字段 | 类型 | 描述 |
 |-------------------|------|-------------|
-| `s.message.role` | `"user" \| "assistant" \| "system"` | The real split; `"agent"` and `"subagent"` are this component's own vocabulary, not runtime roles. |
-| `s.message.metadata.custom` | `Record<string, unknown>` | Open bag for app-defined display data, such as an agent's name or model. |
-| `ToolCallMessagePart.toolName` | `string` | Name of the called tool. |
-| `ToolCallMessagePart.timing` | `{ startedAt: number; completedAt?: number } \| undefined` | Epoch ms; subtract for a duration once `completedAt` is set. |
-| `ToolCallMessagePart.messages` | `readonly ThreadMessage[] \| undefined` | Nested thread messages produced by this call, for example a subagent's own conversation. |
+| `s.message.role` | `"user" \| "assistant" \| "system"` | 真正的区分方式；`"agent"` 和 `"subagent"` 是此组件自身的词汇，而不是运行时角色。 |
+| `s.message.metadata.custom` | `Record<string, unknown>` | 用于存放应用定义的显示数据的开放式数据包，例如代理名称或模型名称。 |
+| `ToolCallMessagePart.toolName` | `string` | 被调用工具的名称。 |
+| `ToolCallMessagePart.timing` | `{ startedAt: number; completedAt?: number } \| undefined` | Epoch 毫秒数；设置 `completedAt` 后，两者相减即可得到持续时间。 |
+| `ToolCallMessagePart.messages` | `readonly ThreadMessage[] \| undefined` | 此调用产生的嵌套线程消息，例如子代理自己的会话。 |
 
 </RuntimeMode>
 
@@ -187,21 +187,21 @@ Passing turns of a single `kind` works the same as a mixed list; the icon and to
 
 ### SpeakerIdentity
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `turns` | `readonly SpeakerTurn[]` | required | The full, ordered list to render. |
-| `className` | `string` | | Merged onto the root. |
+| `turns` | `readonly SpeakerTurn[]` | 必填 | 要渲染的完整有序列表。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### SpeakerTurn
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
 | `id` | `string` | |
-| `kind` | `"user" \| "agent" \| "subagent" \| "tool"` | Drives the icon and tone. |
+| `kind` | `"user" \| "agent" \| "subagent" \| "tool"` | 决定图标和色调。 |
 | `name` | `string` | |
-| `detail` | `string \| undefined` | Shown beside the name, e.g. a model name or a duration. |
+| `detail` | `string \| undefined` | 显示在名称旁边，例如模型名称或持续时间。 |
 | `text` | `string` | |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` 属性都会转发到根元素。
 
 </StandaloneMode>

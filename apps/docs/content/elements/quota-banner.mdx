@@ -1,18 +1,18 @@
 ---
-title: "Quota banner"
-description: "How much is left, when it comes back, and the way to get more."
+title: "配额横幅"
+description: "剩余多少、何时恢复，以及如何获取更多配额。"
 ---
 
-QuotaBanner shows what's left of a usage allowance: a headline count, a fill bar, and an upgrade button that turns amber once you're close to the limit. assistant-ui's runtime has no concept of plan limits or rate budgets, that's account and billing state the host app owns, so this element has just the one, standalone form: you hold the used and limit numbers and re-render as they change.
+QuotaBanner 显示使用配额的剩余情况：醒目的计数、填充条，以及接近上限时变为琥珀色的升级按钮。assistant-ui 的运行时没有计划上限或速率预算的概念；这些属于宿主应用负责的账户和计费状态。因此，该元素只有一种独立形式：由你保存已使用量和上限，并在它们变化时重新渲染。
 
-## Getting started
+## 开始使用
 
-You decide what "used" and "limit" mean, in whatever unit your plan counts, messages, tokens, or requests, and pass the current numbers down from wherever your account state lives.
+你可以自行决定“已使用量”和“上限”的含义，单位可以是计划统计的消息、令牌或请求，然后从账户状态所在的位置向下传递当前数值。
 
 <Steps>
   <Step>
 
-### Hold the usage state
+### 保存使用状态
 
 ```tsx title="app/quota.tsx"
 "use client";
@@ -39,9 +39,9 @@ export function Quota() {
   </Step>
   <Step>
 
-### Recompute `resetsIn` on your own clock
+### 按自己的时钟重新计算 `resetsIn`
 
-The component never counts down on its own. `resetsIn` is whatever string you pass, so refresh it yourself, from a timer or from the account's reset timestamp:
+组件不会自行倒计时。`resetsIn` 就是你传入的任意字符串，因此请自行刷新它，可以使用计时器，也可以根据账户的重置时间戳刷新：
 
 ```tsx
 const resetsIn = formatDistanceToNowStrict(resetAt);
@@ -50,7 +50,7 @@ const resetsIn = formatDistanceToNowStrict(resetAt);
   </Step>
 </Steps>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="quota-banner">
@@ -66,19 +66,19 @@ const resetsIn = formatDistanceToNowStrict(resetAt);
 </div>
 ```
 
-`left` is `limit` minus `used`, floored at zero, so going over quota reads as `"0 {unit} left"` rather than a negative number. The tight, amber state starts at 90% used (`used / limit >= 0.9`), coloring both the headline and the fill bar; a `limit` of `0` is treated as `0%` used rather than producing `NaN`. The upgrade button always renders, whether or not the account is close to its limit, and calls `onUpgrade` if you pass one, there's no default action if you don't.
+`left` 等于 `limit` 减去 `used`，并限制最小值为零，因此超出配额时显示为 `"0 {unit} left"`，而不是负数。紧张的琥珀色状态从已使用 90% 时开始（`used / limit >= 0.9`），醒目的计数和填充条都会变为该颜色；`0` 的 `limit` 会被视为已使用 `0%`，而不是产生 `NaN`。无论账户是否接近上限，升级按钮始终会渲染；如果你传入 `onUpgrade`，按钮会调用它；如果不传入，则没有默认操作。
 
-## Examples
+## 示例
 
-### Restyle the banner
+### 重新设置横幅样式
 
-The fill bar's filled portion and the button both read the shared surface tokens from `surfaces.tsx`, the button is `inkButton`, and the root is `paper`. `className` on the root merges with these.
+填充条的已填充部分和按钮都会从 `surfaces.tsx` 读取共享的表面令牌，按钮是 `inkButton`，根元素是 `paper`。根元素上的 `className` 会与这些属性合并。
 
 ```tsx
 <QuotaBanner className="max-w-none" /* ... */ />
 ```
 
-### Reading a plan's usage from your billing API
+### 从计费 API 读取计划使用量
 
 ```tsx
 const { data } = useSWR("/api/usage", fetcher);
@@ -96,18 +96,18 @@ return (
 );
 ```
 
-## API reference
+## API 参考
 
 ### QuotaBanner
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `used` | `number` | required | Units consumed so far. |
-| `limit` | `number` | required | Units allowed before reset. |
-| `unit` | `string` | required | Label for the count, for example `"messages"`. |
-| `resetsIn` | `string` | required | Pre-formatted countdown text. |
-| `upgradeLabel` | `string` | required | Text on the upgrade button. |
-| `onUpgrade` | `() => void` | | Called when the upgrade button is pressed. |
-| `className` | `string` | | Merged onto the root. |
+| `used` | `number` | 必填 | 截至目前已消耗的单位数。 |
+| `limit` | `number` | 必填 | 重置前允许使用的单位数。 |
+| `unit` | `string` | 必填 | 计数标签，例如 `"messages"`。 |
+| `resetsIn` | `string` | 必填 | 预先格式化的倒计时文本。 |
+| `upgradeLabel` | `string` | 必填 | 升级按钮上的文本。 |
+| `onUpgrade` | `() => void` | | 按下升级按钮时调用。 |
+| `className` | `string` | | 合并到根元素。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` 属性都会转发到根元素。

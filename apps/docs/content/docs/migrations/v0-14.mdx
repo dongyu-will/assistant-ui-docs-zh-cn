@@ -1,25 +1,25 @@
 ---
-title: Migration to v0.14
-description: Drops APIs deprecated since v0.11/v0.12, and primitives migrate from components prop to children render functions.
+title: 迁移到 v0.14
+description: 移除自 v0.11/v0.12 起已弃用的 API，并将原语从 components 属性迁移到 children 渲染函数。
 ---
 
-Version 0.14 finishes deprecation cycles started in v0.11 and v0.12, and replaces the `components` prop on primitives with a children render function pattern. If your app is on v0.13 and free of deprecation warnings, the only required change is the children API migration.
+v0.14 完成了 v0.11 和 v0.12 开始的弃用周期，并将原语上的 `components` 属性替换为 children 渲染函数模式。如果你的应用使用 v0.13 且没有弃用警告，则唯一需要进行的更改就是迁移 children API。
 
-## Automatic Migration
+## 自动迁移
 
-The codemod that ships with the CLI handles the v0.12 hook renames (`useAssistantApi` → `useAui`, etc.) which are also removed in v0.14:
+CLI 附带的 codemod 会处理 v0.12 的 hook 重命名（`useAssistantApi` → `useAui` 等），这些 API 也会在 v0.14 中移除：
 
 ```bash
 npx assistant-ui@latest upgrade
 ```
 
-The other removals listed below are simple renames you can apply with find-and-replace.
+下面列出的其他移除项只是简单的重命名，可以使用查找和替换完成。
 
-## Hook Aliases Removed
+## 移除 Hook 别名
 
-These thin aliases existed only for backwards compatibility:
+这些轻量别名仅用于向后兼容：
 
-| Removed                              | Replacement                  |
+| 移除项                              | 替代项                  |
 | ------------------------------------ | ---------------------------- |
 | `useAssistantApi`                    | `useAui`                     |
 | `useAssistantState`                  | `useAuiState`                |
@@ -31,11 +31,11 @@ These thin aliases existed only for backwards compatibility:
 | `unstable_RemoteThreadListAdapter`   | `RemoteThreadListAdapter`    |
 | `unstable_InMemoryThreadListAdapter` | `InMemoryThreadListAdapter`  |
 
-## Runtime API Cleanups
+## 运行时 API 清理
 
 ### `AssistantRuntime`
 
-| Removed                                  | Replacement                               |
+| 移除项                                  | 替代项                               |
 | ---------------------------------------- | ----------------------------------------- |
 | `runtime.threadList`                     | `runtime.threads`                         |
 | `runtime.switchToNewThread()`            | `runtime.threads.switchToNewThread()`     |
@@ -45,16 +45,16 @@ These thin aliases existed only for backwards compatibility:
 
 ### `ThreadRuntime`
 
-| Removed                                    | Replacement                         |
+| 移除项                                    | 替代项                         |
 | ------------------------------------------ | ----------------------------------- |
-| `thread.startRun(parentId)` (positional)   | `thread.startRun({ parentId })`     |
+| `thread.startRun(parentId)`（位置参数）   | `thread.startRun({ parentId })`     |
 | `thread.unstable_resumeRun(config)`        | `thread.resumeRun(config)`          |
 | `thread.unstable_loadExternalState(state)` | `thread.importExternalState(state)` |
 | `thread.getModelConfig()`                  | `thread.getModelContext()`          |
 
 ### `MessageState` / `MessageRuntime`
 
-The duplicate top-level `submittedFeedback` field has been removed. It has always been mirrored from `message.metadata.submittedFeedback`, which remains the source of truth:
+重复的顶层 `submittedFeedback` 字段已被移除。它始终是从 `message.metadata.submittedFeedback` 镜像得到的，而后者仍然是事实来源：
 
 ```tsx
 // Before
@@ -66,7 +66,7 @@ useAuiState((s) => s.message.metadata.submittedFeedback);
 
 ### `ChatModelRunOptions`
 
-If you wrote a custom `ChatModelAdapter`, the legacy alias `options.config` (which mirrored `options.context`) is gone:
+如果你编写了自定义的 `ChatModelAdapter`，则旧别名 `options.config`（它镜像了 `options.context`）已被移除：
 
 ```ts
 // Before
@@ -84,9 +84,9 @@ const adapter: ChatModelAdapter = {
 };
 ```
 
-## External Store Helpers
+## 外部状态存储辅助函数
 
-`getExternalStoreMessage` (singular) has been removed. Use `getExternalStoreMessages` (plural), which always returns an array — even when only one source message is bound:
+`getExternalStoreMessage`（单数形式）已被移除。请使用 `getExternalStoreMessages`（复数形式），它始终返回数组，即使只绑定了一条源消息：
 
 ```ts
 // Before
@@ -96,9 +96,9 @@ const original = getExternalStoreMessage<MyMessage>(threadMessage);
 const [original] = getExternalStoreMessages<MyMessage>(threadMessage);
 ```
 
-## Assistant Transport Helpers
+## 助手传输层辅助函数
 
-`toAISDKTools` and `getEnabledTools` (re-exported from `@assistant-ui/react`) have been removed. Both wrapped functionality that's now exposed directly by `assistant-stream`:
+`toAISDKTools` 和 `getEnabledTools`（从 `@assistant-ui/react` 重新导出）已被移除。两者封装的功能现在由 `assistant-stream` 直接提供：
 
 ```ts
 // Before
@@ -110,11 +110,11 @@ import { toToolsJSONSchema } from "assistant-stream";
 const schemas = toToolsJSONSchema(tools);
 ```
 
-`toToolsJSONSchema` filters out `disabled` and `backend` tools by default. To replicate the old `toAISDKTools` behavior exactly (include all tools regardless), pass `{ filter: () => true }`.
+`toToolsJSONSchema` 默认会过滤掉 `disabled` 和 `backend` 工具。若要完全复现旧版 `toAISDKTools` 的行为（无论工具类型都包含），请传入 `{ filter: () => true }`。
 
 ## react-langgraph
 
-`useLangGraphRuntime`'s `onSwitchToThread` option has been removed. Use `load`, which has the same signature plus an optional `AbortSignal`:
+`useLangGraphRuntime` 的 `onSwitchToThread` 选项已被移除。请使用 `load`，其签名相同，并额外支持可选的 `AbortSignal`：
 
 ```ts
 // Before
@@ -134,13 +134,13 @@ useLangGraphRuntime({
 });
 ```
 
-## Children API for Primitives
+## 原语的 Children API
 
-Version 0.14 replaces the `components` prop on primitives with a children render function pattern. This gives you full control over rendering with simple inline logic.
+v0.14 将原语上的 `components` 属性替换为 children 渲染函数模式。这样你可以通过简单的内联逻辑，完全控制渲染过程。
 
 ### ThreadPrimitive.Messages
 
-**Before:**
+**之前：**
 
 ```tsx
 <ThreadPrimitive.Messages
@@ -152,7 +152,7 @@ Version 0.14 replaces the `components` prop on primitives with a children render
 />
 ```
 
-**After:**
+**之后：**
 
 ```tsx
 <ThreadPrimitive.Messages>
@@ -166,7 +166,7 @@ Version 0.14 replaces the `components` prop on primitives with a children render
 
 ### MessagePrimitive.Parts
 
-**Before:**
+**之前：**
 
 ```tsx
 <MessagePrimitive.Parts
@@ -178,7 +178,7 @@ Version 0.14 replaces the `components` prop on primitives with a children render
 />
 ```
 
-**After:**
+**之后：**
 
 ```tsx
 <MessagePrimitive.Parts>
@@ -192,9 +192,9 @@ Version 0.14 replaces the `components` prop on primitives with a children render
 </MessagePrimitive.Parts>
 ```
 
-### `part.toolUI` and `part.dataRendererUI`
+### `part.toolUI` 和 `part.dataRendererUI`
 
-Tool-call parts now expose a `toolUI` property that resolves to the registered tool UI (via `useAssistantToolUI` / `makeAssistantToolUI`) or `null` if none is registered. Data parts similarly expose `dataRendererUI`.
+工具调用部分现在会公开一个 `toolUI` 属性，该属性会解析为已注册的工具 UI（通过 `useAssistantToolUI` / `makeAssistantToolUI`），如果没有注册则解析为 `null`。数据部分同样会公开 `dataRendererUI`。
 
 ```tsx
 // Renders the registered tool UI if available, otherwise ToolFallback
@@ -206,9 +206,9 @@ if (part.type === "data")
   return part.dataRendererUI ?? null;
 ```
 
-### Returning `null`
+### 返回 `null`
 
-Returning `null` from the children function renders registered tool UIs and data renderer UIs automatically via the registry. To explicitly render nothing (suppressing registered UIs), return `<></>`.
+从 children 函数返回 `null` 时，注册表会自动渲染已注册的工具 UI 和数据渲染器 UI。若要显式地不渲染任何内容（抑制已注册的 UI），请返回 `<></>`。
 
 ```tsx
 <MessagePrimitive.Parts>
@@ -221,7 +221,7 @@ Returning `null` from the children function renders registered tool UIs and data
 
 ### ThreadPrimitive.Suggestions
 
-**Before:**
+**之前：**
 
 ```tsx
 <ThreadPrimitive.Suggestions
@@ -229,7 +229,7 @@ Returning `null` from the children function renders registered tool UIs and data
 />
 ```
 
-**After:**
+**之后：**
 
 ```tsx
 <ThreadPrimitive.Suggestions>
@@ -239,7 +239,7 @@ Returning `null` from the children function renders registered tool UIs and data
 
 ### ThreadListPrimitive.Items
 
-**Before:**
+**之前：**
 
 ```tsx
 <ThreadListPrimitive.Items
@@ -247,7 +247,7 @@ Returning `null` from the children function renders registered tool UIs and data
 />
 ```
 
-**After:**
+**之后：**
 
 ```tsx
 <ThreadListPrimitive.Items>
@@ -255,9 +255,9 @@ Returning `null` from the children function renders registered tool UIs and data
 </ThreadListPrimitive.Items>
 ```
 
-### Attachments
+### 附件
 
-**Before:**
+**之前：**
 
 ```tsx
 <ComposerPrimitive.Attachments
@@ -265,7 +265,7 @@ Returning `null` from the children function renders registered tool UIs and data
 />
 ```
 
-**After:**
+**之后：**
 
 ```tsx
 <ComposerPrimitive.Attachments>
@@ -273,25 +273,25 @@ Returning `null` from the children function renders registered tool UIs and data
 </ComposerPrimitive.Attachments>
 ```
 
-### `addResult` / `resume` on enriched part state
+### `addResult` / `resume` 在增强的部分状态上
 
-When using the children API, tool-call parts include `addResult` and `resume` methods directly on the part object. This means `<ToolFallback {...part} />` works without needing a wrapper component to provide these methods.
+使用 children API 时，工具调用部分会直接在部分对象上包含 `addResult` 和 `resume` 方法。这意味着 `<ToolFallback {...part} />` 无需包装组件提供这些方法即可正常工作。
 
-### Backwards Compatibility
+### 向后兼容
 
-The `components` prop is still supported on all primitives but is deprecated and will be removed in a future version.
+`components` 属性在所有原语上仍受支持，但已被弃用，并将在未来版本中移除。
 
-## Still Deprecated (not removed)
+## 仍处于弃用状态（尚未移除）
 
-Some APIs marked `@deprecated` are intentionally kept for one more release to give downstream runtimes time to migrate:
+一些标记为 `@deprecated` 的 API 会被特意保留到下一个版本，以便下游运行时有时间完成迁移：
 
-- `ThreadState.threadId` and `ThreadState.metadata` — use `useThreadListItem()` (see [v0.12 guide](/docs/migrations/v0-12)). Will be removed in a future minor release.
-- Legacy context hooks under `legacy-runtime/hooks/*` (`useThreadRuntime`, `useMessageRuntime`, etc.) — replaced by `useAui()` / `useAuiState()` in v0.12. The codemod migrates these.
-- Primitive `If` components (`ThreadIf`, `MessageIf`, `ComposerIf`, `ThreadEmpty`) — replaced by `AuiIf`. The codemod migrates these.
+- `ThreadState.threadId` 和 `ThreadState.metadata` — 请使用 `useThreadListItem()`（参见 [v0.12 指南](/docs/migrations/v0-12)）。将在未来的小版本中移除。
+- `legacy-runtime/hooks/*` 下的旧版上下文 hook（`useThreadRuntime`、`useMessageRuntime` 等）— 已在 v0.12 中由 `useAui()` / `useAuiState()` 替代。codemod 会迁移这些 API。
+- 原语 `If` 组件（`ThreadIf`、`MessageIf`、`ComposerIf`、`ThreadEmpty`）— 已由 `AuiIf` 替代。codemod 会迁移这些组件。
 
-You'll continue to see deprecation warnings on these; expect removal in a future minor release.
+你仍会在这些 API 上看到弃用警告；预计它们将在未来的小版本中移除。
 
-## Getting Help
+## 获取帮助
 
-- File issues at https://github.com/assistant-ui/assistant-ui/issues
-- See the [deprecation policy](/docs/migrations/deprecation-policy) for the support window
+- 在 https://github.com/assistant-ui/assistant-ui/issues 提交问题
+- 查看[弃用政策](/docs/migrations/deprecation-policy)以了解支持期限

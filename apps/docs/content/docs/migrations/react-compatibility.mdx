@@ -1,24 +1,24 @@
 ---
-title: Using old React versions
-description: Compatibility notes for React 18 and 19.
+title: 使用旧版 React
+description: React 18 和 19 的兼容性说明。
 ---
 
 
-<Callout type="warning" title="React 18 Required">
-  assistant-ui requires React 18 or React 19. React 17 and React 16 are not
-  supported. If you need help with an upgrade, join our
+<Callout type="warning" title="需要 React 18">
+  assistant-ui 需要 React 18 或 React 19。不支持 React 17 和 React 16。
+  如果你需要升级帮助，请加入我们的
   [Discord](https://discord.gg/S9dwgCNEFs).
 </Callout>
 
-This guide provides instructions for configuring assistant-ui to work with React 18.
+本指南介绍如何配置 assistant-ui，使其与 React 18 配合使用。
 
 ## React 18
 
-If you're using React 18, you need to update the shadcn/ui components to work with `forwardRef`. Specifically, you need to modify the Button component.
+如果你使用 React 18，需要更新 shadcn/ui 组件，使其能够与 `forwardRef` 配合使用。具体来说，你需要修改 Button 组件。
 
-### Updating the Button Component
+### 更新 Button 组件
 
-Navigate to your button component file (typically `/components/ui/button.tsx`) and wrap the Button component with `forwardRef`:
+前往 Button 组件文件（通常位于 `/components/ui/button.tsx`），并使用 `forwardRef` 包裹 Button 组件：
 
 ```tsx
 // Before
@@ -65,10 +65,10 @@ const Button = React.forwardRef<
 Button.displayName = "Button";
 ```
 
-## Additional Resources
+## 其他资源
 
-If you encounter any issues with React compatibility, please:
+如果你遇到 React 兼容性问题，请：
 
-1. Check that all required dependencies are installed
-2. Ensure your component modifications are correctly implemented
-3. Join our [Discord](https://discord.gg/S9dwgCNEFs) community for direct support
+1. 检查是否已安装所有必需的依赖
+2. 确保正确实现了组件修改
+3. 加入我们的 [Discord](https://discord.gg/S9dwgCNEFs) 社区，获取直接支持

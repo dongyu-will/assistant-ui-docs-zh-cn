@@ -1,117 +1,117 @@
 ---
-title: Guides
-description: Practical recipes for building AI chat features in React with assistant-ui — attachments, branching, multi-agent, voice, slash commands, generative UI, and more.
+title: 指南
+description: 使用 assistant-ui 在 React 中构建 AI 聊天功能的实用方案——附件、分支、多智能体、语音、斜杠命令、生成式 UI 等。
 platforms: ["react"]
 ---
 
-Guides are task-oriented walkthroughs for building specific features on top of assistant-ui. They sit between the [Primitives](/docs/primitives) (low-level building blocks) and [Components](/elements/thread) (pre-styled installs) — pick a guide when you know what you want to build and need the recommended pattern.
+指南是基于 assistant-ui 构建特定功能的任务导向型教程。它们位于[原语](/docs/primitives)（底层构建块）和[组件](/elements/thread)（预设样式的安装项）之间——当你明确要构建什么功能，并需要推荐实现模式时，可以选择相应的指南。
 
-## Composer
+## 输入框
 
-Extend the message input with file attachments, mentions, slash commands, voice, and quoting.
+为消息输入框扩展文件附件、提及、斜杠命令、语音和引用功能。
 
 <Cards>
-  <Card title="Attachments" href="/docs/guides/attachments">
-    Let users attach files, images, and documents to messages. Covers upload adapters, validation, and the typed `attachmentAddError` event.
+  <Card title="附件" href="/docs/guides/attachments">
+    允许用户在消息中附加文件、图像和文档。涵盖上传适配器、验证以及类型化的 `attachmentAddError` 事件。
   </Card>
-  <Card title="Mentions" href="/docs/guides/mentions">
-    `@`-style triggers that insert directives into the composer. Sync and async search patterns.
+  <Card title="提及" href="/docs/guides/mentions">
+    `@` 风格的触发器，可将指令插入输入框。介绍同步和异步搜索模式。
   </Card>
-  <Card title="Slash Commands" href="/docs/guides/slash-commands">
-    `/`-style commands with arguments, async loading, and combining with mentions.
+  <Card title="斜杠命令" href="/docs/guides/slash-commands">
+    `/` 风格的命令，支持参数、异步加载以及与提及组合使用。
   </Card>
-  <Card title="Quoting" href="/docs/guides/quoting">
-    Selection toolbar, programmatic `setQuote`, and forwarding quote context to the LLM.
+  <Card title="引用" href="/docs/guides/quoting">
+    选择工具栏、编程式 `setQuote`，以及将引用上下文转发给 LLM。
   </Card>
-  <Card title="Dictation" href="/docs/guides/dictation">
-    Speech-to-text into the composer using `DictationAdapter` and `ComposerPrimitive.Dictate`.
+  <Card title="听写" href="/docs/guides/dictation">
+    使用 `DictationAdapter` 和 `ComposerPrimitive.Dictate` 将语音转换为文本并输入到输入框中。
   </Card>
 </Cards>
 
-## Messages
+## 消息
 
-Customize how messages render, are edited, branched, and suggested.
+自定义消息的渲染、编辑、分支和建议方式。
 
 <Cards>
-  <Card title="Suggestions" href="/docs/guides/suggestions">
-    Welcome-screen prompts, dynamic suggestions, and the `AuiIf` empty-thread pattern.
+  <Card title="建议" href="/docs/guides/suggestions">
+    欢迎屏幕提示、动态建议，以及 `AuiIf` 空线程模式。
   </Card>
-  <Card title="Editing" href="/docs/guides/editing">
-    Edit user messages with `UserEditComposer`, `beginEdit()`, and edit-during-streaming behavior.
+  <Card title="编辑" href="/docs/guides/editing">
+    使用 `UserEditComposer`、`beginEdit()` 编辑用户消息，以及处理流式传输期间的编辑行为。
   </Card>
-  <Card title="Branching" href="/docs/guides/branching">
-    Navigate alternative message versions with `BranchPickerPrimitive`, reload, and direct branch-id navigation.
+  <Card title="分支" href="/docs/guides/branching">
+    使用 `BranchPickerPrimitive` 浏览消息的其他版本，重新加载，并直接通过分支 ID 导航。
   </Card>
-  <Card title="Message Timing" href="/docs/guides/message-timing">
-    Display response duration and stream timing with `useMessageTiming` (experimental).
+  <Card title="消息计时" href="/docs/guides/message-timing">
+    使用 `useMessageTiming`（实验性）显示响应时长和流式传输计时。
   </Card>
 </Cards>
 
-## Tools & Generative UI
+## 工具与生成式 UI
 
-Tool calling and generative UI have their own [Tools](/docs/tools) section — defining toolkits, rendering tool calls, interactables, MCP, and multi-agent UIs.
+工具调用和生成式 UI 有专门的[工具](/docs/tools)部分——用于定义工具包、渲染工具调用、构建可交互元素、接入 MCP 以及构建多智能体 UI。
 
 <Cards>
-  <Card title="Tools" href="/docs/tools">
-    Define toolkits, render tool calls, connect MCP servers, and build generative UI.
+  <Card title="工具" href="/docs/tools">
+    定义工具包、渲染工具调用、连接 MCP 服务器并构建生成式 UI。
   </Card>
 </Cards>
 
-## Display
+## 展示
 
-Render specialized message content.
+渲染专用的消息内容。
 
 <Cards>
-  <Card title="Chain of Thought" href="/docs/guides/chain-of-thought">
-    Display the assistant's reasoning steps in a collapsible accordion.
+  <Card title="思维链" href="/docs/guides/chain-of-thought">
+    在可折叠的手风琴面板中显示助手的推理步骤。
   </Card>
   <Card title="LaTeX" href="/docs/guides/latex">
-    Render math via React Markdown or Streamdown, with streaming-safe escape rules.
+    使用 React Markdown 或 Streamdown 渲染数学内容，并遵循适用于流式传输的转义规则。
   </Card>
-  <Card title="Thread Virtualization" href="/docs/guides/virtualization">
-    Render very long threads with @tanstack/react-virtual and per-index message rendering.
+  <Card title="线程虚拟化" href="/docs/guides/virtualization">
+    使用 @tanstack/react-virtual 和按索引进行的消息渲染来渲染超长线程。
   </Card>
 </Cards>
 
-## Audio
+## 音频
 
-Voice input and output.
+语音输入和输出。
 
 <Cards>
-  <Card title="Voice" href="/docs/guides/voice">
-    Realtime bidirectional audio with `RealtimeVoiceAdapter` and `createVoiceSession`.
+  <Card title="语音" href="/docs/guides/voice">
+    使用 `RealtimeVoiceAdapter` 和 `createVoiceSession` 实现实时双向音频。
   </Card>
-  <Card title="Speech" href="/docs/guides/speech">
-    Text-to-speech for assistant messages via `SpeechSynthesisAdapter`.
+  <Card title="语音合成" href="/docs/guides/speech">
+    通过 `SpeechSynthesisAdapter` 将助手消息转换为语音。
   </Card>
 </Cards>
 
-## Programmatic
+## 编程式
 
-Read and drive runtime state from your own code.
+从你自己的代码中读取并驱动运行时状态。
 
 <Cards>
   <Card title="Context API" href="/docs/guides/context-api">
-    Access threads, messages, composer, and tool state via `useAui` and the runtime scope tree.
+    通过 `useAui` 和运行时作用域树访问线程、消息、输入框和工具状态。
   </Card>
 </Cards>
 
-## Providers
+## 提供方
 
-Alternative ways to connect a model.
+连接模型的其他方式。
 
 <Cards>
-  <Card title="ChatGPT Subscription" href="/docs/guides/chatgpt-subscription">
-    Run your app locally on a ChatGPT Plus or Pro plan via Codex OAuth, no API key required.
+  <Card title="ChatGPT 订阅" href="/docs/guides/chatgpt-subscription">
+    通过 Codex OAuth 在 ChatGPT Plus 或 Pro 方案上于本地运行应用，无需 API 密钥。
   </Card>
 </Cards>
 
-## Environments
+## 环境
 
-Run assistant-ui outside a conventional browser deployment.
+在传统浏览器部署环境之外运行 assistant-ui。
 
 <Cards>
   <Card title="Electron" href="/docs/guides/electron">
-    Connect an Electron renderer to a hosted backend or a secure, streaming preload/IPC bridge.
+    将 Electron 渲染器连接到托管后端，或连接到安全且支持流式传输的 preload/IPC 桥接层。
   </Card>
 </Cards>

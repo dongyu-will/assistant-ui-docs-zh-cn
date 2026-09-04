@@ -1,22 +1,22 @@
 ---
-title: "Subagent list"
-description: "Parallel workers with their own progress, models, and completions."
+title: "子代理列表"
+description: "拥有各自进度、模型和完成状态的并行工作器。"
 ---
 
-A stack of cards, one per worker, each with a done or spinning icon, its model, and a progress bar, plus an optional trailing card for a synthesis step. With a runtime each worker is its own tool call and the list is assembled from them; standalone you pass in the roster and its progress directly.
+由一组卡片组成，每个工作器对应一张卡片，显示完成或旋转图标、所用模型和进度条，末尾还可选择性添加一张用于综合处理的卡片。在运行时中，每个工作器对应一次独立的工具调用，列表由这些工具调用组装而成；单独使用时，则直接传入工作器列表及其进度。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-A dispatch to several sub-agents is naturally several tool calls in one assistant turn, one per worker. The list itself is not any single call's UI; it is assembled from all of them.
+向多个子代理分发任务，本质上是在一次助手回复中发起多次工具调用，每个工作器对应一次调用。列表本身并不是任何单次调用的 UI，而是由所有调用组装而成。
 
 <Steps>
   <Step>
 
-### Render the dispatch calls invisibly
+### 隐藏渲染分发调用
 
-Register the dispatch tool with a `render` that returns nothing. Its schema and execution live on your server; here it only needs to stop the default tool card from also appearing inline, since the aggregate list below owns the visual.
+使用一个返回空内容的 `render` 注册分发工具。其 schema 和执行逻辑位于你的服务器上；在这里，它只需要阻止默认工具卡片以内联方式再次显示，因为下方的聚合列表负责视觉呈现。
 
 ```tsx title="app/toolkit.tsx"
 "use client";
@@ -32,9 +32,9 @@ export const toolkit = defineToolkit({
   </Step>
   <Step>
 
-### Aggregate them below the message
+### 在消息下方聚合它们
 
-Read every part of the current message, keep the `dispatch_subagent` calls, and fold them into the props `SubagentList` expects. `summarize_findings` becomes the trailing summary card when it is present at all.
+读取当前消息的每个部分，保留 `dispatch_subagent` 调用，并将它们整合到 `SubagentList` 所需的 props 中。如果存在 `summarize_findings`，它会成为末尾的摘要卡片。
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 import { MessagePrimitive, useAuiState } from "@assistant-ui/react";
@@ -82,12 +82,12 @@ function AssistantMessage() {
 
 <StandaloneMode>
 
-Standalone, the element is a controlled display: you own the roster and report each worker's progress into it as it changes.
+单独使用时，该元素是一个受控显示组件：由你维护工作器列表，并在每个工作器的进度发生变化时将其报告给该组件。
 
 <Steps>
   <Step>
 
-### Hold the roster and its progress
+### 保存工作器列表及其进度
 
 ```tsx title="app/agents.tsx"
 "use client";
@@ -123,7 +123,7 @@ export function Agents() {
   </Step>
   <Step>
 
-### Report progress and completion
+### 报告进度和完成状态
 
 ```tsx
 function onWorkerProgress(index: number, percent: number) {
@@ -135,14 +135,14 @@ function onWorkerDone() {
 }
 ```
 
-`completedCount` marks agents done from the front of the array, so finish them in order for the checkmarks to land on the right cards.
+`completedCount` 会从数组开头开始将代理标记为已完成，因此请按顺序完成它们，以便勾选标记显示在正确的卡片上。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="subagent-list">
@@ -156,23 +156,23 @@ function onWorkerDone() {
 </div>
 ```
 
-An agent at index `i` is done when `i < completedCount`; its bar width and progressbar value come from `progress[i]`, clamped into `0…100` with a missing or `NaN` entry read as `0`. Each progressbar is named from its agent and exposes a `0…100` value to assistive technology. The summary card, when `showSummary` is true, always shows the spinner treatment and a bar at a fixed width, and its progressbar carries no value: this version has no way to mark the summary itself done, only to show or hide it. The root carries a minimum height so the layout does not jump as agents complete and the summary card fades in.
+当 `i < completedCount` 时，索引为 `i` 的代理即视为已完成；其进度条宽度和 progressbar 值来自 `progress[i]`，并限制在 `0…100` 范围内；缺失或 `NaN` 条目按 `0` 读取。每个 progressbar 都以其代理命名，并向辅助技术公开一个 `0…100` 值。当 `showSummary` 为 true 时，摘要卡片始终显示旋转状态和固定宽度的进度条，其 progressbar 不携带任何值：此版本无法将摘要本身标记为已完成，只能显示或隐藏摘要。根元素带有最小高度，因此随着代理完成以及摘要卡片淡入显示，布局不会发生跳动。
 
-## Examples
+## 示例
 
-### Restyle the roster
+### 重新设置工作器列表样式
 
-Both lanes take `className` on the root. Each card uses the shared `paper` surface and the `mono` token for its model label, so retheming those in `surfaces.tsx` restyles every card here alongside every other element built on them.
+两个区域都在根元素上使用 `className`。每张卡片都使用共享的 `paper` surface，并使用 `mono` token 显示模型标签，因此在 `surfaces.tsx` 中重新设置这些内容的主题后，这里的每张卡片以及所有基于它们构建的其他元素都会同步应用新样式。
 
 ```tsx
 <SubagentList className="max-w-sm gap-3" /* ... */ />
 ```
 
-### Where progress comes from
+### 进度从何而来
 
 <RuntimeMode>
 
-A tool call's `status` only distinguishes running from complete, so the mapping above reads as two states: `0` while a worker's call is in flight, `100` once its result lands. A smoother live percentage needs your own progress channel, for example an app-level store keyed by the call's `toolCallId` that a websocket or polling update fills in, read into `progress` the same way.
+工具调用的 `status` 只能区分运行中和已完成，因此上面的映射只有两种状态：工作器的调用正在执行时为 `0`，结果返回后为 `100`。如果需要更平滑的实时百分比，就需要自行提供进度通道，例如使用以调用的 `toolCallId` 为键的应用级 store，由 websocket 或轮询更新填充，再以相同方式读取到 `progress` 中。
 
 </RuntimeMode>
 
@@ -190,7 +190,7 @@ async function runWorker(index: number) {
 
 </StandaloneMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
@@ -198,9 +198,9 @@ async function runWorker(index: number) {
 
 | Source | Type | Description |
 |--------|------|-------------|
-| `dispatch_subagent` call `args.name` / `args.model` | `string` | One roster entry per call. |
-| `dispatch_subagent` call `status.type` | `"running" \| "requires-action" \| "incomplete" \| "complete"` | `"complete"` counts toward `completedCount` and reads as `100` progress; anything else reads as `0`. |
-| `summarize_findings` call | tool call or `undefined` | Presence alone drives `showSummary`; its `args` become `summaryAgent`. |
+| `dispatch_subagent` call `args.name` / `args.model` | `string` | 每次调用对应一个工作器列表条目。 |
+| `dispatch_subagent` call `status.type` | `"running" \| "requires-action" \| "incomplete" \| "complete"` | `"complete"` 会计入 `completedCount`，并读取为 `100` 进度；其他值均读取为 `0`。 |
+| `summarize_findings` call | tool call 或 `undefined` | 仅凭存在性即可驱动 `showSummary`；其 `args` 会成为 `summaryAgent`。 |
 
 </RuntimeMode>
 
@@ -210,13 +210,13 @@ async function runWorker(index: number) {
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `agents` | `readonly SubagentItem[]` | required | The roster, in display order. |
-| `completedCount` | `number` | required | How many agents, counted from the front of `agents`, are done. |
-| `progress` | `readonly number[]` | required | Bar width and accessible progress value per agent, index-aligned with `agents`. Values are clamped to `0…100`; out-of-range or `NaN` entries read as `0`. |
-| `showSummary` | `boolean` | required | Whether the trailing summary card renders. |
-| `summaryAgent` | `SubagentItem` | required | Name and model for the summary card. |
-| `className` | `string` | | Merged onto the root. |
+| `agents` | `readonly SubagentItem[]` | required | 按显示顺序排列的工作器列表。 |
+| `completedCount` | `number` | required | 从 `agents` 开头开始计数，已完成的代理数量。 |
+| `progress` | `readonly number[]` | required | 每个代理的进度条宽度和可访问进度值，与 `agents` 按索引对应。值会限制在 `0…100` 范围内；超出范围或 `NaN` 的条目按 `0` 读取。 |
+| `showSummary` | `boolean` | required | 是否渲染末尾的摘要卡片。 |
+| `summaryAgent` | `SubagentItem` | required | 摘要卡片的名称和模型。 |
+| `className` | `string` | | 合并到根元素上的属性。 |
 
-`SubagentItem` is `{ name: string; model: string }`. All other `div` props are forwarded to the root.
+`SubagentItem` 是 `{ name: string; model: string }`。所有其他 `div` props 都会转发到根元素。
 
 </StandaloneMode>

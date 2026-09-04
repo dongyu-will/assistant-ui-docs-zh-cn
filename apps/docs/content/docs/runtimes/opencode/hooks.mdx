@@ -1,17 +1,17 @@
 ---
 title: Hooks
-description: Permissions, questions, session state, runtime extras.
+description: 权限、问题、会话状态和运行时扩展。
 ---
 
 import { OpenCodeIcon } from "@/components/icons/opencode";
 
-OpenCode-specific React hooks for interacting with the running session. All hooks must be used inside the runtime context (a tree wrapped in `AssistantRuntimeProvider` from a `useOpenCodeRuntime` setup).
+用于与运行中会话交互的 OpenCode 专用 React hooks。所有 hooks 都必须在运行时上下文中使用（即在 `useOpenCodeRuntime` 设置中的树由 `AssistantRuntimeProvider` 包裹）。
 
-## Permissions
+## 权限
 
-OpenCode pauses tool execution to ask the user for permission (e.g. running shell commands, writing files). Permissions linked to a tool call are projected into assistant-ui's standard tool approval contract, so the default `ToolFallback` renders working **Allow**, **Always allow**, and **Deny** actions without a custom permission component. The always option only appears when OpenCode offers patterns to persist.
+OpenCode 会暂停工具执行，以请求用户许可（例如运行 shell 命令、写入文件）。与工具调用关联的权限会映射到 assistant-ui 的标准工具审批契约，因此默认的 `ToolFallback` 无需自定义权限组件，即可渲染可用的 **允许**、**始终允许** 和 **拒绝** 操作。只有当 OpenCode 提供了可持久化的匹配模式时，才会显示始终允许选项。
 
-`useOpenCodePermissions` remains available for custom tool renderers and permission requests that are not linked to a tool call. It returns the pending permission requests and a reply function:
+`useOpenCodePermissions` 仍可用于自定义工具渲染器，以及未与工具调用关联的权限请求。它会返回待处理的权限请求和一个回复函数：
 
 ```tsx
 import { useOpenCodePermissions } from "@assistant-ui/react-opencode";
@@ -32,24 +32,24 @@ function PermissionPrompt() {
 }
 ```
 
-Return shape:
+返回结构：
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 | --- | --- | --- |
-| `pending` | `OpenCodePermissionRequest[]` | Permission requests waiting for a reply. |
-| `reply` | `(id, response) => Promise<void>` | Send a reply for a pending permission. |
+| `pending` | `OpenCodePermissionRequest[]` | 等待回复的权限请求。 |
+| `reply` | `(id, response) => Promise<void>` | 为待处理的权限发送回复。 |
 
-Reply values:
+回复值：
 
-| Reply | Meaning |
+| 回复 | 含义 |
 | --- | --- |
-| `"once"` | Approve this single permission request. |
-| `"always"` | Approve this permission and remember the choice. |
-| `"reject"` | Deny the permission; the tool call is cancelled. |
+| `"once"` | 批准这一个权限请求。 |
+| `"always"` | 批准此权限并记住该选择。 |
+| `"reject"` | 拒绝该权限；工具调用将被取消。 |
 
-## Questions
+## 问题
 
-OpenCode can ask interactive questions during a run. `useOpenCodeQuestions` returns the pending questions as an array:
+OpenCode 可以在运行期间提出交互式问题。`useOpenCodeQuestions` 会以数组形式返回待处理的问题：
 
 ```tsx
 import {
@@ -79,11 +79,11 @@ function QuestionPrompt() {
 }
 ```
 
-To reply, use `replyToQuestion(id, answers)` or `rejectQuestion(id)` from [`useOpenCodeRuntimeExtras`](#runtime-extras).
+要回复问题，请使用 [`useOpenCodeRuntimeExtras`](#runtime-extras) 中的 `replyToQuestion(id, answers)` 或 `rejectQuestion(id)`。
 
-## Session
+## 会话
 
-`useOpenCodeSession` returns the current OpenCode `Session` object (server-side session metadata):
+`useOpenCodeSession` 会返回当前 OpenCode `Session` 对象（服务端会话元数据）：
 
 ```tsx
 import { useOpenCodeSession } from "@assistant-ui/react-opencode";
@@ -95,9 +95,9 @@ function SessionInfo() {
 }
 ```
 
-## Thread state
+## 线程状态
 
-`useOpenCodeThreadState` returns the full projected thread state (messages, run state, interactions, sync metadata). Use it for advanced custom views; most apps don't need it.
+`useOpenCodeThreadState` 会返回完整的投影线程状态（消息、运行状态、交互和同步元数据）。可将其用于高级自定义视图；大多数应用不需要它。
 
 ```tsx
 import { useOpenCodeThreadState } from "@assistant-ui/react-opencode";
@@ -108,23 +108,23 @@ function RunStatus() {
 }
 ```
 
-The returned `OpenCodeThreadState` includes:
+返回的 `OpenCodeThreadState` 包括：
 
-- `sessionId`, `session`, `sessionStatus`, `loadState`, `runState`
-- `messageOrder`, `messagesById`, `pendingUserMessages`
-- `childSessionsById` (OpenCode `task` child-session projections keyed by session ID)
-- `interactions.permissions` (pending + resolved), `interactions.questions` (pending + answered + rejected)
-- `unhandledEvents`, `sync` timestamps
+- `sessionId`、`session`、`sessionStatus`、`loadState`、`runState`
+- `messageOrder`、`messagesById`、`pendingUserMessages`
+- `childSessionsById`（OpenCode `task` 子会话投影，以会话 ID 为键）
+- `interactions.permissions`（待处理 + 已解决）、`interactions.questions`（待处理 + 已回答 + 已拒绝）
+- `unhandledEvents`、`sync` 时间戳
 
-You can also pass a selector to read a specific slice:
+你还可以传入选择器，以读取特定的数据切片：
 
 ```tsx
 const isStreaming = useOpenCodeThreadState((s) => s.runState.type === "streaming");
 ```
 
-## Runtime extras
+## 运行时扩展
 
-`useOpenCodeRuntimeExtras` exposes session-level imperative actions:
+`useOpenCodeRuntimeExtras` 提供会话级命令式操作：
 
 ```tsx
 import { useOpenCodeRuntimeExtras } from "@assistant-ui/react-opencode";
@@ -144,51 +144,51 @@ function SessionActions() {
 }
 ```
 
-| Action | Description |
+| 操作 | 描述 |
 | --- | --- |
-| `fork(messageId)` | Create a new session forked from the given message; returns the new session id. |
-| `revert(messageId)` | Revert the session to the state at the given message. |
-| `unrevert()` | Undo the last revert. |
-| `cancel()` | Cancel an in-flight run. |
-| `refresh()` | Force re-fetch of session messages. |
-| `replyToPermission(id, response)` | Reply to a permission request (`"once"`, `"always"`, `"reject"`). |
-| `replyToQuestion(id, answers)` | Answer a pending question. |
-| `rejectQuestion(id)` | Reject a pending question. |
+| `fork(messageId)` | 从给定消息派生并创建新的会话；返回新会话 ID。 |
+| `revert(messageId)` | 将会话恢复到给定消息所对应的状态。 |
+| `unrevert()` | 撤销上一次恢复操作。 |
+| `cancel()` | 取消正在进行的运行。 |
+| `refresh()` | 强制重新获取会话消息。 |
+| `replyToPermission(id, response)` | 回复权限请求（`"once"`、`"always"`、`"reject"`）。 |
+| `replyToQuestion(id, answers)` | 回答待处理的问题。 |
+| `rejectQuestion(id)` | 拒绝待处理的问题。 |
 
-`useOpenCodePermissions` and `useOpenCodeQuestions` are sugar over `replyToPermission` / `replyToQuestion` / `rejectQuestion` plus the `pending` slices of state.
+`useOpenCodePermissions` 和 `useOpenCodeQuestions` 是对 `replyToPermission` / `replyToQuestion` / `rejectQuestion` 以及状态中的 `pending` 切片的语法糖。
 
-## Lower-level building blocks
+## 底层构建模块
 
-For custom integrations that bypass `useOpenCodeRuntime`:
+对于绕过 `useOpenCodeRuntime` 的自定义集成：
 
-| Export | Purpose |
+| 导出项 | 用途 |
 | --- | --- |
-| `OpenCodeEventSource` | Wraps the OpenCode server's event stream into a typed subscription. |
-| `OpenCodeThreadController` | Per-session controller managing message state. |
-| `createOpenCodeThreadState`, `reduceOpenCodeThreadState` | Pure state reducers if you want to drive the state machine yourself. |
-| `projectOpenCodeThreadMessages` | Project raw OpenCode messages into assistant-ui thread messages. |
-| `createOpencodeClient` (re-exported from `@opencode-ai/sdk`) | Build a client with custom config. |
+| `OpenCodeEventSource` | 将 OpenCode 服务器的事件流封装为类型化订阅。 |
+| `OpenCodeThreadController` | 管理消息状态的会话级控制器。 |
+| `createOpenCodeThreadState`、`reduceOpenCodeThreadState` | 纯状态 reducer，用于自行驱动状态机。 |
+| `projectOpenCodeThreadMessages` | 将原始 OpenCode 消息投影为 assistant-ui 线程消息。 |
+| `createOpencodeClient`（从 `@opencode-ai/sdk` 重新导出） | 使用自定义配置构建客户端。 |
 
-These are only needed for advanced cases; most apps should use `useOpenCodeRuntime` directly.
+这些内容仅适用于高级场景；大多数应用应直接使用 `useOpenCodeRuntime`。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     icon={<OpenCodeIcon width={20} height={20} />}
-    title="OpenCode overview"
-    description="What OpenCode is and when to pick it."
+    title="OpenCode 概览"
+    description="了解 OpenCode 是什么，以及何时选择它。"
     href="/docs/runtimes/opencode/overview"
   />
   <Card
-    title="Quickstart"
-    description="Minimal runtime + Thread setup."
+    title="快速开始"
+    description="最小化运行时与 Thread 设置。"
     href="/docs/runtimes/opencode/quickstart"
   />
   <Card
     icon={<OpenCodeIcon width={20} height={20} />}
-    title="OpenCode docs"
-    description="The OpenCode server itself."
+    title="OpenCode 文档"
+    description="OpenCode 服务器本身。"
     href="https://opencode.ai/"
   />
 </Cards>

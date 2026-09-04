@@ -1,20 +1,20 @@
 ---
-title: "File tree"
-description: "Everything a run touched, as a tree, with the churn spelled out per file."
+title: "文件树"
+description: "以树状结构列出一次运行触及的所有内容，并逐文件明确展示变更量。"
 ---
 
-A file tree lists everything a run touched: a "N files changed" header with net totals, then one row per file, each indented under a folder heading and carrying its own added and deleted line counts. With a runtime you map a tool's flat result onto the tree yourself; standalone you supply the rows directly.
+文件树会列出一次运行触及的所有内容：顶部显示包含净变更总量的“N 个文件已更改”标题，下面每个文件占一行，按文件夹标题缩进排列，并显示各自新增和删除的行数。在运行时环境中，你需要自行将工具返回的扁平结果映射到文件树；单独使用时，则直接提供这些行。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
 <Steps>
   <Step>
 
-### Derive the tree from a flat result
+### 从扁平结果派生文件树
 
-A tool result is naturally a flat list of touched files. Group it into folder headers and indented file rows before handing it to the element:
+工具结果通常是一个扁平的已触及文件列表。将其分组为文件夹标题和缩进的文件行，然后再传递给该元素：
 
 ```tsx title="components/assistant-ui/elements/list-changes-tool-ui.tsx"
 "use client";
@@ -72,7 +72,7 @@ export const ListChangesToolUI: ToolCallMessagePartComponent<
   </Step>
   <Step>
 
-### Register the tool
+### 注册工具
 
 ```tsx title="app/toolkit.ts"
 import { defineToolkit } from "@assistant-ui/react";
@@ -112,7 +112,7 @@ export function MyRuntimeProvider({ children }: { children: React.ReactNode }) {
 <Steps>
   <Step>
 
-### Hold the nodes
+### 暂存节点
 
 ```tsx title="app/changes.tsx"
 "use client";
@@ -147,9 +147,9 @@ export function Changes() {
   </Step>
   <Step>
 
-### Reveal rows over time
+### 随时间显示行
 
-Grow `visibleCount` on a timer to have rows fade in as if a run were still discovering them:
+按计时器逐步增加 `visibleCount`，让文件行逐渐淡入，就像一次运行仍在持续发现文件：
 
 ```tsx
 const [visibleCount, setVisibleCount] = useState(0);
@@ -166,7 +166,7 @@ useEffect(() => {
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="file-tree">
@@ -175,21 +175,21 @@ useEffect(() => {
 </div>
 ```
 
-`path` is used only as the React key; nothing about a row's position is derived from it. `depth` and `kind` are independent fields you assign to every node yourself, so a folder row is a static, non-interactive header, never a real parent of the rows beneath it, and it never collapses. The "N files changed" count only tallies `kind: "file"` nodes, so folder headers never inflate it. A file's own additions or deletions badge is omitted, not shown as zero, when that field is `undefined`; the header's totals always render, even at zero.
+`path` 仅用作 React key；行的位置不会从中派生。`depth` 和 `kind` 是你需要自行分配给每个节点的独立字段，因此文件夹行是静态、不可交互的标题，从来不是真正的父节点，也不会折叠其下的行。“N 个文件已更改”的计数只统计 `kind: "file"` 节点，因此文件夹标题不会使计数虚高。当文件自身的新增或删除字段为 `undefined` 时，会省略相应徽标，而不是显示为零；标题中的总数始终会渲染，即使为零。
 
-## Examples
+## 示例
 
-### Restyle the tree
+### 重新设置文件树样式
 
-Both lanes take `className` on the root. The card surface and the count badges come from the shared `paper` and `mono` tokens in `surfaces.tsx`.
+两条轨道都会在根节点上使用 `className`。卡片表面和计数徽标来自 `surfaces.tsx` 中共享的 `paper` 和 `mono` 令牌。
 
 ```tsx
 <FileTree className="max-w-none" /* ... */ />
 ```
 
-### A file with no folder
+### 没有文件夹的文件
 
-Because `depth` and `kind` are independent per node, a file can sit at the root with no folder heading above it. This is how a loose file like a changeset entry shows up in the catalog's own preview:
+由于 `depth` 和 `kind` 在每个节点上彼此独立，文件可以直接位于根节点下，上方没有文件夹标题。这就是目录自身的预览中显示类似 changeset 条目的独立文件时所采用的方式：
 
 ```tsx
 { path: "changeset", name: ".changeset/tidy-pans.md", depth: 0, kind: "file", additions: 5 }
@@ -197,9 +197,9 @@ Because `depth` and `kind` are independent per node, a file can sit at the root 
 
 <RuntimeMode>
 
-### When the tool already returns a tree
+### 工具已经返回文件树时
 
-Skip `buildFileTree` entirely if the tool result already carries pre-shaped nodes:
+如果工具结果已经包含预先构造好的节点，可以完全跳过 `buildFileTree`：
 
 ```tsx
 export const ListChangesToolUI: ToolCallMessagePartComponent<
@@ -218,17 +218,17 @@ export const ListChangesToolUI: ToolCallMessagePartComponent<
 
 </RuntimeMode>
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Tool-call render props
+### 工具调用渲染属性
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `result` | `{ files: readonly ChangedFile[] } \| undefined` | The flat list of touched files, once the call completes. |
+| `result` | `{ files: readonly ChangedFile[] } \| undefined` | 调用完成后，已触及文件的扁平列表。 |
 
-There is no built-in path-to-tree helper: map the flat list to `FileTreeNode[]` yourself, the way `buildFileTree` does above, or have your tool return pre-shaped nodes directly. See [Tool UI](/docs/tools/tool-ui) for the full render-prop surface.
+没有内置的路径到文件树辅助工具：请像上面的 `buildFileTree` 一样，自行将扁平列表映射为 `FileTreeNode[]`，或者让工具直接返回预先构造好的节点。完整的渲染属性说明请参阅 [工具 UI](/docs/tools/tool-ui)。
 
 </RuntimeMode>
 
@@ -236,14 +236,14 @@ There is no built-in path-to-tree helper: map the flat list to `FileTreeNode[]` 
 
 ### FileTree
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `nodes` | `readonly FileTreeNode[]` | required | The full row list, in order. |
-| `visibleCount` | `number` | required | How many rows from the start of `nodes` to render. |
-| `totalAdditions` | `number` | required | Green count in the header. |
-| `totalDeletions` | `number` | required | Red count in the header. |
-| `className` | `string` | | Merged onto the root. |
+| `nodes` | `readonly FileTreeNode[]` | 必填 | 按顺序排列的完整行列表。 |
+| `visibleCount` | `number` | 必填 | 要渲染的行数，从 `nodes` 的开头开始计算。 |
+| `totalAdditions` | `number` | 必填 | 标题中的绿色计数。 |
+| `totalDeletions` | `number` | 必填 | 标题中的红色计数。 |
+| `className` | `string` | | 合并到根节点。 |
 
-`FileTreeNode` is `{ path: string; name: string; depth: number; kind: "folder" | "file"; additions?: number; deletions?: number }`. All other `div` props are forwarded to the root.
+`FileTreeNode` 是 `{ path: string; name: string; depth: number; kind: "folder" | "file"; additions?: number; deletions?: number }`。其他所有 `div` 属性都会转发到根节点。
 
 </StandaloneMode>

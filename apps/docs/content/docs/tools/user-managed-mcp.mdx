@@ -1,18 +1,18 @@
 ---
-title: User-managed MCP servers
-description: Let end users add and authenticate MCP servers from the browser with @assistant-ui/react-mcp.
+title: 用户管理的 MCP 服务器
+description: 借助 @assistant-ui/react-mcp，让终端用户能够在浏览器中添加并认证 MCP 服务器。
 ---
 
-[`@assistant-ui/react-mcp`](https://npmjs.com/package/@assistant-ui/react-mcp) is the user-facing layer for MCP. Where the [server-side MCP guide](/docs/tools/mcp) wires a single fixed set of MCP servers into your API route, this package lets *end users* see a list of connectors, sign in via OAuth, paste a custom server URL, and have the resulting tool catalog flow into the chat — automatically.
+[`@assistant-ui/react-mcp`](https://npmjs.com/package/@assistant-ui/react-mcp) 是 MCP 面向用户的层。相比之下，[服务端 MCP 指南](/docs/tools/mcp)会将一组固定的 MCP 服务器接入 API 路由，而此软件包允许*终端用户*查看连接器列表、通过 OAuth 登录、粘贴自定义服务器 URL，并让生成的工具目录自动流入聊天。
 
-Two ways a server reaches the user:
+服务器向用户提供服务的两种方式：
 
-- **Connector** — a preset declared by the app developer with `defineConnector(...)`. The user just clicks Connect (and completes auth).
-- **Custom server** — the user supplies the URL, name, and auth in `<McpAddFormPrimitive>`. Hide the add UI to disable.
+- **连接器** — 应用开发者使用 `defineConnector(...)` 声明的预设。用户只需点击“连接”（并完成身份验证）。
+- **自定义服务器** — 用户在 `<McpAddFormPrimitive>` 中提供 URL、名称和身份验证信息。隐藏添加 UI 即可禁用此功能。
 
-Both flow through one connection lifecycle, one persisted state surface, and one tool registration path.
+两种方式都会经过同一个连接生命周期、同一个持久化状态界面，以及同一个工具注册路径。
 
-## How it works
+## 工作原理
 
 ```
 AuiConfig({ mcp: McpManagerResource({ connectors }) })
@@ -22,27 +22,27 @@ AuiConfig({ mcp: McpManagerResource({ connectors }) })
         └─ Registers connected tools as frontend tools — your chat sees them automatically
 ```
 
-The manager is a single resource. Mount it with `AuiProvider` like any other scope. OAuth (PKCE + RFC 7591 dynamic client registration), bearer, and "no auth" are first-class. Token refresh runs inside the MCP SDK on 401; this package mediates persistence and the redirect step.
+管理器是一个单一资源。像挂载其他作用域一样，使用 `AuiProvider` 挂载它。OAuth（PKCE + RFC 7591 动态客户端注册）、Bearer 和“无身份验证”都是一等支持的功能。令牌刷新会在收到 401 时于 MCP SDK 内部执行；此包负责持久化和重定向步骤。
 
 <Callout type="info">
-The [2026-07-28 spec revision](https://modelcontextprotocol.io/specification/2026-07-28/changelog) deprecates RFC 7591 dynamic client registration in favor of [Client ID Metadata Documents](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization/client-registration#client-id-metadata-documents), which clients should prefer over DCR when the authorization server advertises `client_id_metadata_document_supported`. Dynamic client registration remains available for backwards compatibility with authorization servers that do not support CIMD, and the spec's deprecation policy sets a minimum twelve-month window before removal, so the flow described here keeps working. Against a CIMD-only authorization server that exposes no `registration_endpoint`, supply a pre-registered [`clientId`](#auth) instead.
+[2026-07-28 规范修订版](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization/client-registration#client-id-metadata-documents), 弃用 RFC 7591 动态客户端注册，转而采用[客户端 ID 元数据文档](https://modelcontextprotocol.io/specification/2026-07-28/changelog) `client_id_metadata_document_supported` 时，客户端应优先使用客户端 ID 元数据文档，而不是 DCR。当授权服务器不支持 CIMD 时，动态客户端注册仍可用于向后兼容；此外，规范的弃用政策规定，在移除之前至少保留十二个月的过渡期，因此此处描述的流程仍可正常工作。对于仅支持 CIMD 且不公开 `registration_endpoint` 的授权服务器，请改为提供预注册的 [`clientId`](#auth)。
 </Callout>
 
-## Setup
+## 设置
 
 <Steps>
 <Step>
 
-### Install
+### 安装
 
 <InstallCommand npm={["@assistant-ui/react-mcp"]} />
 
 </Step>
 <Step>
 
-### Mount the manager
+### 挂载管理器
 
-Declare your connectors and provide the `mcp` scope via `AuiProvider`. No imperative hooks:
+声明你的连接器，并通过 `AuiProvider` 提供 `mcp` 作用域。无需使用命令式钩子：
 
 ```tsx title="app/providers.tsx"
 "use client";
@@ -83,22 +83,22 @@ export function Providers({ children }: { children: React.ReactNode }) {
 }
 ```
 
-Defaults and useful options:
+默认值和实用选项：
 
-- `storage` — `McpLocalStorage()` (override for production; see [Storage](#storage))
+- `storage` — `McpLocalStorage()`（生产环境中请覆盖；参见[存储](#storage)）
 - `oauthRedirectUri` — `${window.location.origin}/mcp/callback`
-- `autoConnect` — `true` (connect on mount when usable auth is persisted)
-- `connectionTimeout` — optional timeout in milliseconds. Set it on the manager as a default or on a connector/custom server to bound the MCP readiness flow (`connect()` plus `listTools()`) with a clear error.
-- Connector `id` values must be unique. The id is used for server lookup, OAuth routing, and model-visible tool names such as `linear__search`.
+- `autoConnect` — `true`（存在可用的持久化身份验证信息时，在挂载时连接）
+- `connectionTimeout` — 可选的超时时间，单位为毫秒。可以将其设置为管理器的默认值，或设置在连接器/自定义服务器上，以便为 MCP 就绪流程（`connect()` 加 `listTools()`）设置时限，并返回明确的错误。
+- 连接器 `id` 的值必须唯一。该 id 用于服务器查找、OAuth 路由，以及模型可见的工具名称，例如 `linear__search`。
 
 </Step>
 <Step>
 
-### Pick your UI
+### 选择 UI
 
-You have two options:
+你有两种选择：
 
-**Drop-in shadcn dialog** (recommended for most apps) — install the `mcp-config` component via the assistant-ui registry, then render `<McpConfigDialog />` anywhere inside the provider. You get a styled trigger, server cards, status badges, error banners, and the add form for free:
+**开箱即用的 shadcn 对话框**（大多数应用推荐）——通过 assistant-ui registry 安装 `mcp-config` 组件，然后在 provider 内的任意位置渲染 `<McpConfigDialog />`。你可以免费获得带样式的触发器、服务器卡片、状态徽章、错误横幅和添加表单：
 
 <InstallCommand shadcn={["mcp-config"]} />
 
@@ -115,7 +115,7 @@ export default function Page() {
 }
 ```
 
-Pass children to override the trigger:
+传入 children 以覆盖触发器：
 
 ```tsx
 <McpConfigDialog>
@@ -123,7 +123,7 @@ Pass children to override the trigger:
 </McpConfigDialog>
 ```
 
-**Compose your own from primitives.** Four namespaces are available, all unstyled and `data-*`-driven. The iteration primitives take a **render function** so the body re-runs per server with the right scope:
+**使用原语自行组合。** 这里提供四个命名空间，全部无样式并由 `data-*` 驱动。迭代原语接受一个**渲染函数**，因此每个服务器都会以正确的作用域重新运行其主体：
 
 ```tsx title="app/mcp/page.tsx"
 "use client";
@@ -167,14 +167,14 @@ export default function McpPage() {
 }
 ```
 
-To disable custom servers entirely, just don't render `AddCustomTrigger` and `CustomServers`.
+若要完全禁用自定义服务器，只需不要渲染 `AddCustomTrigger` 和 `CustomServers`。
 
-The iteration primitives wrap each item in an `McpServerByIdProvider`, so the nested `<McpServerPrimitive.*>` automatically reads the right scope. `<ConnectButton>`, `<DisconnectButton>`, `<OAuthLink>` and `<RemoveButton>` only render when the relevant state matches — no manual gating. `<RemoveButton>` is also hidden on connector items (which the user can't remove).
+迭代原语会将每个项目包装在 `McpServerByIdProvider` 中，因此嵌套的 `<McpServerPrimitive.*>` 会自动读取正确的作用域。`<ConnectButton>`、`<DisconnectButton>`、`<OAuthLink>` 和 `<RemoveButton>` 仅在相关状态匹配时渲染，无需手动进行条件控制。`<RemoveButton>` 在连接器项目上也会隐藏（用户无法移除连接器）。
 
 </Step>
 <Step>
 
-### Add the custom-server form
+### 添加自定义服务器表单
 
 ```tsx
 <McpAddFormPrimitive.Root onSubmitted={() => closeDialog()}>
@@ -188,14 +188,14 @@ The iteration primitives wrap each item in an `McpServerByIdProvider`, so the ne
 </McpAddFormPrimitive.Root>
 ```
 
-The form owns its own draft state and submits via `aui.mcp.addCustomServer(...)`. Pass a render function to `AuthFields` to fully customize it.
+该表单管理自己的草稿状态，并通过 `aui.mcp.addCustomServer(...)` 提交。向 `AuthFields` 传入渲染函数即可完全自定义表单。
 
 </Step>
 <Step>
 
-### Handle the OAuth callback
+### 处理 OAuth 回调
 
-Add a route at `/mcp/callback` (or whatever you set `oauthRedirectUri` to):
+在 `/mcp/callback` 添加路由（或添加到你为 `oauthRedirectUri` 设置的路径）：
 
 ```tsx title="app/mcp/callback/page.tsx"
 "use client";
@@ -214,14 +214,14 @@ export default function Callback() {
 }
 ```
 
-The callback reads `?state=...` plus either `code` or an OAuth `error` from the URL, derives the target server id (encoded in the OAuth `state` parameter automatically), verifies the complete state value against the pending authorization request, and calls `completeAuth` on the right server.
+回调会从 URL 中读取 `?state=...`，以及 `code` 或 OAuth `error`，然后推导出目标服务器 id（该 id 会自动编码在 OAuth `state` 参数中），根据待处理的授权请求验证完整的 state 值，并在正确的服务器上调用 `completeAuth`。
 
 </Step>
 <Step>
 
-### That's it — the chat sees your tools
+### 就这样——聊天现在可以看到你的工具了
 
-`McpManagerResource` registers connected tools as **frontend tools** with the `modelContext` scope. Any chat runtime mounted in the same store (e.g. `@assistant-ui/ai-sdk`'s `useChatRuntime`) sees them and exposes them to the model — no `useMcpTools` hook, no adapter call.
+`McpManagerResource` 会将已连接的工具注册为具有 `modelContext` 作用域的**前端工具**。挂载在同一 store 中的任何聊天运行时（例如 `@assistant-ui/ai-sdk` 的 `useChatRuntime`）都能看到这些工具，并将它们暴露给模型——无需 `useMcpTools` 钩子，也无需调用适配器。
 
 ```tsx
 "use client";
@@ -236,11 +236,11 @@ export function Chat() {
 }
 ```
 
-`sendAutomaticallyWhen` sends completed frontend tool results back to the server so the model can continue after a tool call. `useChatRuntime()` targets `/api/chat` by default; to point at a different endpoint, see [Custom transport](/docs/runtimes/ai-sdk/v7#custom-transport).
+`sendAutomaticallyWhen` 会将已完成的前端工具结果发回服务器，以便模型在工具调用后继续执行。默认情况下，`useChatRuntime()` 指向 `/api/chat`；如需指向其他端点，请参见[自定义传输层](/docs/runtimes/ai-sdk/v7#custom-transport)。
 
-Tool names are prefixed `serverId__toolName` to avoid collisions across connected servers. The toolkit re-registers whenever a server connects / disconnects or its tool list changes.
+工具名称会添加 `serverId__toolName` 前缀，以避免不同已连接服务器之间发生冲突。每当服务器连接、断开连接或其工具列表发生变化时，工具包都会重新注册。
 
-If no chat runtime is mounted, `McpManagerResource` brings its own minimal `modelContext` along. Tools are still callable directly:
+如果未挂载聊天运行时，`McpManagerResource` 会自带一个最小化的 `modelContext`。工具仍然可以直接调用：
 
 ```ts
 // In an event handler, never in render.
@@ -251,11 +251,11 @@ const out = await aui.mcp.server({ id: "linear" }).callTool("search", { q });
 </Step>
 </Steps>
 
-## Form elicitation
+## 表单式 elicitation
 
-Connected servers can request structured user input through form-mode elicitation. Render `McpElicitationPrimitive.Items` inside a server-scoped subtree, then compose fields and response actions from the unstyled primitives:
+已连接的服务器可以通过表单模式的 elicitation 请求结构化用户输入。在服务器作用域的子树中渲染 `McpElicitationPrimitive.Items`，然后使用无样式原语组合字段和响应操作：
 
-Answering a request requires composing `McpElicitationPrimitive`, because the server waits for the form response otherwise. Set `elicitation: false` on a connector or custom server to opt it out of advertising the capability. Numeric fields can stay text inputs (parseable strings are coerced); boolean fields must compose a checkbox, because string drafts for booleans are flagged invalid rather than coerced. Clearing a field returns it to the unanswered state, so an empty text input is omitted from the response rather than submitted as `""` or flagged invalid, unless the schema admits `""` for that property through an `enum` member or a `""` default. Render `enum` properties as a select; when `""` is not a member, its blank option is the unanswered state.
+要响应请求，必须组合 `McpElicitationPrimitive`，否则服务器会一直等待表单响应。在连接器或自定义服务器上设置 `elicitation: false`，即可选择不声明支持此能力。数值字段可以继续使用文本输入框（可解析的字符串会被强制转换）；布尔字段必须组合复选框，因为布尔值的字符串草稿会被标记为无效，而不会被强制转换。清除字段会将其恢复为未回答状态，因此空文本输入会从响应中省略，而不是作为 `""` 提交或被标记为无效；除非架构通过 `enum` 成员或 `""` 默认值，允许该属性为 `""`。将 `enum` 属性渲染为选择框；当 `""` 不是成员时，其空白选项表示未回答状态。
 
 ```tsx
 import { McpElicitationPrimitive } from "@assistant-ui/react-mcp";
@@ -293,19 +293,19 @@ import { McpElicitationPrimitive } from "@assistant-ui/react-mcp";
 </McpElicitationPrimitive.Items>
 ```
 
-Client-side validation errors keep the elicitation pending so the user can correct the form, and `McpElicitationPrimitive.Error` renders the resulting message.
+客户端验证错误会使 elicitation 保持待处理状态，以便用户修正表单，而 `McpElicitationPrimitive.Error` 会渲染最终的消息。
 
-## Storage
+## 存储
 
-All persisted state — custom server records, OAuth tokens, callback state, PKCE verifiers, DCR client info — goes through a single `MCPStorage` resource. Three built-ins:
+所有持久化状态——自定义服务器记录、OAuth 令牌、回调状态、PKCE 验证器、DCR 客户端信息——都通过单一的 `MCPStorage` 资源处理。内置提供三种选项：
 
-- `McpLocalStorage()` — default. Stores under the `aui-mcp:` prefix in `window.localStorage`.
-- `McpMemoryStorage()` — in-process Map. Use for SSR/tests where localStorage is absent.
-- `McpCustomStorage({...})` — bring your own load/save. Use for app-controlled backends (e.g. POST to your API).
+- `McpLocalStorage()` — 默认选项。在 `window.localStorage` 中使用 `aui-mcp:` 前缀进行存储。
+- `McpMemoryStorage()` — 进程内 Map。适用于不存在 localStorage 的 SSR/测试场景。
+- `McpCustomStorage({...})` — 自行实现加载/保存逻辑。适用于由应用控制的后端（例如向你的 API 发送 POST 请求）。
 
-A storage can declare a `scopeId` — a stable identity for its backing data (two storages sharing a `scopeId` must read and write the same persisted state). Servers with `bearer` or `oauth` auth key their connection on it, so swapping to a differently-scoped storage reconnects and rebinds the OAuth provider instead of leaving a live connection writing auth state to the replaced store. Without a `scopeId`, a storage swap never triggers a reconnect. `McpLocalStorage()` derives one automatically for the shared `window.localStorage` (pass `scopeId` yourself when overriding the backing `storage`); `McpMemoryStorage()` scopes each instance uniquely; `McpCustomStorage` takes whatever identity its backend already has.
+存储可以声明一个 `scopeId` — 用于标识其后端数据的稳定身份（共享同一个 `scopeId` 的两个存储必须读取和写入相同的持久化状态）。使用 `bearer` 或 `oauth` 身份验证的服务器会以此作为连接标识，因此切换到作用域不同的存储时，会重新连接并重新绑定 OAuth 提供商，而不是让现有连接继续将身份验证状态写入已被替换的存储。如果没有 `scopeId`，切换存储永远不会触发重新连接。`McpLocalStorage()` 会自动为共享的 `window.localStorage` 生成标识（覆盖后端 `storage` 时，请自行传入 `scopeId`）；`McpMemoryStorage()` 会为每个实例设置唯一作用域；`McpCustomStorage` 则使用其后端已有的身份标识。
 
-Only connections follow the scope. The custom server list is read from storage once when the manager mounts and is not re-read when `storage` changes, so a swap keeps the records loaded from the previous store and persists them into the replacement. Treat a storage as fixed for the life of the manager: when the backing identity really changes (a different signed-in user, for example), remount the manager instead of swapping its `storage`.
+只有连接会遵循作用域。自定义服务器列表会在管理器挂载时从存储中读取一次，在 `storage` 发生变化时不会重新读取，因此切换存储后，之前存储中加载的记录仍会保留，并被持久化到替换后的存储中。应将存储视为管理器整个生命周期内固定不变的对象：当后端身份确实发生变化时（例如切换到另一位已登录用户），应重新挂载管理器，而不是替换其 `storage`。
 
 ```tsx
 import { McpManagerResource, McpCustomStorage } from "@assistant-ui/react-mcp";
@@ -330,12 +330,12 @@ AuiConfig({
 ```
 
 <Callout type="warn">
-`McpLocalStorage` stores tokens in plain text and is XSS-exposed. For anything beyond local prototyping, use `McpCustomStorage` against an HTTP-only-cookie-backed endpoint, or wrap localStorage with your own encrypted serializer.
+`McpLocalStorage` 会以明文存储令牌，并暴露于 XSS 攻击。除本地原型开发外的任何场景，都应将 `McpCustomStorage` 用于基于 HTTP-only Cookie 的端点，或使用你自己的加密序列化器封装 localStorage。
 </Callout>
 
-## Auth
+## 身份验证
 
-Three modes, declared per-connector or per-custom-record:
+三种模式，可按连接器或自定义记录分别声明：
 
 ```ts
 { type: "none" }                                    // no auth header
@@ -350,11 +350,11 @@ Three modes, declared per-connector or per-custom-record:
 }
 ```
 
-The OAuth provider implements the MCP SDK's `OAuthClientProvider`. The SDK handles discovery (RFC 8414), DCR (RFC 7591 — [deprecated in favor of CIMD](#how-it-works) but still supported), PKCE, token exchange, and refresh; this package mediates `MCPStorage` reads/writes and the redirect step. The server id is embedded in the OAuth `state` parameter so a single `/mcp/callback` route knows which server to complete.
+OAuth provider 实现 MCP SDK 的 `OAuthClientProvider`。SDK 负责发现（RFC 8414）、DCR（RFC 7591——[已弃用，改用 CIMD](#how-it-works)，但仍受支持）、PKCE、令牌交换和刷新；此包负责协调 `MCPStorage` 的读取/写入以及重定向步骤。服务器 ID 嵌入 OAuth `state` 参数中，因此单个 `/mcp/callback` 路由即可知道要完成哪个服务器的流程。
 
-## State & methods
+## 状态与方法
 
-Render-time state — `useAuiState`:
+渲染时状态 — `useAuiState`：
 
 ```ts
 import { useAuiState } from "@assistant-ui/store";
@@ -364,7 +364,7 @@ const connectionState = useAuiState((s) => s.mcpServer.connectionState);
 //                                          ^ requires McpServerByIdProvider
 ```
 
-Imperative methods: `useAui` + resolve in a callback (never during render):
+命令式方法：`useAui` + 在回调中解析（绝不要在渲染期间解析）：
 
 ```ts
 const aui = useAui();
@@ -398,36 +398,36 @@ if (firstResource) {
 }
 ```
 
-## v1 scope
+## v1 范围
 
-What ships:
+包含内容：
 
-- Tool listing and invocation, auto-registered as frontend tools
-- Resource listing and reads for app-built browsers or preview panes
-- Form-mode elicitation with app-composed fields and response actions
-- OAuth (PKCE + DCR), bearer, none
-- StreamableHTTP transport
-- Manual connect/disconnect
+- 工具列表和调用，并自动注册为前端工具
+- 资源列表和读取，供应用构建的浏览器或预览面板使用
+- 表单模式的引导请求，由应用组合字段和响应操作
+- OAuth（PKCE + DCR）、bearer、none
+- StreamableHTTP 传输层
+- 手动连接/断开连接
 
-What's deferred:
+暂不支持：
 
-- Prompts, sampling
-- Auto-reconnect with backoff
-- Per-tool enable/disable persistence
-- Per-tool consent prompts
-- Out-of-the-box token encryption (use `McpCustomStorage` against a server endpoint)
+- Prompts、sampling
+- 带退避策略的自动重新连接
+- 按工具持久化启用/禁用状态
+- 按工具的征求同意提示
+- 开箱即用的令牌加密（针对服务器端点使用 `McpCustomStorage`）
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
-    title="Server-side MCP"
-    description="App-developer-controlled MCP servers wired into the API route."
+    title="服务端 MCP"
+    description="接入 API 路由、由应用开发者控制的 MCP 服务器。"
     href="/docs/tools/mcp"
   />
   <Card
-    title="Tools and tool UI"
-    description="Build custom renderers for tool calls and approvals."
+    title="工具和工具 UI"
+    description="为工具调用和审批构建自定义渲染器。"
     href="/docs/tools/defining-tools"
   />
 </Cards>

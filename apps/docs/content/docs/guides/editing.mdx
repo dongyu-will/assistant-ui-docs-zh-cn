@@ -1,16 +1,16 @@
 ---
-title: Message Editing
-description: Let users edit their messages and regenerate AI responses with custom editor interfaces. Edit-and-resubmit patterns for React chat via assistant-ui.
+title: 消息编辑
+description: 通过自定义编辑器界面，让用户编辑消息并重新生成 AI 响应。使用 assistant-ui 在 React 聊天中实现编辑并重新提交模式。
 platforms: ["react"]
 ---
 
-## Mental Model
+## 心智模型
 
-Editing re-submits a message from a past point in the conversation and creates a new branch. The messages after the edited one are discarded, and the assistant generates a fresh response from that point forward. Each user message has an independent edit composer; only one can be active at a time.
+编辑会从对话中的过去某个位置重新提交消息，并创建一个新的分支。编辑消息之后的消息会被丢弃，助手会从该位置开始生成新的响应。每条用户消息都有独立的编辑输入框，但同一时间只能有一个处于激活状态。
 
-The recommended way to wire this up is via the `children` render prop on `ThreadPrimitive.Messages`, branching on `message.role` and on `message.composer.isEditing` to swap in an edit composer when needed.
+推荐通过 `children` 在 `ThreadPrimitive.Messages` 上提供的渲染属性来完成接入，根据 `message.role` 和 `message.composer.isEditing` 进行分支判断，并在需要时替换为编辑输入框。
 
-## Enabling Edit Support
+## 启用编辑支持
 
 ```tsx
 import {
@@ -66,17 +66,17 @@ const AssistantMessage = () => {
 };
 ```
 
-`ActionBarPrimitive.Edit` calls `aui.composer.beginEdit()` under the hood and is disabled when the composer is already in edit mode.
+`ActionBarPrimitive.Edit` 底层会调用 `aui.composer.beginEdit()`，并且当输入框已经处于编辑模式时会被禁用。
 
-`ComposerPrimitive.Cancel` calls `aui.composer.cancel()`, which exits edit mode and restores the original message content. See [Composer primitives](/docs/primitives/composer) for the full composer API.
+`ComposerPrimitive.Cancel` 会调用 `aui.composer.cancel()`，退出编辑模式并恢复原始消息内容。完整的输入框 API 请参阅[输入框原语](/docs/primitives/composer)。
 
-## Detecting Edit Mode
+## 检测编辑模式
 
-The `isEditing` flag is available on both `ThreadComposerState` and `EditComposerState`, so `useAuiState((s) => s.composer.isEditing)` works inside any composer context. The more idiomatic path is to rely on the `UserEditComposer` slot in the render function (shown above), which scopes the component tree automatically and avoids manual state checks.
+`isEditing` 标志同时可在 `ThreadComposerState` 和 `EditComposerState` 上使用，因此 `useAuiState((s) => s.composer.isEditing)` 可以在任意输入框上下文中工作。更符合惯用方式的做法是依赖渲染函数中的 `UserEditComposer` 插槽（如上所示），它会自动限定组件树的作用域，避免手动检查状态。
 
-## Imperative API
+## 命令式 API
 
-`aui.composer.beginEdit()` is the programmatic entry point for entering edit mode on a message. Use it for headless or keyboard-shortcut-driven flows where `ActionBarPrimitive.Edit` is not rendered:
+`aui.composer.beginEdit()` 是以编程方式让消息进入编辑模式的入口。当未渲染 `ActionBarPrimitive.Edit` 时，可将其用于无头流程或键盘快捷键驱动的流程：
 
 ```tsx
 import { useAui } from "@assistant-ui/react";
@@ -89,14 +89,14 @@ const EditButton = () => {
 };
 ```
 
-`aui.composer.cancel()` exits edit mode without re-submitting.
+`aui.composer.cancel()` 会退出编辑模式，但不会重新提交。
 
-## Editing While Streaming
+## 流式传输期间编辑
 
-If a user triggers edit mode while the assistant is still generating a response, the in-progress run is cancelled and a new branch is started from the edited message. The hook does not block this. If your UI should prevent editing during streaming, gate the edit button on the thread run state before rendering `ActionBarPrimitive.Edit` or calling `beginEdit()`.
+如果用户在助手仍在生成响应时触发编辑模式，正在进行的运行会被取消，并从编辑后的消息开始创建新的分支。此 hook 不会阻止这一操作。如果你的 UI 应在流式传输期间禁止编辑，请在渲染 `ActionBarPrimitive.Edit` 或调用 `beginEdit()` 之前，根据线程运行状态控制编辑按钮是否可用。
 
-## References
+## 参考
 
-- [ActionBar primitives](/docs/primitives/action-bar) — `ActionBarPrimitive.Edit` and related actions
-- [Composer primitives](/docs/primitives/composer) — full composer anatomy including `Cancel`, `Send`, and `Input`
-- [Message primitives](/docs/primitives/message) — `MessagePrimitive.Root` and content parts
+- [ActionBar 原语](/docs/primitives/action-bar) — `ActionBarPrimitive.Edit` 及相关操作
+- [输入框原语](/docs/primitives/composer) — 完整的输入框结构，包括 `Cancel`、`Send` 和 `Input`
+- [消息原语](/docs/primitives/message) — `MessagePrimitive.Root` 和内容部分

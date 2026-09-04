@@ -1,22 +1,22 @@
 ---
-title: Custom thread persistence
-description: Persist threads and messages to your own database with RemoteThreadListAdapter and ThreadHistoryAdapter.
+title: 自定义线程持久化
+description: 使用 RemoteThreadListAdapter 和 ThreadHistoryAdapter 将线程和消息持久化到你自己的数据库中。
 ---
 
-When [AssistantCloud](/docs/cloud) doesn't fit (self-hosting, compliance, threads alongside existing app data), back the multi-thread runtime with your own database. This page is the worked example: schema, route handlers, and adapter wiring with Postgres + Drizzle. The shape is identical for any SQL or document store.
+当 [AssistantCloud](/docs/cloud) 不适用时（例如需要自托管、满足合规要求，或希望将线程与现有应用数据存储在一起），可以使用你自己的数据库为多线程运行时提供后端支持。本页是一个完整示例，涵盖使用 Postgres + Drizzle 时的架构、路由处理器和适配器连接方式。对于任何 SQL 或文档存储，结构都是相同的。
 
-For the high-level adapter contract, see [threads](/docs/runtimes/concepts/threads). This page focuses on the storage layer and how `withFormat` round-trips AI SDK messages.
+有关适配器契约的概览，请参阅 [线程](/docs/runtimes/concepts/threads)。本页重点介绍存储层，以及 `withFormat` 如何往返处理 AI SDK 消息。
 
-## Prerequisites
+## 前置条件
 
-The route handlers below import `auth` from `@/auth` and `db` from `@/db`. This guide assumes:
+下面的路由处理器会从 `auth` 导入 `@/auth`，并从 `db` 导入 `@/db`。本指南假设你已具备：
 
-- A working [Drizzle setup](https://orm.drizzle.team/docs/get-started-postgresql) at `db/index.ts` exporting a `db` instance.
-- An auth solution with a server-side `auth()` helper exposing `session.user.id`. See [Auth.js (next-auth)](/docs/integrations/auth/next-auth) for the canonical setup, including the callback that populates `session.user.id`.
+- 一个可正常运行的 [Drizzle 配置](https://orm.drizzle.team/docs/get-started-postgresql) `db/index.ts`，并导出一个 `db` 实例。
+- 一个身份验证方案，其中包含服务端 `auth()` 辅助函数，并暴露 `session.user.id`。有关标准配置（包括填充 `session.user.id` 的回调），请参阅 [Auth.js (next-auth)](/docs/integrations/auth/next-auth)。
 
-If you're rolling your own auth, replace `auth()` calls with whatever your stack uses to resolve the current user.
+如果你使用的是自定义身份验证方案，请将 `auth()` 调用替换为你的技术栈用于解析当前用户的相应方法。
 
-## How it works
+## 工作原理
 
 ```mermaid
 flowchart LR
@@ -24,10 +24,10 @@ flowchart LR
     client --> messages["/api/messages/*<br/>(ThreadHistoryAdapter)"] --> mt["messages table"]
 ```
 
-Two adapters, two tables:
+两个适配器，两张表：
 
-- **`RemoteThreadListAdapter`** owns thread *metadata*: list, create, rename, archive, delete.
-- **`ThreadHistoryAdapter`** owns *messages* per thread. The `withFormat` variant is required by `useChatRuntime` and converts AI SDK `UIMessage` to and from a fixed row shape: `{ id, parent_id, format, content }`.
+- **`RemoteThreadListAdapter`** 负责线程*元数据*：列出、创建、重命名、归档和删除。
+- **`ThreadHistoryAdapter`** 负责每个线程的*消息*。`withFormat` 变体由 `useChatRuntime` 要求使用，并将 AI SDK `UIMessage` 与固定的行结构 `{ id, parent_id, format, content }` 互相转换。
 
 ## Schema
 
@@ -66,10 +66,10 @@ export const messages = pgTable(
 );
 ```
 
-The four message columns (`id`, `parent_id`, `format`, `content`) are the contract `withFormat` writes against. `format` records which adapter encoded the row so multiple runtimes can coexist on one table; `useChatRuntime` sets it from `fmt.format`.
+四个消息列（`id`、`parent_id`、`format`、`content`）是 `withFormat` 写入所遵循的契约。`format` 记录对该行进行编码的适配器，从而允许多个运行时共用一张表；`useChatRuntime` 会根据 `fmt.format` 设置该值。
 
 <Callout type="warn">
-  `content` is not arbitrary JSON. It must be the payload the active format adapter produced via `fmt.encode(item)`, and it is read back through `fmt.decode`; the route handlers below are a pass-through that never inspects it. For `useChatRuntime` (AI SDK v6) a valid stored row looks like:
+  `content` 不是任意 JSON。它必须是当前格式适配器通过 `fmt.encode(item)` 生成的负载，并通过 `fmt.decode` 读取；下方的路由处理程序只是透传，完全不会检查其中的内容。对于 `useChatRuntime`（AI SDK v6），有效的存储行如下所示：
 
   ```json
   {
@@ -80,26 +80,26 @@ The four message columns (`id`, `parent_id`, `format`, `content`) are the contra
   }
   ```
 
-  A row that satisfies the column types but carries a different shape (e.g. `{ "foo": "bar" }`) is accepted on write, then fails history reload. Seed test data through the adapter, not by hand-crafting `content`.
+  满足列类型但包含不同结构（例如 `{ "foo": "bar" }`）的行可以成功写入，但在重新加载历史记录时会失败。请通过适配器写入测试数据，不要手动构造 `content`。
 </Callout>
 
-## Setup
+## 设置
 
 <Steps>
 <Step>
 
-### Install dependencies
+### 安装依赖
 
 <InstallCommand npm={["drizzle-orm", "postgres", "drizzle-kit"]} />
 
-Configure Drizzle and run the migration. See the [Drizzle quickstart](https://orm.drizzle.team/docs/get-started-postgresql) for the full setup.
+配置 Drizzle 并运行迁移。有关完整设置，请参阅 [Drizzle 快速入门](https://orm.drizzle.team/docs/get-started-postgresql)
 
 </Step>
 <Step>
 
-### Build the thread list endpoints
+### 构建线程列表端点
 
-Each method on `RemoteThreadListAdapter` maps to one route. Always scope by `userId` from the session so users see only their own threads.
+`RemoteThreadListAdapter` 中的每个方法都对应一个路由。始终使用会话中的 `userId` 进行限定，确保用户只能看到自己的线程。
 
 ```ts title="app/api/threads/route.ts"
 import { db } from "@/db";
@@ -131,7 +131,7 @@ export async function POST(req: Request) {
 }
 ```
 
-Implement the per-thread routes the same way under `app/api/threads/[id]/route.ts`. `PATCH` updates `title` or `status` (used by `rename`, `archive`, `unarchive`); `DELETE` deletes the thread; `GET` returns one thread (used by `fetch`). Always check `userId` on every handler:
+在 `app/api/threads/[id]/route.ts` 下以相同方式实现每个线程对应的路由。`PATCH` 会更新 `title` 或 `status`（由 `rename`、`archive`、`unarchive` 使用）；`DELETE` 会删除线程；`GET` 会返回单个线程（由 `fetch` 使用）。务必在每个处理程序中检查 `userId`：
 
 ```ts title="app/api/threads/[id]/route.ts"
 import { db } from "@/db";
@@ -157,14 +157,14 @@ export async function PATCH(
 }
 ```
 
-A `POST /api/threads/[id]/title` endpoint that calls your model with the first few messages and returns `{ title }` completes the set. The shape mirrors the others; treat it as `streamText` plus a JSON response.
+一个调用模型并传入前几条消息、然后返回 `{ title }` 的 `POST /api/threads/[id]/title` 端点即可完成整个集合。其结构与其他端点一致；将其视为 `streamText` 加上 JSON 响应。
 
 </Step>
 <Step>
 
-### Build the message endpoints
+### 构建消息端点
 
-Two routes: list messages for a thread and append one. Both check thread ownership before touching the messages table.
+两个路由：列出线程中的消息，以及追加一条消息。两者都会先检查线程所有权，然后才访问消息表。
 
 ```ts title="app/api/threads/[id]/messages/route.ts"
 import { db } from "@/db";
@@ -225,9 +225,9 @@ export async function POST(
 </Step>
 <Step>
 
-### Implement `RemoteThreadListAdapter`
+### 实现 `RemoteThreadListAdapter`
 
-The adapter calls your endpoints. `unstable_useAdapters` injects the per-thread history adapter on the `RemoteThreadList` store entry and on `useRemoteThreadListRuntime` when `unstable_Provider` is omitted. `unstable_Provider` is an optional React face for that runtime. On the `RemoteThreadList` store entry, key the thread factory with `withKey(id, …)` so history reloads when the visible thread changes.
+适配器会调用你的端点。`unstable_useAdapters` 会将按线程划分的历史记录适配器注入 `RemoteThreadList` 存储条目；当省略 `unstable_Provider` 时，也会将其注入 `useRemoteThreadListRuntime`。`unstable_Provider` 是该运行时可选的 React 界面。在 `RemoteThreadList` 存储条目上，使用 `withKey(id, …)` 作为线程工厂的键，以便在可见线程发生变化时重新加载历史记录。
 
 <PlatformTabs>
 <Tab value="React">
@@ -475,7 +475,7 @@ export const threadListAdapter: RemoteThreadListAdapter = {
 };
 ```
 
-`API_URL` points at the backend that hosts the route handlers above (e.g. `https://your-app.example`). Set it from your env. `fetch` is global on React Native; no polyfill required.
+`API_URL` 指向承载上述路由处理程序的后端（例如 `https://your-app.example`）。请从环境变量中设置它。`fetch` 在 React Native 中是全局对象；无需 polyfill。
 
 </Tab>
 <Tab value="React Ink">
@@ -600,23 +600,23 @@ export const threadListAdapter: RemoteThreadListAdapter = {
 };
 ```
 
-`API_URL` points at the backend that hosts the route handlers above. Node 20+ exposes `fetch` globally; no extra dependency needed.
+`API_URL` 指向承载上述路由处理程序的后端。Node 20+ 会将 `fetch` 暴露为全局对象；无需额外依赖。
 
 </Tab>
 </PlatformTabs>
 
-The top-level `load`/`append` on the history adapter are required by the type but unused by `useChatRuntime`. The AI SDK code path always goes through `withFormat`.
+历史记录适配器顶层的 `load`/`append` 是类型所要求的，但 `useChatRuntime` 不会使用它们。AI SDK 代码路径始终会经过 `withFormat`。
 
 </Step>
 <Step>
 
-### Support in-place updates (optional)
+### 支持原地更新（可选）
 
-The optional `update(item, localMessageId)` method on the object returned from `withFormat` lets the runtime rewrite an already-persisted message in place. It receives the same `{ parentId, message }` item shape as `append`, plus the id of the row to rewrite.
+从 `withFormat` 返回的对象上的可选 `update(item, localMessageId)` 方法，允许运行时原地重写已持久化的消息。它接收与 `append` 相同的 `{ parentId, message }` 项结构，以及要重写的行的 id。
 
-The runtime calls `update` after a run for persisted messages whose content changed, to finalize assistant messages persisted early while waiting for tool call approval, and to refresh run timing metadata.
+对于内容发生变化的已持久化消息，运行时会在一次运行结束后调用 `update`，以完成在等待工具调用批准期间提前持久化的助手消息，并刷新运行时序元数据。
 
-`update` is opt-in. When it is absent, messages paused for tool approval are not persisted until the run reaches a terminal status, so a page refresh during the pause loses the pending approval state. Implementing `update` enables early persistence.
+`update` 是选择启用的功能。如果未提供它，在运行达到终止状态之前，因等待工具批准而暂停的消息不会被持久化，因此在暂停期间刷新页面会丢失待处理的批准状态。实现 `update` 后即可启用提前持久化。
 
 ```tsx title="runtime/thread-adapter.tsx"
 async update(item, localMessageId) {
@@ -631,14 +631,14 @@ async update(item, localMessageId) {
 },
 ```
 
-The backend needs a matching update route keyed by message id, mirroring the append route from the earlier step.
+后端需要一个以消息 id 为键的匹配更新路由，其实现方式与前一步中的追加路由类似。
 
 </Step>
 <Step>
 
-### Mount the runtime
+### 挂载运行时
 
-Wrap the app in a `useRemoteThreadListRuntime` that delegates per-thread runtime to `useChatRuntime`:
+将应用包裹在 `useRemoteThreadListRuntime` 中，并将每个线程的运行时委托给 `useChatRuntime`：
 
 <PlatformTabs>
 <Tab value="React">
@@ -732,42 +732,43 @@ export function MyProvider({ children }: { children: React.ReactNode }) {
 </Step>
 <Step>
 
-### Run and verify
+### 运行并验证
 
-Send a message in a fresh thread. Check the database:
+在新线程中发送一条消息。检查数据库：
 
-- The `threads` table has a new row with the current `userId`.
-- The `messages` table has at least two rows (user + assistant) for that thread.
-- `format` matches what `fmt.format` wrote (`"ai-sdk/v6"`) and `content` is the encoded `UIMessage` (a `role` plus `parts`), not a placeholder blob. The format string names the stored `UIMessage` shape, not the installed AI SDK major; it stays `"ai-sdk/v6"` on AI SDK v7 and must never be renamed, or previously stored history stops matching.
-- Reload the page; the thread list and the messages survive.
+- `threads` 表中新增了一行，其中包含当前的 `userId`。
+- `messages` 表中，该线程至少有两行记录（用户 + 助手）。
+- `format` 与 `fmt.format` 写入的内容（`"ai-sdk/v6"`）一致，并且 `content` 是经过编码的 `UIMessage`（包含 `role` 和 `parts`），而不是占位符数据块。格式字符串描述的是所存储的 `UIMessage` 结构，而不是已安装的 AI SDK 主版本；在 AI SDK v7 中它仍保持为 `"ai-sdk/v6"`，绝不能重命名，否则之前存储的历史记录将无法匹配。
+
+重新加载页面；线程列表和消息仍然保留。
 
 </Step>
 </Steps>
 
-## Notes
+## 注意事项
 
-- **First-message race.** `append` may fire before the thread row exists. The example above always awaits `aui.threadListItem.initialize()` before writing; do the same in any custom implementation.
-- **Reload after async auth.** If `auth()` resolves after the initial `list()` call, threads won't appear until the user refreshes. Call `aui.threads.reload()` from a `useEffect` watching the session. Pattern is documented in [threads](/docs/runtimes/concepts/threads#reloading-after-async-authentication).
-- **Format string.** The `format` column is *not* a free-text label; it identifies the on-disk shape so multiple runtimes can coexist. Don't strip it. Don't make assumptions about its value (`useChatRuntime` is responsible for setting and decoding it).
-- **Pending approvals need `update`.** Tool call approvals persist across reloads only when the formatted adapter implements `update`; omitting it keeps the pre-approval snapshot out of storage by design.
-- **`unstable_Provider` synchronous-children rule.** The Provider must render `children` on first commit; do not gate them behind suspense, loading state, or `useEffect`. Load data inside an always-rendered child.
+- **首条消息竞态。** `append` 可能在线程行存在之前触发。上面的示例始终会先等待 `aui.threadListItem.initialize()` 再写入；在任何自定义实现中也应如此。
+- **异步身份验证后的重新加载。** 如果 `auth()` 在初始 `list()` 调用之后才解析完成，线程要等用户刷新后才会显示。请在监听会话的 `useEffect` 中调用 `aui.threads.reload()`。相关模式已记录在[线程](/docs/runtimes/concepts/threads#reloading-after-async-authentication)中。
+- **格式字符串。** `format` 列不是自由文本标签；它用于标识磁盘上的数据结构，以便多个运行时可以共存。不要移除它，也不要假设它的值（`useChatRuntime` 负责设置和解码该值）。
+- **待处理的批准需要 `update`。** 只有格式化适配器实现了 `update`，工具调用批准才能在重新加载后持久化；省略它会按设计将批准前的快照排除在存储之外。
+- **`unstable_Provider` 的同步子元素规则。** Provider 必须在首次提交时渲染 `children`；不要将它们置于 suspense、加载状态或 `useEffect` 之后。请在始终渲染的子元素中加载数据。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
-    title="Threads (concepts)"
-    description="Adapter contract, custom metadata, and ExternalStoreThreadListAdapter."
+    title="线程（概念）"
+    description="适配器契约、自定义元数据和 ExternalStoreThreadListAdapter。"
     href="/docs/runtimes/concepts/threads"
   />
   <Card
-    title="Adapters"
-    description="The other adapter slots (history, attachments, speech, feedback)."
+    title="适配器"
+    description="其他适配器插槽（历史记录、附件、语音和反馈）。"
     href="/docs/runtimes/concepts/adapters"
   />
   <Card
     title="AssistantCloud"
-    description="The managed alternative if you don't need to own the data."
+    description="如果你不需要自行管理数据，可使用的托管替代方案。"
     href="/docs/cloud"
   />
 </Cards>

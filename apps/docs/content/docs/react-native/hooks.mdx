@@ -1,13 +1,13 @@
 ---
-title: Hooks
-description: Reactive hooks for accessing runtime state in React Native.
+title: 钩子
+description: 用于在 React Native 中访问运行时状态的响应式钩子。
 ---
 
-## State Hooks
+## 状态 Hooks
 
 ### useAuiState
 
-The primary hook for accessing reactive state. It accepts a selector function for fine-grained re-renders — the component only re-renders when the selected value changes (shallow equality).
+用于访问响应式状态的主要 Hook。它接受一个选择器函数，以实现细粒度的重新渲染——只有所选值发生变化时，组件才会重新渲染（浅比较）。
 
 ```tsx
 import { useAuiState } from "@assistant-ui/react-native";
@@ -33,7 +33,7 @@ const title = useAuiState((s) => s.threadListItem.title);
 
 ### useAui
 
-Access the store methods for imperative actions.
+访问 store 方法，以执行命令式操作。
 
 ```tsx
 import { useAui } from "@assistant-ui/react-native";
@@ -50,7 +50,7 @@ aui.thread.cancelRun();
 
 ### useAuiEvent
 
-Subscribe to events without causing re-renders.
+订阅事件，且不会触发重新渲染。
 
 ```tsx
 import { useAuiEvent } from "@assistant-ui/react-native";
@@ -60,11 +60,11 @@ useAuiEvent("thread.modelContextUpdate", ({ threadId }) => {
 });
 ```
 
-## Runtime Hooks
+## 运行时钩子
 
 ### useLocalRuntime
 
-Create an `AssistantRuntime` with a `ChatModelAdapter`.
+使用 `ChatModelAdapter` 创建 `AssistantRuntime`。
 
 ```tsx
 import { useLocalRuntime } from "@assistant-ui/react-native";
@@ -74,28 +74,28 @@ const runtime = useLocalRuntime(chatModel, {
 });
 ```
 
-| Option | Type | Description |
+| 选项 | 类型 | 描述 |
 |--------|------|-------------|
-| `initialMessages` | `ThreadMessageLike[]` | Messages to pre-populate |
-| `maxSteps` | `number` | Maximum tool call steps per run |
-| `cloud` | `AssistantCloud` | Optional cloud instance for persistence |
-| `adapters` | `object` | Optional adapter overrides (see below) |
-| `unstable_humanToolNames` | `string[]` | Tool names that pause the run until a result is added via `addResult` |
+| `initialMessages` | `ThreadMessageLike[]` | 用于预填充的消息 |
+| `maxSteps` | `number` | 每次运行的最大工具调用步骤数 |
+| `cloud` | `AssistantCloud` | 用于持久化的可选云实例 |
+| `adapters` | `object` | 可选的适配器覆盖配置（见下文） |
+| `unstable_humanToolNames` | `string[]` | 在通过 `addResult` 添加结果之前暂停运行的工具名称 |
 
-The `adapters` option accepts the following fields (all optional):
+`adapters` 选项接受以下字段（全部为可选字段）：
 
-| Adapter | Type | Description |
+| 适配器 | 类型 | 描述 |
 |---------|------|-------------|
-| `history` | `ThreadHistoryAdapter` | Load and save thread message history |
-| `attachments` | `AttachmentAdapter` | Handle file and attachment uploads |
-| `speech` | `SpeechSynthesisAdapter` | Text-to-speech playback |
-| `dictation` | `DictationAdapter` | Speech-to-text input |
-| `feedback` | `FeedbackAdapter` | Thumbs up/down feedback |
-| `suggestion` | `SuggestionAdapter` | Prompt suggestions |
+| `history` | `ThreadHistoryAdapter` | 加载和保存线程消息历史记录 |
+| `attachments` | `AttachmentAdapter` | 处理文件和附件上传 |
+| `speech` | `SpeechSynthesisAdapter` | 文本转语音播放 |
+| `dictation` | `DictationAdapter` | 语音转文本输入 |
+| `feedback` | `FeedbackAdapter` | 点赞/点踩反馈 |
+| `suggestion` | `SuggestionAdapter` | 提示建议 |
 
 ### useRemoteThreadListRuntime
 
-Create an `AssistantRuntime` with a persistent thread list backed by a `RemoteThreadListAdapter`. This wraps any runtime hook (such as one calling `useLocalRuntime` or a custom AI SDK hook) and layers thread-list management on top.
+创建一个 `AssistantRuntime`，并使用 `RemoteThreadListAdapter` 作为持久化线程列表的后端。它可以包装任意运行时钩子（例如调用 `useLocalRuntime` 的钩子或自定义 AI SDK 钩子），并在其上添加线程列表管理功能。
 
 ```tsx
 import { useRemoteThreadListRuntime } from "@assistant-ui/react-native";
@@ -106,19 +106,19 @@ const runtime = useRemoteThreadListRuntime({
 });
 ```
 
-| Option | Type | Description |
+| 选项 | 类型 | 描述 |
 |--------|------|-------------|
-| `runtimeHook` | `() => AssistantRuntime` | Hook that returns a per-thread runtime |
-| `adapter` | `RemoteThreadListAdapter` | Backend adapter for listing/creating/archiving threads |
-| `allowNesting` | `boolean` | When `true`, silently becomes a no-op if already inside another `useRemoteThreadListRuntime` |
+| `runtimeHook` | `() => AssistantRuntime` | 返回每个线程运行时的钩子 |
+| `adapter` | `RemoteThreadListAdapter` | 用于列出、创建和归档线程的后端适配器 |
+| `allowNesting` | `boolean` | 当 `true` 时，如果已经处于另一个 `useRemoteThreadListRuntime` 中，则会静默变为无操作 |
 
-## Model Context Hooks
+## 模型上下文钩子
 
-### Tools
+### 工具
 
-Author tools in a `"use generative"` file with `defineToolkit`, the same API as on the web ([Defining Tools](/docs/tools/defining-tools)). The tool definition is forwarded to the model; when the model calls it, the `execute` function runs and the `render` component displays the result.
+在 `"use generative"` 文件中使用 `defineToolkit` 编写工具，其 API 与网页端相同（[定义工具](/docs/tools/defining-tools)）。工具定义会转发给模型；当模型调用该工具时，`execute` 函数会运行，而 `render` 组件会显示结果。
 
-Add the [`@assistant-ui/metro`](https://www.npmjs.com/package/@assistant-ui/metro) plugin so Metro compiles the `"use generative"` directive:
+添加 [`@assistant-ui/metro`](https://www.npmjs.com/package/@assistant-ui/metro) 插件，使 Metro 能够编译 `"use generative"` 指令：
 
 ```js title="metro.config.js"
 const { getDefaultConfig } = require("expo/metro-config");
@@ -176,7 +176,7 @@ function ToolProvider({ children }: { children: React.ReactNode }) {
 
 ### useAssistantDataUI
 
-Register a UI renderer for a named data message part.
+为命名的数据消息部分注册 UI 渲染器。
 
 ```tsx
 import { useAssistantDataUI } from "@assistant-ui/react-native";
@@ -193,7 +193,7 @@ useAssistantDataUI({
 
 ### useAssistantInstructions
 
-Register system instructions in the model context.
+在模型上下文中注册系统指令。
 
 ```tsx
 import { useAssistantInstructions } from "@assistant-ui/react-native";
@@ -203,7 +203,7 @@ useAssistantInstructions("You are a helpful weather assistant.");
 
 ### useInlineRender
 
-Wrap a tool UI component so that inline state updates (from a parent component's render) are reflected without remounting. Use this when the render function closes over props that change over time.
+包装工具 UI 组件，使内联状态更新（来自父组件的渲染）能够在不重新挂载组件的情况下反映出来。当渲染函数闭包引用了会随时间变化的 props 时，请使用此方法。
 
 ```tsx title="my-tool-toolkit.tsx"
 import { defineToolkit, useInlineRender } from "@assistant-ui/react-native";
@@ -228,11 +228,11 @@ export function useMyToolToolkit(someOuterProp: string) {
 }
 ```
 
-Import the toolkit hook, hoist `const aui = useAui()` and `const config = AuiConfig({ tools: Tools({ toolkit }) })` in the component body, and mount it with `<AuiProvider extends={aui} config={config}>`, as shown in the [Tools](#tools) section above.
+导入工具包 hook，在组件主体中提升 `const aui = useAui()` 和 `const config = AuiConfig({ tools: Tools({ toolkit }) })`，并使用 `<AuiProvider extends={aui} config={config}>` 挂载它，如上方[工具](#tools)部分所示。
 
 ### makeAssistantDataUI
 
-Create a component that registers a data UI renderer when mounted.
+创建一个组件，在挂载时注册数据 UI 渲染器。
 
 ```tsx
 import { makeAssistantDataUI } from "@assistant-ui/react-native";
@@ -245,13 +245,13 @@ const WeatherCard = makeAssistantDataUI({
 <WeatherCard />
 ```
 
-## Shared Providers
+## 共享提供者
 
-These context providers are re-exported from `@assistant-ui/core/react` and are used internally by the primitives to scope the `aui` store to a particular item (message, part, thread list item, etc.). They are available for advanced custom rendering scenarios.
+这些上下文提供者从 `@assistant-ui/core/react` 重新导出，原语在内部使用它们将 `aui` 存储限定到特定项目（消息、部分、线程列表项等）。它们适用于高级自定义渲染场景。
 
 ### MessageByIndexProvider
 
-Scopes the `aui` context to a specific message by its index in the thread.
+将 `aui` 上下文限定为线程中指定索引对应的消息。
 
 ```tsx
 import { MessageByIndexProvider } from "@assistant-ui/react-native";
@@ -263,7 +263,7 @@ import { MessageByIndexProvider } from "@assistant-ui/react-native";
 
 ### PartByIndexProvider
 
-Scopes the `aui` context to a specific message part by its index.
+将 `aui` 上下文限定到指定索引的消息部分。
 
 ```tsx
 import { PartByIndexProvider } from "@assistant-ui/react-native";
@@ -275,7 +275,7 @@ import { PartByIndexProvider } from "@assistant-ui/react-native";
 
 ### TextMessagePartProvider
 
-Provides a synthetic text part context from a plain string. Useful for rendering text outside the normal message-part pipeline.
+从普通字符串提供合成的文本部分上下文。适用于在常规消息部分管道之外渲染文本。
 
 ```tsx
 import { TextMessagePartProvider } from "@assistant-ui/react-native";
@@ -285,14 +285,14 @@ import { TextMessagePartProvider } from "@assistant-ui/react-native";
 </TextMessagePartProvider>
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 描述 |
 |------|------|-------------|
-| `text` | `string` | The text content |
-| `isRunning` | `boolean` | Whether the part is still streaming (default `false`) |
+| `text` | `string` | 文本内容 |
+| `isRunning` | `boolean` | 文本部分是否仍在进行流式传输（默认为 `false`） |
 
 ### ChainOfThoughtByIndicesProvider
 
-Scopes the `aui` context to a slice of message parts that form a chain-of-thought block.
+将 `aui` 上下文限定为构成思维链区块的消息部分切片。
 
 ```tsx
 import { ChainOfThoughtByIndicesProvider } from "@assistant-ui/react-native";
@@ -304,7 +304,7 @@ import { ChainOfThoughtByIndicesProvider } from "@assistant-ui/react-native";
 
 ### ChainOfThoughtPartByIndexProvider
 
-Scopes the `aui` context to a specific part within a chain-of-thought block.
+将 `aui` 上下文的作用域限定为思维链区块中的特定部分。
 
 ```tsx
 import { ChainOfThoughtPartByIndexProvider } from "@assistant-ui/react-native";
@@ -316,7 +316,7 @@ import { ChainOfThoughtPartByIndexProvider } from "@assistant-ui/react-native";
 
 ### ThreadListItemByIndexProvider
 
-Scopes the `aui` context to a specific thread list item by its index.
+将 `aui` 上下文限定到按索引指定的线程列表项。
 
 ```tsx
 import { ThreadListItemByIndexProvider } from "@assistant-ui/react-native";
@@ -328,7 +328,7 @@ import { ThreadListItemByIndexProvider } from "@assistant-ui/react-native";
 
 ### SuggestionByIndexProvider
 
-Scopes the `aui` context to a specific suggestion by its index.
+将 `aui` 上下文限定为索引对应的特定建议。
 
 ```tsx
 import { SuggestionByIndexProvider } from "@assistant-ui/react-native";

@@ -1,30 +1,30 @@
 ---
-title: A2A Agent Runtime
-description: Connect any A2A v1.0 protocol-compliant agent server to a React chat UI with assistant-ui — full streaming, tool calls, and message metadata supported.
+title: A2A Agent 运行时
+description: 将任何符合 A2A v1.0 协议的 Agent 服务器连接到使用 assistant-ui 的 React 聊天 UI，支持完整的流式传输、工具调用和消息元数据。
 ---
 
-`@assistant-ui/react-a2a` is a runtime adapter for the [A2A (Agent-to-Agent) v1.0 protocol](https://github.com/a2aproject/A2A). Use it when your backend speaks A2A; the adapter handles the wire protocol so you can focus on the UI.
+`@assistant-ui/react-a2a` 是 [A2A（Agent-to-Agent）v1.0 协议](https://github.com/a2aproject/A2A). 的运行时适配器。当你的后端使用 A2A 时可以使用它；该适配器会处理底层协议，让你专注于 UI。
 
-## When to use it
+## 适用场景
 
-Pick the A2A runtime when:
+在以下情况下选择 A2A 运行时：
 
-- You have an A2A v1.0 compatible agent server, or you are building one and want a reference client.
-- You want streaming task state, artifacts, and the protocol's full state machine surfaced in the UI.
-- You need multi-tenant or extension-aware A2A clients.
+- 你拥有符合 A2A v1.0 的 Agent 服务器，或者正在构建一个 Agent 服务器并希望获得参考客户端。
+- 你希望在 UI 中呈现任务状态的流式传输、工件以及协议的完整状态机。
+- 你需要支持多租户或扩展感知的 A2A 客户端。
 
-If your backend is not A2A-compliant, see [picking a runtime](/docs/runtimes/pick-a-runtime) for alternatives.
+如果你的后端不符合 A2A，请参阅[选择运行时](/docs/runtimes/pick-a-runtime)了解其他选项。
 
-## Architecture
+## 架构
 
-`@assistant-ui/react-a2a` is layered on `ExternalStoreRuntime` (see [architecture](/docs/runtimes/concepts/architecture)). Features that ship as runtime adapters (attachments, speech, feedback, history, threads) work the same way they do everywhere else; see [adapters](/docs/runtimes/concepts/adapters).
+`@assistant-ui/react-a2a` 基于 `ExternalStoreRuntime` 构建（请参阅[架构](/docs/runtimes/concepts/architecture)）。作为运行时适配器提供的功能（附件、语音、反馈、历史记录、线程）在其他地方的工作方式相同；请参阅[适配器](/docs/runtimes/concepts/adapters)。
 
-## Requirements
+## 要求
 
-- An A2A v1.0 compatible agent server.
-- React 18 or 19.
+- 符合 A2A v1.0 的 Agent 服务器。
+- React 18 或 19。
 
-## Install
+## 安装
 
 <PlatformTabs>
 <Tab value="React">
@@ -44,17 +44,17 @@ If your backend is not A2A-compliant, see [picking a runtime](/docs/runtimes/pic
 </Tab>
 </PlatformTabs>
 
-## Next
+## 下一步
 
 <Cards>
   <Card
-    title="Quickstart"
-    description="Minimal runtime setup with a Thread component."
+    title="快速开始"
+    description="包含 Thread 组件的最简运行时设置。"
     href="/docs/runtimes/a2a/quickstart"
   />
   <Card
-    title="Client and hooks"
-    description="A2AClient, useA2ARuntime options, hooks reference, task states, artifacts."
+    title="客户端和 Hooks"
+    description="A2AClient、useA2ARuntime 选项、Hooks 参考、任务状态和工件。"
     href="/docs/runtimes/a2a/client-and-hooks"
   />
 </Cards>

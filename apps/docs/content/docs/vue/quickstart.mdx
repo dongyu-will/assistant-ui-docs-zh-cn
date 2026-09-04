@@ -1,28 +1,28 @@
 ---
-title: Quickstart
-description: Build a streaming Nuxt chat with Vue, assistant-ui, and the AI SDK.
+title: 快速入门
+description: 使用 Vue、assistant-ui 和 AI SDK 构建流式 Nuxt 聊天应用。
 ---
 
-This guide adds a streaming chat to a Nuxt app in about five minutes. The runtime stays in a client-only component and the model call stays in a Nitro route.
+本指南将在大约五分钟内为 Nuxt 应用添加流式聊天功能。运行时保留在仅客户端组件中，模型调用保留在 Nitro 路由中。
 
 <Steps>
   <Step>
 
-### Install the runtime
+### 安装运行时
 
-Install the Vue binding, the AI SDK runtime, and an AI SDK provider:
+安装 Vue 绑定、AI SDK 运行时和 AI SDK 提供商：
 
 ```sh
 pnpm add @assistant-ui/vue @assistant-ui/ai-sdk ai @ai-sdk/openai react
 ```
 
-`react` is the AI SDK runtime's substrate — an optional peer of `@assistant-ui/ai-sdk`, so it does not install on its own. For `nuxi typecheck`, add `@types/react` as a dev dependency: a type-only react reference rides through the core runtime types.
+`react` 是 AI SDK 运行时的基础层——它是 `@assistant-ui/ai-sdk` 的可选对等依赖，因此不会自行安装。对于 `nuxi typecheck`，将 `@types/react` 添加为开发依赖：仅用于类型的 React 引用会通过核心运行时类型传递。
 
 ```bash
 pnpm add -D @types/react
 ```
 
-Add your provider key to `.env`:
+将提供商密钥添加到 `.env`：
 
 ```sh title=".env"
 OPENAI_API_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -31,9 +31,9 @@ OPENAI_API_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   </Step>
   <Step>
 
-### Install the styled components
+### 安装样式组件
 
-Add the Vue assistant-ui registry once in `components.json`:
+在 `components.json` 中添加一次 Vue assistant-ui 注册表：
 
 ```json title="components.json"
 {
@@ -43,20 +43,20 @@ Add the Vue assistant-ui registry once in `components.json`:
 }
 ```
 
-Install the chat surface:
+安装聊天界面：
 
 ```sh
 npx shadcn@latest add @assistant-ui/thread @assistant-ui/thread-list
 ```
 
-This writes Vue components under `components/assistant-ui`. The registry installs their assistant-ui, Vue, and UI dependencies.
+这会在 `components/assistant-ui` 下写入 Vue 组件。该注册表会安装这些组件所需的 assistant-ui、Vue 和 UI 依赖。
 
   </Step>
   <Step>
 
-### Create the assistant client
+### 创建助手客户端
 
-Use a `.client.vue` file so the runtime is created only in the browser:
+使用 `.client.vue` 文件，使运行时仅在浏览器中创建：
 
 ```vue title="app/components/Assistant.client.vue"
 <script setup lang="ts">
@@ -76,14 +76,14 @@ const config = AuiConfig({
 </template>
 ```
 
-`AISDKChat()` creates one streaming thread. Its default transport sends requests to `/api/chat`.
+`AISDKChat()` 会创建一个流式线程。其默认传输层会将请求发送到 `/api/chat`。
 
   </Step>
   <Step>
 
-### Add the streaming route
+### 添加流式路由
 
-Create the Nitro route that receives UI messages and returns an AI SDK UI message stream:
+创建接收 UI 消息并返回 AI SDK UI 消息流的 Nitro 路由：
 
 ```ts title="server/api/chat.post.ts"
 import { openai } from "@ai-sdk/openai";
@@ -108,9 +108,9 @@ export default defineEventHandler(async (event) => {
   </Step>
   <Step>
 
-### Render the assistant
+### 渲染助手
 
-Nuxt recognizes the `.client.vue` suffix and only mounts this component in the browser:
+Nuxt 会识别 `.client.vue` 后缀，并且只在浏览器中挂载此组件：
 
 ```vue title="app/pages/index.vue"
 <template>
@@ -118,11 +118,11 @@ Nuxt recognizes the `.client.vue` suffix and only mounts this component in the b
 </template>
 ```
 
-Start the app with `pnpm dev`, then send a message. The response streams from `server/api/chat.post.ts` into the thread.
+使用 `pnpm dev` 启动应用，然后发送一条消息。响应会从 `server/api/chat.post.ts` 流式传输到线程中。
 
   </Step>
 </Steps>
 
-## Next steps
+## 后续步骤
 
-Use [AISDKThreads](/docs/vue/runtimes#aisdkthreads) when the chat needs a thread list, [server rendering](/docs/vue/ssr) to understand the `.client.vue` boundary, and [Tool UI](/docs/vue/tool-ui) to render tool calls.
+当聊天需要线程列表时，使用 [AISDKThreads](/docs/vue/runtimes#aisdkthreads)；使用[服务器端渲染](/docs/vue/ssr)了解 `.client.vue` 边界；使用 [Tool UI](/docs/vue/tool-ui) 渲染工具调用。

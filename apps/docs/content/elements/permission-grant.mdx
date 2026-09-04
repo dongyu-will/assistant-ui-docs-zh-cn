@@ -1,20 +1,20 @@
 ---
-title: "Permission grant"
-description: "Granting a capability rather than approving one action, with the reach spelled out."
+title: "权限授予"
+description: "授予一项能力，而不是批准单个操作，并明确说明其作用范围。"
 ---
 
-A gate for a capability, not a single action: what's being asked for, who's asking, and exactly what saying yes would let happen, before the user commits. With a runtime this gate comes from the tool call's approval state; standalone you hold the decision yourself.
+这是能力的门控，而不是单个操作的批准：在用户确认之前，明确说明请求的内容、请求者，以及用户同意后究竟会允许什么。对于运行时，此门控来自工具调用的批准状态；单独使用时，则由你自行掌控这一决策。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-A runtime whose backend declares tool approval gates (an AG-UI or ACP agent, for example) attaches an `approval` object to the tool-call part. Read it and answer it from the same renderer that shows the tool's normal result.
+如果运行时的后端声明了工具批准门控（例如 AG-UI 或 ACP agent），它会将一个 `approval` 对象附加到工具调用部分。读取该对象，并在显示工具正常结果的同一个渲染器中对其作出响应。
 
 <Steps>
   <Step>
 
-### Read the approval gate from the tool call
+### 从工具调用中读取批准门控
 
 ```tsx title="app/shell-toolkit.tsx"
 "use client";
@@ -52,14 +52,14 @@ function ShellApprovalGate({ args, approval, respondToApproval }: ToolCallMessag
 }
 ```
 
-`approval.approved === undefined` and no `resolution` marks the gate as still open; once the host records a decision, the part re-renders with `approval.approved` set and this returns `null`.
+`approval.approved === undefined` 且没有 `resolution` 时，表示门控仍处于开放状态；主机记录决策后，该部分会重新渲染并设置 `approval.approved`，此时返回 `null`。
 
   </Step>
   <Step>
 
-### Answer with respondToApproval
+### 使用 respondToApproval 作出响应
 
-Each declared option carries its own `grants`, the patterns or rules choosing it would persist. Show them before the user commits, not after:
+每个声明的选项都带有自己的 `grants`，用于说明选择该选项后将持久化的模式或规则。在用户确认之前展示这些内容，而不是之后：
 
 ```tsx
 {(approval.options ?? []).map((option) => (
@@ -79,12 +79,12 @@ Each declared option carries its own `grants`, the patterns or rules choosing it
 
 <StandaloneMode>
 
-Standalone, the element is fully controlled: you own the decision and what it grants.
+单独使用时，该元素完全由你控制：由你决定授予什么，以及是否作出授予决定。
 
 <Steps>
   <Step>
 
-### Hold the grant decision
+### 暂存授予决定
 
 ```tsx title="app/approval.tsx"
 "use client";
@@ -109,16 +109,16 @@ export function ShellApproval() {
   </Step>
   <Step>
 
-### Resolve it from onGrant
+### 在 onGrant 中完成解析
 
-`onGrant` fires once, with whichever of `"denied"`, `"session"`, or `"always"` the user picked. Setting `scope` from it is enough; the card renders its buttons only while `scope` is `"pending"`.
+`onGrant` 只触发一次，并携带用户选择的 `"denied"`、`"session"` 或 `"always"`。根据它设置 `scope` 即可；卡片仅在 `scope` 为 `"pending"` 时渲染其按钮。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 结构
 
 ```tsx
 <div data-slot="permission-grant">
@@ -131,15 +131,15 @@ export function ShellApproval() {
 </div>
 ```
 
-The three pending buttons and the resolved badge are mutually exclusive: once `scope` is anything but `"pending"`, the buttons are gone and the card reads either `"denied"` or `"granted · {scope}"`.
+三个待处理按钮与已解析徽章互斥：一旦 `scope` 不再是 `"pending"`，按钮就会消失，卡片会显示 `"denied"` 或 `"granted · {scope}"`。
 
-## Examples
+## 示例
 
-### Confirm a persistent grant
+### 确认持久授予
 
 <RuntimeMode>
 
-An option with `confirm: true` (or a `{ title, description }` object) is a two-step commit: show its own confirmation before calling `respondToApproval`, matching what `option.grants` already promised.
+带有 `confirm: true`（或 `{ title, description }` 对象）的选项需要两步确认：在调用 `respondToApproval` 之前先显示该选项自己的确认步骤，与 `option.grants` 已经承诺的内容保持一致。
 
 ```tsx
 const [confirmingId, setConfirmingId] = useState<string | null>(null);
@@ -158,11 +158,11 @@ if (confirming) {
 
 </RuntimeMode>
 
-### Plain allow or deny
+### 简单允许或拒绝
 
 <RuntimeMode>
 
-`approval.options` is optional. When it's absent, the gate is a plain yes or no: respond with `approved` instead of an `optionId`.
+`approval.options` 是可选的。如果缺少它，门控就是简单的允许或拒绝：使用 `approved` 作出响应，而不是使用 `optionId`。
 
 ```tsx
 <button type="button" onClick={() => void answer({ approved: true })}>
@@ -175,34 +175,34 @@ if (confirming) {
 
 </RuntimeMode>
 
-### Restyle the card
+### 重新设置卡片样式
 
-Both lanes take `className` on the root. The root uses the shared `paper` surface, the "this grants" label uses `mono`, the resolved badge uses `field` and `mono` together, and the Always button uses `inkButton`, so retargeting those in `surfaces.tsx` restyles this card along with everything else built on them.
+两个分支都会在根元素上接收 `className`。根元素使用共享的 `paper` surface，“授予内容”标签使用 `mono`，已解析徽章同时使用 `field` 和 `mono`，Always 按钮使用 `inkButton`。因此，在 `surfaces.tsx` 中重新指定这些样式，就能同时重新设置此卡片以及其他基于它们构建的内容的样式。
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Approval gate
+### 批准门控
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `approval.id` | `string` | Identifier for this approval request. |
-| `approval.approved` | `boolean \| undefined` | `undefined` while the gate is still open. |
-| `approval.options` | `readonly ToolApprovalOption[] \| undefined` | Available decisions; absent means a plain allow or deny. |
-| `approval.optionId` | `string \| undefined` | The option chosen at resolution, when options were present. |
-| `approval.resolution` | `"cancelled" \| "expired" \| undefined` | Set by the host when the request ended without a user decision. |
-| `respondToApproval(response)` | `(response: ToolApprovalResponse) => Promise<void>` | Answers the gate. Accepts `{ approved }`, `{ optionId }`, both, or `{ text }` when the request takes a free-form answer. Only valid while `approved` and `resolution` are both unset. |
+| `approval.id` | `string` | 此批准请求的标识符。 |
+| `approval.approved` | `boolean \| undefined` | 门控仍处于开放状态时为 `undefined`。 |
+| `approval.options` | `readonly ToolApprovalOption[] \| undefined` | 可用的决策；缺少该字段表示简单的允许或拒绝。 |
+| `approval.optionId` | `string \| undefined` | 存在选项时，解析时选中的选项。 |
+| `approval.resolution` | `"cancelled" \| "expired" \| undefined` | 请求结束但用户未作出决策时由主机设置。 |
+| `respondToApproval(response)` | `(response: ToolApprovalResponse) => Promise<void>` | 回应门控。接受 `{ approved }`、`{ optionId }`、两者，或在请求接受自由格式回答时接受 `{ text }`。仅当 `approved` 和 `resolution` 均未设置时有效。 |
 
 ### ToolApprovalOption
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `id` | `string` | Host-defined identifier. |
-| `kind` | `"allow-once" \| "allow-always" \| "reject-once" \| "reject-always"` or a custom string | Known kinds resolve `approved` automatically; a custom kind always needs an explicit `approved` value. |
-| `label` | `string` | Optional; renderers default per kind when it's absent. |
-| `grants` | `readonly string[]` | Patterns or rules this option would persist, supplied by the host. |
-| `confirm` | `boolean \| { title?, description? }` | Opt-in confirmation step before this option resolves. |
+| `id` | `string` | 由主机定义的标识符。 |
+| `kind` | `"allow-once" \| "allow-always" \| "reject-once" \| "reject-always"` 或自定义字符串 | 已知类型会自动解析 `approved`；自定义类型始终需要显式的 `approved` 值。 |
+| `label` | `string` | 可选；缺少时，渲染器会根据类型使用默认值。 |
+| `grants` | `readonly string[]` | 此选项将持久化的模式或规则，由主机提供。 |
+| `confirm` | `boolean \| { title?, description? }` | 在此选项解析之前选择性启用的确认步骤。 |
 
 </RuntimeMode>
 
@@ -210,15 +210,15 @@ Both lanes take `className` on the root. The root uses the shared `paper` surfac
 
 ### PermissionGrant
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `capability` | `string` | required | What's being granted. |
-| `requester` | `string` | required | Who's asking for it. |
-| `reach` | `readonly string[]` | required | The patterns or rules this grant would cover, shown before the user commits. |
-| `scope` | `GrantScope \| "pending"` | required | `"pending"` shows the three buttons; any other value shows the resolved badge. |
-| `onGrant` | `(scope: GrantScope) => void` | | Called once, from whichever pending button was pressed. |
-| `className` | `string` | | Merged onto the root. |
+| `capability` | `string` | 必填 | 要授予的内容。 |
+| `requester` | `string` | 必填 | 请求授予权限的对象。 |
+| `reach` | `readonly string[]` | 必填 | 此授予将覆盖的模式或规则，在用户确认之前显示。 |
+| `scope` | `GrantScope \| "pending"` | 必填 | `"pending"` 会显示三个按钮；任何其他值都会显示已解析徽章。 |
+| `onGrant` | `(scope: GrantScope) => void` | | 从所按下的待处理按钮中调用一次。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-`GrantScope` is `"session" | "always" | "denied"`.
+`GrantScope` 是 `"session" | "always" | "denied"`。
 
 </StandaloneMode>

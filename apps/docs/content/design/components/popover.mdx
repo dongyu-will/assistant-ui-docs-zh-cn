@@ -1,8 +1,8 @@
 ---
 title: "Popover"
-description: "Anchored detail on demand, dismissed by clicking away."
+description: "按需显示锚定详情，点击其他区域即可关闭。"
 links:
-  - label: Source
+  - label: 来源
     url: https://github.com/assistant-ui/assistant-ui/blob/main/packages/ui/src/components/ui/base/popover.tsx
   - label: Base UI Popover
     url: https://base-ui.com/react/components/popover
@@ -22,11 +22,11 @@ import { FlavorSwitcher } from "@/components/pages/docs/contexts/flavor.server";
   <RadixSpecimens.PopoverSpecimen />
 </PreviewCode>
 
-## Installation
+## 安装
 
 <KitInstall name="popover" />
 
-## Usage
+## 使用
 
 ```tsx
 import {
@@ -54,9 +54,9 @@ export function Example() {
 }
 ```
 
-## API Reference
+## API 参考
 
-The parts wrap Base UI's Popover primitives and accept their props.
+这些部件封装了 Base UI 的 Popover 原语，并接受其 props。
 
 ### Popover
 
@@ -66,12 +66,12 @@ The parts wrap Base UI's Popover primitives and accept their props.
     {
       name: "open",
       type: "boolean",
-      description: "Controlled open state.",
+      description: "受控的打开状态。",
     },
     {
       name: "onOpenChange",
       type: "(open: boolean) => void",
-      description: "Called when the open state changes.",
+      description: "打开状态发生变化时调用。",
     },
   ]}
 />
@@ -85,19 +85,19 @@ The parts wrap Base UI's Popover primitives and accept their props.
       name: "side",
       type: '"top" | "right" | "bottom" | "left"',
       default: '"bottom"',
-      description: "Preferred side of the trigger.",
+      description: "触发器的首选侧。",
     },
     {
       name: "align",
       type: '"start" | "center" | "end"',
       default: '"center"',
-      description: "Alignment against the trigger.",
+      description: "相对于触发器的对齐方式。",
     },
     {
       name: "sideOffset",
       type: "number",
       default: "4",
-      description: "Distance from the trigger in pixels.",
+      description: "与触发器之间的距离，单位为像素。",
     },
   ]}
 />

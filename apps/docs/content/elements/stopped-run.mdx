@@ -1,20 +1,20 @@
 ---
-title: "Stopped run"
-description: "You pressed stop. The half-written answer stays, and continuing is one tap away."
+title: "已停止的运行"
+description: "你按下了停止。已写入一半的答案会保留，继续生成只需轻触一下。"
 ---
 
-StoppedRun shows what a cancelled generation leaves behind: the words that arrived before the stop, a small reason badge, and a way to pick it back up or let it go. With a runtime the words and the reason come from the message that was cancelled; standalone you pass in whatever you captured.
+StoppedRun 展示取消生成后留下的内容：停止前已经到达的文字、一个简短的原因徽章，以及继续处理或放弃它的方式。在运行时中，文字和原因来自被取消的消息；独立使用时，则由你传入所捕获的内容。
 
-## Getting started
+## 快速开始
 
 <RuntimeMode>
 
-A cancelled message settles into `status.type === "incomplete"` with `status.reason === "cancelled"`. Its content up to that point is still there; only the run stopped.
+被取消的消息会以 `status.type === "incomplete"` 状态和 `status.reason === "cancelled"` 稳定下来。在此之前生成的内容仍会保留；只是运行停止了。
 
 <Steps>
   <Step>
 
-### Detect a cancelled message and wire its actions
+### 检测被取消的消息并连接其操作
 
 ```tsx title="components/assistant-ui/elements/thread.aui.tsx"
 "use client";
@@ -51,9 +51,9 @@ function CancelledNotice() {
   </Step>
   <Step>
 
-### Understand what Continue really does
+### 了解 Continue 的实际行为
 
-`reload()` starts a new run for the same turn; it does not resume the exact cut-off text, since assistant-ui has no built-in prefix-continuation primitive. A backend that supports literal continuation needs the partial text itself, for example passed through `reload`'s `runConfig.custom` and read back inside your `ChatModelAdapter`.
+`reload()` 会为同一轮次启动一次新的运行；它不会从被截断的确切文本处继续，因为 assistant-ui 没有内置的前缀继续原语。支持字面续写的后端需要获取部分文本，例如通过 `reload` 的 `runConfig.custom` 传入，并在你的 `ChatModelAdapter` 中读取。
 
   </Step>
 </Steps>
@@ -62,12 +62,12 @@ function CancelledNotice() {
 
 <StandaloneMode>
 
-Standalone, StoppedRun is presentational: you decide what counts as stopped and supply the words already streamed.
+独立使用时，StoppedRun 仅负责展示：由你决定什么算作已停止，并提供已经流式输出的文字。
 
 <Steps>
   <Step>
 
-### Freeze the words when a stream stops
+### 流停止时冻结文字
 
 ```tsx title="app/answer.tsx"
 "use client";
@@ -100,16 +100,16 @@ export function Answer() {
   </Step>
   <Step>
 
-### Wire Continue and Discard
+### 连接 Continue 和 Discard
 
-Neither prop has a default behavior; both are no-ops until you pass a handler. `onContinue` is where you'd fetch the rest of the answer; `onDiscard` is where you'd drop it from your own list.
+这两个 prop 都没有默认行为；在传入处理函数之前，它们都不会执行任何操作。`onContinue` 用于获取答案的剩余部分；`onDiscard` 用于将其从你自己的列表中删除。
 
   </Step>
 </Steps>
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="stopped-run">
@@ -122,15 +122,15 @@ Neither prop has a default behavior; both are no-ops until you pass a handler. `
 </div>
 ```
 
-The cursor is decorative (`aria-hidden`) and always renders while the component is mounted; there is no internal "still streaming" state to turn it off. `reason` is freeform text, not a fixed enum, so the badge can describe any way a run ends short of completion, not only a manual stop.
+光标仅用于装饰（`aria-hidden`），组件挂载期间始终会渲染；内部没有“仍在流式传输”状态可以将其关闭。`reason` 是自由格式文本，而不是固定枚举，因此徽章可以描述运行未完成就结束的任何情况，而不仅是手动停止。
 
-## Examples
+## 示例
 
-### Other reasons a run stops
+### 运行停止的其他原因
 
 <RuntimeMode>
 
-`status.reason` covers more than a manual stop: `"length"`, `"content-filter"`, `"tool-calls"`, and `"error"` are all real values alongside `"cancelled"`. The same component fits any of them with a different label:
+`status.reason` 涵盖的不只是手动停止：`"length"`、`"content-filter"`、`"tool-calls"` 和 `"error"` 都是与 `"cancelled"` 并列的实际值。同一个组件可以通过不同标签适配其中任何一种情况：
 
 ```tsx
 const LABEL: Record<string, string> = {
@@ -147,7 +147,7 @@ const LABEL: Record<string, string> = {
 
 <StandaloneMode>
 
-Nothing about the component ties `reason` to cancellation specifically; any short label for why the text stopped early is a valid value.
+组件本身并未将 `reason` 专门与取消关联；任何用于说明文本为何提前停止的简短标签都可以作为有效值。
 
 ```tsx
 <StoppedRun words={words} reason="connection lost" />
@@ -155,7 +155,7 @@ Nothing about the component ties `reason` to cancellation specifically; any shor
 
 </StandaloneMode>
 
-### Where discard goes
+### Discard 的去向
 
 <RuntimeMode>
 
@@ -163,13 +163,13 @@ Nothing about the component ties `reason` to cancellation specifically; any shor
 const onDiscard = () => aui.message.delete();
 ```
 
-`delete()` removes the message from the thread. Its `Promise<void>` return exists because a persisted runtime's delete is asynchronous; you rarely need to await it from a click handler.
+`delete()` 会从线程中移除消息。它的 `Promise<void>` 返回值存在的原因是，持久化运行时的删除操作是异步的；你通常不需要在点击处理函数中等待它完成。
 
 </RuntimeMode>
 
 <StandaloneMode>
 
-Standalone, discarding is whatever removes the draft from your own list; the component only calls the handler.
+独立使用时，Discard 的行为就是从你自己的列表中移除草稿；组件只负责调用处理函数。
 
 ```tsx
 const onDiscard = () => setDrafts((prev) => prev.filter((d) => d.id !== draftId));
@@ -177,26 +177,26 @@ const onDiscard = () => setDrafts((prev) => prev.filter((d) => d.id !== draftId)
 
 </StandaloneMode>
 
-### Restyle the badge and actions
+### 重新设置徽章和操作的样式
 
-Both lanes take `className` on the root. The badge reads the shared `field` and `mono` surfaces from `surfaces.tsx`.
+两条区域都会在根元素上接收 `className`。徽章会从 `surfaces.tsx` 读取共享的 `field` 和 `mono` 表面。
 
 ```tsx
 <StoppedRun className="max-w-none" /* ... */ />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Message state
+### 消息状态
 
-| Selector / method | Type | Description |
+| 选择器 / 方法 | 类型 | 描述 |
 |--------------------|------|-------------|
-| `s.message.status` | `MessageStatus \| undefined` | `{ type: "incomplete", reason: "cancelled" }` when the message stopped because you pressed stop. Other `incomplete` reasons: `"length"`, `"content-filter"`, `"tool-calls"`, `"error"`, `"other"`. |
-| `aui.thread.cancelRun()` | `() => void` | Stops the active run; the streaming message settles into the `incomplete` status above. |
-| `aui.message.reload(config?)` | `(config?: { runConfig?: RunConfig }) => void` | Starts a new run for this turn. Restarts generation; it does not resume the cut-off text. |
-| `aui.message.delete()` | `() => void \| Promise<void>` | Removes the message from the thread. |
+| `s.message.status` | `MessageStatus \| undefined` | 当你按下停止并导致消息停止时的 `{ type: "incomplete", reason: "cancelled" }`。其他 `incomplete` 原因包括：`"length"`、`"content-filter"`、`"tool-calls"`、`"error"` 和 `"other"`。 |
+| `aui.thread.cancelRun()` | `() => void` | 停止活动运行；流式传输中的消息会稳定为上述的 `incomplete` 状态。 |
+| `aui.message.reload(config?)` | `(config?: { runConfig?: RunConfig }) => void` | 为此轮次启动一次新的运行。重新开始生成；不会从被截断的文本处继续。 |
+| `aui.message.delete()` | `() => void \| Promise<void>` | 从线程中移除消息。 |
 
 </RuntimeMode>
 
@@ -204,14 +204,14 @@ Both lanes take `className` on the root. The badge reads the shared `field` and 
 
 ### StoppedRun
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `words` | `readonly string[]` | required | The words already streamed, joined with spaces and given a trailing cursor. |
-| `reason` | `string` | required | Freeform label shown in the badge. |
-| `onContinue` | `() => void` | | Called when Continue is pressed. |
-| `onDiscard` | `() => void` | | Called when Discard is pressed. |
-| `className` | `string` | | Merged onto the root. |
+| `words` | `readonly string[]` | 必填 | 已经流式输出的文字，以空格连接，并在末尾添加光标。 |
+| `reason` | `string` | 必填 | 显示在徽章中的自由格式标签。 |
+| `onContinue` | `() => void` | | 按下 Continue 时调用。 |
+| `onDiscard` | `() => void` | | 按下 Discard 时调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-All other `div` props are forwarded to the root.
+其他所有 `div` props 都会转发到根元素。
 
 </StandaloneMode>

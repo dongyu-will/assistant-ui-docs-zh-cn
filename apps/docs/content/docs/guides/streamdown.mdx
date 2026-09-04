@@ -1,6 +1,6 @@
 ---
-title: Streamdown Markdown Renderer
-description: Stream markdown into a React chat UI with syntax highlighting, math, and Mermaid diagrams. Powered by Vercel Streamdown, integrated for assistant-ui.
+title: Streamdown Markdown 渲染器
+description: 将 Markdown 流式传输到 React 聊天界面，支持语法高亮、数学公式和 Mermaid 图表。由 Vercel Streamdown 提供支持，并已集成到 assistant-ui。
 links:
   - label: Streamdown
     url: https://github.com/vercel/streamdown
@@ -13,22 +13,22 @@ import { StreamdownSample } from "@/components/pages/docs/samples/streamdown";
 <StreamdownSample />
 
 <Callout type="info">
-  `@assistant-ui/react-streamdown` is an **alternative** to `@assistant-ui/react-markdown`. Choose based on your needs:
-  - **react-markdown**: Lightweight, bring-your-own syntax highlighter
-  - **react-streamdown**: Feature-rich with built-in Shiki, KaTeX, Mermaid support
+  `@assistant-ui/react-streamdown` 是 `@assistant-ui/react-markdown` 的**替代方案**。请根据你的需求进行选择：
+  - **react-markdown**：轻量级，需要自行集成语法高亮器
+  - **react-streamdown**：功能丰富，内置 Shiki、KaTeX 和 Mermaid 支持
 </Callout>
 
-## Installation
+## 安装
 
 <PackageManagerTabs packages={["@assistant-ui/react-streamdown", "streamdown"]} />
 
-For additional features, install the optional plugins:
+如需其他功能，请安装可选插件：
 
 <PackageManagerTabs packages={["@streamdown/code", "@streamdown/math", "@streamdown/mermaid", "@streamdown/cjk"]} />
 
-## CSS setup
+## CSS 设置
 
-Streamdown's controls (code-block copy/download buttons, mermaid fullscreen overlay) and the streaming caret are written as Tailwind utility classes. Tailwind v4 does not scan `node_modules` by default, so add a `@source` directive for Streamdown (and one per installed plugin) to the same global stylesheet that imports Tailwind:
+Streamdown 的控件（代码块复制/下载按钮、mermaid 全屏覆盖层）以及流式传输光标均使用 Tailwind 工具类编写。Tailwind v4 默认不会扫描 `node_modules`，因此请在导入 Tailwind 的同一个全局样式表中，为 Streamdown 添加一个 `@source` 指令（每个已安装的插件也各添加一个）：
 
 ```css
 @import "tailwindcss";
@@ -40,23 +40,23 @@ Streamdown's controls (code-block copy/download buttons, mermaid fullscreen over
 @source "../node_modules/@streamdown/cjk/dist/*.js";
 ```
 
-Adjust the relative path to wherever your project's `node_modules` lives. In a pnpm or Turbo monorepo with hoisted dependencies, you typically need more `../` segments to reach the workspace root. Only include the plugin lines for packages you actually installed.
+请根据项目中 `node_modules` 所在的位置调整相对路径。在使用 pnpm 或 Turbo monorepo 且依赖被提升的情况下，通常需要更多 `../` 片段才能到达工作区根目录。只为实际安装的包添加插件行。
 
-Without these directives, the copy/download/fullscreen buttons render with no padding or cursor styling (and look broken), and the `caret` indicator stays invisible.
+如果缺少这些指令，复制/下载/全屏按钮将不会应用内边距或光标样式（显示效果异常），并且 `caret` 指示器会保持不可见。
 
 <Callout type="info">
-  Streamdown's components assume the shadcn/ui design tokens (`--background`, `--muted-foreground`, `--border`, etc.). If you are not on shadcn/ui, copy the minimum variable set from the [Streamdown README](https://github.com/vercel/streamdown#css-custom-properties-design-tokens).
+  Streamdown 的组件依赖 shadcn/ui 设计令牌（`--background`、`--muted-foreground`、`--border` 等）。如果你未使用 shadcn/ui，请从 [Streamdown README](https://github.com/vercel/streamdown#css-custom-properties-design-tokens).
 </Callout>
 
-If you opt into the `animated` prop or use `createAnimatePlugin` for word-level fade-in, also import the keyframes once at your app entry:
+如果你选择使用 `animated` prop，或使用 `createAnimatePlugin` 实现逐词淡入效果，还需要在应用入口处导入一次关键帧：
 
 ```ts
 import "streamdown/styles.css";
 ```
 
-The bare `caret` prop does **not** require this import; only the word-level animation does.
+单独使用 `caret` prop **不**需要此导入；只有逐词动画需要。
 
-## Basic Usage
+## 基本用法
 
 ```tsx
 import { StreamdownTextPrimitive } from "@assistant-ui/react-streamdown";
@@ -70,7 +70,7 @@ import { StreamdownTextPrimitive } from "@assistant-ui/react-streamdown";
 const StreamdownText = () => <StreamdownTextPrimitive />;
 ```
 
-## With Plugins (Recommended)
+## 使用插件（推荐）
 
 ```tsx
 import { StreamdownTextPrimitive } from "@assistant-ui/react-streamdown";
@@ -87,11 +87,11 @@ const StreamdownText = () => (
 );
 ```
 
-When `@streamdown/code` is provided, the default theme is `["github-light", "github-dark"]` for light/dark mode support.
+提供 `@streamdown/code` 时，默认主题为 `["github-light", "github-dark"]`，以支持亮色/暗色模式。
 
-## Migration from react-markdown
+## 从 react-markdown 迁移
 
-If you're migrating from `@assistant-ui/react-markdown`, your existing `SyntaxHighlighter` and `CodeHeader` components still work:
+如果你要从 `@assistant-ui/react-markdown` 迁移，你现有的 `SyntaxHighlighter` 和 `CodeHeader` 组件仍可继续使用：
 
 ```tsx
 import { StreamdownTextPrimitive } from "@assistant-ui/react-streamdown";
@@ -109,35 +109,35 @@ const StreamdownText = () => (
 );
 ```
 
-## Props
+## 属性
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `mode` | `"streaming" \| "static"` | `"streaming"` | Rendering mode |
-| `plugins` | `PluginConfig` | - | Streamdown plugins (code, math, mermaid, cjk) |
-| `shikiTheme` | `[string, string]` | `["github-light", "github-dark"]` | Light and dark theme for Shiki |
-| `components` | `object` | - | Custom components including `SyntaxHighlighter` and `CodeHeader` |
-| `componentsByLanguage` | `object` | - | Language-specific component overrides |
-| `preprocess` | `(text: string) => string` | - | Text preprocessing function |
-| `defer` | `boolean` | `false` | Defer markdown parsing to a lower priority via `useDeferredValue` so typing and scrolling stay responsive during streaming |
-| `smooth` | `boolean \| SmoothOptions` | `false` | Typewriter-style reveal via `useSmooth`; the caret and controls stay active until the reveal catches up. Prefer the native `animated` prop for entrance animations |
-| `controls` | `boolean \| object` | `true` | Enable/disable UI controls for code blocks and tables |
-| `caret` | `"block" \| "circle"` | - | Streaming caret style |
-| `mermaid` | `MermaidOptions` | - | Mermaid diagram configuration |
-| `linkSafety` | `LinkSafetyConfig` | - | Link safety confirmation dialog |
-| `remend` | `RemendConfig` | - | Incomplete markdown auto-completion |
-| `allowedTags` | `Record<string, string[]>` | - | HTML tags whitelist |
-| `containerProps` | `object` | - | Props for the container div |
-| `containerClassName` | `string` | - | Class name for the container |
-| `remarkRehypeOptions` | `object` | - | Options passed to remark-rehype |
-| `BlockComponent` | `ComponentType` | - | Custom component for rendering blocks |
-| `parseMarkdownIntoBlocksFn` | `(md: string) => string[]` | - | Custom block parsing function |
-| `parseIncompleteMarkdown` | `boolean` | `false` | Parse incomplete markdown as-is (skip remend) |
-| `security` | `SecurityConfig` | - | URL/image security restrictions |
+| `mode` | `"streaming" \| "static"` | `"streaming"` | 渲染模式 |
+| `plugins` | `PluginConfig` | - | Streamdown 插件（代码、数学公式、mermaid、CJK） |
+| `shikiTheme` | `[string, string]` | `["github-light", "github-dark"]` | Shiki 的浅色和深色主题 |
+| `components` | `object` | - | 自定义组件，包括 `SyntaxHighlighter` 和 `CodeHeader` |
+| `componentsByLanguage` | `object` | - | 针对特定语言的组件覆盖 |
+| `preprocess` | `(text: string) => string` | - | 文本预处理函数 |
+| `defer` | `boolean` | `false` | 通过 `useDeferredValue` 将 Markdown 解析延迟到较低优先级，从而在流式传输期间保持输入和滚动响应 |
+| `smooth` | `boolean \| SmoothOptions` | `false` | 通过 `useSmooth` 实现打字机式显示；在显示追上之前，光标和控件会保持活动状态。对于入场动画，建议使用原生的 `animated` 属性 |
+| `controls` | `boolean \| object` | `true` | 启用或禁用代码块和表格的 UI 控件 |
+| `caret` | `"block" \| "circle"` | - | 流式传输光标样式 |
+| `mermaid` | `MermaidOptions` | - | Mermaid 图表配置 |
+| `linkSafety` | `LinkSafetyConfig` | - | 链接安全确认对话框 |
+| `remend` | `RemendConfig` | - | 不完整 Markdown 的自动补全 |
+| `allowedTags` | `Record<string, string[]>` | - | HTML 标签白名单 |
+| `containerProps` | `object` | - | 容器 div 的属性 |
+| `containerClassName` | `string` | - | 容器的类名 |
+| `remarkRehypeOptions` | `object` | - | 传递给 remark-rehype 的选项 |
+| `BlockComponent` | `ComponentType` | - | 用于渲染块的自定义组件 |
+| `parseMarkdownIntoBlocksFn` | `(md: string) => string[]` | - | 自定义块解析函数 |
+| `parseIncompleteMarkdown` | `boolean` | `false` | 按原样解析不完整的 Markdown（跳过 remend） |
+| `security` | `SecurityConfig` | - | URL/图片安全限制 |
 
-## Plugin Configuration
+## 插件配置
 
-### Code Highlighting
+### 代码高亮
 
 ```tsx
 import { code } from "@streamdown/code";
@@ -148,7 +148,7 @@ import { code } from "@streamdown/code";
 />
 ```
 
-### Math (LaTeX)
+### 数学（LaTeX）
 
 ```tsx
 import { math } from "@streamdown/math";
@@ -157,7 +157,7 @@ import "katex/dist/katex.min.css";
 <StreamdownTextPrimitive plugins={{ math }} />
 ```
 
-### Mermaid Diagrams
+### Mermaid 图表
 
 ```tsx
 import { mermaid } from "@streamdown/mermaid";
@@ -165,7 +165,7 @@ import { mermaid } from "@streamdown/mermaid";
 <StreamdownTextPrimitive plugins={{ mermaid }} />
 ```
 
-### CJK Text Optimization
+### CJK 文本优化
 
 ```tsx
 import { cjk } from "@streamdown/cjk";
@@ -173,11 +173,11 @@ import { cjk } from "@streamdown/cjk";
 <StreamdownTextPrimitive plugins={{ cjk }} />
 ```
 
-## Advanced Configuration
+## 高级配置
 
-### Mermaid Options
+### Mermaid 选项
 
-Customize Mermaid diagram rendering with configuration and error handling:
+自定义 Mermaid 图表的渲染方式以及错误处理：
 
 ```tsx
 import { mermaid } from "@streamdown/mermaid";
@@ -196,20 +196,20 @@ import { mermaid } from "@streamdown/mermaid";
 />
 ```
 
-### Streaming Caret
+### 流式光标
 
-Display a caret indicator during streaming:
+在流式输出期间显示光标指示器：
 
 ```tsx
 <StreamdownTextPrimitive caret="block" />  // ▋
 <StreamdownTextPrimitive caret="circle" /> // ●
 ```
 
-The caret is implemented as a Tailwind `::after` utility on the wrapper, so it only appears if your Tailwind setup includes the `@source` directive from [CSS setup](#css-setup).
+光标通过 wrapper 上的 Tailwind `::after` 工具类实现，因此只有在 Tailwind 配置中包含来自 [CSS 设置](#css-setup) 的 `@source` 指令时才会显示。
 
-### Link Safety
+### 链接安全
 
-Show confirmation before opening external links:
+在打开外部链接前显示确认提示：
 
 ```tsx
 <StreamdownTextPrimitive
@@ -220,9 +220,9 @@ Show confirmation before opening external links:
 />
 ```
 
-### Incomplete Markdown Handling (Remend)
+### 不完整 Markdown 处理（Remend）
 
-Configure how incomplete markdown syntax is handled during streaming:
+配置流式传输期间如何处理不完整的 Markdown 语法：
 
 ```tsx
 <StreamdownTextPrimitive
@@ -242,9 +242,9 @@ Configure how incomplete markdown syntax is handled during streaming:
 />
 ```
 
-### Allowed HTML Tags
+### 允许的 HTML 标签
 
-Allow specific HTML tags in markdown content:
+允许 Markdown 内容中使用特定的 HTML 标签：
 
 ```tsx
 <StreamdownTextPrimitive
@@ -256,9 +256,9 @@ Allow specific HTML tags in markdown content:
 />
 ```
 
-### Security Configuration
+### 安全配置
 
-Restrict allowed URLs for links and images. This overrides streamdown's default allow-all policy:
+限制链接和图片允许使用的 URL。这会覆盖 streamdown 默认的全部允许策略：
 
 ```tsx
 <StreamdownTextPrimitive
@@ -280,9 +280,9 @@ Restrict allowed URLs for links and images. This overrides streamdown's default 
 />
 ```
 
-## Detecting Inline vs Block Code
+## 检测行内代码与块级代码
 
-When building custom code components, you can use `useIsStreamdownCodeBlock` to detect whether you're inside a code block or inline code:
+构建自定义代码组件时，可以使用 `useIsStreamdownCodeBlock` 来检测当前位于代码块还是行内代码中：
 
 ```tsx
 import { useIsStreamdownCodeBlock } from "@assistant-ui/react-streamdown";
@@ -298,7 +298,7 @@ function MyCodeComponent({ children, ...props }) {
 }
 ```
 
-You can also use `useStreamdownPreProps` to access the props passed to the parent `<pre>` element:
+你还可以使用 `useStreamdownPreProps` 来访问传递给父级 `<pre>` 元素的 props：
 
 ```tsx
 import { useStreamdownPreProps } from "@assistant-ui/react-streamdown";
@@ -316,20 +316,20 @@ function MyCodeComponent({ children }) {
 }
 ```
 
-## Comparison with react-markdown
+## 与 react-markdown 的比较
 
-| Feature | react-markdown | react-streamdown |
+| 特性 | react-markdown | react-streamdown |
 |---------|---------------|------------------|
-| Bundle size | Smaller | Larger (with plugins) |
-| Syntax highlighting | Bring your own | Built-in Shiki |
-| Math rendering | Manual setup | Built-in KaTeX |
-| Mermaid diagrams | Manual setup | Built-in support |
-| CJK optimization | None | Built-in |
-| Streaming | `smooth` prop | `mode` + block-based |
+| 包体积 | 更小 | 更大（包含插件时） |
+| 语法高亮 | 自行配置 | 内置 Shiki |
+| 数学公式渲染 | 手动配置 | 内置 KaTeX |
+| Mermaid 图表 | 手动配置 | 内置支持 |
+| 中日韩文字优化 | 无 | 内置 |
+| 流式传输 | `smooth` 属性 | `mode` + 基于块 |
 
-## Re-exported Utilities
+## 重新导出的实用工具
 
-The package re-exports useful utilities:
+该包重新导出了实用工具：
 
 ```tsx
 import {
@@ -347,7 +347,7 @@ import {
 } from "@assistant-ui/react-streamdown";
 ```
 
-### Available Types
+### 可用类型
 
 ```tsx
 import type {
@@ -385,8 +385,8 @@ import type {
 } from "@assistant-ui/react-streamdown";
 ```
 
-## Related Components
+## 相关组件
 
-- [Markdown](/elements/markdown-text) - Lightweight markdown with react-markdown
-- [Syntax Highlighting](/elements/syntax-highlighter) - Add code highlighting to react-markdown
-- [Mermaid](/elements/mermaid-diagram) - Render diagrams in react-markdown
+- [Markdown](/elements/markdown-text) - 使用 react-markdown 的轻量级 Markdown
+- [语法高亮](/elements/syntax-highlighter) - 为 react-markdown 添加代码高亮
+- [Mermaid](/elements/mermaid-diagram) - 在 react-markdown 中渲染图表

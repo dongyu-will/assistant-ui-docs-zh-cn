@@ -1,30 +1,30 @@
 ---
 title: DevTools
-description: Inspect runtime state, context, and events in the browser.
+description: 在浏览器中检查运行时状态、上下文和事件。
 platforms: ["react"]
 ---
 
 import { DevToolsSample, DevToolsModalSample } from "@/components/pages/docs/samples/devtools";
 
-The assistant-ui DevTools allows you to debug the assistant-ui state and context, and events without resorting to `console.log`. It's an easy way to see how data flows to the assistant-ui's runtime layer.
+assistant-ui DevTools 可帮助你调试 assistant-ui 的状态、上下文和事件，而无需依赖 `console.log`。这是了解数据如何流向 assistant-ui 运行时层的简单方式。
 
-Try it below — the chat on top is a live assistant-ui app, and the panel underneath is the real DevTools inspecting it. Send a message, trigger a tool call, and switch between the Thread, Context, and Activity tabs.
+请在下方试用 — 顶部的聊天窗口是一个实时运行的 assistant-ui 应用，下方的面板则是真正用于检查它的 DevTools。发送一条消息、触发一次工具调用，并在“线程”“上下文”和“活动”标签页之间切换。
 
 <DevToolsSample />
 
-## Setup
+## 设置
 
 <Steps>
   <Step>
 
-### Install the DevTools package
+### 安装 DevTools 包
 
 <InstallCommand npm={["@assistant-ui/react-devtools"]} />
 
   </Step>
   <Step>
 
-### Mount the DevTools modal
+### 挂载 DevTools 模态框
 
 ```tsx
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
@@ -44,20 +44,20 @@ export function AssistantApp() {
   </Step>
   <Step>
 
-### Verify the DevTools overlay
+### 验证 DevTools 覆盖层
 
-That's it! In development builds you should now see the DevTools launcher in the lower-right corner of your site. The panel renders inline in an isolated shadow root, and the whole component is stripped from production builds.
+就是这样！现在，在开发构建中，你应该可以在网站右下角看到 DevTools 启动器。面板会以内联方式渲染在隔离的 shadow root 中，整个组件也会从生产构建中移除。
 
-Try it here — click the launcher in the lower-right corner of the frame, then use "Run a demo turn" to watch events stream into the open panel. In your app the window opens over a dimmed, click-to-close backdrop; the demo omits it so the app stays usable while the panel is open:
+请在这里试用 — 点击框架右下角的启动器，然后使用“运行演示轮次”，观察事件流式传输到打开的面板中。在你的应用中，窗口会显示在变暗的、点击即可关闭的背景之上；演示中省略了该背景，以便面板打开时应用仍然可用：
 
 <DevToolsModalSample />
 
   </Step>
 </Steps>
 
-## Custom tabs
+## 自定义标签页
 
-The panel is extensible. Pass extra inspector tabs to `DevToolsModal` with `plugins`; each plugin renders from the inspected instance's projected data (`state`, `logs`, `modelContext`, `scopes`).
+该面板支持扩展。通过 `plugins` 将额外的检查器标签页传递给 `DevToolsModal`；每个插件都会根据被检查实例的投影数据（`state`、`logs`、`modelContext`、`scopes`）进行渲染。
 
 ```tsx
 import { createDevToolsPlugin, DevToolsModal } from "@assistant-ui/react-devtools";

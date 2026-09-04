@@ -1,16 +1,16 @@
 ---
-title: "Inline citation"
-description: "Numbered references inside a sentence, each with a hover preview of its source."
+title: "行内引用"
+description: "句子中的编号引用，每个引用都可悬停预览其来源。"
 ---
 
-Inline citation drops small numbered markers into a sentence; hovering one opens a preview card with the source's domain, title, and snippet. This element has no runtime composition: assistant-ui has no positional link between a citation marker and an offset inside streamed message text, so it ships as a standalone specimen and you adapt the sentence it wraps directly in the installed file.
+行内引用会在句子中插入小型编号标记；悬停在标记上时，会打开一个预览卡片，显示来源的域名、标题和摘要。此元素没有运行时组合：assistant-ui 无法将引用标记与流式消息文本中的偏移位置关联起来，因此它以独立示例的形式提供，你可以直接在已安装的文件中调整它所包裹的句子。
 
-## Getting started
+## 开始使用
 
 <Steps>
   <Step>
 
-### Render the citations
+### 渲染引用
 
 ```tsx title="app/answer.tsx"
 "use client";
@@ -49,14 +49,14 @@ export function Answer() {
 }
 ```
 
-This renders the element's own fixed sentence with markers `1` and `2` attached at its two anchor points, previewing `SOURCES[0]` and `SOURCES[1]`.
+这会渲染元素自身的固定句子，并在其两个锚点处附加标记 `1` 和 `2`，分别预览 `SOURCES[0]` 和 `SOURCES[1]`。
 
   </Step>
   <Step>
 
-### Replace the fixed sentence
+### 替换固定句子
 
-The paragraph text is written directly into the source, not passed as a prop. Edit the installed file to wrap your own sentence and place `<Citation index={n} source={...} open={...} onOpenChange={...} />` wherever a claim needs one:
+段落文本直接写在源代码中，而不是作为 prop 传入。编辑已安装的文件，包裹你自己的句子，并在需要引用的论断处放置 `<Citation index={n} source={...} open={...} onOpenChange={...} />`：
 
 ```tsx title="components/assistant-ui/elements/inline-citation.tsx"
 <p data-slot="inline-citation" className={cn("...", className)} {...props}>
@@ -76,7 +76,7 @@ The paragraph text is written directly into the source, not passed as a prop. Ed
   </Step>
 </Steps>
 
-## Anatomy
+## 组成
 
 ```tsx
 <p data-slot="inline-citation">
@@ -84,21 +84,21 @@ The paragraph text is written directly into the source, not passed as a prop. Ed
 </p>
 ```
 
-The sentence itself never changes: only which of its two built-in anchor points gets a marker depends on `sources`. Passing zero or one source omits the corresponding marker (`sources[0] &&` and `sources[1] &&` guard each one); passing more than two sources, the rest have nowhere to attach and are simply unused. `openIndex` admits only one open preview at a time: setting it to `0` implies index `1` is closed, since each `Citation`'s `open` reads `openIndex === <its own index>`. Passing `null` closes every marker.
+句子本身不会变化：两个内置锚点中哪一个获得标记，取决于 `sources`。传入零个或一个来源时，会省略相应的标记（`sources[0] &&` 和 `sources[1] &&` 分别负责保护它们）；传入超过两个来源时，其余来源没有可附加的位置，会被直接忽略。`openIndex` 一次只允许打开一个预览：将其设置为 `0` 意味着索引 `1` 已关闭，因为每个 `Citation` 的 `open` 都会读取 `openIndex === <its own index>`。传入 `null` 会关闭所有标记。
 
-## Examples
+## 示例
 
-### Restyle the markers
+### 重新设置标记样式
 
-The root takes `className`. Each marker and its preview popup read the shared `floating` surface and `mono` tokens from `surfaces.tsx`.
+根元素接受 `className`。每个标记及其预览弹出层都会从 `surfaces.tsx` 读取共享的 `floating` 表面和 `mono` 令牌。
 
 ```tsx
 <InlineCitation className="max-w-none" /* ... */ />
 ```
 
-### Keeping previews mutually exclusive across citations
+### 保持不同引用之间的预览互斥
 
-Because `openIndex` is a single value, opening one marker already closes any other. A "close on scroll" or "close on send" affordance only needs to reset it once:
+由于 `openIndex` 是单个值，打开一个标记时，其他标记已经会关闭。“滚动时关闭”或“发送时关闭”功能只需将其重置一次：
 
 ```tsx
 useEffect(() => {
@@ -108,15 +108,15 @@ useEffect(() => {
 }, []);
 ```
 
-## API reference
+## API 参考
 
 ### InlineCitation
 
-| Prop | Type | Default | Description |
+| Prop | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `sources` | `Source[]` | required | Citation targets. Only indices `0` and `1` are ever attached to a marker. |
-| `openIndex` | `number \| null` | required | Which citation's preview is open. `null` closes every marker. |
-| `onOpenIndexChange` | `(index: number \| null) => void` | required | Called with the marker's index when it opens, or `null` when it closes. |
-| `className` | `string` | | Merged onto the root. |
+| `sources` | `Source[]` | 必填 | 引用目标。只有索引 `0` 和 `1` 会附加到标记上。 |
+| `openIndex` | `number \| null` | 必填 | 当前打开预览的引用。`null` 会关闭所有标记。 |
+| `onOpenIndexChange` | `(index: number \| null) => void` | 必填 | 打开时使用标记的索引调用，关闭时使用 `null` 调用。 |
+| `className` | `string` | | 合并到根元素上。 |
 
-`Source` is `{ domain: string; title: string; snippet: string }`. All other `p` props are forwarded to the root.
+`Source` 是 `{ domain: string; title: string; snippet: string }`。其他所有 `p` prop 都会转发到根元素。

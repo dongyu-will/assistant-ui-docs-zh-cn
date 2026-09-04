@@ -1,13 +1,13 @@
 ---
-title: Custom attachment uploads
-description: Upload chat attachments to object storage with a presigned-URL AttachmentAdapter.
+title: 自定义附件上传
+description: 使用带预签名 URL 的 AttachmentAdapter 将聊天附件上传到对象存储。
 ---
 
-The bundled `SimpleImageAttachmentAdapter` and `SimpleTextAttachmentAdapter` inline files as data URLs. That works for small images and text files but breaks down for large files, persistent threads, and serverless body-size limits. This page shows the production pattern: an `AttachmentAdapter` that uploads to object storage via a presigned URL and sends only the URL to the model.
+内置的 `SimpleImageAttachmentAdapter` 和 `SimpleTextAttachmentAdapter` 会将文件以内联数据 URL 的形式发送。对于较小的图片和文本文件，这种方式可行；但对于大文件、持久化线程以及无服务器环境的请求体大小限制，就不再适用。本页面介绍生产环境中的实现模式：使用一个 `AttachmentAdapter` 通过预签名 URL 将文件上传到对象存储，并且只将 URL 发送给模型。
 
-For the adapter contract itself, see [adapters](/docs/runtimes/concepts/adapters#attachment-adapter). This page is the storage variant.
+如需了解适配器契约本身，请参阅 [适配器](/docs/runtimes/concepts/adapters#attachment-adapter)。本页面介绍存储变体。
 
-## How it works
+## 工作原理
 
 ```mermaid
 flowchart LR
@@ -15,20 +15,20 @@ flowchart LR
     pending --> send["composer send"] --> part["send() emits a<br/>content part with the URL"] --> model["AI SDK passes<br/>URL to the model"]
 ```
 
-Three ideas to internalize before reading the code:
+阅读代码前，请先理解以下三个要点：
 
-1. **`add` uploads, returns `requires-action`.** The composer holds the file with the user's other input.
-2. **`send` finalizes.** When the user submits, you mark the attachment `complete` and emit a `content` part with a stable URL.
-3. **`remove` deletes.** Optional. Runs only if the user removes the attachment from the composer before sending; messages already sent are immutable.
+1. **`add` 负责上传，并返回 `requires-action`。** 输入框会将文件与用户的其他输入一起保存。
+2. **`send` 负责完成处理。** 用户提交时，将附件标记为 `complete`，并发出包含稳定 URL 的 `content` 部分。
+3. **`remove` 负责删除。** 可选操作。仅当用户在发送前从输入框中移除附件时才会执行；已经发送的消息不可变。
 
-## Setup
+## 设置
 
 <Steps>
 <Step>
 
-### Build the presign endpoint
+### 构建预签名端点
 
-The client cannot mint upload credentials safely; the server creates a short-lived presigned URL. The example below uses S3, but R2, GCS, and Vercel Blob have nearly identical shapes.
+客户端无法安全地生成上传凭据；服务器会创建一个短时有效的预签名 URL。下面的示例使用 S3，但 R2、GCS 和 Vercel Blob 的实现形式几乎相同。
 
 ```sh title=".env.local"
 AWS_REGION=us-east-1
@@ -70,9 +70,9 @@ export async function POST(req: Request) {
 }
 ```
 
-Authenticate the request here. A presigned URL with a 60-second expiry is still a write capability; only authenticated users should mint them.
+请在此处验证请求身份。有效期为 60 秒的预签名 URL 仍然是一项写入权限；只有经过身份验证的用户才能生成它们。
 
-For `remove()` to work end to end, expose a delete route too:
+要使 `remove()` 从头到尾正常工作，还需要提供删除路由：
 
 ```ts title="app/api/upload/[key]/route.ts"
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
@@ -101,7 +101,7 @@ export async function DELETE(
 </Step>
 <Step>
 
-### Implement the adapter
+### 实现适配器
 
 <PlatformTabs>
 <Tab value="React">
@@ -174,7 +174,7 @@ export const attachmentAdapter: AttachmentAdapter = {
 </Tab>
 <Tab value="React Native">
 
-On React Native, the picker (e.g. `expo-document-picker`, `expo-image-picker`) returns a `{ uri, name, mimeType }` object. Wrap it as a `File`-shaped object before handing it to the composer:
+在 React Native 中，选择器（例如 `expo-document-picker`、`expo-image-picker`）会返回一个 `{ uri, name, mimeType }` 对象。将其包装为具有 `File` 形状的对象，然后再交给输入框：
 
 ```tsx title="runtime/attachment-adapter.ts"
 import type {
@@ -242,12 +242,12 @@ export const attachmentAdapter: AttachmentAdapter = {
 };
 ```
 
-The picker result has a `uri` (file://… or content://…). `fetch(uri)` reads it into a Blob that the storage backend accepts.
+选择器结果包含一个 `uri`（file://… 或 content://…）。`fetch(uri)` 会将其读取为存储后端接受的 Blob。
 
 </Tab>
 <Tab value="React Ink">
 
-On Ink, the user types a path; read it from disk before uploading.
+在 Ink 中，用户输入路径；上传前先从磁盘读取该文件。
 
 ```tsx title="runtime/attachment-adapter.ts"
 import type {
@@ -321,17 +321,17 @@ export const attachmentAdapter: AttachmentAdapter = {
 };
 ```
 
-`file.path` is whatever your input prompt collected from the user (a tilde-expanded absolute path). Node 20+ exposes `fetch` globally.
+`file.path` 是输入提示从用户处收集的内容（经过波浪号展开的绝对路径）。Node 20+ 会在全局提供 `fetch`。
 
 </Tab>
 </PlatformTabs>
 
-The shape of `content` matches the AI SDK part types. Use `image` for images and `file` for everything else; AI SDK forwards them to multimodal models that accept URL-based content.
+`content` 的形状与 AI SDK 的部分类型一致。图片使用 `image`，其他内容使用 `file`；AI SDK 会将它们转发给接受基于 URL 内容的多模态模型。
 
 </Step>
 <Step>
 
-### Wire it into the runtime
+### 接入运行时
 
 <PlatformTabs>
 <Tab value="React">
@@ -406,31 +406,31 @@ export function MyProvider({ children }: { children: React.ReactNode }) {
 </Tab>
 </PlatformTabs>
 
-The composer paperclip button appears automatically on platforms with a built-in composer UI. The `accept` string filters the file picker.
+在内置输入框 UI 的平台上，输入框的回形针按钮会自动出现。`accept` 字符串用于筛选文件选择器中的文件。
 
 </Step>
 <Step>
 
-### Run and verify
+### 运行并验证
 
-Pick a file. Check:
+选择一个文件，然后检查：
 
-- Network tab shows `POST /api/upload` returning a presigned URL, then a `PUT` to the storage host.
-- The composer shows a thumbnail / chip while the file is in the `requires-action` state.
-- Submitting the message sends the URL (not the file bytes) in the request body to `/api/chat`.
-- Object storage has the file under `chat-uploads/...`.
+- Network 标签页显示 `POST /api/upload` 返回预签名 URL，随后向存储主机发出 `PUT`。
+- 文件处于 `requires-action` 状态时，输入框会显示缩略图或标签。
+- 提交消息时，请求体会将 URL（而不是文件字节）发送到 `/api/chat`。
+- 对象存储中存在位于 `chat-uploads/...` 下的文件。
 
 </Step>
 </Steps>
 
-## Variants
+## 变体
 
-The `add()` body is the only thing that changes per provider. Tabs below show the upload step; everything else (presign endpoint, `send`, `remove`, runtime wiring) is identical.
+`add()` 的请求体是每个提供商唯一需要变化的部分。下面的选项卡展示上传步骤；其他所有内容（预签名端点、`send`、`remove` 和运行时接入）都相同。
 
 <Tabs items={["S3 / R2", "Vercel Blob", "Uploadthing"]}>
 <Tab value="S3 / R2">
 
-The example above. R2 is API-compatible with S3, so swap the endpoint:
+上面的示例使用了 S3。R2 与 S3 API 兼容，因此只需替换端点：
 
 ```ts
 const s3 = new S3Client({
@@ -446,7 +446,7 @@ const s3 = new S3Client({
 </Tab>
 <Tab value="Vercel Blob">
 
-Vercel Blob uses client uploads with a server-issued token, not raw presigned PUTs.
+Vercel Blob 使用携带服务器签发令牌的客户端上传，而不是直接使用预签名 PUT。
 
 ```ts title="app/api/upload/route.ts"
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
@@ -465,12 +465,12 @@ export async function POST(req: Request) {
 }
 ```
 
-In the adapter's `add`, call `upload(name, file, { access: "public", handleUploadUrl: "/api/upload" })` from `@vercel/blob/client` and use the returned `url` for `publicUrl`.
+在适配器的 `add` 中，从 `@vercel/blob/client` 调用 `upload(name, file, { access: "public", handleUploadUrl: "/api/upload" })`，并将返回的 `url` 用于 `publicUrl`。
 
 </Tab>
 <Tab value="Uploadthing">
 
-Uploadthing wraps both halves. Define a file router on the server, then call `useUploadThing` from the adapter.
+Uploadthing 封装了这两部分。在服务器上定义文件路由，然后从适配器调用 `useUploadThing`。
 
 ```ts title="app/api/uploadthing/core.ts"
 import { createUploadthing, type FileRouter } from "uploadthing/next";
@@ -484,14 +484,14 @@ export const ourFileRouter = {
 } satisfies FileRouter;
 ```
 
-In the adapter's `add`, call Uploadthing's client upload and read `url` from the result. The `send`/`remove` shape is unchanged.
+在适配器的 `add` 中，调用 Uploadthing 的客户端上传，并从结果中读取 `url`。`send`/`remove` 的形状保持不变。
 
 </Tab>
 </Tabs>
 
-### Opaque file references (LangGraph / LangChain)
+### 不透明文件引用（LangGraph / LangChain）
 
-When the backend resolves stored files itself and the browser never holds a usable URL, send the storage id instead: set `sourceType: "id"` on the file part in `send()`, and the LangChain-family runtimes emit a `source_type: "id"` block with the value in the `id` key. `sourceType: "url"` similarly forces a url reference for non-http data and is honored by the LangChain-family, A2A, AG-UI, and Google ADK runtimes. `sourceType: "id"` is LangChain-family only; runtimes without the concept ignore the field.
+当后端自行解析存储的文件，而浏览器始终无法获取可用的 URL 时，请改为发送存储 ID：在 `send()` 的文件部分上设置 `sourceType: "id"`，LangChain 系列运行时会发出一个 `source_type: "id"` 块，并将该值放入 `id` 键中。`sourceType: "url"` 同样会强制为非 HTTP 数据使用 URL 引用，并且 LangChain 系列、A2A、AG-UI 和 Google ADK 运行时都会遵循此设置。`sourceType: "id"` 仅适用于 LangChain 系列；不支持这一概念的运行时会忽略该字段。
 
 ```ts
 const content = [
@@ -505,24 +505,24 @@ const content = [
 ];
 ```
 
-## Notes
+## 注意事项
 
-- **Persistence.** A URL the model sees on Monday must still resolve next week if the thread is reloaded. Either use storage with no expiry on the public URL, or have your [history adapter](/docs/integrations/persistence/custom-adapter) regenerate signed URLs on `load`. Don't store presigned URLs in the message row.
-- **Cleanup.** `remove` runs only if the user dismisses the attachment before sending. Files in sent messages are kept; deleting them later breaks message rendering.
-- **`accept` string.** Comma-separated MIME types or extensions, including wildcards (`image/*`). The composer file picker uses this directly. To handle multiple type families with different upload paths, use [`CompositeAttachmentAdapter`](/docs/runtimes/concepts/adapters#attachment-adapter).
-- **Server-side validation.** Even with presigning, validate `contentType` and file size on the server. The client controls what it sends; trust nothing.
+- **持久化。** 如果重新加载线程，模型在本周一看到的 URL 下周仍必须能够解析。可以使用公共 URL 永不过期的存储，或者让你的[历史记录适配器](/docs/integrations/persistence/custom-adapter)在 `load` 时重新生成签名 URL。不要将预签名 URL 存储在消息记录中。
+- **清理。** `remove` 仅在用户发送前关闭附件时运行。已发送消息中的文件会被保留；之后删除它们会导致消息无法渲染。
+- **`accept` 字符串。** 以逗号分隔的 MIME 类型或扩展名，其中可以包含通配符（`image/*`）。输入框的文件选择器会直接使用此字符串。若要处理具有不同上传路径的多个类型系列，请使用 [`CompositeAttachmentAdapter`](/docs/runtimes/concepts/adapters#attachment-adapter)。
+- **服务器端验证。** 即使使用了预签名，也要在服务器上验证 `contentType` 和文件大小。客户端可以控制发送的内容；不要信任任何内容。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
-    title="Adapter contract"
-    description="The full AttachmentAdapter type and lifecycle states."
+    title="适配器契约"
+    description="完整的 AttachmentAdapter 类型和生命周期状态。"
     href="/docs/runtimes/concepts/adapters#attachment-adapter"
   />
   <Card
-    title="Custom thread persistence"
-    description="Round-trip URLs through the message store so attachments survive reloads."
+    title="自定义线程持久化"
+    description="通过消息存储往返传递 URL，使附件在重新加载后仍然存在。"
     href="/docs/integrations/persistence/custom-adapter"
   />
 </Cards>

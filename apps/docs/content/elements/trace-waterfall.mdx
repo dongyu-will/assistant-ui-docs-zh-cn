@@ -1,20 +1,20 @@
 ---
-title: "Trace waterfall"
-description: "Every span in a run on one time axis, nested, so you can see where it actually went."
+title: "Trace 瀑布图"
+description: "在同一时间轴上嵌套展示一次运行中的每个 span，让你看清它实际经过了哪些步骤。"
 ---
 
-TraceWaterfall lays a run's spans on one shared time axis: a header with the total duration, then one row per span with its name, a positioned bar, and its own duration in milliseconds. With a runtime you derive spans from a message's own timing and its tool calls; standalone you hold the span list yourself.
+TraceWaterfall 将一次运行中的各个 span 放置在同一条时间轴上：顶部显示总时长，下面每个 span 占一行，包含其名称、定位后的条形图以及自身的毫秒级时长。在运行时中，你可以根据消息自身的计时信息及其工具调用推导出 spans；独立使用时，则由你自行维护 span 列表。
 
-## Getting started
+## 开始使用
 
 <RuntimeMode>
 
-assistant-ui doesn't model nested spans itself. A message carries its own stream timing, and each tool call carries its own start and completion time, but nothing ties them into a tree deeper than "the message" and "the tool calls inside it." That's enough for a flat, two-level waterfall.
+assistant-ui 本身不会对嵌套 span 建模。消息携带自身的流式传输计时信息，每个工具调用也携带自身的开始时间和完成时间，但没有任何机制将它们组织成深度超过“消息”及其“内部工具调用”的树状结构。这足以构建一个扁平的两层瀑布图。
 
 <Steps>
   <Step>
 
-### Build spans from the message and its tool calls
+### 根据消息及其工具调用构建 spans
 
 ```tsx title="components/assistant-ui/elements/message-trace.tsx"
 "use client";
@@ -73,14 +73,14 @@ export function MessageTrace() {
 }
 ```
 
-`useMessageTiming` gives the message-level span; `s.message.parts` gives the tool calls inside it, each carrying its own `timing` and `status`.
+`useMessageTiming` 提供消息级别的 span；`s.message.parts` 提供其中的工具调用，每个工具调用都携带自身的 `timing` 和 `status`。
 
   </Step>
   <Step>
 
-### There's no dedicated trace primitive
+### 没有专用的 trace 原语
 
-Place `MessageTrace` wherever you'd place any other message-scoped element, typically inside `MessagePrimitive.Root` alongside the parts. Nothing in the runtime registers a "trace" concept the way it registers a tool renderer, so the depth, id, and status mapping above stays yours to write.
+将 `MessageTrace` 放置在与其他消息作用域元素相同的位置，通常是在 `MessagePrimitive.Root` 内、与各个部分并列放置。运行时不会像注册工具渲染器那样注册“trace”概念，因此上面的深度、id 和状态映射都需要由你自行编写。
 
   </Step>
 </Steps>
@@ -89,12 +89,12 @@ Place `MessageTrace` wherever you'd place any other message-scoped element, typi
 
 <StandaloneMode>
 
-Standalone, you own the full span list and the total, and grow both as a run proceeds.
+独立使用时，完整的 span 列表和总时长都由你负责，并随着运行的进行持续更新。
 
 <Steps>
   <Step>
 
-### Hold the spans and their total
+### 保存 spans 及其总时长
 
 ```tsx title="app/run.tsx"
 "use client";
@@ -120,7 +120,7 @@ export function Run() {
   </Step>
   <Step>
 
-### Reveal spans one at a time
+### 逐个显示 spans
 
 ```tsx
 useEffect(() => {
@@ -135,7 +135,7 @@ useEffect(() => {
 
 </StandaloneMode>
 
-## Anatomy
+## 组成
 
 ```tsx
 <div data-slot="trace-waterfall">
@@ -149,23 +149,23 @@ useEffect(() => {
 </div>
 ```
 
-Only the first `visibleCount` spans render, floored and clamped to the array's length, so a span can exist in `spans` before it's shown. A newly revealed row fades and slides in from the left; a row that was already visible does not replay the animation on a later re-render, since it's the same DOM node. Each bar is positioned at `startMs / totalMs` and sized to `durationMs / totalMs`, both as percentages, with a `totalMs` of `0` treated as `1` so the math never divides by zero. A bar's width never drops below 1.5% of the row, so a very short span still shows a visible sliver. Row indentation follows `depth`, at 0.75rem per level; nothing computes depth for you, it's a field you set. Color follows `status`: blue and pulsing while `"running"`, a flat neutral tone once `"completed"`, red for `"failed"`. The header's total carries an "ms" suffix; each row's own duration does not.
+只会渲染前 `visibleCount` 个 span，其值会向下取整，并限制在数组长度以内，因此某个 span 可以先存在于 `spans` 中，之后再显示出来。新显示的行会从左侧淡入并滑入；已经显示的行在后续重新渲染时不会重复播放动画，因为它仍是同一个 DOM 节点。每个条形图的起始位置为 `startMs / totalMs`，长度为 `durationMs / totalMs`，两者均为百分比；当 `totalMs` 为 `0` 时，会将其视为 `1`，从而避免计算时除以零。条形图的宽度不会小于所在行的 1.5%，因此即使 span 非常短，也仍会显示一小段可见区域。行缩进遵循 `depth`，每级缩进 0.75rem；不会替你计算深度，这是一个由你设置的字段。颜色遵循 `status`：`"running"` 时为蓝色并持续脉动，`"completed"` 后为不带动画的中性色，`"failed"` 时为红色。顶部总时长带有 “ms” 后缀；每一行自身的时长不带后缀。
 
-## Examples
+## 示例
 
-### Restyle the waterfall
+### 重新设置瀑布图样式
 
-Both lanes take `className` on the root. Rows and the header's total use the shared `mono` surface from `surfaces.tsx`; the root itself uses `paper`.
+两条轨道都会在根元素上使用 `className`。各行和顶部的总时长使用来自 `surfaces.tsx` 的共享 `mono` 表面；根元素自身使用 `paper`。
 
 ```tsx
 <TraceWaterfall className="max-w-none" /* ... */ />
 ```
 
-### Marking a span as failed
+### 将 span 标记为失败
 
 <RuntimeMode>
 
-A tool call whose status settles as anything other than `"running"` or `"complete"` (`"incomplete"`, `"requires-action"`) reads as `"failed"` in the mapping above. Treat that as a simplification for the waterfall's three-color palette, not a claim that assistant-ui itself considers the call an error; check `part.status` yourself if you need the real reason.
+状态最终确定为既不是 `"running"` 也不是 `"complete"` 的工具调用（`"incomplete"`、`"requires-action"`），在上面的映射中会被视为 `"failed"`。这是为了适配瀑布图三色调色板而做的简化，并不表示 assistant-ui 本身认为该调用发生了错误；如果你需要真实原因，请自行检查 `part.status`。
 
 </RuntimeMode>
 
@@ -177,26 +177,26 @@ A tool call whose status settles as anything other than `"running"` or `"complet
 
 </StandaloneMode>
 
-### Showing only the most recent spans
+### 仅显示最近的 spans
 
-`visibleCount` reveals from the start of the array, so cap the array itself, not just `visibleCount`, to show only the most recent spans of a long run. `totalMs` stays the run's real total, so the remaining bars keep their true position along the axis rather than rescaling to fill it.
+`visibleCount` 会从数组开头开始显示，因此若要在长时间运行中仅显示最近的 spans，应限制数组本身，而不仅仅是限制 `visibleCount`。`totalMs` 仍保持运行的真实总时长，因此剩余条形图会沿时间轴保持真实位置，而不是重新缩放以填满整个时间轴。
 
 ```tsx
 <TraceWaterfall spans={spans.slice(-6)} totalMs={totalMs} visibleCount={6} />
 ```
 
-## API reference
+## API 参考
 
 <RuntimeMode>
 
-### Message state
+### 消息状态
 
-| Selector | Type | Description |
+| 选择器 | 类型 | 描述 |
 |----------|------|-------------|
-| `useMessageTiming()` | `MessageTiming \| undefined` | `streamStartTime` anchors every span's `startMs`; `totalStreamTime` is the message-level span's duration. |
-| `s.message.parts` | `readonly PartState[]` | Filter for `part.type === "tool-call"`. Each carries `part.timing?.startedAt` / `part.timing?.completedAt` and `part.status.type`. |
+| `useMessageTiming()` | `MessageTiming \| undefined` | `streamStartTime` 为每个 span 的 `startMs` 提供基准；`totalStreamTime` 是消息级别 span 的时长。 |
+| `s.message.parts` | `readonly PartState[]` | `part.type === "tool-call"` 的过滤结果。每个工具调用都携带 `part.timing?.startedAt` / `part.timing?.completedAt` 以及 `part.status.type`。 |
 
-There is no dedicated trace primitive: the depth, id, and status mapping above are yours to write, the way `useMessageTrace` does.
+没有专用的 trace 原语：深度、id 和状态映射都需要由你自行编写，就像 `useMessageTrace` 所做的那样。
 
 </RuntimeMode>
 
@@ -204,24 +204,24 @@ There is no dedicated trace primitive: the depth, id, and status mapping above a
 
 ### TraceWaterfall
 
-| Prop | Type | Default | Description |
+| 属性 | 类型 | 默认值 | 描述 |
 |------|------|---------|-------------|
-| `spans` | `readonly TraceSpan[]` | required | Every span, in any order; position comes from `startMs`, not array order. |
-| `totalMs` | `number` | required | The time axis's full width, in milliseconds. |
-| `visibleCount` | `number` | required | How many spans from the start of `spans` to render. |
-| `className` | `string` | | Merged onto the root. |
+| `spans` | `readonly TraceSpan[]` | 必填 | 所有 span，顺序不限；位置取自 `startMs`，而不是数组顺序。 |
+| `totalMs` | `number` | 必填 | 时间轴的完整宽度，单位为毫秒。 |
+| `visibleCount` | `number` | 必填 | 要从 `spans` 开始渲染的 span 数量。 |
+| `className` | `string` | | 合并到根元素上。 |
 
 ### TraceSpan
 
-| Field | Type | Description |
+| 字段 | 类型 | 描述 |
 |-------|------|-------------|
-| `id` | `string` | React key; not shown. |
-| `name` | `string` | Row label, truncated if long. |
-| `depth` | `number` | Indent level, 0.75rem each. |
-| `startMs` | `number` | Position along the axis. |
-| `durationMs` | `number` | Bar width along the axis, and the row's own label. |
-| `status` | `"running" \| "completed" \| "failed"` | Bar color; `"running"` also pulses. |
+| `id` | `string` | React key；不会显示。 |
+| `name` | `string` | 行标签，过长时会截断。 |
+| `depth` | `number` | 缩进级别，每级 0.75rem。 |
+| `startMs` | `number` | 沿时间轴的位置。 |
+| `durationMs` | `number` | 条形图沿时间轴的宽度，以及该行自身的标签。 |
+| `status` | `"running" \| "completed" \| "failed"` | 条形图颜色；`"running"` 还会持续脉动。 |
 
-All other `div` props are forwarded to the root.
+所有其他 `div` 属性都会转发到根元素。
 
 </StandaloneMode>
