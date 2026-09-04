@@ -2,7 +2,13 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { Copy, EditIcon, FileText, SparklesIcon } from "lucide-react";
+import {
+  Copy,
+  EditIcon,
+  FileText,
+  MessageSquareWarning,
+  SparklesIcon,
+} from "lucide-react";
 import { BASE_URL } from "@/lib/constants";
 import { useMarkdownCopy } from "@/hooks/use-markdown-copy";
 import { useAssistantPanel } from "@/components/pages/docs/assistant/context";
@@ -18,15 +24,18 @@ type TOCItem = {
 type TableOfContentsProps = {
   items: TOCItem[];
   githubEditUrl?: string;
+  feedbackUrl?: string;
   markdownUrl?: string;
 };
 
 function TOCActions({
   markdownUrl,
   githubEditUrl,
+  feedbackUrl,
 }: {
   markdownUrl: string | undefined;
   githubEditUrl: string | undefined;
+  feedbackUrl: string | undefined;
 }) {
   const { copy, prefetch, isLoading } = useMarkdownCopy(markdownUrl);
   const { askAI } = useAssistantPanel();
@@ -58,6 +67,10 @@ function TOCActions({
     analytics.toc.actionClicked("github");
   };
 
+  const handleFeedbackClick = () => {
+    analytics.toc.actionClicked("feedback");
+  };
+
   const handleAskAIClick = () => {
     analytics.toc.actionClicked("ask_ai");
     handleAskAI();
@@ -74,7 +87,7 @@ function TOCActions({
             className={linkClass}
           >
             <Copy className="size-3" />
-            {isLoading ? "Loading..." : "Copy page"}
+            {isLoading ? "正在加载…" : "复制页面"}
           </button>
           <a
             href={`${BASE_URL}${markdownUrl}`}
@@ -84,7 +97,7 @@ function TOCActions({
             onClick={handleMarkdownClick}
           >
             <FileText className="size-3" />
-            View as Markdown
+            查看 Markdown
           </a>
         </>
       )}
@@ -97,12 +110,24 @@ function TOCActions({
           onClick={handleGitHubClick}
         >
           <EditIcon className="size-3" />
-          Edit on GitHub
+          编辑此页
+        </a>
+      )}
+      {feedbackUrl && (
+        <a
+          href={feedbackUrl}
+          target="_blank"
+          rel="noreferrer noopener"
+          className={linkClass}
+          onClick={handleFeedbackClick}
+        >
+          <MessageSquareWarning className="size-3" />
+          反馈翻译问题
         </a>
       )}
       <button type="button" onClick={handleAskAIClick} className={linkClass}>
         <SparklesIcon className="size-3" />
-        Ask AI
+        询问 AI
       </button>
     </div>
   );
@@ -111,6 +136,7 @@ function TOCActions({
 export function TableOfContents({
   items,
   githubEditUrl,
+  feedbackUrl,
   markdownUrl,
 }: TableOfContentsProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -166,7 +192,7 @@ export function TableOfContents({
     <div className="docs-toc w-56 max-xl:hidden">
       <div className="sticky top-[calc(var(--docs-header-height)_+_1rem)] flex max-h-[calc(100vh_-_var(--docs-header-height)_-_1rem)] flex-col pe-4 pt-4 pb-2">
         <p className="text-muted-foreground/70 mb-3 shrink-0 text-xs">
-          On this page
+          本页内容
         </p>
         <ul
           ref={listRef}
@@ -196,7 +222,11 @@ export function TableOfContents({
           })}
         </ul>
         <div className="mt-6 shrink-0">
-          <TOCActions markdownUrl={markdownUrl} githubEditUrl={githubEditUrl} />
+          <TOCActions
+            markdownUrl={markdownUrl}
+            githubEditUrl={githubEditUrl}
+            feedbackUrl={feedbackUrl}
+          />
         </div>
       </div>
     </div>

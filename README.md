@@ -7,7 +7,7 @@
 </a>
 
 > [!IMPORTANT]
-> 本仓库是 [assistant-ui](https://github.com/assistant-ui/assistant-ui) 的非官方简体中文文档，由社区维护并使用 AI 辅助翻译。内容可能落后于[官方英文文档](https://www.assistant-ui.com/docs)，如发现问题，欢迎提交 Issue 或 Pull Request 修订。
+> 本仓库是 [assistant-ui](https://github.com/assistant-ui/assistant-ui) 的非官方简体中文文档，由社区维护并使用 AI 辅助翻译。内容可能落后于[官方英文文档](https://www.assistant-ui.com/docs)。如发现问题，可[反馈翻译问题](https://github.com/dongyu-will/assistant-ui-docs-zh-cn/issues/new?template=translation.yml)或按[中文文档贡献指南](./CONTRIBUTING.zh-CN.md)直接提交修订。
 
 <p align="center">
   <a href="https://www.assistant-ui.com">Product</a> ·

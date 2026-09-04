@@ -1,6 +1,9 @@
 import { isAiPlaygroundEnabled } from "./feature-flags";
 
-export const BASE_URL = "https://www.assistant-ui.com";
+export const BASE_URL = "https://assistant-ui-docs-zh-cn.vercel.app";
+export const UPSTREAM_BASE_URL = "https://www.assistant-ui.com";
+export const ZH_REPOSITORY_URL =
+  "https://github.com/dongyu-will/assistant-ui-docs-zh-cn";
 export const CLOUD_URL = "https://cloud.assistant-ui.com";
 export const STATUS_URL = "https://status.assistant-ui.com";
 

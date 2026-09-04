@@ -5,6 +5,11 @@ export const OG_IMAGE_SIZE = { width: 1200, height: 630 } as const;
 export function createOgMetadata(
   title: string,
   description?: string | null,
+  options?: {
+    url?: string;
+    locale?: string;
+    siteName?: string;
+  },
 ): Pick<Metadata, "openGraph" | "twitter"> {
   const params = new URLSearchParams();
   params.set("title", title);
@@ -18,6 +23,9 @@ export function createOgMetadata(
       title,
       description: description ?? undefined,
       type: "article",
+      url: options?.url,
+      locale: options?.locale,
+      siteName: options?.siteName,
       images: [{ url: imageUrl, ...OG_IMAGE_SIZE, alt: title }],
     },
     twitter: {

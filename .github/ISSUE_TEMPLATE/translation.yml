@@ -1,0 +1,49 @@
+name: 翻译问题
+description: 反馈中文文档中的错译、漏译、术语或排版问题
+title: "翻译问题："
+labels: ["documentation"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你帮助改进 assistant-ui 中文文档。页面内的“反馈翻译问题”会自动填写页面地址和源文件路径。
+
+  - type: input
+    id: page
+    attributes:
+      label: 中文文档页面
+      description: 出现问题的页面地址。
+      placeholder: https://assistant-ui-docs-zh-cn.vercel.app/docs/...
+    validations:
+      required: true
+
+  - type: input
+    id: source_path
+    attributes:
+      label: 源文件路径
+      description: 页面对应的 Markdown 或 MDX 文件路径；从页面提交时会自动填写。
+      placeholder: apps/docs/content/docs/...
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 问题描述
+      description: 请贴出有问题的原文或译文，并说明哪里不准确。
+      placeholder: 当前译文是……，这里应该表达为……
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: 建议译法
+      description: 如果你有更合适的译法，请写在这里（可选）。
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: 确认
+      options:
+        - label: 这是中文翻译或中文文档展示问题，不是 assistant-ui 产品本身的 Bug。
+          required: true

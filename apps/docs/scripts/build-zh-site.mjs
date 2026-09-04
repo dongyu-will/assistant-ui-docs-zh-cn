@@ -33,7 +33,6 @@ const disabledRoutes = [
   "api/xulux",
   "static.json",
   "xulux-preview",
-  "sitemap.ts",
 ];
 
 const run = (command, args, env = process.env) =>

@@ -5,6 +5,11 @@ import {
 } from "@/components/pages/docs/layout/docs-page";
 import { notFound, redirect } from "next/navigation";
 import { createOgMetadata } from "@/lib/og";
+import {
+  BASE_URL,
+  UPSTREAM_BASE_URL,
+  ZH_REPOSITORY_URL,
+} from "@/lib/constants";
 import { getMDXComponents } from "@/mdx-components";
 import { source } from "@/lib/docs-source";
 import { getPageTreePeers } from "fumadocs-core/page-tree";
@@ -50,7 +55,24 @@ export default async function Page(props: {
 
   const path = `apps/docs/content/docs/${page.path}`;
   const markdownUrl = `${page.url}.md`;
-  const githubEditUrl = `https://github.com/assistant-ui/assistant-ui/edit/main/${path}`;
+  const githubEditUrl = `${ZH_REPOSITORY_URL}/edit/main/${path}`;
+  const feedbackParams = new URLSearchParams({
+    title: `翻译问题：${page.data.title}`,
+    body: [
+      "## 中文文档页面",
+      `${BASE_URL}${page.url}`,
+      "",
+      "## 源文件",
+      `\`${path}\``,
+      "",
+      "## 问题描述",
+      "",
+      "<!-- 请指出错译、漏译、术语或排版问题。 -->",
+      "",
+      "## 建议译法（可选）",
+    ].join("\n"),
+  });
+  const feedbackUrl = `${ZH_REPOSITORY_URL}/issues/new?${feedbackParams.toString()}`;
 
   const neighbours = getDocsNeighbours(source.pageTree, page.url);
   const footerPrevious = neighbours.previous;
@@ -62,6 +84,7 @@ export default async function Page(props: {
         <TableOfContents
           items={toc}
           githubEditUrl={githubEditUrl}
+          feedbackUrl={feedbackUrl}
           markdownUrl={markdownUrl}
         />
       }
@@ -105,7 +128,12 @@ export default async function Page(props: {
           )}
         </header>
         <MdxBody components={mdxComponents} />
-        <DocsFooter previous={footerPrevious} next={footerNext} />
+        <DocsFooter
+          previous={footerPrevious}
+          next={footerNext}
+          githubEditUrl={githubEditUrl}
+          feedbackUrl={feedbackUrl}
+        />
       </DocsBody>
     </DocsPageShell>
   );
@@ -122,9 +150,24 @@ export async function generateMetadata(
   const page = source.getPage(slug);
   if (!page) return { title: "Not Found" };
 
+  const canonicalUrl = `${BASE_URL}${page.url}`;
+  const upstreamUrl = `${UPSTREAM_BASE_URL}${page.url}`;
+
   return {
     title: page.data.title,
     description: page.data.description,
-    ...createOgMetadata(page.data.title, page.data.description),
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        "zh-CN": canonicalUrl,
+        en: upstreamUrl,
+        "x-default": upstreamUrl,
+      },
+    },
+    ...createOgMetadata(page.data.title, page.data.description, {
+      url: canonicalUrl,
+      locale: "zh_CN",
+      siteName: "assistant-ui 中文文档",
+    }),
   };
 }

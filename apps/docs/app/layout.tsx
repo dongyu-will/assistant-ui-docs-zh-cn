@@ -43,17 +43,19 @@ export const viewport = {
 export const metadata = {
   metadataBase: getMetadataBase(),
   title: {
-    template: "%s · assistant-ui",
-    default: "assistant-ui · The frontend library for AI agents",
+    template: "%s · assistant-ui 中文文档",
+    default: "assistant-ui 中文文档",
   },
   description:
-    "Open-source React components and runtimes for building AI chat. Streaming, tools, and persistence in TypeScript.",
+    "assistant-ui 非官方简体中文文档：用于构建 AI 聊天界面的 React 组件、运行时和原语。",
   openGraph: {
-    title: "assistant-ui",
+    title: "assistant-ui 中文文档",
     description:
-      "Open-source React components and runtimes for building AI chat. Streaming, tools, and persistence in TypeScript.",
-    siteName: "assistant-ui",
+      "assistant-ui 非官方简体中文文档：用于构建 AI 聊天界面的 React 组件、运行时和原语。",
+    siteName: "assistant-ui 中文文档",
     type: "website",
+    locale: "zh_CN",
+    url: BASE_URL,
     images: [
       {
         url: "/api/og?variant=home",
@@ -65,9 +67,9 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "assistant-ui",
+    title: "assistant-ui 中文文档",
     description:
-      "Open-source React components and runtimes for building AI chat. Streaming, tools, and persistence in TypeScript.",
+      "assistant-ui 非官方简体中文文档：用于构建 AI 聊天界面的 React 组件、运行时和原语。",
     images: ["/api/og?variant=home"],
   },
 };
