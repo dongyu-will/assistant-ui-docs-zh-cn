@@ -82,6 +82,7 @@ try {
   ]);
   await run("pnpm", ["generate:type-docs"]);
   await run("pnpm", ["generate:source-snapshot"]);
+  process.env.ASSISTANT_UI_ZH_BUILD = "1";
   await run("next", ["build"]);
 } finally {
   // Vercel packages files from Next's output traces after this command exits.
