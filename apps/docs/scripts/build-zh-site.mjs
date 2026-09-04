@@ -68,6 +68,17 @@ try {
     'import { redirect } from "next/navigation";\n\nexport default function Home() {\n  redirect("/docs");\n}\n',
   );
 
+  // A fresh Vercel checkout has no ignored package dist directories. Build
+  // only the workspace packages the docs app consumes before Next resolves
+  // package entrypoints and the @assistant-ui/next loader.
+  await run("pnpm", [
+    "exec",
+    "turbo",
+    "run",
+    "build",
+    "--filter=@assistant-ui/docs^...",
+    "--concurrency=2",
+  ]);
   await run("pnpm", ["generate:type-docs"]);
   await run("pnpm", ["generate:source-snapshot"]);
   await run("next", ["build"]);
