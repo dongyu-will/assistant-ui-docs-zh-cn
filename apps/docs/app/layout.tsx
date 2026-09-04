@@ -48,6 +48,9 @@ export const metadata = {
   },
   description:
     "assistant-ui 非官方简体中文文档：用于构建 AI 聊天界面的 React 组件、运行时和原语。",
+  verification: {
+    google: "7IccfX-yPpDAUgbad_LYwVJbsfvDg5lFJGxaarB8eEM",
+  },
   openGraph: {
     title: "assistant-ui 中文文档",
     description:
