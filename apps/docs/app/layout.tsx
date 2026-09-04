@@ -74,7 +74,7 @@ export const metadata = {
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="zh-CN" suppressHydrationWarning>
       <head>
         <GenerativeUIStyle />
         <style>{galleryStagingCss}</style>

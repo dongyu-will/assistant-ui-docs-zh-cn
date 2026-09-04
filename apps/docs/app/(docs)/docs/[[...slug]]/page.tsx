@@ -6,7 +6,7 @@ import {
 import { notFound, redirect } from "next/navigation";
 import { createOgMetadata } from "@/lib/og";
 import { getMDXComponents } from "@/mdx-components";
-import { source } from "@/lib/source";
+import { source } from "@/lib/docs-source";
 import { getPageTreePeers } from "fumadocs-core/page-tree";
 import { getDocsNeighbours } from "@/lib/docs-neighbours";
 import { Card, Cards } from "@/components/pages/docs/fumadocs/card";
