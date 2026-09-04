@@ -36,11 +36,11 @@ const disabledRoutes = [
   "sitemap.ts",
 ];
 
-const run = (command, args) =>
+const run = (command, args, env = process.env) =>
   new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       cwd: docsRoot,
-      env: process.env,
+      env,
       stdio: "inherit",
     });
     child.on("error", reject);
@@ -82,8 +82,11 @@ try {
   ]);
   await run("pnpm", ["generate:type-docs"]);
   await run("pnpm", ["generate:source-snapshot"]);
-  process.env.ASSISTANT_UI_ZH_BUILD = "1";
-  await run("next", ["build"]);
+  await run("next", ["build"], {
+    ...process.env,
+    ASSISTANT_UI_ZH_BUILD: "1",
+    NODE_OPTIONS: "--max-old-space-size=6144",
+  });
 } finally {
   // Vercel packages files from Next's output traces after this command exits.
   // Keep the generated route there so its traced source still exists then.
