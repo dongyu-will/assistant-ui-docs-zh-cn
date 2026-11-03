@@ -3,9 +3,9 @@ title: 弃用政策
 description: assistant-ui 功能的稳定性保证和弃用时间表。
 ---
 
-assistant-ui 致力于提供稳定的 API，让你可以将时间投入到构建出色的应用上。
+assistant-ui 致力于保持 API 稳定。
 
-我们很少需要弃用已经发布的功能，因为这通常意味着该功能存在性能、可用性或安全问题。
+少数情况下，我们需要弃用已经发布的功能，因为该功能存在性能、可用性或安全问题。
 在这种情况下，我们会尽快通过将该功能标记为 `@deprecated` 并在文档中发布通知，传达移除该功能的意图。
 
 弃用和破坏性变更主要会影响新发布的功能。某个 API 在库中存在的时间越长，被弃用的可能性就越低。
@@ -13,18 +13,20 @@ assistant-ui 致力于提供稳定的 API，让你可以将时间投入到构建
 
 下面列出了被视为稳定和实验性的功能。
 
-## 实验性功能
+## 实验性功能 [#experimental-features]
 
-这些功能可能会在不另行通知的情况下随时被移除。
+这些功能可能在任何版本中发生变化。
 
-- 任何标记为 `unstable_`、`experimental_` 或 `internal` 的内容
-- `RuntimeCore` API（被视为内部 API）
+- 任何标记为 `unstable_` 或 `experimental_` 的内容
+- 任何标记为 `internal` 的内容，以及 `RuntimeCore` API（被视为内部 API）
 
-## Beta 功能
+实验性 API 带有内容为 `Experimental since <date>` 的 `@deprecated` 标记，编辑器会为其显示删除线（参见[稳定性](/docs/runtimes/concepts/stability#in-your-editor)）。只有在先前版本已将该标记替换为移除通知后，我们才会移除实验性 API。内部 API 则可能在不另行通知的情况下随时被移除。
+
+## Beta 功能 [#beta-features]
 
 弃用这些功能时，将经过较短的弃用通知期（&lt;1 个月）。
 
-- TailwindCSS 插件（例如 `tw-shimmer`、`tw-glass`）
+- TailwindCSS 插件（例如 `tw-shimmer`）
 - Context API
 - Runtime API
 - 消息类型
@@ -33,7 +35,7 @@ assistant-ui 致力于提供稳定的 API，让你可以将时间投入到构建
 - 附件 API
 - shadcn/ui 样式
 
-## 稳定功能
+## 稳定功能 [#stable-features]
 
 弃用这些功能时，将经过较长的弃用通知期（&gt;3 个月）。
 
