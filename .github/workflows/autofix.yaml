@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   autofix:
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
@@ -36,7 +36,7 @@ jobs:
       - name: Update API surface snapshots
         run: pnpm api-surface
 
-      - name: Update API reference pages
-        run: pnpm -C apps/docs generate:api-reference
+      - name: Check localized API reference
+        run: pnpm -C apps/docs check:api-reference:zh
 
       - uses: autofix-ci/action@c5b2d67aa2274e7b5a18224e8171550871fc7e4a # ratchet:autofix-ci/action@v1.3.4

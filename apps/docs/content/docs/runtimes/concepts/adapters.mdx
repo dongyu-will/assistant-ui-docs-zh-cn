@@ -5,7 +5,7 @@ description: 用于附件、语音、反馈、历史记录和建议的可复用�
 
 适配器是 assistant-ui 为运行时添加文件上传或消息持久化等能力的方式，同时不会将运行时耦合到特定后端。你只需实现一个小型接口，将其插入运行时的 `adapters` 选项中，相应的 UI 界面（回形针按钮、音频按钮、历史记录重新加载）就会自动启用。
 
-无论使用哪种运行时，本页中的每个适配器都以相同方式工作。当某个运行时支持适配器时，通过该运行时的 `adapters` 选项提供它：
+本页中的每个适配器，在支持它的各个运行时中都以相同方式工作。通过该运行时的 `adapters` 选项提供它：
 
 ```ts
 const runtime = useLocalRuntime(modelAdapter, {
@@ -19,38 +19,43 @@ const runtime = useLocalRuntime(modelAdapter, {
 const runtime = useChatRuntime({ adapters: { attachments, history } });
 ```
 
-## 支持矩阵
+## 支持矩阵 [#support-matrix]
 
-| 适配器 | LocalRuntime | ExternalStoreRuntime | DataStream | AssistantTransport | ai-sdk | react-langgraph | react-langchain | react-google-adk | react-a2a | react-ag-ui | react-opencode |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 附件 | 是 | 是 | 是 | 是 | 是 | （通过线程状态） | （通过线程状态） | 是 | 是 | 是 | （否） |
-| 语音 | 是 | 是 | 是 | （否） | 是 | 是 | 是 | 是 | 是 | 是 | （否） |
-| 听写 | 是 | 是 | 是 | （否） | 是 | 是 | （否） | 是 | （否） | 是 | （否） |
-| 反馈 | 是 | 是 | 是 | （否） | 是 | 是 | 是 | 是 | 是 | 是 | （否） |
-| 历史记录 | 是 | （使用你的存储） | 是 | （使用线程转换器） | 是 | （通过加载） | （通过加载） | 是 | 是 | 是 | （由服务器管理） |
-| 建议 | 是 | （否） | 是 | （否） | （否） | （否） | （否） | （否） | （否） | （否） | （否） |
-| threadList | 是（`RemoteThreadListAdapter`） | 是（`ExternalStoreThreadListAdapter`） | 是（`RemoteThreadListAdapter`） | 是 | 是 | 是 | 是 | 是 | 是 | 是（实验性） | 内置（会话） |
+| 适配器 | LocalRuntime | ExternalStoreRuntime | DataStream | AssistantTransport | ai-sdk | react-langgraph | react-langchain | react-google-adk | react-a2a | react-ag-ui | react-opencode | eve |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 附件 | 是 | 是 | 是 | 是 | 是 | 是 | 是 | 是 | 是 | 是 | 是 | 是 |
+| 语音 | 是 | 是 | 是 | （否） | 是 | 是 | 是 | 是 | 是 | 是 | 是 | 是 |
+| 听写 | 是 | 是 | 是 | （否） | 是 | 是 | 是 | 是 | 是 | 是 | 是 | 是 |
+| 反馈 | 是 | 是 | 是 | （否） | 是 | 是 | 是 | 是 | 是 | 是 | 是 | 是 |
+| 历史记录 | 是 | （使用你的存储） | 是 | （使用线程转换器） | 是 | （通过 load） | （通过线程状态） | （通过 load） | 是 | 是 | （由服务器管理） | （由服务器管理） |
+| 建议 | 是 | （否） | 是 | （否） | 是 | （否） | （否） | （否） | （否） | （否） | （否） | （否） |
+| threadList | 是 (`RemoteThreadListAdapter`) | 是 (`ExternalStoreThreadListAdapter`) | 是 (`RemoteThreadListAdapter`) | 是 | 是 | 是 | 是 | 是 | 是 | 是 （实验性） | 内置（会话） | 是 |
 
 `(no)` 表示该运行时目前未暴露适配器插槽。你需要下沉到更底层才能使用它。
 
-## 附件适配器
+## 附件适配器 [#attachment-adapter]
 
 用于处理文件和图片上传。启用后，输入框会渲染一个回形针按钮。
 
 ```ts
 type AttachmentAdapter = {
   accept: string;
-  add: (input: { file: File }) => Promise<PendingAttachment>;
-  send: (attachment: PendingAttachment) => Promise<CompleteAttachment>;
-  remove?: (attachment: Attachment) => Promise<void>;
+  add: (input: {
+    file: File;
+  }) => Promise<PendingAttachment> | AsyncGenerator<PendingAttachment, void>;
+  send: (
+    attachment: PendingAttachment,
+    options?: { signal?: AbortSignal },
+  ) => Promise<CompleteAttachment>;
+  remove: (attachment: Attachment) => Promise<void>;
 };
 ```
 
 三个生命周期方法：
 
-- `add` 在用户选择文件时运行。上传文件，并返回状态为 `requires-action` 的记录，使输入框在发送前保存该文件。
+- `add` 在用户选择文件时运行。上传文件，并返回一个状态为 `requires-action` 的待发送附件，使输入框在发送前保存该文件；也可以通过异步生成器依次产出该附件的状态。每次产出都必须使用同一个 `id`；使用其他 `id` 的结果会被忽略。
 - `send` 在用户提交消息时运行。完成上传，附加 `content` 负载，并将状态标记为 `complete`。
-- `remove` 为可选方法，在用户发送前移除附件时运行。
+- `remove` 在用户发送前移除附件时运行。
 
 最小上传并发送示例：
 
@@ -85,10 +90,13 @@ const attachmentAdapter: AttachmentAdapter = {
       ],
     };
   },
+  async remove() {
+    // Delete the uploaded file here if your backend keeps one.
+  },
 };
 ```
 
-如需支持多种文件类型，请使用 `CompositeAttachmentAdapter`：
+对于多种文件类型，使用 `CompositeAttachmentAdapter`：
 
 ```ts
 import {
@@ -103,9 +111,9 @@ const attachmentAdapter = new CompositeAttachmentAdapter([
 ]);
 ```
 
-## 语音适配器
+## 语音适配器 [#speech-adapter]
 
-用于助手消息的文本转语音。启用后，消息气泡会渲染一个音频按钮。
+将助手消息转换为语音。启用后，消息气泡会渲染一个音频按钮。
 
 ```ts
 type SpeechSynthesisAdapter = {
@@ -113,7 +121,7 @@ type SpeechSynthesisAdapter = {
 };
 ```
 
-`speak` 返回一个包含 `cancel()`、`status` 字段和 `subscribe(callback)` 的 `Utterance`。浏览器原生示例：
+`speak` 返回一个 `Utterance`，其中包含 `cancel()`、`status` 字段和 `subscribe(callback)`。使用浏览器原生能力的示例：
 
 ```ts
 const speechAdapter: SpeechSynthesisAdapter = {
@@ -142,72 +150,112 @@ const speechAdapter: SpeechSynthesisAdapter = {
 };
 ```
 
-## 听写适配器
+## 听写适配器 [#dictation-adapter]
 
-用于输入框的语音转文本。启用后，输入框会渲染一个麦克风按钮。其契约与语音适配器相似。
+为输入框提供语音转文字输入。启用后，输入框会渲染一个麦克风按钮。
 
-## 反馈适配器
+```ts
+type DictationAdapter = {
+  listen: () => DictationAdapter.Session;
+  disableInputDuringDictation?: boolean;
+};
+```
 
-用于对助手消息进行点赞或点踩。启用后，消息气泡会渲染反馈按钮。
+`listen` 返回一个会话，其中包含 `stop()`、`cancel()`、`status` 字段，以及 `onSpeechStart`、`onSpeech` 和 `onSpeechEnd` 订阅。
+
+## 反馈适配器 [#feedback-adapter]
+
+对助手消息点赞或点踩。启用后，消息气泡会渲染反馈按钮。
 
 ```ts
 type FeedbackAdapter = {
   submit: (feedback: {
     type: "positive" | "negative";
     message: ThreadMessage;
-  }) => Promise<void>;
+    comment?: string;
+  }) => void;
 };
 ```
 
+当调用方把意见传给 `submitFeedback({ type, comment })` 时，就会设置 `comment`，例如 FeedbackDialog 这样的表单会在点踩后提交意见。运行时会去掉首尾空白，并省略空意见。
+
 ```ts
 const feedbackAdapter: FeedbackAdapter = {
-  async submit({ type, message }) {
+  async submit({ type, message, comment }) {
     await fetch("/api/feedback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messageId: message.id, rating: type }),
+      body: JSON.stringify({ messageId: message.id, rating: type, comment }),
     });
   },
 };
 ```
 
-## 历史记录适配器
+## 历史记录适配器 [#history-adapter]
 
-用于按线程持久化消息。由 `LocalRuntime` 以及基于它构建的适配器使用（`ai-sdk`、`react-google-adk`、`react-a2a`、`useDataStreamRuntime`）。
+按线程持久化消息。由 `LocalRuntime`、`useDataStreamRuntime` 以及接受 `adapters.history` 的框架适配器（`ai-sdk`、`react-a2a`、`react-ag-ui`）使用。
 
-`ExternalStoreRuntime` 不会直接使用历史记录适配器，因为消息数组已经由你管理。请改为通过你的存储进行持久化。`react-langgraph` 和 `react-langchain` 从服务器端线程状态中获取持久化数据，并通过各自的 `load` 回调公开。
+`ExternalStoreRuntime` 不直接使用历史记录适配器，因为消息数组已经由你维护。请改为通过你的存储进行持久化。`react-langgraph` 和 `react-google-adk` 通过其 `load` 回调读取服务器端线程状态，`react-langchain` 则通过 `useStream` 读取。
 
 ```ts
 type ThreadHistoryAdapter = {
+  scopeId?: string;
   load: () => Promise<{
+    headId?: string | null;
     messages: { parentId: string | null; message: ThreadMessage }[];
   }>;
   append: (item: {
     parentId: string | null;
     message: ThreadMessage;
   }) => Promise<void>;
-  resume?: (input: {
-    messages: ThreadMessage[];
-  }) => Promise<ReadableStream | undefined>;
-  withFormat?: <Fmt>(fmt: Fmt) => ThreadHistoryAdapter;
+  update?: (item: {
+    parentId: string | null;
+    message: ThreadMessage;
+  }) => Promise<void>;
+  delete?: (
+    items: { parentId: string | null; message: ThreadMessage }[],
+  ) => Promise<void>;
+  resume?: (
+    options: ChatModelRunOptions,
+  ) => AsyncGenerator<ChatModelRunResult, void, unknown>;
+  withFormat?: <TMessage, TStorageFormat extends Record<string, unknown>>(
+    formatAdapter: MessageFormatAdapter<TMessage, TStorageFormat>,
+  ) => GenericThreadHistoryAdapter<TMessage>;
 };
 ```
 
-`load` 在线程打开时运行。`append` 在每条消息完成后运行。
+`load` 在线程打开时运行。`append` 在每条消息完成后运行；如果某条消息的运行尚未结束，后续轮次就已开始，也会提前运行。`update` 会原地改写已存储的消息，使运行时能够保存等待工具审批而暂停的运行，以及消息结束后才到达的工具结果；如果不提供它，暂停的运行会在结束或后续轮次开始时存储一次，此次追加之后运行新增的内容将不会被保存。
+
+当 `LocalRuntime` 可以切换账号、工作区或其他底层存储时，
+将 `scopeId` 设为该存储作用域的稳定标识符。为同一作用域重建适配器时，
+保持该标识符不变；加载其他作用域前，
+先更改它。切换作用域会停止属于原作用域的工作，清除其
+内存中的历史记录和输入框草稿，丢弃所有尚未返回的结果，并加载
+当前适配器。未提供 `scopeId` 的适配器会被视为共享同一个
+作用域。
+
+`scopeId` 目前仅适用于 `LocalRuntime`。AI SDK、AG-UI、A2A 及其他
+使用外部历史记录的运行时，在每次挂载时只加载一次历史记录，因此存储作用域变化时，
+需要重新挂载这些运行时。
+
+如果本地运行时写入历史记录失败，线程会发出 `historyWriteError`，其中包含尝试执行的 `operation`（`append`、`update` 或 `delete`）、受影响的 `messageIds`、可读的 `message` 和原始 `error`。存储会转发 `thread.historyWriteError`，并携带 `threadId`、`operation`、`messageIds` 和 `message`。监听器只有在绑定到受影响的线程时才能收到失败事件，因此切换离开某个线程后，该线程发生的写入失败不会传递给任何监听器；无论如何，运行时都会通过 `console.error` 记录每一次写入失败。返回给调用方的写入 Promise 仍会拒绝。external store 的历史记录副本在写入失败时仍只给出警告，不会发出此事件。
 
 <Callout type="info">
-`ai-sdk` 要求 `withFormat`，以便消息能够以 AI SDK `UIMessage` 对象的形式往返传递。在 AI SDK 路径中，不包含 `withFormat` 的适配器会在运行时抛出错误。完整模式请参阅 [AI SDK 历史记录文档](/docs/runtimes/ai-sdk/v7)。
+`ai-sdk` 要求提供 `withFormat`，以便消息能够以 AI SDK `UIMessage` 对象的形式往返转换。没有 `withFormat` 的适配器在 AI SDK 路径中会在运行时抛出错误。完整用法请参阅 [AI SDK 历史记录文档](/docs/runtimes/ai-sdk/v7)。
 </Callout>
 
-## 建议适配器
+## 建议适配器 [#suggestion-adapter]
 
-在每条助手消息之后提出后续提示。启用后，建议选项卡会渲染在最新的助手消息下方。
+在每条助手消息之后提出后续提示。启用后，建议选项会显示在最新的助手消息下方。
 
 ```ts
 type SuggestionAdapter = {
   generate: (input: {
     messages: readonly ThreadMessage[];
-  }) => AsyncGenerator<{ prompt: string }[]>;
+    signal?: AbortSignal;
+  }) =>
+    | Promise<readonly ThreadSuggestion[]>
+    | AsyncGenerator<readonly ThreadSuggestion[], void>;
 };
 ```
 
@@ -225,13 +273,13 @@ const suggestionAdapter: SuggestionAdapter = {
 };
 ```
 
-## 线程列表适配器
+## 线程列表适配器 [#thread-list-adapter]
 
-由于不同运行时的契约有所不同，多线程支持在单独的文档中介绍。请参阅[线程](/docs/runtimes/concepts/threads)。
+由于不同运行时的契约不同，多线程支持在单独的文档中说明。请参阅[线程](/docs/runtimes/concepts/threads)。
 
-## 组合适配器
+## 组合适配器 [#composing-adapters]
 
-适配器可以自由组合。根据需要提供任意数量的适配器；UI 界面会根据已填充的插槽启用相应功能。
+根据需要提供任意数量的适配器。UI 界面会根据已填充的插槽启用相应功能。
 
 ```ts
 const runtime = useLocalRuntime(modelAdapter, {
@@ -244,7 +292,7 @@ const runtime = useLocalRuntime(modelAdapter, {
 });
 ```
 
-## 相关内容
+## 相关内容 [#related]
 
 <Cards>
   <Card
@@ -254,7 +302,7 @@ const runtime = useLocalRuntime(modelAdapter, {
   />
   <Card
     title="架构"
-    description="三层运行时模型，以及适配器如何融入其中。"
+    description="三层运行时模型以及适配器如何融入其中。"
     href="/docs/runtimes/concepts/architecture"
   />
   <Card

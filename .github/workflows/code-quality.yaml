@@ -54,7 +54,7 @@ concurrency:
 jobs:
   lint:
     name: Oxlint + Oxfmt
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Checkout code repository
@@ -80,7 +80,7 @@ jobs:
 
   template-sync:
     name: Template Sync
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Checkout code repository
@@ -103,7 +103,7 @@ jobs:
 
   workspace-ranges:
     name: Workspace Ranges
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
       - name: Checkout code repository
@@ -125,7 +125,7 @@ jobs:
 
   build:
     name: Build Changed Packages
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Checkout code repository
@@ -192,7 +192,7 @@ jobs:
 
   build-apps:
     name: Build Changed Apps
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Checkout code repository
@@ -234,7 +234,7 @@ jobs:
 
   api-reference-drift:
     name: API Reference Drift
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Checkout code repository
@@ -274,6 +274,7 @@ jobs:
             "apps/docs/content/docs/(reference)/api-reference/" \
             "apps/docs/package.json" \
             "apps/docs/tsconfig.json" \
+            "apps/docs/translation/api-reference-source.json" \
             ".github/workflows/code-quality.yaml")"
           if [ -n "$changed" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
@@ -293,17 +294,16 @@ jobs:
         if: steps.api_ref.outputs.run == 'true'
         run: pnpm install --frozen-lockfile
 
-      - name: Generate API reference (strict)
+      - name: Check English generation and protected Chinese API reference
         if: steps.api_ref.outputs.run == 'true'
-        run: pnpm -C apps/docs generate:api-reference -- --strict
+        run: pnpm -C apps/docs check:api-reference:zh
 
-      - name: Fail on API reference drift
+      - name: Verify Chinese API reference was not rewritten
         if: steps.api_ref.outputs.run == 'true'
         run: |
           if git status --porcelain -- 'apps/docs/content/docs/(reference)/api-reference' | grep -q .; then
-            echo "API reference pages are stale. JSDoc or export changes are not reflected in apps/docs/content/docs/(reference)/api-reference."
-            echo "Run \`pnpm -C apps/docs generate:api-reference\` and commit the result."
-            echo "Durable hand-written prose belongs in source JSDoc or api-manual slots."
+            echo "The API check must preserve the Chinese reference tree."
+            echo "Run \`pnpm -C apps/docs check:api-reference:zh\` and review the reported source or translation drift."
             git status --porcelain -- 'apps/docs/content/docs/(reference)/api-reference'
             git diff -- 'apps/docs/content/docs/(reference)/api-reference'
             exit 1
@@ -311,7 +311,7 @@ jobs:
 
   test:
     name: Test Changed Packages
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     # assistant-stream's resumable store advertises a peer union over ioredis 5
     # and 6 and node-redis; both legs need a live server or their suites skip.

@@ -47,10 +47,21 @@ export const PRIMITIVE_DOCS_OUTPUT = path.join(
   "generated/primitiveDocs.ts",
 );
 
-export const API_REFERENCE_DIR = path.join(
+export const API_REFERENCE_CONTENT_DIR = path.join(
   DOCS_ROOT,
   "content/docs/(reference)/api-reference",
 );
+const referenceDirOption = process.argv.indexOf("--reference-dir");
+if (
+  referenceDirOption !== -1 &&
+  !path.isAbsolute(process.argv[referenceDirOption + 1] ?? "")
+) {
+  throw new Error("--reference-dir requires an absolute directory path");
+}
+export const API_REFERENCE_DIR =
+  referenceDirOption === -1
+    ? API_REFERENCE_CONTENT_DIR
+    : path.resolve(process.argv[referenceDirOption + 1]!);
 
 export const INTEGRATION_PACKAGES = [
   {

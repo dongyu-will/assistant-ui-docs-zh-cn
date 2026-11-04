@@ -4,13 +4,13 @@ description: 通过自定义编辑器界面，让用户编辑消息并重新生�
 platforms: ["react"]
 ---
 
-## 心智模型
+## 心智模型 [#mental-model]
 
 编辑会从对话中的过去某个位置重新提交消息，并创建一个新的分支。编辑消息之后的消息会被丢弃，助手会从该位置开始生成新的响应。每条用户消息都有独立的编辑输入框，但同一时间只能有一个处于激活状态。
 
 推荐通过 `children` 在 `ThreadPrimitive.Messages` 上提供的渲染属性来完成接入，根据 `message.role` 和 `message.composer.isEditing` 进行分支判断，并在需要时替换为编辑输入框。
 
-## 启用编辑支持
+## 启用编辑支持 [#enabling-edit-support]
 
 ```tsx
 import {
@@ -66,15 +66,15 @@ const AssistantMessage = () => {
 };
 ```
 
-`ActionBarPrimitive.Edit` 底层会调用 `aui.composer.beginEdit()`，并且当输入框已经处于编辑模式时会被禁用。
+`ActionBarPrimitive.Edit` 会调用 `aui.composer.beginEdit()`，并且当输入框已经处于编辑模式时会被禁用。
 
 `ComposerPrimitive.Cancel` 会调用 `aui.composer.cancel()`，退出编辑模式并恢复原始消息内容。完整的输入框 API 请参阅[输入框原语](/docs/primitives/composer)。
 
-## 检测编辑模式
+## 检测编辑模式 [#detecting-edit-mode]
 
 `isEditing` 标志同时可在 `ThreadComposerState` 和 `EditComposerState` 上使用，因此 `useAuiState((s) => s.composer.isEditing)` 可以在任意输入框上下文中工作。更符合惯用方式的做法是依赖渲染函数中的 `UserEditComposer` 插槽（如上所示），它会自动限定组件树的作用域，避免手动检查状态。
 
-## 命令式 API
+## 命令式 API [#imperative-api]
 
 `aui.composer.beginEdit()` 是以编程方式让消息进入编辑模式的入口。当未渲染 `ActionBarPrimitive.Edit` 时，可将其用于无头流程或键盘快捷键驱动的流程：
 
@@ -91,12 +91,12 @@ const EditButton = () => {
 
 `aui.composer.cancel()` 会退出编辑模式，但不会重新提交。
 
-## 流式传输期间编辑
+## 流式传输期间编辑 [#editing-while-streaming]
 
-如果用户在助手仍在生成响应时触发编辑模式，正在进行的运行会被取消，并从编辑后的消息开始创建新的分支。此 hook 不会阻止这一操作。如果你的 UI 应在流式传输期间禁止编辑，请在渲染 `ActionBarPrimitive.Edit` 或调用 `beginEdit()` 之前，根据线程运行状态控制编辑按钮是否可用。
+在助手仍在生成响应时进入编辑模式，不会取消正在进行的运行：`beginEdit()` 只会打开编辑输入框，`ActionBarPrimitive.Edit` 在流式传输期间也保持可用。如果你的 UI 应在流式传输期间禁止编辑，请在渲染 `ActionBarPrimitive.Edit` 或调用 `beginEdit()` 之前，根据 `s.thread.isRunning` 控制编辑按钮是否可用。
 
-## 参考
+## 参考 [#references]
 
-- [ActionBar 原语](/docs/primitives/action-bar) — `ActionBarPrimitive.Edit` 及相关操作
-- [输入框原语](/docs/primitives/composer) — 完整的输入框结构，包括 `Cancel`、`Send` 和 `Input`
-- [消息原语](/docs/primitives/message) — `MessagePrimitive.Root` 和内容部分
+- [ActionBar 原语](/docs/primitives/action-bar)：`ActionBarPrimitive.Edit` 及相关操作
+- [输入框原语](/docs/primitives/composer)：完整的输入框结构，包括 `Cancel`、`Send` 和 `Input`
+- [消息原语](/docs/primitives/message)：`MessagePrimitive.Root` 和内容部分
