@@ -3,9 +3,9 @@ title: 运行时架构
 description: 了解核心运行时、协议层和框架适配器如何协同工作。
 ---
 
-assistant-ui 在三个层级提供运行时集成。了解你所选择的层级，有助于明确每个运行时提供的能力，以及各层之间的功能流转方式。
+assistant-ui 在三个层级提供运行时集成。
 
-## 三个层级
+## 三个层级 [#the-three-layers]
 
 <Flow.Root
   llm={`graph TD
@@ -17,6 +17,7 @@ assistant-ui 在三个层级提供运行时集成。了解你所选择的层级�
       A5[react-a2a]
       A6[react-ag-ui]
       A7[react-opencode]
+      A8[eve]
     end
     subgraph Protocol["Protocol layers"]
       P1[DataStream]
@@ -33,6 +34,7 @@ assistant-ui 在三个层级提供运行时集成。了解你所选择的层级�
     A5 --> C2
     A6 --> C2
     A7 --> C2
+    A8 --> C2
     P1 --> C1
     P2 --> C2`}
 >
@@ -65,6 +67,7 @@ assistant-ui 在三个层级提供运行时集成。了解你所选择的层级�
           <Flow.Node>react-a2a</Flow.Node>
           <Flow.Node>react-ag-ui</Flow.Node>
           <Flow.Node>react-opencode</Flow.Node>
+          <Flow.Node>eve</Flow.Node>
         </Flow.Row>
       </Flow.Group>
     </div>
@@ -81,7 +84,7 @@ assistant-ui 在三个层级提供运行时集成。了解你所选择的层级�
 
 每个上层都基于下层实现。需要更多控制时，可以随时下沉到更底层，但大多数用户从框架层开始，并且不会接触其他层级。
 
-## 核心运行时
+## 核心运行时 [#core-runtimes]
 
 核心运行时拥有 assistant-ui 所定义运行时的全部内容：消息、线程、分支、编辑和重新生成状态，以及运行生命周期。其他所有层级都构建在其中一个核心运行时之上。
 
@@ -99,44 +102,45 @@ assistant-ui 在三个层级提供运行时集成。了解你所选择的层级�
 
 请参阅 [LocalRuntime](/docs/runtimes/custom/local-runtime) 和 [ExternalStoreRuntime](/docs/runtimes/custom/external-store) 以获取完整指南。
 
-## 协议层
+## 协议层 [#protocol-layers]
 
 协议层通过线路协议契约包装核心运行时，使通用后端无需每次都编写自定义的 `ChatModelAdapter`，即可与 assistant-ui 通信。
 
-**`DataStream`** 是一种消息流式传输协议。你的后端输出标准化的消息部分流（文本增量、工具调用），`useDataStreamRuntime` 则在 `LocalRuntime` 之上消费该消息流。它最接近“适用于任何后端的 AI SDK 风格流式传输”。
+**`DataStream`** 是一种消息流式传输协议。你的后端输出标准化的消息部分流（文本增量、工具调用），`useDataStreamRuntime` 则在 `LocalRuntime` 之上消费该消息流。它最接近适用于任何后端的 AI SDK 风格流式传输。
 
-**`AssistantTransport`** 是一种状态流式传输协议。你的后端发送代理状态的快照，运行时再基于 `ExternalStoreRuntime` 将其转换为 UI 消息。它最接近“流式传输完整的代理状态，而不仅仅是消息”。
+**`AssistantTransport`** 是一种状态流式传输协议。你的后端发送代理状态的快照，运行时再基于 `ExternalStoreRuntime` 将其转换为 UI 消息。它适用于流式传输完整的代理状态，而不仅仅是消息。
 
 | 协议 | 构建于 | 适用场景 |
 | --- | --- | --- |
 | DataStream | LocalRuntime | 你的后端已经支持 data stream 协议，或者你希望使用精简的消息流式传输契约 |
 | AssistantTransport | ExternalStoreRuntime | 你的代理拥有值得展示的内部状态，或者你需要双向命令和自定义命令类型 |
 
-## 框架适配器
+## 框架适配器 [#framework-adapters]
 
-这是最快的使用路径。每个适配器都会包装一个核心层或协议层，并添加特定于框架的便利功能。
+每个适配器都会包装一个核心层或协议层，并添加特定于框架的便利功能。
 
 | 适配器 | 构建于 | 目标 |
 | --- | --- | --- |
-| `ai-sdk` | `ExternalStoreRuntime` | Vercel AI SDK v7（`useChat`） |
+| `ai-sdk` | `ExternalStoreRuntime` | Vercel AI SDK v7 (`useChat`) |
 | `react-langgraph` | `ExternalStoreRuntime` | 通过 `@langchain/langgraph-sdk` 使用 LangGraph Cloud |
 | `react-langchain` | `ExternalStoreRuntime` | 通过 `@langchain/react` 的 `useStream` 使用 LangGraph Cloud |
 | `react-google-adk` | `ExternalStoreRuntime` | Google ADK JS 或 Python 代理 |
 | `react-a2a` | `ExternalStoreRuntime` | 任意 A2A v1.0 协议服务器 |
 | `react-ag-ui` | `ExternalStoreRuntime` | AG-UI 协议代理（CopilotKit、自定义服务器） |
 | `react-opencode` | `ExternalStoreRuntime` | OpenCode 编码代理服务器（实验性） |
+| `eve` | `ExternalStoreRuntime` | 通过 `useEveAgent` 使用 Eve 代理 |
 
 当适配器提供附件、语音或反馈等功能时，它使用的也是核心运行时所采用的相同[适配器接口](/docs/runtimes/concepts/adapters)。功能只需实现一次，即可在各个运行时中以相同方式工作。
 
-## 功能流转方式
+## 功能流转方式 [#how-features-flow]
 
 无论处于哪个层级，以下功能都遵循可预测的模式：
 
 - **适配器**（附件、语音、反馈、历史记录、建议）在各处都以相同方式配置，并遵循相同的契约。请参阅[适配器](/docs/runtimes/concepts/adapters)。
-- **线程**（单线程、云端、自定义数据库）对于基于 `LocalRuntime` 的运行时，通过共享的 `RemoteThreadListAdapter` 工作；对于 `ExternalStoreRuntime`，则使用单独的 `ExternalStoreThreadListAdapter`。请参阅[线程](/docs/runtimes/concepts/threads)。
+- **线程**（单线程、云端、自定义数据库）通过传给 `useRemoteThreadListRuntime` 的共享 `RemoteThreadListAdapter` 工作，前者可以包装任意运行时 hook。独立使用的 `ExternalStoreRuntime` 采用 `ExternalStoreThreadListAdapter`；接收 `cloud` 的运行时适配器则使用 Assistant Cloud 的远程线程列表适配器。请参阅[线程](/docs/runtimes/concepts/threads)。
 - **不稳定 API** 使用 `unstable_` 前缀提供，并且可能在任何版本中发生变化。请参阅[稳定性](/docs/runtimes/concepts/stability)。
 
-## 选择层级
+## 选择层级 [#choosing-a-layer]
 
 从顶层开始，仅在遇到阻碍时才向下选择。
 
@@ -146,7 +150,7 @@ assistant-ui 在三个层级提供运行时集成。了解你所选择的层级�
 
 如果你不确定，请从[选择运行时](/docs/runtimes/pick-a-runtime)开始。
 
-## 相关内容
+## 相关内容 [#related]
 
 <Cards>
   <Card
