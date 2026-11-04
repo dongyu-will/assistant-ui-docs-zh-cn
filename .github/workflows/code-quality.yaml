@@ -54,7 +54,7 @@ concurrency:
 jobs:
   lint:
     name: Oxlint + Oxfmt
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Checkout code repository
@@ -80,7 +80,7 @@ jobs:
 
   template-sync:
     name: Template Sync
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Checkout code repository
@@ -103,7 +103,7 @@ jobs:
 
   workspace-ranges:
     name: Workspace Ranges
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
       - name: Checkout code repository
@@ -125,7 +125,7 @@ jobs:
 
   build:
     name: Build Changed Packages
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Checkout code repository
@@ -192,7 +192,7 @@ jobs:
 
   build-apps:
     name: Build Changed Apps
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Checkout code repository
@@ -234,7 +234,7 @@ jobs:
 
   api-reference-drift:
     name: API Reference Drift
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Checkout code repository
@@ -311,7 +311,7 @@ jobs:
 
   test:
     name: Test Changed Packages
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     # assistant-stream's resumable store advertises a peer union over ioredis 5
     # and 6 and node-redis; both legs need a live server or their suites skip.
