@@ -10,7 +10,11 @@ export default {
     globals: true,
     // The generated repo source tree is a verbatim copy of the monorepo, and
     // vitest discovers dotted directories, so its tests would be collected here.
-    exclude: [...defaultExclude, "generated/.repo-source/**"],
+    exclude: [
+      ...defaultExclude,
+      "generated/.repo-source/**",
+      "scripts/translation/*.test.mjs",
+    ],
   },
   resolve: {
     alias: {
