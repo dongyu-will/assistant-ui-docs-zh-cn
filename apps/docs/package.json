@@ -9,6 +9,7 @@
     "build:zh": "node ./scripts/build-zh-site.mjs",
     "generate:type-docs": "tsx ./scripts/generate-type-docs.mts",
     "generate:api-reference": "tsx ./scripts/generate-api-reference.mts",
+    "check:api-reference:zh": "tsx ./scripts/check-api-reference-zh.mts",
     "generate:source-snapshot": "tsx ./scripts/generate-source-snapshot.mts",
     "start": "next start",
     "test": "vitest run && pnpm test:translation",

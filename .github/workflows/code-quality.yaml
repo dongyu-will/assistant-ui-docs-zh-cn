@@ -274,6 +274,7 @@ jobs:
             "apps/docs/content/docs/(reference)/api-reference/" \
             "apps/docs/package.json" \
             "apps/docs/tsconfig.json" \
+            "apps/docs/translation/api-reference-source.json" \
             ".github/workflows/code-quality.yaml")"
           if [ -n "$changed" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
@@ -293,17 +294,16 @@ jobs:
         if: steps.api_ref.outputs.run == 'true'
         run: pnpm install --frozen-lockfile
 
-      - name: Generate API reference (strict)
+      - name: Check English generation and protected Chinese API reference
         if: steps.api_ref.outputs.run == 'true'
-        run: pnpm -C apps/docs generate:api-reference -- --strict
+        run: pnpm -C apps/docs check:api-reference:zh
 
-      - name: Fail on API reference drift
+      - name: Verify Chinese API reference was not rewritten
         if: steps.api_ref.outputs.run == 'true'
         run: |
           if git status --porcelain -- 'apps/docs/content/docs/(reference)/api-reference' | grep -q .; then
-            echo "API reference pages are stale. JSDoc or export changes are not reflected in apps/docs/content/docs/(reference)/api-reference."
-            echo "Run \`pnpm -C apps/docs generate:api-reference\` and commit the result."
-            echo "Durable hand-written prose belongs in source JSDoc or api-manual slots."
+            echo "The API check must preserve the Chinese reference tree."
+            echo "Run \`pnpm -C apps/docs check:api-reference:zh\` and review the reported source or translation drift."
             git status --porcelain -- 'apps/docs/content/docs/(reference)/api-reference'
             git diff -- 'apps/docs/content/docs/(reference)/api-reference'
             exit 1

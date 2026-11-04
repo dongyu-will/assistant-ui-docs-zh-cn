@@ -36,7 +36,7 @@ jobs:
       - name: Update API surface snapshots
         run: pnpm api-surface
 
-      - name: Update API reference pages
-        run: pnpm -C apps/docs generate:api-reference
+      - name: Check localized API reference
+        run: pnpm -C apps/docs check:api-reference:zh
 
       - uses: autofix-ci/action@c5b2d67aa2274e7b5a18224e8171550871fc7e4a # ratchet:autofix-ci/action@v1.3.4
